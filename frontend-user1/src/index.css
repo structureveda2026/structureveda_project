@@ -1,0 +1,63 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap");
+
+@import "tailwindcss";
+
+:root {
+  --veda-primary: #ffb357;
+  --veda-background: #fff2d5;
+  --veda-text: #171717;
+  --veda-muted: #6f665b;
+}
+
+
+
+html {
+  font-family: "Manrope", sans-serif;
+}
+
+body{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Inter,sans-serif;
+    background:#F8FAFC;
+}
+
+/* body {
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--veda-background);
+  color: var(--veda-text);
+} */
+
+button,
+input {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+input::placeholder {
+  color: #8b8175;
+  opacity: 0.7;
+}
+
+::selection {
+  background: var(--veda-primary);
+  color: var(--veda-text);
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #fffaf0 inset;
+  -webkit-text-fill-color: #201b17;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 600;
+}

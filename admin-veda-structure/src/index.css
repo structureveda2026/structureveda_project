@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    @apply bg-cream-100 text-charcoal-800 font-sans;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #D9C7E3 transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-purple-200 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-purple-300;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-xl border border-cream-200 shadow-soft;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-saffron-500 text-white font-medium text-sm hover:bg-saffron-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-white text-charcoal-700 font-medium text-sm border border-cream-200 hover:bg-cream-100 transition-colors;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-charcoal-600 font-medium text-sm hover:bg-cream-100 transition-colors;
+  }
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-red-500 text-white font-medium text-sm hover:bg-red-600 transition-colors;
+  }
+  .input-field {
+    @apply w-full px-3.5 py-2.5 rounded-lg border border-cream-200 bg-white text-charcoal-800 text-sm placeholder:text-charcoal-300 focus:outline-none focus:ring-2 focus:ring-saffron-300 focus:border-saffron-300 transition;
+  }
+  .label-field {
+    @apply block text-sm font-medium text-charcoal-700 mb-1.5;
+  }
+  .table-row-hover {
+    @apply hover:bg-cream-50 transition-colors;
+  }
+}
