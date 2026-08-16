@@ -17,6 +17,14 @@ export const mockAstrologers = [
     unavailableSlots: ["3:00 PM"],
   },
   {
+    id: "ast-anurag", slug: "acharya-anurag-bhardwaj", name: "Acharya Anurag Bhardwaj", image: rahulImage,
+    title: "Vedic Astrologer", experience: 0, languages: [], expertise: [], rating: 0, reviews: "0", sessions: "0",
+    pricePerMinute: 0, currency: "₹", online: false, availability: "Coming soon",
+    about: "Acharya Anurag Bhardwaj is a Vedic astrologer. More details coming soon.",
+    specializations: [], consultationTypes: [],
+    availableSlots: { today: [], tomorrow: [], next: [] }, unavailableSlots: [],
+  },
+  {
     id: "ast-001", slug: "acharya-sanjay-sati", name: "Acharya Sanjay Sati", image: rahulImage,
     title: "Vedic Astrology & Life Guidance", experience: 18, languages: ["Hindi", "English", "Sanskrit"],
     expertise: ["Vedic Astrology", "Vastu", "Lal Kitab", "Marriage"], rating: 4.8, reviews: "2,100+", sessions: "5,400+",
