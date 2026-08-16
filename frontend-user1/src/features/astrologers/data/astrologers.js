@@ -6,6 +6,17 @@ import ananyaImage from "../../../assets/images/e-4.jpg";
 // This shape mirrors the data required from a future astrologer API.
 export const mockAstrologers = [
   {
+    id: "ast-vishal", slug: "vishal-bhardwaj", name: "Vishal Bhardwaj", image: keshavImage,
+    title: "Vedic Astrologer | Jyotish Consultant | Spiritual Guide", experience: 10, languages: ["Hindi", "English"],
+    expertise: ["Vedic Astrology", "Kundali Analysis", "Life Guidance"], rating: 4.9, reviews: "1,500+", sessions: "3,800+",
+    pricePerMinute: 36.67, currency: "₹", online: true, availability: "Available now",
+    about: "Vishal Bhardwaj is a dedicated Vedic astrologer from Kashi (Varanasi), offering personalized Kundali-based consultations. With over 10 years of experience, he provides practical guidance on career, marriage, relationships, finance, family, and life decisions. His approach focuses on understanding planetary positions, timing, and remedies rooted in traditional Vedic wisdom.",
+    specializations: ["Career & Job", "Business & Finance", "Marriage & Relationship", "Education", "Family & Property", "Remedies & Spiritual Guidance", "Foreign Travel", "Kundali-based Life Guidance"],
+    consultationTypes: ["Audio Call", "Video Call"],
+    availableSlots: { today: ["10:00 AM", "11:30 AM", "1:00 PM", "3:00 PM", "5:00 PM", "7:00 PM"], tomorrow: ["9:00 AM", "11:00 AM", "2:00 PM", "4:00 PM", "6:00 PM", "8:00 PM"], next: ["10:30 AM", "12:30 PM", "3:30 PM", "5:30 PM", "7:30 PM"] },
+    unavailableSlots: ["3:00 PM"],
+  },
+  {
     id: "ast-001", slug: "acharya-sanjay-sati", name: "Acharya Sanjay Sati", image: rahulImage,
     title: "Vedic Astrology & Life Guidance", experience: 18, languages: ["Hindi", "English", "Sanskrit"],
     expertise: ["Vedic Astrology", "Vastu", "Lal Kitab", "Marriage"], rating: 4.8, reviews: "2,100+", sessions: "5,400+",

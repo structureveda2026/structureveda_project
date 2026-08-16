@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Search, Heart, ShoppingBag, Menu, X } from "lucide-react";
+import { Search, Heart, ShoppingBag, Menu, X, ChevronDown, Clock } from "lucide-react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { logoutUser } from "../../features/auth/authSlice";
 import { useToast } from "../ui/toastContext";
+import AstrologerDropdown from "../common/AstrologerDropdown";
 
 const navLinkClass = ({ isActive }) =>
   `text-[14px] font-medium transition-colors ${
@@ -12,6 +13,7 @@ const navLinkClass = ({ isActive }) =>
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileAstrologerOpen, setIsMobileAstrologerOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { showToast } = useToast();
@@ -129,9 +131,7 @@ const Navbar = () => {
             Book a Consultation
           </NavLink>
 
-          <NavLink to="/astrologers" className={navLinkClass}>
-            Talk to an Astrologer
-          </NavLink>
+          <AstrologerDropdown />
         </nav>
 
         {/* =====================================================
@@ -259,13 +259,60 @@ const Navbar = () => {
               Book a Consultation
             </NavLink>
 
-            <NavLink
-              to="/astrologers"
-              onClick={() => setIsMenuOpen(false)}
-              className="border-b border-[#eee1ca] py-3 text-[14px] font-medium text-[#5f554a]"
-            >
-              Talk to an Astrologer
-            </NavLink>
+            {/* Mobile Astrologer Dropdown */}
+            <div className="border-b border-[#eee1ca]">
+              <button
+                type="button"
+                onClick={() => setIsMobileAstrologerOpen(!isMobileAstrologerOpen)}
+                className="flex w-full items-center justify-between py-3 text-left text-[14px] font-medium text-[#5f554a]"
+              >
+                Talk to an Astrologer
+                <ChevronDown
+                  size={16}
+                  className={`transition-transform ${isMobileAstrologerOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+              {isMobileAstrologerOpen && (
+                <div className="pb-3">
+                  <Link
+                    to="/astrologers/vishal-bhardwaj"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      setIsMobileAstrologerOpen(false);
+                    }}
+                    className="flex items-start gap-3 rounded-xl border border-[#e3ca97] bg-[#fffdf9] p-3 transition-all hover:bg-[#fffaf0]"
+                  >
+                    {/* Avatar */}
+                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-[#e1c995] bg-[#f8e7c2]">
+                      <img
+                        src="/src/assets/images/e-3.jpg"
+                        alt="Vishal Bhardwaj"
+                        className="h-full w-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                    </div>
+
+                    {/* Content */}
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-[13px] font-semibold text-[#2b241d]">
+                        Vishal Bhardwaj
+                      </h3>
+                      <p className="mt-0.5 text-[11px] text-[#75695c]">
+                        Vedic Astrologer
+                      </p>
+                      <div className="mt-1.5 flex items-center gap-1.5 text-[10px] text-[#8a7c6b]">
+                        <Clock size={11} className="text-[#c88918]" />
+                        <span>30 Min • ₹1,100</span>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </div>
 
             <NavLink
               to="/shop"
