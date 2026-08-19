@@ -2,20 +2,30 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowRight,
-  Check,
-  MessageCircle,
-  Sparkles,
   Heart,
   Briefcase,
   TrendingUp,
-  GraduationCap,
   Home as HomeIcon,
   ChevronDown,
   MapPin,
   Clock,
-  Shield
+  Sparkles,
+  Users,
+  Zap,
+  Star,
+  UserRound,
+  ShieldCheck,
 } from "lucide-react";
+import marriageImage from "../../../assets/images/guidance-marriage.png";
+import careerImage from "../../../assets/images/guidance-career.png";
+import familyImage from "../../../assets/images/guidance-family.png";
+import businessImage from "../../../assets/images/guidance-business.png";
+import financeImage from "../../../assets/images/guidance-finance.png";
+import remediesImage from "../../../assets/images/guidance-remedies.png";
 import vishalImage from "../../../assets/images/e-3.jpg";
+// import vedaAstroBackgroundImage from "../../../assets/images/vishal-vedic-astrology-bg1.png";
+import vedaAstroBackgroundImage from "../../../assets/images/vishal-vedic-astrology-bg1.png";
+import GuidanceExplorer from "../components/GuidanceExplorer";
 
 const VishalBhardwajDetails = () => {
   const navigate = useNavigate();
@@ -32,191 +42,1246 @@ const VishalBhardwajDetails = () => {
   const faqs = [
     {
       question: "Consultation कितने समय की है?",
-      answer: "30 minutes."
+      answer: "30 minutes.",
     },
     {
       question: "Consultation online होगी?",
-      answer: "हाँ, online audio/video consultation."
+      answer: "हाँ, online audio/video consultation.",
     },
     {
       question: "क्या मुझे अपनी Kundali पहले से बनवानी होगी?",
-      answer: "नहीं, यदि आपके पास birth details हैं तो आवश्यक chart analysis consultation के दौरान किया जा सकता है।"
+      answer:
+        "नहीं, यदि आपके पास birth details हैं तो आवश्यक chart analysis consultation के दौरान किया जा सकता है।",
     },
     {
       question: "क्या मैं multiple questions पूछ सकता हूँ?",
-      answer: "हाँ, लेकिन consultation का समय सीमित होने के कारण पहले अपने सबसे महत्वपूर्ण questions को प्राथमिकता देना बेहतर है।"
+      answer:
+        "हाँ, लेकिन consultation का समय सीमित होने के कारण पहले अपने सबसे महत्वपूर्ण questions को प्राथमिकता देना बेहतर है।",
     },
     {
       question: "क्या consultation confidential है?",
-      answer: "हाँ, आपकी personal और birth information को confidential रखा जाता है।"
+      answer:
+        "हाँ, आपकी personal और birth information को confidential रखा जाता है।",
     },
     {
       question: "क्या remedies भी बताई जाएंगी?",
-      answer: "यदि आपकी consultation के संदर्भ में आवश्यक हो, तो suitable Vedic remedies बताए जा सकते हैं।"
+      answer:
+        "यदि आपकी consultation के संदर्भ में आवश्यक हो, तो suitable Vedic remedies बताए जा सकते हैं।",
     },
     {
       question: "क्या consultation के बाद Puja/Rudrabhishek करवाना जरूरी है?",
-      answer: "नहीं। किसी भी remedy को आपकी specific situation और आवश्यकता के अनुसार समझाया जाना चाहिए।"
-    }
+      answer:
+        "नहीं। किसी भी remedy को आपकी specific situation और आवश्यकता के अनुसार समझाया जाना चाहिए।",
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-[#121212]">
-      {/* HERO SECTION */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#1E1A16] via-[#121212] to-[#1E1A16] px-5 py-20 sm:px-8 lg:px-12">
-        {/* Subtle background pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0" style={{
-            backgroundImage: 'radial-gradient(circle at 2px 2px, #C9A227 1px, transparent 0)',
-            backgroundSize: '40px 40px'
-          }} />
+    <div className="min-h-screen bg-[#fffaf0]">
+      {/* ========================================
+          HERO SECTION
+      ======================================== */}
+      <section className="relative isolate overflow-hidden border-b border-[#ead8b8] bg-[#f8edd8]">
+        {/* =========================================================
+      VEDIC ASTROLOGY BACKGROUND
+      Large decorative artwork behind the hero
+  ========================================================== */}
+        <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+          <img
+            src={vedaAstroBackgroundImage}
+            alt=""
+            aria-hidden="true"
+            className="
+        absolute
+        right-[-18%]
+        top-[-8%]
+        h-[125%]
+        w-[85%]
+        max-w-none
+        object-cover
+        object-right
+        opacity-[0.13]
+        mix-blend-multiply
+        animate-[veda-drift_70s_ease-in-out_infinite]
+        lg:right-[-12%]
+        lg:w-[78%]
+        lg:opacity-[0.14]
+      "
+          />
+
+          {/* Warm glow around the astrology artwork */}
+          <div
+            className="
+        absolute
+        right-[5%]
+        top-[12%]
+        h-[600px]
+        w-[600px]
+        rounded-full
+        bg-[#d4872b]/[0.07]
+        blur-[110px]
+      "
+          />
+
+          {/* Left-side readability gradient */}
+          <div
+            className="
+        absolute
+        inset-0
+        bg-gradient-to-r
+        from-[#f8edd8]
+        via-[#f8edd8]/95
+        to-[#f8edd8]/30
+      "
+          />
+
+          {/* Soft bottom fade */}
+          <div
+            className="
+        absolute
+        inset-x-0
+        bottom-0
+        h-32
+        bg-gradient-to-t
+        from-[#f8edd8]
+        to-transparent
+      "
+          />
         </div>
 
-        <div className="relative mx-auto max-w-[1240px]">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
-            {/* Left Content */}
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-              <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-[#C9A227]">
-                VEDIC ASTROLOGY • KASHI
+        {/* =========================================================
+      HERO CONTENT
+  ========================================================== */}
+        <div
+          className="
+      relative
+      z-10
+      mx-auto
+      grid
+      max-w-[1240px]
+      gap-12
+      px-5
+      py-20
+      sm:px-8
+      lg:grid-cols-2
+      lg:items-center
+      lg:gap-16
+      lg:px-12
+      lg:py-28
+    "
+        >
+          {/* =======================================================
+        LEFT CONTENT
+    ======================================================== */}
+          <div className="space-y-8">
+            <div className="space-y-3">
+              <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-[#d4872b]">
+                VEDIC ASTROLOGY • KASHI / VARANASI
               </p>
 
-              <h1 className="mt-6 font-serif text-[44px] leading-[1.1] text-[#F7F4ED] sm:text-[54px] lg:text-[58px]">
-                Your Kundali Holds the Answers.
-                <br />
-                <span className="text-[#E8D28A]">Let's Understand Them.</span>
+              <h1
+                className="
+            max-w-[700px]
+            font-serif
+            text-[44px]
+            leading-[1.05]
+            tracking-[-0.02em]
+            text-[#2b241d]
+            sm:text-[56px]
+            lg:text-[64px]
+          "
+              >
+                Astrologer Vishal Bhardwaj
               </h1>
 
-              <p className="mt-6 text-[16px] leading-8 text-[#C9A085]">
-                वैदिक ज्योतिष के माध्यम से अपनी कुंडली, समय और जीवन के महत्वपूर्ण
-                निर्णयों को बेहतर समझें।
+              <p
+                className="
+            max-w-[560px]
+            font-serif
+            text-[22px]
+            leading-[1.3]
+            tracking-[-0.01em]
+            text-[#75695c]
+            sm:text-[26px]
+          "
+              >
+                "Understand Your Kundali.
+                <br />
+                Find Clarity in Life."
+              </p>
+            </div>
+
+            <div className="max-w-[620px] space-y-4">
+              <p className="text-[16px] leading-8 text-[#75695c]">
+                Personalized Vedic Astrology consultation based on your birth
+                chart. Guidance on career, relationships, timing and life
+                decisions.
               </p>
 
-              <p className="mt-4 text-[14px] leading-7 text-[#B8A88F]">
-                Personalized Vedic Astrology Consultation with Astrologer Vishal
-                Bhardwaj
-              </p>
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="font-serif text-[32px] font-semibold text-[#2b241d]">
+                  Starting ₹1,100
+                </span>
 
-              <div className="mt-10 flex flex-wrap gap-4">
-                <button
-                  type="button"
-                  onClick={handleBookConsultation}
-                  className="group flex items-center gap-2 rounded-xl bg-[#C9A227] px-8 py-4 text-[14px] font-semibold text-[#121212] shadow-[0_12px_32px_rgba(201,162,39,0.3)] transition-all hover:scale-105 hover:bg-[#E8D28A]"
-                >
-                  BOOK 30-MIN CONSULTATION — ₹1,100
-                  <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-                </button>
-
-                <button
-                  type="button"
-                  className="flex items-center gap-2 rounded-xl border-2 border-[#3a3026] bg-transparent px-7 py-4 text-[14px] font-semibold text-[#F7F4ED] transition-all hover:border-[#C9A227] hover:bg-[#1E1A16]"
-                >
-                  <MessageCircle size={18} />
-                  WhatsApp Consultation
-                </button>
+                <span className="text-[14px] text-[#a39581]">
+                  30-minute consultation
+                </span>
               </div>
             </div>
 
-            {/* Right Image */}
-            <div className="relative animate-in fade-in slide-in-from-right-4 duration-700 delay-200">
-              <div className="relative overflow-hidden rounded-[32px] border-2 border-[#C9A227]/30">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#C9A227]/10 to-transparent" />
+            {/* CTA BUTTONS */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+              <button
+                type="button"
+                onClick={handleBookConsultation}
+                className="
+            group
+            inline-flex
+            items-center
+            justify-center
+            gap-2
+            rounded-full
+            bg-[#eab12c]
+            px-8
+            py-3.5
+            text-[14px]
+            font-semibold
+            text-[#2b241d]
+            shadow-[0_10px_25px_rgba(234,177,44,0.18)]
+            transition-all
+            duration-300
+            hover:-translate-y-1
+            hover:bg-[#dca522]
+            hover:shadow-[0_15px_35px_rgba(234,177,44,0.25)]
+          "
+              >
+                BOOK CONSULTATION
+                <ArrowRight
+                  size={17}
+                  className="transition-transform duration-300 group-hover:translate-x-1"
+                />
+              </button>
+
+              <button
+                type="button"
+                className="
+            inline-flex
+            items-center
+            justify-center
+            gap-2
+            rounded-full
+            border-2
+            border-[#d6b8a0]
+            bg-white/80
+            px-8
+            py-3.5
+            text-[14px]
+            font-semibold
+            text-[#2b241d]
+            backdrop-blur-sm
+            transition-all
+            duration-300
+            hover:-translate-y-1
+            hover:border-[#eab12c]
+            hover:bg-[#fffaf0]
+          "
+              >
+                EXPLORE CONSULTATION
+              </button>
+            </div>
+          </div>
+
+          {/* =======================================================
+        RIGHT IMAGE
+    ======================================================== */}
+          <div className="relative flex justify-center lg:justify-end">
+            {/* Warm atmospheric glow */}
+            <div
+              className="
+          absolute
+          right-0
+          top-1/2
+          h-[420px]
+          w-[420px]
+          -translate-y-1/2
+          rounded-full
+          bg-[#d4872b]/[0.10]
+          blur-[90px]
+        "
+            />
+
+            {/* Portrait */}
+            <div
+              className="
+          relative
+          z-10
+          w-full
+          max-w-[360px]
+          animate-[portrait-float_5s_ease-in-out_infinite]
+        "
+            >
+              <div
+                className="
+            relative
+            overflow-hidden
+            rounded-[28px]
+            border-2
+            border-[#d6b8a0]
+            bg-[#e8c99e]
+            shadow-[0_25px_60px_rgba(43,36,29,0.14)]
+          "
+              >
                 <img
                   src={vishalImage}
-                  alt="Vishal Bhardwaj"
-                  className="relative h-full w-full object-cover"
+                  alt="Vishal Bhardwaj - Vedic Astrologer"
+                  className="
+              h-full
+              w-full
+              object-cover
+              transition-transform
+              duration-700
+              hover:scale-[1.03]
+            "
                 />
+
+                {/* Warm image overlay */}
+                <div
+                  className="
+              pointer-events-none
+              absolute
+              inset-0
+              bg-gradient-to-t
+              from-[#2b241d]/[0.08]
+              via-transparent
+              to-[#fffaf0]/[0.08]
+            "
+                />
+
+                {/* Corner decoration */}
+                <div className="absolute left-6 top-6 h-10 w-10 border-l-2 border-t-2 border-[#d4872b]" />
+
+                <div className="absolute bottom-6 left-6 h-10 w-10 border-b-2 border-l-2 border-[#d4872b]" />
+
+                <div className="absolute right-6 top-6 h-10 w-10 border-r-2 border-t-2 border-[#d4872b]" />
               </div>
-              {/* Decorative element */}
-              <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full border-2 border-[#C9A227]/20 bg-gradient-to-br from-[#C9A227]/10 to-transparent blur-xl" />
-              <div className="absolute -bottom-4 -left-4 h-32 w-32 rounded-full border-2 border-[#C9A227]/20 bg-gradient-to-tr from-[#C9A227]/10 to-transparent blur-xl" />
+
+              {/* Experience badge */}
+              <div
+                className="
+            absolute
+            bottom-5
+            right-[-12px]
+            rounded-2xl
+            border-2
+            border-[#eab12c]
+            bg-[#fffaf0]/95
+            px-5
+            py-3
+            shadow-[0_10px_30px_rgba(43,36,29,0.12)]
+            backdrop-blur-sm
+          "
+              >
+                <p className="text-[13px] font-semibold text-[#2b241d]">
+                  10+ Years
+                </p>
+
+                <p className="text-[11px] text-[#75695c]">Experience</p>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* =========================================================
+      ANIMATIONS
+  ========================================================== */}
+        <style>{`
+    @keyframes veda-drift {
+      0%,
+      100% {
+        transform: scale(1.08) translate3d(0, 0, 0) rotate(0deg);
+      }
+
+      50% {
+        transform: scale(1.12) translate3d(-12px, 8px, 0) rotate(0.4deg);
+      }
+    }
+
+    @keyframes portrait-float {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .animate-\\[veda-drift_70s_ease-in-out_infinite\\],
+      .animate-\\[portrait-float_5s_ease-in-out_infinite\\] {
+        animation: none !important;
+      }
+    }
+
+    @media (max-width: 1023px) {
+      @keyframes veda-drift {
+        0%,
+        100% {
+          transform: scale(1.02);
+        }
+
+        50% {
+          transform: scale(1.04);
+        }
+      }
+    }
+  `}</style>
       </section>
 
-      {/* PROBLEM SECTION */}
-      <section className="bg-[#F7F4ED] px-5 py-20 sm:px-8 lg:px-12">
-        <div className="mx-auto max-w-[1240px]">
-          <div className="text-center">
-            <h2 className="font-serif text-[40px] text-[#24211D] sm:text-[48px]">
-              Life Feels Uncertain?
-            </h2>
-            <p className="mt-4 text-[17px] text-[#75695c]">
-              Your Kundali Can Give You Perspective.
-            </p>
-            <p className="mt-3 text-[14px] leading-7 text-[#8a7c6b]">
-              कभी-कभी समस्या यह नहीं होती कि रास्ता नहीं है — समस्या यह होती है कि सही समय और सही दिशा स्पष्ट नहीं होती।
-            </p>
-          </div>
+      {/* ========================================
+    TRUST BAR
+======================================== */}
+      <section
+        className="
+    relative
+    overflow-hidden
+    border-y
+    border-[#ead8b8]/60
+    bg-white
+  "
+      >
+        {/* ========================================
+      BACKGROUND DECORATIONS
+  ======================================== */}
 
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { icon: Heart, title: "Marriage & Relationships" },
-              { icon: Briefcase, title: "Career & Business" },
-              { icon: TrendingUp, title: "Finance & Wealth" },
-              { icon: HomeIcon, title: "Family & Life Decisions" }
-            ].map((area, index) => (
-              <div
-                key={area.title}
-                className="group rounded-2xl border-2 border-[#e3ca97] bg-white p-7 text-center transition-all hover:-translate-y-1 hover:border-[#C9A227] hover:shadow-[0_12px_32px_rgba(201,162,39,0.15)]"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <area.icon className="mx-auto h-10 w-10 text-[#C9A227] transition-transform group-hover:scale-110" />
-                <p className="mt-4 text-[15px] font-semibold text-[#24211D]">
-                  {area.title}
-                </p>
-              </div>
-            ))}
+        {/* Very subtle center glow */}
+        <div
+          className="
+      pointer-events-none
+      absolute
+      left-1/2
+      top-1/2
+      h-[400px]
+      w-[400px]
+      -translate-x-1/2
+      -translate-y-1/2
+      rounded-full
+      bg-[#eab12c]/[0.025]
+      blur-[110px]
+    "
+        />
+
+        {/* Left subtle glow */}
+        <div
+          className="
+      pointer-events-none
+      absolute
+      -left-32
+      top-1/2
+      h-[240px]
+      w-[240px]
+      -translate-y-1/2
+      rounded-full
+      bg-[#d4872b]/[0.025]
+      blur-[90px]
+    "
+        />
+
+        {/* Right subtle glow */}
+        <div
+          className="
+      pointer-events-none
+      absolute
+      -right-32
+      top-1/2
+      h-[240px]
+      w-[240px]
+      -translate-y-1/2
+      rounded-full
+      bg-[#eab12c]/[0.025]
+      blur-[90px]
+    "
+        />
+
+        {/* ========================================
+      MOVING TRACK
+  ======================================== */}
+        <div className="relative overflow-hidden py-8 sm:py-10">
+          <div
+            className="
+        flex
+        w-max
+        animate-[veda-marquee_38s_linear_infinite]
+        hover:[animation-play-state:paused]
+        motion-reduce:animate-none
+      "
+          >
+            {/* ========================================
+          FIRST SET
+      ======================================== */}
+            <div className="flex items-center">
+              {[
+                {
+                  label: "Vedic Astrology",
+                  description: "Ancient wisdom",
+                  Icon: Sparkles,
+                },
+                {
+                  label: "Personalized Guidance",
+                  description: "Based on your birth chart",
+                  Icon: UserRound,
+                },
+                {
+                  label: "Confidential",
+                  description: "Private & secure",
+                  Icon: ShieldCheck,
+                },
+                {
+                  label: "Kashi / Varanasi",
+                  description: "Rooted in tradition",
+                  Icon: MapPin,
+                },
+              ].map(({ label, description, Icon }, index) => (
+                <div key={`${label}-${index}`} className="flex items-center">
+                  {/* ========================================
+                TRUST CARD
+            ======================================== */}
+                  <div
+                    className="
+                group
+                relative
+                mx-4
+                flex
+                min-w-[210px]
+                cursor-default
+                flex-col
+                items-center
+                justify-center
+                rounded-[28px]
+                border
+                border-[#e6c98d]
+                bg-[#fff3d6]
+                px-7
+                py-5
+                text-center
+                shadow-[0_8px_25px_rgba(180,125,30,0.07)]
+                transition-all
+                duration-500
+                hover:-translate-y-1.5
+                hover:border-[#eab12c]
+                hover:bg-[#ffedc2]
+                hover:shadow-[0_18px_40px_rgba(180,125,30,0.16)]
+                sm:mx-5
+                sm:min-w-[225px]
+              "
+                  >
+                    {/* Top decorative accent */}
+                    <span
+                      className="
+                  pointer-events-none
+                  absolute
+                  left-1/2
+                  top-2
+                  h-1
+                  w-1
+                  -translate-x-1/2
+                  rounded-full
+                  bg-[#d4872b]/40
+                  transition-all
+                  duration-500
+                  group-hover:w-5
+                  group-hover:bg-[#eab12c]
+                "
+                    />
+
+                    {/* ========================================
+                  ICON
+              ======================================== */}
+                    <div
+                      className="
+                  mb-3
+                  flex
+                  h-12
+                  w-12
+                  items-center
+                  justify-center
+                  rounded-full
+                  border
+                  border-[#e6c98d]
+                  bg-[#fffaf0]
+                  text-[#d4872b]
+                  shadow-[0_4px_15px_rgba(180,125,30,0.08)]
+                  transition-all
+                  duration-500
+                  group-hover:scale-110
+                  group-hover:border-[#eab12c]
+                  group-hover:bg-[#eab12c]
+                  group-hover:text-[#2b241d]
+                  group-hover:shadow-[0_8px_25px_rgba(234,177,44,0.28)]
+                "
+                    >
+                      <Icon
+                        size={19}
+                        strokeWidth={1.7}
+                        className="transition-transform duration-500"
+                      />
+                    </div>
+
+                    {/* ========================================
+                  LABEL
+              ======================================== */}
+                    <p
+                      className="
+                  text-[13px]
+                  font-semibold
+                  tracking-[0.01em]
+                  text-[#2b241d]
+                  transition-colors
+                  duration-300
+                  group-hover:text-[#a86616]
+                "
+                    >
+                      {label}
+                    </p>
+
+                    {/* ========================================
+                  DESCRIPTION
+              ======================================== */}
+                    <p
+                      className="
+                  mt-1
+                  max-h-0
+                  overflow-hidden
+                  text-[11px]
+                  leading-5
+                  text-[#806f5b]
+                  opacity-0
+                  transition-all
+                  duration-500
+                  group-hover:max-h-8
+                  group-hover:opacity-100
+                "
+                    >
+                      {description}
+                    </p>
+
+                    {/* ========================================
+                  BOTTOM GOLD ACCENT
+              ======================================== */}
+                    <span
+                      className="
+                  absolute
+                  bottom-2
+                  left-1/2
+                  h-[2px]
+                  w-0
+                  -translate-x-1/2
+                  rounded-full
+                  bg-[#eab12c]
+                  transition-all
+                  duration-500
+                  group-hover:w-10
+                "
+                    />
+                  </div>
+
+                  {/* ========================================
+                ASTROLOGY SEPARATOR
+            ======================================== */}
+                  {index < 3 && (
+                    <div
+                      className="
+                  flex
+                  h-8
+                  w-8
+                  shrink-0
+                  items-center
+                  justify-center
+                  text-[#d4872b]/55
+                "
+                    >
+                      <span
+                        className="
+                    text-[11px]
+                    transition-all
+                    duration-300
+                    hover:scale-125
+                    hover:text-[#eab12c]
+                  "
+                      >
+                        ✦
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* ========================================
+          DUPLICATE SET
+          Seamless marquee animation
+      ======================================== */}
+            <div className="flex items-center" aria-hidden="true">
+              {[
+                {
+                  label: "Vedic Astrology",
+                  description: "Ancient wisdom",
+                  Icon: Sparkles,
+                },
+                {
+                  label: "Personalized Guidance",
+                  description: "Based on your birth chart",
+                  Icon: UserRound,
+                },
+                {
+                  label: "Confidential",
+                  description: "Private & secure",
+                  Icon: ShieldCheck,
+                },
+                {
+                  label: "Kashi / Varanasi",
+                  description: "Rooted in tradition",
+                  Icon: MapPin,
+                },
+              ].map(({ label, description, Icon }, index) => (
+                <div
+                  key={`${label}-duplicate-${index}`}
+                  className="flex items-center"
+                >
+                  {/* ========================================
+                TRUST CARD
+            ======================================== */}
+                  <div
+                    className="
+                group
+                relative
+                mx-4
+                flex
+                min-w-[210px]
+                cursor-default
+                flex-col
+                items-center
+                justify-center
+                rounded-[28px]
+                border
+                border-[#e6c98d]
+                bg-[#fff3d6]
+                px-7
+                py-5
+                text-center
+                shadow-[0_8px_25px_rgba(180,125,30,0.07)]
+                transition-all
+                duration-500
+                hover:-translate-y-1.5
+                hover:border-[#eab12c]
+                hover:bg-[#ffedc2]
+                hover:shadow-[0_18px_40px_rgba(180,125,30,0.16)]
+                sm:mx-5
+                sm:min-w-[225px]
+              "
+                  >
+                    {/* Top decorative accent */}
+                    <span
+                      className="
+                  pointer-events-none
+                  absolute
+                  left-1/2
+                  top-2
+                  h-1
+                  w-1
+                  -translate-x-1/2
+                  rounded-full
+                  bg-[#d4872b]/40
+                  transition-all
+                  duration-500
+                  group-hover:w-5
+                  group-hover:bg-[#eab12c]
+                "
+                    />
+
+                    {/* Icon */}
+                    <div
+                      className="
+                  mb-3
+                  flex
+                  h-12
+                  w-12
+                  items-center
+                  justify-center
+                  rounded-full
+                  border
+                  border-[#e6c98d]
+                  bg-[#fffaf0]
+                  text-[#d4872b]
+                  shadow-[0_4px_15px_rgba(180,125,30,0.08)]
+                  transition-all
+                  duration-500
+                  group-hover:scale-110
+                  group-hover:border-[#eab12c]
+                  group-hover:bg-[#eab12c]
+                  group-hover:text-[#2b241d]
+                  group-hover:shadow-[0_8px_25px_rgba(234,177,44,0.28)]
+                "
+                    >
+                      <Icon
+                        size={19}
+                        strokeWidth={1.7}
+                        className="transition-transform duration-500"
+                      />
+                    </div>
+
+                    {/* Label */}
+                    <p
+                      className="
+                  text-[13px]
+                  font-semibold
+                  tracking-[0.01em]
+                  text-[#2b241d]
+                  transition-colors
+                  duration-300
+                  group-hover:text-[#a86616]
+                "
+                    >
+                      {label}
+                    </p>
+
+                    {/* Description */}
+                    <p
+                      className="
+                  mt-1
+                  max-h-0
+                  overflow-hidden
+                  text-[11px]
+                  leading-5
+                  text-[#806f5b]
+                  opacity-0
+                  transition-all
+                  duration-500
+                  group-hover:max-h-8
+                  group-hover:opacity-100
+                "
+                    >
+                      {description}
+                    </p>
+
+                    {/* Bottom gold accent */}
+                    <span
+                      className="
+                  absolute
+                  bottom-2
+                  left-1/2
+                  h-[2px]
+                  w-0
+                  -translate-x-1/2
+                  rounded-full
+                  bg-[#eab12c]
+                  transition-all
+                  duration-500
+                  group-hover:w-10
+                "
+                    />
+                  </div>
+
+                  {/* Separator */}
+                  {index < 3 && (
+                    <div
+                      className="
+                  flex
+                  h-8
+                  w-8
+                  shrink-0
+                  items-center
+                  justify-center
+                  text-[#d4872b]/55
+                "
+                    >
+                      <span
+                        className="
+                    text-[11px]
+                    transition-all
+                    duration-300
+                    hover:scale-125
+                    hover:text-[#eab12c]
+                  "
+                      >
+                        ✦
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+
+        {/* ========================================
+      MARQUEE ANIMATION
+  ======================================== */}
+        <style>{`
+    @keyframes veda-marquee {
+      from {
+        transform: translateX(0);
+      }
+
+      to {
+        transform: translateX(-50%);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .motion-reduce\\:animate-none {
+        animation: none !important;
+      }
+    }
+  `}</style>
       </section>
 
-      {/* WHY CONSULT SECTION */}
-      <section className="bg-gradient-to-br from-[#1E1A16] to-[#121212] px-5 py-20 sm:px-8 lg:px-12">
-        <div className="mx-auto max-w-[1240px]">
-          <div className="text-center">
-            <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-[#C9A227]">
-              WHY CONSULT
+      {/* ========================================
+    WHAT DO YOU NEED GUIDANCE ABOUT?
+======================================== */}
+      <section
+        className="
+    relative
+    overflow-hidden
+    border-b
+    border-[#ead8b8]
+    bg-[#f8edd8]
+    px-5
+    py-20
+    sm:px-8
+    sm:py-24
+    lg:px-12
+    lg:py-28
+  "
+      >
+        {/* ========================================
+      BACKGROUND GLOW
+  ======================================== */}
+
+        <div
+          className="
+      pointer-events-none
+      absolute
+      -right-40
+      top-10
+      h-[520px]
+      w-[520px]
+      animate-[vedaGlow_9s_ease-in-out_infinite]
+      rounded-full
+      bg-[#eab12c]/[0.055]
+      blur-[120px]
+    "
+        />
+
+        <div
+          className="
+      pointer-events-none
+      absolute
+      -left-48
+      bottom-0
+      h-[400px]
+      w-[400px]
+      rounded-full
+      bg-[#d4872b]/[0.025]
+      blur-[110px]
+    "
+        />
+
+        {/* Very subtle center light */}
+        <div
+          className="
+      pointer-events-none
+      absolute
+      left-1/2
+      top-[42%]
+      h-[300px]
+      w-[300px]
+      -translate-x-1/2
+      -translate-y-1/2
+      rounded-full
+      bg-white/40
+      blur-[100px]
+    "
+        />
+
+        <div className="relative mx-auto max-w-[1240px]">
+          {/* ========================================
+        SECTION HEADER
+    ======================================== */}
+          <div
+            className="
+        mx-auto
+        mb-14
+        max-w-[720px]
+        text-center
+        animate-[vedaFadeUp_800ms_ease-out_both]
+      "
+          >
+            {/* Eyebrow */}
+            <div
+              className="
+          mb-5
+          flex
+          items-center
+          justify-center
+          gap-3
+        "
+            >
+              <span
+                className="
+            h-px
+            w-7
+            origin-right
+            animate-[vedaLine_900ms_ease-out_200ms_both]
+            bg-[#d4872b]
+          "
+              />
+
+              <p
+                className="
+            text-[10px]
+            font-semibold
+            uppercase
+            tracking-[0.34em]
+            text-[#c77722]
+          "
+              >
+                Consultation Areas
+              </p>
+
+              <span
+                className="
+            h-px
+            w-7
+            origin-left
+            animate-[vedaLine_900ms_ease-out_200ms_both]
+            bg-[#d4872b]
+          "
+              />
+            </div>
+
+            {/* Main heading */}
+            <h2
+              className="
+          font-serif
+          text-[38px]
+          font-medium
+          leading-[1.08]
+          tracking-[-0.035em]
+          text-[#2b241d]
+          sm:text-[48px]
+          lg:text-[54px]
+        "
+            >
+              What Would You Like
+              <br />
+              <span className="text-[#d4872b]">Clarity About?</span>
+            </h2>
+
+            {/* Short description */}
+            <p
+              className="
+          mx-auto
+          mt-5
+          max-w-[510px]
+          text-[14px]
+          leading-6
+          text-[#75695c]
+          sm:text-[15px]
+        "
+            >
+              Choose an area of life to explore personalized Vedic guidance and
+              important timings.
             </p>
-            <h2 className="mt-4 font-serif text-[40px] text-[#F7F4ED] sm:text-[48px]">
-              Astrology That Helps You Understand — Not Fear.
+          </div>
+
+          {/* ========================================
+        INTERACTIVE EXPLORER
+    ======================================== */}
+          <div
+            className="
+        animate-[vedaFadeUp_900ms_ease-out_250ms_both]
+      "
+          >
+            <GuidanceExplorer
+              marriageImage={marriageImage}
+              careerImage={careerImage}
+              familyImage={familyImage}
+              businessImage={businessImage}
+              financeImage={financeImage}
+              remediesImage={remediesImage}
+            />
+          </div>
+
+          {/* ========================================
+        BOTTOM TRUST MICRO-LINE
+    ======================================== */}
+          <div
+            className="
+        mt-10
+        flex
+        flex-wrap
+        items-center
+        justify-center
+        gap-x-4
+        gap-y-2
+        opacity-80
+        animate-[vedaFadeIn_1000ms_ease-out_600ms_both]
+      "
+          >
+            <span
+              className="
+          text-[10px]
+          font-medium
+          tracking-[0.02em]
+          text-[#806f5b]
+        "
+            >
+              Personalized guidance
+            </span>
+
+            <span className="text-[9px] text-[#d4872b]">✦</span>
+
+            <span
+              className="
+          text-[10px]
+          font-medium
+          tracking-[0.02em]
+          text-[#806f5b]
+        "
+            >
+              Based on your birth chart
+            </span>
+
+            <span className="text-[9px] text-[#d4872b]">✦</span>
+
+            <span
+              className="
+          text-[10px]
+          font-medium
+          tracking-[0.02em]
+          text-[#806f5b]
+        "
+            >
+              Private & confidential
+            </span>
+          </div>
+        </div>
+
+        {/* ========================================
+      ANIMATIONS
+  ======================================== */}
+        <style>{`
+    @keyframes vedaFadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(22px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes vedaFadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes vedaLine {
+      from {
+        opacity: 0;
+        transform: scaleX(0);
+      }
+
+      to {
+        opacity: 1;
+        transform: scaleX(1);
+      }
+    }
+
+    @keyframes vedaGlow {
+      0%,
+      100% {
+        transform: translate3d(0, 0, 0);
+        opacity: 0.7;
+      }
+
+      50% {
+        transform: translate3d(-25px, 20px, 0);
+        opacity: 1;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  `}</style>
+      </section>
+
+      {/* ========================================
+          WHY VISHAL BHARDWAJ?
+      ======================================== */}
+      <section className="border-b border-[#ead8b8] bg-white px-5 py-24 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-[1240px]">
+          <div className="mb-16 text-center">
+            <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-[#d4872b]">
+              WHY CHOOSE
+            </p>
+            <h2 className="mt-4 font-serif text-[40px] leading-[1.1] tracking-[-0.02em] text-[#2b241d] sm:text-[48px]">
+              Why Vishal Bhardwaj?
             </h2>
           </div>
 
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
                 number: "01",
                 title: "Vedic Approach",
-                description: "Traditional Vedic astrology principles और जन्म कुंडली के आधार पर analysis."
+                description:
+                  "Traditional Vedic astrology principles and Kundali-based analysis.",
               },
               {
                 number: "02",
                 title: "Personalized Analysis",
-                description: "हर व्यक्ति की कुंडली अलग होती है। इसलिए guidance भी personalized होगी।"
+                description:
+                  "Every Kundali is different, so the guidance is personalized.",
               },
               {
                 number: "03",
                 title: "Timing Matters",
-                description: "दशा, गोचर और planetary periods के आधार पर महत्वपूर्ण समय को समझना।"
+                description:
+                  "Understand important periods through Dasha, Gochar and planetary influences.",
               },
               {
                 number: "04",
                 title: "Practical Guidance",
-                description: "सिर्फ prediction नहीं — जहाँ उचित हो वहाँ practical remedies और actionable guidance."
-              }
+                description:
+                  "Guidance to understand the situation and identify suitable remedies.",
+              },
             ].map((item) => (
               <div
                 key={item.number}
-                className="group rounded-2xl border-2 border-[#3a3026] bg-[#1E1A16] p-6 transition-all hover:-translate-y-1 hover:border-[#C9A227] hover:shadow-[0_12px_32px_rgba(201,162,39,0.15)]"
+                className="group rounded-2xl border-2 border-[#d6b8a0] bg-white p-8 transition-all hover:-translate-y-2 hover:border-[#d4872b] hover:shadow-[0_16px_40px_rgba(212,135,43,0.12)]"
               >
-                <span className="inline-block rounded-lg bg-[#C9A227] px-3 py-1.5 text-[15px] font-bold text-[#121212]">
+                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#f8edd8] font-serif text-[18px] font-bold text-[#d4872b]">
                   {item.number}
-                </span>
-                <h3 className="mt-5 text-[17px] font-semibold text-[#F7F4ED]">
+                </div>
+                <h3 className="text-[17px] font-semibold text-[#2b241d]">
                   {item.title}
                 </h3>
-                <p className="mt-3 text-[14px] leading-7 text-[#B8A88F]">
+                <p className="mt-3 text-[14px] leading-7 text-[#75695c]">
                   {item.description}
                 </p>
               </div>
@@ -225,249 +1290,212 @@ const VishalBhardwajDetails = () => {
         </div>
       </section>
 
-      {/* CONSULTATION OFFER SECTION */}
-      <section className="bg-[#F7F4ED] px-5 py-20 sm:px-8 lg:px-12">
-        <div className="mx-auto max-w-[1040px]">
-          <div className="rounded-[32px] border-3 border-[#C9A227] bg-white p-10 shadow-[0_20px_60px_rgba(201,162,39,0.2)] sm:p-12">
-            <div className="text-center">
-              <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-[#C9A227]">
-                SPECIAL OFFER
-              </p>
-              <h2 className="mt-4 font-serif text-[38px] text-[#24211D]">
-                30-Minute Personal Astrology Consultation
-              </h2>
+      {/* ========================================
+          CONSULTATION PACKAGES
+      ======================================== */}
+      <section className="border-b border-[#ead8b8] bg-[#fffaf0] px-5 py-24 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-[1240px]">
+          <div className="mb-16 text-center">
+            <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-[#d4872b]">
+              PRICING
+            </p>
+            <h2 className="mt-4 font-serif text-[40px] leading-[1.1] tracking-[-0.02em] text-[#2b241d] sm:text-[48px]">
+              Consultation Packages
+            </h2>
+            <p className="mt-4 text-[16px] text-[#75695c]">
+              Choose the consultation package that works for you
+            </p>
+          </div>
 
-              <div className="mt-8 flex flex-wrap justify-center gap-8 text-[14px]">
-                <span className="flex items-center gap-2 text-[#675b50]">
-                  <Check size={18} className="text-[#C9A227]" />
-                  One-on-One
-                </span>
-                <span className="flex items-center gap-2 text-[#675b50]">
-                  <Check size={18} className="text-[#C9A227]" />
-                  30 Minutes
-                </span>
-                <span className="flex items-center gap-2 text-[#675b50]">
-                  <Check size={18} className="text-[#C9A227]" />
-                  Audio / Video
-                </span>
-              </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+            {[
+              {
+                price: "₹1,100",
+                duration: "30 minutes",
+                label: "Consultation",
+              },
+              {
+                price: "₹2,100",
+                duration: "1 hour",
+                label: "Personal Consultation",
+              },
+              {
+                price: "₹5,100",
+                duration: "1.5 hours",
+                label: "Premium Consultation",
+              },
+              {
+                price: "₹11,000",
+                duration: "3 hours",
+                label: "Extended Consultation",
+              },
+              {
+                price: "₹21,000",
+                duration: "Full Session",
+                label: "Comprehensive Consultation",
+              },
+            ].map((pkg, index) => {
+              const isHighlighted = index === 0;
+              return (
+                <div
+                  key={index}
+                  className={`rounded-2xl border-2 p-7 transition-all hover:-translate-y-2 ${
+                    isHighlighted
+                      ? "border-[#d4872b] bg-[#f8edd8] shadow-[0_16px_40px_rgba(212,135,43,0.15)]"
+                      : "border-[#ead8b8] bg-white hover:border-[#d4872b] hover:shadow-[0_16px_40px_rgba(212,135,43,0.12)]"
+                  }`}
+                >
+                  {isHighlighted && (
+                    <span className="inline-block rounded-full bg-[#d4872b] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-white">
+                      Popular
+                    </span>
+                  )}
 
-              <div className="mt-8 flex items-center justify-center gap-4">
-                <span className="font-serif text-[52px] text-[#24211D]">
-                  ₹1,100
-                </span>
-                <span className="text-[28px] text-[#b4aa9d] line-through">
-                  ₹1,500
-                </span>
-              </div>
+                  <p className="mt-4 text-[13px] uppercase tracking-[0.16em] text-[#a39581]">
+                    {pkg.label}
+                  </p>
 
-              <button
-                type="button"
-                onClick={handleBookConsultation}
-                className="group mt-8 inline-flex items-center gap-2 rounded-xl bg-[#C9A227] px-10 py-4 text-[15px] font-semibold text-[#121212] shadow-[0_12px_32px_rgba(201,162,39,0.3)] transition-all hover:scale-105 hover:bg-[#E8D28A]"
-              >
-                BOOK MY CONSULTATION
-                <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
-              </button>
-
-              <p className="mt-6 text-[13px] text-[#75695c]">
-                Consultation is personalized according to your birth details and specific concerns.
-              </p>
-            </div>
-
-            <div className="mt-12 border-t border-[#e3ca97] pt-10">
-              <p className="text-center text-[12px] font-bold uppercase tracking-[0.2em] text-[#75695c]">
-                TOPICS COVERED IN YOUR CONSULTATION
-              </p>
-
-              <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {[
-                  "Career & Job",
-                  "Business",
-                  "Marriage",
-                  "Relationship",
-                  "Finance",
-                  "Family",
-                  "Education",
-                  "Property",
-                  "Foreign Travel",
-                  "Kundali-based Life Guidance",
-                  "Remedies & Muhurat"
-                ].map((topic) => (
-                  <div
-                    key={topic}
-                    className="flex items-center gap-2 text-[13px] text-[#5f554a]"
+                  <p
+                    className={`mt-3 font-serif text-[36px] font-semibold ${isHighlighted ? "text-[#2b241d]" : "text-[#2b241d]"}`}
                   >
-                    <Check size={16} className="shrink-0 text-[#C9A227]" />
-                    {topic}
-                  </div>
-                ))}
-              </div>
-            </div>
+                    {pkg.price}
+                  </p>
+
+                  <p className="mt-2 text-[13px] text-[#75695c]">
+                    {pkg.duration}
+                  </p>
+
+                  <button
+                    onClick={handleBookConsultation}
+                    className={`mt-6 w-full rounded-full px-5 py-3 text-[14px] font-semibold transition-all ${
+                      isHighlighted
+                        ? "bg-[#d4872b] text-white hover:bg-[#c27322]"
+                        : "border-2 border-[#d4872b] text-[#d4872b] hover:bg-[#d4872b] hover:text-white"
+                    }`}
+                  >
+                    BOOK NOW
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* CONSULTATION PROCESS SECTION */}
-      <section className="bg-gradient-to-br from-[#121212] to-[#1E1A16] px-5 py-20 sm:px-8 lg:px-12">
+      {/* ========================================
+          WHAT YOU GET
+      ======================================== */}
+      <section className="border-b border-[#ead8b8] bg-[#f8edd8] px-5 py-24 sm:px-8 lg:px-12">
         <div className="mx-auto max-w-[1240px]">
-          <div className="text-center">
-            <h2 className="font-serif text-[40px] text-[#F7F4ED] sm:text-[48px]">
-              What Happens During Your Consultation?
+          <div className="mb-16 text-center">
+            <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-[#d4872b]">
+              PROCESS
+            </p>
+            <h2 className="mt-4 font-serif text-[40px] leading-[1.1] tracking-[-0.02em] text-[#2b241d] sm:text-[48px]">
+              What You Get
             </h2>
+            <p className="mt-4 text-[16px] text-[#75695c]">
+              A clear 4-step consultation process
+            </p>
           </div>
 
-          <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-8 md:grid-cols-4">
             {[
               {
                 number: "01",
                 title: "Kundali Analysis",
-                description: "आपकी birth details के आधार पर chart analysis."
+                description:
+                  "Detailed analysis of your birth chart based on your birth details.",
               },
               {
                 number: "02",
-                title: "Understand the Situation",
-                description: "वर्तमान planetary influences और relevant life areas को समझना।"
+                title: "Understand Your Situation",
+                description:
+                  "Discuss your current circumstances and planetary influences.",
               },
               {
                 number: "03",
                 title: "Timing & Possibilities",
-                description: "दशा/गोचर आदि के आधार पर important periods पर चर्चा।"
+                description:
+                  "Understand important periods through Dasha and Gochar.",
               },
               {
                 number: "04",
                 title: "Guidance & Remedies",
-                description: "जहाँ आवश्यक हो, suitable Vedic remedies और practical guidance."
-              }
+                description:
+                  "Receive practical guidance and suitable Vedic remedies.",
+              },
             ].map((step, index) => (
-              <div
-                key={step.number}
-                className="group relative rounded-2xl border-2 border-[#3a3026] bg-[#1E1A16] p-7 transition-all hover:-translate-y-2 hover:border-[#C9A227] hover:shadow-[0_16px_40px_rgba(201,162,39,0.2)]"
-                style={{ animationDelay: `${index * 150}ms` }}
-              >
-                <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#C9A227] font-serif text-[20px] font-bold text-[#121212]">
-                  {step.number}
+              <div key={index} className="relative">
+                <div className="rounded-2xl border-2 border-[#d6b8a0] bg-white p-7">
+                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#eab12c] font-serif text-[18px] font-bold text-[#2b241d]">
+                    {step.number}
+                  </div>
+                  <h3 className="text-[16px] font-semibold text-[#2b241d]">
+                    {step.title}
+                  </h3>
+                  <p className="mt-3 text-[14px] leading-6 text-[#75695c]">
+                    {step.description}
+                  </p>
                 </div>
-                <h3 className="text-[17px] font-semibold text-[#F7F4ED]">
-                  {step.title}
-                </h3>
-                <p className="mt-3 text-[14px] leading-7 text-[#B8A88F]">
-                  {step.description}
-                </p>
+
+                {/* Connector line (hidden on mobile) */}
+                {index < 3 && (
+                  <div className="absolute -right-4 top-1/2 hidden h-0.5 w-8 bg-[#d6b8a0] md:block" />
+                )}
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* AREAS OF GUIDANCE SECTION */}
-      <section className="bg-[#F7F4ED] px-5 py-20 sm:px-8 lg:px-12">
+      {/* ========================================
+          ABOUT VISHAL BHARDWAJ
+      ======================================== */}
+      <section className="border-b border-[#ead8b8] bg-[#fffaf0] px-5 py-24 sm:px-8 lg:px-12">
         <div className="mx-auto max-w-[1240px]">
-          <div className="text-center">
-            <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-[#C9A227]">
-              AREAS OF GUIDANCE
-            </p>
-            <h2 className="mt-4 font-serif text-[40px] text-[#24211D] sm:text-[48px]">
-              What Can We Discuss?
-            </h2>
-          </div>
-
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              { icon: Briefcase, title: "Career & Job", description: "Professional direction और career decisions" },
-              { icon: Heart, title: "Marriage & Relationship", description: "Partnership और relationship guidance" },
-              { icon: TrendingUp, title: "Business & Finance", description: "Financial planning और business timing" },
-              { icon: GraduationCap, title: "Education", description: "Educational choices और learning paths" },
-              { icon: HomeIcon, title: "Family & Property", description: "Family matters और property decisions" },
-              { icon: Sparkles, title: "Remedies & Spiritual Guidance", description: "Vedic remedies और spiritual practices" }
-            ].map((area) => (
-              <div
-                key={area.title}
-                className="group rounded-2xl border-2 border-[#e3ca97] bg-white p-7 transition-all hover:-translate-y-1 hover:border-[#C9A227] hover:shadow-[0_12px_32px_rgba(201,162,39,0.15)]"
-              >
-                <area.icon className="h-9 w-9 text-[#C9A227] transition-transform group-hover:scale-110" />
-                <h3 className="mt-4 text-[16px] font-semibold text-[#24211D]">
-                  {area.title}
-                </h3>
-                <p className="mt-2 text-[13px] leading-6 text-[#75695c]">
-                  {area.description}
-                </p>
-                <button className="mt-4 flex items-center gap-1 text-[12px] font-semibold text-[#C9A227] transition-all group-hover:gap-2">
-                  Explore Consultation
-                  <ArrowRight size={14} />
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ASTROLOGER PROFILE SECTION */}
-      <section id="profile" className="bg-gradient-to-br from-[#1E1A16] to-[#121212] px-5 py-20 sm:px-8 lg:px-12">
-        <div className="mx-auto max-w-[1040px]">
-          <div className="text-center">
-            <h2 className="font-serif text-[40px] text-[#F7F4ED] sm:text-[48px]">
-              Meet Astrologer Vishal Bhardwaj
-            </h2>
-            <p className="mt-4 text-[16px] text-[#E8D28A]">
-              Vedic Astrologer | Jyotish Consultant | Spiritual Guide
-            </p>
-          </div>
-
-          <div className="mt-12 grid gap-10 lg:grid-cols-[320px_1fr]">
-            <div className="mx-auto">
-              <div className="overflow-hidden rounded-[28px] border-2 border-[#C9A227]/30">
-                <img
-                  src={vishalImage}
-                  alt="Vishal Bhardwaj"
-                  className="h-full w-full object-cover"
-                />
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+            {/* Image */}
+            <div className="flex justify-center">
+              <div className="w-full max-w-[340px]">
+                <div className="relative overflow-hidden rounded-[24px] border-2 border-[#d6b8a0] shadow-[0_20px_50px_rgba(43,36,29,0.1)]">
+                  <img
+                    src={vishalImage}
+                    alt="Vishal Bhardwaj"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="space-y-5">
-              <div className="rounded-2xl border-2 border-[#3a3026] bg-[#1E1A16] p-7">
-                <p className="text-[15px] leading-8 text-[#E8D28A]">
-                  <strong className="font-semibold text-[#F7F4ED]">
+            {/* Content */}
+            <div className="space-y-6">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-[#d4872b]">
+                  ABOUT
+                </p>
+                <h2 className="mt-4 font-serif text-[40px] leading-[1.1] tracking-[-0.02em] text-[#2b241d]">
+                  About Vishal Bhardwaj
+                </h2>
+              </div>
+
+              <div className="space-y-4 text-[15px] leading-8 text-[#75695c]">
+                <p>
+                  <strong className="font-semibold text-[#2b241d]">
                     Vishal Bhardwaj
                   </strong>{" "}
                   is a dedicated Vedic astrologer from{" "}
-                  <strong className="font-semibold text-[#F7F4ED]">
+                  <strong className="font-semibold text-[#2b241d]">
                     Kashi (Varanasi)
                   </strong>
                   , offering personalized Kundali-based consultations with over{" "}
-                  <strong className="font-semibold text-[#F7F4ED]">
+                  <strong className="font-semibold text-[#2b241d]">
                     10 years of experience
                   </strong>
                   .
                 </p>
-              </div>
 
-              <div className="grid gap-5 sm:grid-cols-2">
-                <div className="rounded-xl border-2 border-[#3a3026] bg-[#1E1A16] p-6">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#C9A227]">
-                    SPECIALIZATION
-                  </p>
-                  <p className="mt-3 text-[15px] font-semibold text-[#F7F4ED]">
-                    Vedic Astrology
-                  </p>
-                </div>
-
-                <div className="rounded-xl border-2 border-[#3a3026] bg-[#1E1A16] p-6">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#C9A227]">
-                    LOCATION
-                  </p>
-                  <div className="mt-3 flex items-center gap-2">
-                    <MapPin size={16} className="text-[#C9A227]" />
-                    <p className="text-[15px] font-semibold text-[#F7F4ED]">
-                      Kashi / Varanasi
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border-2 border-[#3a3026] bg-[#1E1A16] p-7">
-                <p className="text-[15px] leading-8 text-[#B8A88F]">
+                <p>
                   He provides practical guidance on career, marriage,
                   relationships, finance, family, and life decisions. His
                   approach focuses on understanding planetary positions, timing,
@@ -475,112 +1503,224 @@ const VishalBhardwajDetails = () => {
                 </p>
               </div>
 
+              <div className="space-y-3">
+                <div className="flex gap-3">
+                  <MapPin size={20} className="shrink-0 text-[#d4872b]" />
+                  <div>
+                    <p className="text-[13px] font-semibold uppercase tracking-[0.16em] text-[#a39581]">
+                      Location
+                    </p>
+                    <p className="text-[15px] font-semibold text-[#2b241d]">
+                      Kashi / Varanasi
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <Clock size={20} className="shrink-0 text-[#d4872b]" />
+                  <div>
+                    <p className="text-[13px] font-semibold uppercase tracking-[0.16em] text-[#a39581]">
+                      Experience
+                    </p>
+                    <p className="text-[15px] font-semibold text-[#2b241d]">
+                      10+ Years in Vedic Astrology
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <Users size={20} className="shrink-0 text-[#d4872b]" />
+                  <div>
+                    <p className="text-[13px] font-semibold uppercase tracking-[0.16em] text-[#a39581]">
+                      Specialization
+                    </p>
+                    <p className="text-[15px] font-semibold text-[#2b241d]">
+                      Vedic Astrology & Kundali Analysis
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <button
                 onClick={handleBookConsultation}
-                className="group flex w-full items-center justify-center gap-2 rounded-xl border-2 border-[#C9A227] bg-transparent px-6 py-4 text-[14px] font-semibold text-[#C9A227] transition-all hover:bg-[#C9A227] hover:text-[#121212]"
+                className="inline-flex items-center gap-2 rounded-full bg-[#eab12c] px-8 py-3.5 text-[14px] font-semibold text-[#2b241d] shadow-[0_10px_25px_rgba(234,177,44,0.18)] transition-all hover:-translate-y-1 hover:bg-[#dca522]"
               >
-                KNOW MORE ABOUT VISHAL BHARDWAJ
-                <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+                BOOK CONSULTATION
+                <ArrowRight size={17} />
               </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* KASHI DIFFERENTIATOR SECTION */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#2b241d] via-[#1E1A16] to-[#121212] px-5 py-24 sm:px-8 lg:px-12">
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0" style={{
-            backgroundImage: 'radial-gradient(circle at 2px 2px, #C9A227 1px, transparent 0)',
-            backgroundSize: '60px 60px'
-          }} />
-        </div>
+      {/* ========================================
+          KASHI / VARANASI SECTION
+      ======================================== */}
+      <section className="border-b border-[#ead8b8] bg-[#f8edd8] px-5 py-24 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-[900px] text-center">
+          <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-[#d4872b]">
+            SPIRITUAL HERITAGE
+          </p>
 
-        <div className="relative mx-auto max-w-[1040px] text-center">
-          <h2 className="font-serif text-[40px] text-[#F7F4ED] sm:text-[48px]">
-            Guidance From The Spiritual Heart of India
+          <h2 className="mt-4 font-serif text-[40px] leading-[1.1] tracking-[-0.02em] text-[#2b241d] sm:text-[48px]">
+            Kashi / Varanasi
           </h2>
-          <p className="mt-6 text-[17px] leading-8 text-[#E8D28A]">
-            Based in Kashi — a land deeply connected with the living traditions of Sanatan Dharma and Jyotish.
+
+          <p className="mt-6 text-[17px] leading-8 text-[#75695c]">
+            Vishal Bhardwaj is based in Kashi — a land deeply connected with the
+            living traditions of Sanatan Dharma and Vedic wisdom. Kashi's
+            spiritual resonance has been a center of learning and enlightenment
+            for millennia, making it the perfect place for Vedic Astrology
+            consultation.
+          </p>
+
+          <p className="mt-4 text-[15px] leading-7 text-[#75695c]">
+            The spiritual energy of Kashi embodies the principles of clarity,
+            transformation, and understanding — values that guide every
+            consultation.
           </p>
 
           <button
             onClick={handleBookConsultation}
-            className="group mt-10 inline-flex items-center gap-2 rounded-xl bg-[#C9A227] px-10 py-4 text-[15px] font-semibold text-[#121212] shadow-[0_12px_32px_rgba(201,162,39,0.3)] transition-all hover:scale-105 hover:bg-[#E8D28A]"
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#eab12c] px-8 py-3.5 text-[14px] font-semibold text-[#2b241d] shadow-[0_10px_25px_rgba(234,177,44,0.18)] transition-all hover:-translate-y-1 hover:bg-[#dca522]"
           >
-            BOOK A CONSULTATION
-            <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+            CONNECT WITH VISHAL
+            <ArrowRight size={17} />
           </button>
         </div>
       </section>
 
-      {/* BEFORE CONSULTATION SECTION */}
-      <section className="bg-[#F7F4ED] px-5 py-20 sm:px-8 lg:px-12">
-        <div className="mx-auto max-w-[840px]">
-          <div className="rounded-[28px] border-2 border-[#C9A227] bg-white p-10">
-            <h2 className="text-center font-serif text-[36px] text-[#24211D]">
-              Before Your Consultation
+      {/* ========================================
+          REVIEWS / TESTIMONIALS
+      ======================================== */}
+      <section className="border-b border-[#ead8b8] bg-[#fffaf0] px-5 py-24 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-[1240px]">
+          <div className="mb-16 text-center">
+            <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-[#d4872b]">
+              EXPERIENCES
+            </p>
+            <h2 className="mt-4 font-serif text-[40px] leading-[1.1] tracking-[-0.02em] text-[#2b241d] sm:text-[48px]">
+              Client Experiences
             </h2>
+          </div>
 
-            <div className="mt-10 space-y-6">
-              <div>
-                <h3 className="mb-4 text-[15px] font-bold uppercase tracking-[0.2em] text-[#C9A227]">
-                  PREPARE THE FOLLOWING
-                </h3>
-                <div className="space-y-3">
-                  {["Date of Birth", "Exact Time of Birth", "Place of Birth"].map((item) => (
-                    <div key={item} className="flex items-center gap-3 text-[14px] text-[#5f554a]">
-                      <Clock size={16} className="shrink-0 text-[#C9A227]" />
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-[#e3ca97] bg-[#faf6ed] p-5">
-                <p className="text-[14px] leading-7 text-[#675b50]">
-                  <strong className="font-semibold text-[#24211D]">Note:</strong>{" "}
-                  "Note down the 2–3 questions you most want clarity on before your session."
-                </p>
-              </div>
-            </div>
+          <div className="rounded-2xl border-2 border-[#ead8b8] bg-white px-8 py-12 text-center sm:px-12">
+            <Sparkles size={40} className="mx-auto text-[#d4872b] opacity-40" />
+            <p className="mt-6 text-[16px] text-[#75695c]">
+              Client testimonials will be shared here as consultations progress.
+            </p>
+            <p className="mt-2 text-[14px] text-[#a39581]">
+              Building trust through authentic experiences
+            </p>
           </div>
         </div>
       </section>
 
-      {/* FAQ SECTION */}
-      <section id="faq" className="bg-gradient-to-br from-[#121212] to-[#1E1A16] px-5 py-20 sm:px-8 lg:px-12">
+      {/* ========================================
+          HOW BOOKING WORKS
+      ======================================== */}
+      <section className="border-b border-[#ead8b8] bg-[#f8edd8] px-5 py-24 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-[1240px]">
+          <div className="mb-16 text-center">
+            <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-[#d4872b]">
+              BOOKING FLOW
+            </p>
+            <h2 className="mt-4 font-serif text-[40px] leading-[1.1] tracking-[-0.02em] text-[#2b241d] sm:text-[48px]">
+              How Booking Works
+            </h2>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-4">
+            {[
+              {
+                number: "01",
+                title: "Choose Consultation",
+                description:
+                  "Select the consultation package that suits your needs.",
+              },
+              {
+                number: "02",
+                title: "Provide Details",
+                description:
+                  "Share your birth details and what you need guidance about.",
+              },
+              {
+                number: "03",
+                title: "Complete Booking",
+                description:
+                  "Complete the booking and secure your consultation slot.",
+              },
+              {
+                number: "04",
+                title: "Consultation Call",
+                description:
+                  "Connect with Vishal for your personalized session.",
+              },
+            ].map((step, index) => (
+              <div key={index} className="relative">
+                <div className="rounded-2xl border-2 border-[#d6b8a0] bg-white p-7">
+                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#eab12c] font-serif text-[18px] font-bold text-[#2b241d]">
+                    {step.number}
+                  </div>
+                  <h3 className="text-[16px] font-semibold text-[#2b241d]">
+                    {step.title}
+                  </h3>
+                  <p className="mt-3 text-[14px] leading-6 text-[#75695c]">
+                    {step.description}
+                  </p>
+                </div>
+
+                {/* Connector line (hidden on mobile) */}
+                {index < 3 && (
+                  <div className="absolute -right-4 top-1/2 hidden h-0.5 w-8 bg-[#d6b8a0] md:block" />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================
+          FAQ SECTION
+      ======================================== */}
+      <section
+        id="faq"
+        className="border-b border-[#ead8b8] bg-[#fffaf0] px-5 py-24 sm:px-8 lg:px-12"
+      >
         <div className="mx-auto max-w-[840px]">
-          <div className="text-center">
-            <h2 className="font-serif text-[40px] text-[#F7F4ED] sm:text-[48px]">
+          <div className="mb-16 text-center">
+            <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-[#d4872b]">
+              QUESTIONS
+            </p>
+            <h2 className="mt-4 font-serif text-[40px] leading-[1.1] tracking-[-0.02em] text-[#2b241d] sm:text-[48px]">
               Frequently Asked Questions
             </h2>
           </div>
 
-          <div className="mt-12 space-y-4">
+          <div className="space-y-4">
             {faqs.map((faq, index) => (
               <div
                 key={index}
-                className="overflow-hidden rounded-2xl border-2 border-[#3a3026] bg-[#1E1A16] transition-all hover:border-[#C9A227]"
+                className="overflow-hidden rounded-2xl border-2 border-[#ead8b8] bg-white transition-all hover:border-[#d4872b]"
               >
                 <button
                   type="button"
                   onClick={() => toggleFaq(index)}
-                  className="flex w-full items-center justify-between p-6 text-left transition-colors hover:bg-[#24211D]"
+                  className="flex w-full items-center justify-between p-6 text-left transition-colors hover:bg-[#fffdf9]"
                 >
-                  <span className="pr-4 text-[15px] font-semibold text-[#F7F4ED]">
+                  <span className="pr-4 text-[15px] font-semibold text-[#2b241d]">
                     {faq.question}
                   </span>
                   <ChevronDown
                     size={20}
-                    className={`shrink-0 text-[#C9A227] transition-transform duration-200 ${
+                    className={`shrink-0 text-[#d4872b] transition-transform duration-200 ${
                       openFaqIndex === index ? "rotate-180" : ""
                     }`}
                   />
                 </button>
                 {openFaqIndex === index && (
-                  <div className="border-t border-[#3a3026] p-6">
-                    <p className="text-[14px] leading-7 text-[#B8A88F]">
+                  <div className="border-t border-[#ead8b8] p-6">
+                    <p className="text-[14px] leading-7 text-[#75695c]">
                       {faq.answer}
                     </p>
                   </div>
@@ -591,52 +1731,50 @@ const VishalBhardwajDetails = () => {
         </div>
       </section>
 
-      {/* FINAL CTA SECTION */}
-      <section className="bg-gradient-to-br from-[#2b241d] via-[#1E1A16] to-[#121212] px-5 py-24 sm:px-8 lg:px-12">
-        <div className="mx-auto max-w-[840px] text-center">
-          <h2 className="font-serif text-[40px] text-[#F7F4ED] sm:text-[48px]">
-            Your Questions Deserve Clarity.
+      {/* ========================================
+          FINAL CTA
+      ======================================== */}
+      <section className="border-b border-[#ead8b8] bg-[#f8edd8] px-5 py-24 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-[900px] text-center">
+          <h2 className="font-serif text-[40px] leading-[1.1] tracking-[-0.02em] text-[#2b241d] sm:text-[48px]">
+            Ready to Find Clarity?
           </h2>
-          <p className="mt-4 text-[18px] text-[#E8D28A]">
-            Consult Astrologer Vishal Bhardwaj
+
+          <p className="mt-6 text-[18px] leading-8 text-[#75695c]">
+            Book a personal consultation with Astrologer Vishal Bhardwaj today.
+            Understand your Kundali and find direction in life's important
+            decisions.
           </p>
 
-          <div className="mt-10 rounded-[28px] border-3 border-[#C9A227] bg-[#1E1A16] p-10">
-            <p className="text-[16px] font-semibold text-[#F7F4ED]">
-              30-Minute Personal Vedic Astrology Consultation
-            </p>
-
-            <div className="mt-6 flex items-center justify-center gap-4">
-              <span className="font-serif text-[44px] text-[#F7F4ED]">
-                ₹1,100
+          <div className="mt-10 space-y-4">
+            <div className="flex items-center justify-center gap-2">
+              <span className="font-serif text-[28px] font-semibold text-[#2b241d]">
+                Starting ₹1,100
               </span>
-              <span className="text-[24px] text-[#8a7c6b] line-through">
-                ₹1,500
+              <span className="text-[14px] text-[#a39581]">
+                30-minute session
               </span>
             </div>
 
-            <button
-              type="button"
-              onClick={handleBookConsultation}
-              className="group mt-8 inline-flex items-center gap-2 rounded-xl bg-[#C9A227] px-10 py-4 text-[15px] font-semibold text-[#121212] shadow-[0_12px_32px_rgba(201,162,39,0.3)] transition-all hover:scale-105 hover:bg-[#E8D28A]"
-            >
-              BOOK MY CONSULTATION
-              <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
-            </button>
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center sm:gap-4">
+              <button
+                type="button"
+                onClick={handleBookConsultation}
+                className="group inline-flex items-center justify-center gap-2 rounded-full bg-[#eab12c] px-8 py-3.5 text-[14px] font-semibold text-[#2b241d] shadow-[0_10px_25px_rgba(234,177,44,0.18)] transition-all hover:-translate-y-1 hover:bg-[#dca522]"
+              >
+                BOOK CONSULTATION
+                <ArrowRight
+                  size={17}
+                  className="transition-transform group-hover:translate-x-1"
+                />
+              </button>
 
-            <div className="mt-8 flex flex-wrap justify-center gap-8 text-[13px] text-[#B8A88F]">
-              <span className="flex items-center gap-2">
-                <Shield size={16} className="text-[#C9A227]" />
-                Secure Booking
-              </span>
-              <span className="flex items-center gap-2">
-                <Check size={16} className="text-[#C9A227]" />
-                Confidential Consultation
-              </span>
-              <span className="flex items-center gap-2">
-                <Sparkles size={16} className="text-[#C9A227]" />
-                Personalized Vedic Guidance
-              </span>
+              <button
+                type="button"
+                className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-[#d6b8a0] bg-white px-8 py-3.5 text-[14px] font-semibold text-[#2b241d] transition-all hover:border-[#eab12c] hover:bg-[#fffdf9]"
+              >
+                EXPLORE OPTIONS
+              </button>
             </div>
           </div>
         </div>
