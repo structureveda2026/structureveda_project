@@ -2,11 +2,12 @@ import rahulImage from "../../../assets/images/e-1.jpg";
 import meeraImage from "../../../assets/images/e-2.jpg";
 import keshavImage from "../../../assets/images/e-3.jpg";
 import ananyaImage from "../../../assets/images/e-4.jpg";
+import vishalRealImage from "../../../assets/images/vishal.png";
 
 // This shape mirrors the data required from a future astrologer API.
 export const mockAstrologers = [
   {
-    id: "ast-vishal", slug: "vishal-bhardwaj", name: "Vishal Bhardwaj", image: keshavImage,
+    id: "ast-vishal", slug: "vishal-bhardwaj", name: "Vishal Bhardwaj", image: vishalRealImage,
     title: "Vedic Astrologer | Jyotish Consultant | Spiritual Guide", experience: 10, languages: ["Hindi", "English"],
     expertise: ["Vedic Astrology", "Kundali Analysis", "Life Guidance"], rating: 4.9, reviews: "1,500+", sessions: "3,800+",
     pricePerMinute: 36.67, currency: "₹", online: true, availability: "Available now",
