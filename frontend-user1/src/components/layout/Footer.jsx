@@ -127,7 +127,14 @@ const Footer = () => {
             </Link>
 
             <Link
-              to="/consultancy"
+              to="/puja/upcoming"
+              className="w-fit text-[14px] transition hover:text-[#b36c1e]"
+            >
+              Upcoming Puja
+            </Link>
+
+            <Link
+              to="/book-consultation"
               className="w-fit text-[14px] transition hover:text-[#b36c1e]"
             >
               Book a Consultancy

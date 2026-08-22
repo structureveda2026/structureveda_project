@@ -153,6 +153,14 @@ const Navbar = () => {
               </div>
             )}
           </div>
+
+          {/* Upcoming Puja Link */}
+          <Link
+            to="/puja/upcoming"
+            className="text-[14px] font-medium text-[#5f554a] transition-colors hover:text-[#c88918]"
+          >
+            Upcoming Puja
+          </Link>
         </nav>
 
         {/* =====================================================
@@ -315,6 +323,15 @@ const Navbar = () => {
                 </div>
               )}
             </div>
+
+            {/* Upcoming Puja */}
+            <Link
+              to="/puja/upcoming"
+              onClick={() => setIsMenuOpen(false)}
+              className="border-b border-[#eee1ca] py-3 text-[14px] font-medium text-[#5f554a]"
+            >
+              Upcoming Puja & Yagya
+            </Link>
 
             {/* Book Consultation */}
             <Link

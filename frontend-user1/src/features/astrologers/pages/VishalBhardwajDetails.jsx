@@ -1466,8 +1466,8 @@ const VishalBhardwajDetails = () => {
                 <div
                   key={pkg.id}
                   className={`group relative flex flex-col justify-between rounded-[22px] border-2 transition-all duration-300 ${pkg.isPopular
-                      ? "border-[#d4872b] bg-gradient-to-b from-[#fffaf0] via-[#fffbf3] to-[#fbf4e6] shadow-[0_16px_45px_rgba(212,135,43,0.18)] ring-2 ring-[#eab12c]/40"
-                      : "border-[#d4872b]/60 bg-gradient-to-b from-[#fffdfa] via-[#fffbf2] to-[#fbf4e6] shadow-[0_10px_30px_rgba(80,60,30,0.08)] hover:border-[#d4872b] hover:shadow-[0_16px_40px_rgba(212,135,43,0.14)]"
+                    ? "border-[#d4872b] bg-gradient-to-b from-[#fffaf0] via-[#fffbf3] to-[#fbf4e6] shadow-[0_16px_45px_rgba(212,135,43,0.18)] ring-2 ring-[#eab12c]/40"
+                    : "border-[#d4872b]/60 bg-gradient-to-b from-[#fffdfa] via-[#fffbf2] to-[#fbf4e6] shadow-[0_10px_30px_rgba(80,60,30,0.08)] hover:border-[#d4872b] hover:shadow-[0_16px_40px_rgba(212,135,43,0.14)]"
                     }`}
                 >
                   {/* Top Most Popular Ribbon Banner */}
@@ -1562,8 +1562,8 @@ const VishalBhardwajDetails = () => {
                           type="button"
                           onClick={() => togglePackageMode(pkg.id, "normal")}
                           className={`rounded-full px-3.5 py-1 text-[12px] font-bold transition-all ${currentMode === "normal"
-                              ? "bg-[#3d2c1d] text-[#fffaf0] shadow-sm"
-                              : "text-[#685c4f] hover:text-[#2b241d]"
+                            ? "bg-[#3d2c1d] text-[#fffaf0] shadow-sm"
+                            : "text-[#685c4f] hover:text-[#2b241d]"
                             }`}
                         >
                           Normal
@@ -1572,8 +1572,8 @@ const VishalBhardwajDetails = () => {
                           type="button"
                           onClick={() => togglePackageMode(pkg.id, "urgent")}
                           className={`rounded-full px-3.5 py-1 text-[12px] font-bold transition-all ${currentMode === "urgent"
-                              ? "bg-[#d4872b] text-[#1c1308] shadow-sm"
-                              : "text-[#685c4f] hover:text-[#2b241d]"
+                            ? "bg-[#d4872b] text-[#1c1308] shadow-sm"
+                            : "text-[#685c4f] hover:text-[#2b241d]"
                             }`}
                         >
                           Urgent
@@ -2426,8 +2426,8 @@ const VishalBhardwajDetails = () => {
                 <div
                   key={index}
                   className={`overflow-hidden rounded-[22px] border-2 transition-all duration-300 ${isOpen
-                      ? "border-[#d4872b] bg-white shadow-[0_10px_30px_rgba(212,135,43,0.12)]"
-                      : "border-[#ead8b8] bg-white/90 hover:border-[#d4872b]/70 hover:bg-white"
+                    ? "border-[#d4872b] bg-white shadow-[0_10px_30px_rgba(212,135,43,0.12)]"
+                    : "border-[#ead8b8] bg-white/90 hover:border-[#d4872b]/70 hover:bg-white"
                     }`}
                 >
                   <button
@@ -2443,8 +2443,8 @@ const VishalBhardwajDetails = () => {
                     </span>
                     <div
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-all duration-300 ${isOpen
-                          ? "bg-[#eab12c] text-[#2b241d] rotate-180"
-                          : "bg-[#f8edd8] text-[#b36c1e]"
+                        ? "bg-[#eab12c] text-[#2b241d] rotate-180"
+                        : "bg-[#f8edd8] text-[#b36c1e]"
                         }`}
                     >
                       <ChevronDown size={18} />
@@ -2569,8 +2569,8 @@ const VishalBhardwajDetails = () => {
       ======================================== */}
       <div
         className={`fixed bottom-4 left-1/2 z-50 w-[92%] max-w-[620px] -translate-x-1/2 transition-all duration-500 ease-out sm:bottom-6 ${showStickyBar
-            ? "translate-y-0 opacity-100 pointer-events-auto"
-            : "translate-y-16 opacity-0 pointer-events-none"
+          ? "translate-y-0 opacity-100 pointer-events-auto"
+          : "translate-y-16 opacity-0 pointer-events-none"
           }`}
       >
         <div className="flex items-center justify-between gap-3 rounded-full border border-[#eab12c]/50 bg-[#1e150ee6] p-2.5 pl-3.5 shadow-[0_16px_40px_rgba(0,0,0,0.38)] backdrop-blur-lg">

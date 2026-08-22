@@ -18,6 +18,9 @@ import Signup from "../features/auth/pages/Signup";
 import Favorites from "../pages/Favorites";
 import NotFound from "../pages/NotFound";
 
+import PujaListing from "../features/puja/pages/PujaListing";
+import PujaDetails from "../features/puja/pages/PujaDetails";
+
 const AppRoutes = () => {
   return (
     <Routes>
@@ -44,6 +47,11 @@ const AppRoutes = () => {
         <Route path="/" element={<Home />} />
 
         <Route path="/book-consultation" element={<Consultation />} />
+
+        {/* Puja & Yagya */}
+        <Route path="/puja" element={<PujaListing />} />
+        <Route path="/puja/upcoming" element={<PujaListing />} />
+        <Route path="/puja/:slug" element={<PujaDetails />} />
 
         {/* Astrologers */}
         <Route path="/astrologers" element={<Astrologers />} />

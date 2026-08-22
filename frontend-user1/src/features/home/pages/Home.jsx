@@ -30,8 +30,9 @@ import mantraCourseImage from "../../../assets/images/c-mantra.jpg";
 import vastuCourseImage from "../../../assets/images/c-vastu.jpg";
 import rahulExpertImage from "../../../assets/images/e-1.jpg";
 import meeraExpertImage from "../../../assets/images/e-2.jpg";
-import keshavExpertImage from "../../../assets/images/e-3.jpg";
 import ananyaExpertImage from "../../../assets/images/e-4.jpg";
+import PujaCard from "../../puja/components/PujaCard";
+import { getFeaturedPujas } from "../../puja/data/pujaData";
 
 const categories = [
   {
@@ -68,7 +69,7 @@ const categories = [
     title: "Book a Puja / Service",
     description: "Rituals performed for you",
     icon: CalendarDays,
-    path: "/book-consultation",
+    path: "/puja/upcoming",
   },
 ];
 
@@ -213,8 +214,8 @@ const courses = [
     instructor: "Dr. Ananya Rao",
     duration: "6h 15m",
     lessons: "22 lessons",
-    price: "â‚¹2,199",
-    mrp: "â‚¹3,299",
+    price: "₹2,199",
+    mrp: "₹3,299",
     discount: "33% off",
     rating: "4.7",
     reviews: "814",
@@ -251,7 +252,7 @@ const experts = [
     reviews: "2,310",
     languages: "Hindi, Sanskrit, Marathi",
     price: "₹1,299",
-    image: keshavExpertImage,
+    image: meeraExpertImage,
   },
   {
     name: "Dr. Ananya Rao",
@@ -266,6 +267,8 @@ const experts = [
 ];
 
 const Home = () => {
+  const featuredPujas = getFeaturedPujas();
+
   return (
     <main className="bg-[#fffaf0] text-[#2b241d]">
       {/* =====================================================
@@ -416,6 +419,44 @@ const Home = () => {
                 </Link>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* =====================================================
+          UPCOMING PUJA
+      ====================================================== */}
+      <section className="border-t border-[#ead8b8] bg-[#fffaf0] px-6 py-20 lg:px-8 lg:py-24">
+        <div className="mx-auto max-w-[1240px]">
+          <div className="mb-10 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+            <div>
+              <p className="mb-2 text-[10.5px] font-bold uppercase tracking-[0.3em] text-[#b36c1e]">
+                UPCOMING PUJA
+              </p>
+
+              <h2 className="font-serif text-[38px] leading-tight text-[#2b241d] sm:text-[46px]">
+                Sacred Rituals. Authentic Tradition.
+              </h2>
+
+              <p className="mt-2 max-w-[650px] text-[14px] text-[#75695c]">
+                Participate in sacred Vedic rituals performed in Kashi and other
+                sacred places.
+              </p>
+            </div>
+
+            <Link
+              to="/puja/upcoming"
+              className="inline-flex items-center gap-2 self-start rounded-full bg-[#eab12c] px-6 py-3 text-[13px] font-bold text-[#1c1308] shadow-[0_6px_20px_rgba(234,177,44,0.25)] transition hover:bg-[#dca522] sm:self-auto"
+            >
+              <span>View All Upcoming Puja</span>
+              <ArrowRight size={15} />
+            </Link>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {featuredPujas.slice(0, 3).map((puja) => (
+              <PujaCard key={puja.id} puja={puja} />
+            ))}
           </div>
         </div>
       </section>
