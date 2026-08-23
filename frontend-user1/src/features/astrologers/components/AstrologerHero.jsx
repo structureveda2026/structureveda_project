@@ -85,6 +85,7 @@ const AstrologerHero = ({
           className="
             space-y-7
             animate-[hero-fade-up_0.8s_ease-out_both]
+            lg:-translate-y-8
           "
         >
           {/* Eyebrow */}
@@ -340,6 +341,7 @@ const AstrologerHero = ({
             justify-center
 
             lg:justify-center
+            lg:-translate-y-8
           "
         >
           {/* =======================================================
