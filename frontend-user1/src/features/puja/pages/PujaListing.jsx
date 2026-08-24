@@ -1,9 +1,8 @@
 import { useState, useMemo } from "react";
-import { Sparkles, Calendar, MapPin, ShieldCheck, Video, PackageCheck, Award } from "lucide-react";
 import { PUJA_LIST } from "../data/pujaData";
 import PujaCard from "../components/PujaCard";
 import PujaFilters from "../components/PujaFilters";
-import pujaBgImage from "../../../assets/images/puja_bg_image.jpg";
+import PujaListingHero from "../components/PujaListingHero";
 
 const PujaListing = () => {
   const [selectedLocation, setSelectedLocation] = useState("All Locations");
@@ -57,69 +56,12 @@ const PujaListing = () => {
       {/* =========================================================
           PAGE HEADER / CINEMATIC HERO BANNER WITH PUJA BG IMAGE
       ========================================================== */}
-      <section className="relative overflow-hidden border-b border-[#ead8b8] bg-[#1a1109] px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
-        {/* Background Image with Layered Gradients */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src={pujaBgImage}
-            alt="Sacred Puja Backdrop"
-            className="h-full w-full object-cover object-center scale-105 filter brightness-[0.78] contrast-[1.08] transition-transform duration-1000 ease-out"
-          />
-          {/* Rich Ambient Gradient Overlays for High Legibility & Warm Spiritual Glow */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#170e06]/92 via-[#1c1208]/80 to-[#170e06]/92" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#120a04]/80 via-transparent to-[#fffaf0]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#eab12c]/15 via-transparent to-black/60" />
-        </div>
-
-        {/* Hero Content */}
-        <div className="relative z-10 mx-auto max-w-[1100px] text-center">
-          {/* Eyebrow Pill */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#f5cf73]/40 bg-[#2b1b0e]/85 px-4 py-1.5 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
-            <Sparkles size={13} className="text-[#f7c844]" />
-            <span className="text-[11px] font-bold uppercase tracking-[0.26em] text-[#fce59f]">
-              Kashi Vishwanath & Sacred Dhams
-            </span>
-          </div>
-
-          {/* Heading */}
-          <h1 className="mt-5 font-serif text-[38px] font-bold leading-[1.12] tracking-[-0.02em] text-[#fffdf8] drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)] sm:text-[52px] lg:text-[62px]">
-            Upcoming Sacred Puja & Yagya
-          </h1>
-
-          {/* Supporting Text */}
-          <p className="mx-auto mt-4 max-w-[760px] text-[15.5px] leading-relaxed text-[#f3e3cd] drop-shadow-sm sm:text-[17px]">
-            Participate in authentic Vedic rituals performed on the holy banks of River Ganga in Kashi and sacred Dhams. Receive personalized Sankalp with your Name & Gotra, video updates, and energized holy Prasadam delivered to your doorstep.
-          </p>
-
-          {/* Quick Highlight Pillars */}
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-3 sm:gap-5">
-            <div className="flex items-center gap-2 rounded-full border border-[#f5cf73]/25 bg-[#26170c]/75 px-4 py-2 text-[12.5px] font-semibold text-[#fae9cb] backdrop-blur-sm shadow-sm">
-              <Award size={15} className="text-[#f5ce6f]" />
-              <span>100% Authentic Vedic Vidhi</span>
-            </div>
-
-            <div className="flex items-center gap-2 rounded-full border border-[#f5cf73]/25 bg-[#26170c]/75 px-4 py-2 text-[12.5px] font-semibold text-[#fae9cb] backdrop-blur-sm shadow-sm">
-              <ShieldCheck size={15} className="text-[#f5ce6f]" />
-              <span>Personalized Sankalp (Name & Gotra)</span>
-            </div>
-
-            <div className="flex items-center gap-2 rounded-full border border-[#f5cf73]/25 bg-[#26170c]/75 px-4 py-2 text-[12.5px] font-semibold text-[#fae9cb] backdrop-blur-sm shadow-sm">
-              <Video size={15} className="text-[#f5ce6f]" />
-              <span>HD Video & Photos</span>
-            </div>
-
-            <div className="flex items-center gap-2 rounded-full border border-[#f5cf73]/25 bg-[#26170c]/75 px-4 py-2 text-[12.5px] font-semibold text-[#fae9cb] backdrop-blur-sm shadow-sm">
-              <PackageCheck size={15} className="text-[#f5ce6f]" />
-              <span>Energized Prasadam Shipped Home</span>
-            </div>
-          </div>
-        </div>
-      </section>
+      <PujaListingHero />
 
       {/* =========================================================
           MAIN CONTENT AREA (FILTERS & CARDS GRID)
       ========================================================== */}
-      <div className="mx-auto max-w-[1280px] px-5 pt-10 sm:px-8 lg:px-12">
+      <div id="puja-list" className="mx-auto max-w-[1280px] px-5 pt-10 sm:px-8 lg:px-12">
         {/* Filters Bar */}
         <PujaFilters
           selectedLocation={selectedLocation}
