@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useToast } from "../../../components/ui/toastContext";
+import bookingService from "../bookingService";
 import {
   ArrowLeft,
   Check,
@@ -22,6 +25,7 @@ import {
   ArrowRight,
   Lock,
   Headphones,
+  Loader2,
 } from "lucide-react";
 import vishalImage from "../../../assets/images/vishal.png";
 
@@ -96,15 +100,20 @@ const TOPICS = [
 
 const VishalBooking = () => {
   const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
+  const { showToast } = useToast();
+
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [bookingReference, setBookingReference] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmedBooking, setConfirmedBooking] = useState(null);
 
   // Package State
   const [selectedPackage, setSelectedPackage] = useState(PACKAGES[0]);
 
   // Form State
   const [formData, setFormData] = useState({
-    fullName: "",
+    fullName: user?.fullName || "",
     gender: "Male", // 'Male' | 'Female'
     dateOfBirth: "2000-01-01",
     placeOfBirth: "Varanasi, Uttar Pradesh",
@@ -113,9 +122,9 @@ const VishalBooking = () => {
     birthAmPm: "PM",
     isTimeUnknown: false,
     reportLanguage: "Hindi (हिंदी)",
-    whatsappNumber: "",
+    whatsappNumber: user?.phone || "",
     isPhoneVerified: false,
-    email: "",
+    email: user?.email || "",
     consultationDate: new Date(Date.now() + 86400000).toISOString().split("T")[0],
     consultationTime: TIME_SLOTS[0],
     consultationMode: "Video Call (Google Meet / Zoom)",
@@ -124,6 +133,18 @@ const VishalBooking = () => {
     addOnReport: false, // +500
     addOnExpress: false, // +400
   });
+
+  // Prefill when authenticated user becomes available
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        fullName: prev.fullName || user.fullName || "",
+        email: prev.email || user.email || "",
+        whatsappNumber: prev.whatsappNumber || user.phone || "",
+      }));
+    }
+  }, [user]);
 
   const [otpSent, setOtpSent] = useState(false);
   const [otpValue, setOtpValue] = useState("");
@@ -171,11 +192,12 @@ const VishalBooking = () => {
 
   const handleSendOtp = () => {
     if (!formData.whatsappNumber || formData.whatsappNumber.length < 10) {
-      alert("Please enter a valid 10-digit WhatsApp phone number first.");
+      showToast("Please enter a valid 10-digit WhatsApp phone number first.", "error");
       return;
     }
     setOtpSent(true);
     setIsVerifyingOtp(true);
+    showToast("Verification code sent to your WhatsApp number.", "success");
   };
 
   const handleVerifyOtp = () => {
@@ -183,27 +205,83 @@ const VishalBooking = () => {
       setFormData((prev) => ({ ...prev, isPhoneVerified: true }));
       setIsVerifyingOtp(false);
       setOtpSent(false);
+      showToast("Phone number verified successfully!", "success");
     } else {
-      alert("Please enter a valid OTP code (e.g. 1234).");
+      showToast("Please enter a valid OTP code (e.g. 1234).", "error");
     }
   };
 
-  const handlePayNow = (e) => {
+  const handlePayNow = async (e) => {
     e.preventDefault();
+
     if (!formData.fullName.trim()) {
-      alert("Please provide your Full Name.");
+      showToast("Please provide your Full Name.", "error");
       return;
     }
     if (!formData.placeOfBirth.trim()) {
-      alert("Please provide your Place of Birth for accurate Kundali calculation.");
+      showToast("Please provide your Place of Birth for accurate Kundali calculation.", "error");
+      return;
+    }
+    if (!formData.whatsappNumber.trim()) {
+      showToast("Please provide your WhatsApp Phone Number.", "error");
+      return;
+    }
+    if (!formData.consultationDate) {
+      showToast("Please select a Consultation Date.", "error");
       return;
     }
 
-    // Generate reference ID and confirm
-    const refId = "VB-" + Math.floor(100000 + Math.random() * 900000);
-    setBookingReference(refId);
-    setIsConfirmed(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    try {
+      setIsSubmitting(true);
+
+      const bookingPayload = {
+        astrologerId: "ast-vishal",
+        astrologerName: "Vishal Bhardwaj",
+        packageId: selectedPackage.id,
+        packageName: selectedPackage.title,
+        duration: selectedPackage.duration,
+        amount: totalPrice,
+        fullName: formData.fullName.trim(),
+        gender: formData.gender,
+        dateOfBirth: formData.dateOfBirth,
+        timeOfBirth: formData.isTimeUnknown
+          ? "Unknown"
+          : `${formData.birthHour}:${formData.birthMinute} ${formData.birthAmPm}`,
+        placeOfBirth: formData.placeOfBirth.trim(),
+        reportLanguage: formData.reportLanguage,
+        phone: formData.whatsappNumber.trim(),
+        email: formData.email ? formData.email.trim() : null,
+        consultationDate: formData.consultationDate,
+        consultationTime: formData.consultationTime,
+        consultationMode: formData.consultationMode,
+        selectedTopics: formData.selectedTopics,
+        addOns: {
+          addOnCouple: formData.addOnCouple,
+          addOnReport: formData.addOnReport,
+          addOnExpress: formData.addOnExpress,
+        },
+      };
+
+      const result = await bookingService.createBooking(bookingPayload);
+
+      if (result.success && result.data) {
+        setBookingReference(result.data.bookingReference);
+        setConfirmedBooking(result.data);
+        setIsConfirmed(true);
+        showToast("Consultation booked successfully!", "success");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        showToast(result.message || "Failed to create consultation booking.", "error");
+      }
+    } catch (error) {
+      console.error("Booking creation error:", error);
+      const msg =
+        error.response?.data?.message ||
+        "Something went wrong while booking consultation. Please try again.";
+      showToast(msg, "error");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleBackToDetails = () => {
@@ -946,11 +1024,23 @@ const VishalBooking = () => {
               {/* Pay Now Button (Matching Screenshot) */}
               <button
                 type="submit"
-                className="group mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#eab12c] via-[#f0bb3b] to-[#dca522] py-4 text-[15px] font-bold text-[#1c1308] shadow-[0_8px_25px_rgba(234,177,44,0.35)] transition-all duration-300 hover:brightness-105 hover:shadow-[0_12px_32px_rgba(234,177,44,0.45)]"
+                disabled={isSubmitting}
+                className={`group mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#eab12c] via-[#f0bb3b] to-[#dca522] py-4 text-[15px] font-bold text-[#1c1308] shadow-[0_8px_25px_rgba(234,177,44,0.35)] transition-all duration-300 hover:brightness-105 hover:shadow-[0_12px_32px_rgba(234,177,44,0.45)] ${
+                  isSubmitting ? "cursor-not-allowed opacity-75" : ""
+                }`}
               >
-                <Lock size={16} />
-                <span>Pay Now (₹{totalPrice.toLocaleString("en-IN")})</span>
-                <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin text-[#1c1308]" />
+                    <span>Processing Booking...</span>
+                  </>
+                ) : (
+                  <>
+                    <Lock size={16} />
+                    <span>Pay Now (₹{totalPrice.toLocaleString("en-IN")})</span>
+                    <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
+                  </>
+                )}
               </button>
 
               {/* Selected Slot Information */}
