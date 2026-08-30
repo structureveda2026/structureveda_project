@@ -1,10 +1,11 @@
-import express from "express";
+﻿import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 
 import { connectDatabase } from "./config/database.js";
 import authRoutes from "./routes/auth.routes.js";
 import consultationRoutes from "./routes/consultation.routes.js";
+import bookingRoutes from "./routes/booking.routes.js";
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/consultations", consultationRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 // Start server
 const startServer = async () => {
