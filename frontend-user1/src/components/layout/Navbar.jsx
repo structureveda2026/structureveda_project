@@ -161,6 +161,14 @@ const Navbar = () => {
           >
             Upcoming Puja
           </Link>
+
+          {/* Vedic Yagyas Link */}
+          <Link
+            to="/yagya"
+            className="text-[14px] font-medium text-[#5f554a] transition-colors hover:text-[#c88918]"
+          >
+            Vedic Yagyas
+          </Link>
         </nav>
 
         {/* =====================================================
@@ -330,7 +338,16 @@ const Navbar = () => {
               onClick={() => setIsMenuOpen(false)}
               className="border-b border-[#eee1ca] py-3 text-[14px] font-medium text-[#5f554a]"
             >
-              Upcoming Puja & Yagya
+              Upcoming Puja
+            </Link>
+
+            {/* Vedic Yagyas */}
+            <Link
+              to="/yagya"
+              onClick={() => setIsMenuOpen(false)}
+              className="border-b border-[#eee1ca] py-3 text-[14px] font-medium text-[#5f554a]"
+            >
+              Vedic Yagyas
             </Link>
 
             {/* Book Consultation */}

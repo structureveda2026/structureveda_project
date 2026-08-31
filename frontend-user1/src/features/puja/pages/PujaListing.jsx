@@ -61,7 +61,7 @@ const PujaListing = () => {
       {/* =========================================================
           MAIN CONTENT AREA (FILTERS & CARDS GRID)
       ========================================================== */}
-      <div id="puja-list" className="mx-auto max-w-[1280px] px-5 pt-10 sm:px-8 lg:px-12">
+      <div id="puja-list" className="mx-auto max-w-[1400px] px-4 pt-10 sm:px-6 lg:px-8 xl:px-10">
         {/* Filters Bar */}
         <PujaFilters
           selectedLocation={selectedLocation}
@@ -94,7 +94,7 @@ const PujaListing = () => {
 
         {/* Pujas Grid */}
         {filteredPujas.length > 0 ? (
-          <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-7">
             {filteredPujas.map((puja) => (
               <PujaCard key={puja.id} puja={puja} />
             ))}

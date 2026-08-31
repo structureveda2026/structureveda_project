@@ -5,7 +5,10 @@ const PujaCard = ({ puja }) => {
   if (!puja) return null;
 
   return (
-    <article className="group relative flex flex-col justify-between overflow-hidden rounded-[24px] border border-[#e6caa0] bg-[#fffdf9] shadow-[0_10px_30px_rgba(80,60,30,0.06)] transition-all duration-500 hover:-translate-y-1.5 hover:border-[#d4872b] hover:shadow-[0_20px_45px_rgba(212,135,43,0.14)]">
+    <Link
+      to={`/puja/${puja.slug}`}
+      className="group relative flex flex-col justify-between overflow-hidden rounded-[24px] border border-[#e6caa0] bg-[#fffdf9] shadow-[0_10px_30px_rgba(80,60,30,0.06)] transition-all duration-500 hover:-translate-y-1.5 hover:border-[#d4872b] hover:shadow-[0_20px_45px_rgba(212,135,43,0.14)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d4872b] cursor-pointer"
+    >
       {/* Top Image Frame */}
       <div className="relative h-[220px] w-full overflow-hidden bg-[#241a12]">
         <img
@@ -66,22 +69,21 @@ const PujaCard = ({ puja }) => {
             </span>
           </div>
 
-          <Link
-            to={`/puja/${puja.slug}`}
-            className="group/btn inline-flex items-center gap-1.5 rounded-full bg-[#eab12c] px-5 py-2.5 text-[12.5px] font-bold text-[#2b241d] shadow-[0_4px_14px_rgba(234,177,44,0.25)] transition-all duration-300 hover:bg-[#dda018] hover:shadow-[0_6px_20px_rgba(234,177,44,0.35)]"
+          <span
+            className="group/btn inline-flex items-center gap-1.5 rounded-full bg-[#eab12c] px-5 py-2.5 text-[12.5px] font-bold text-[#2b241d] shadow-[0_4px_14px_rgba(234,177,44,0.25)] transition-all duration-300 group-hover:bg-[#dda018] group-hover:shadow-[0_6px_20px_rgba(234,177,44,0.35)]"
           >
             <span>View Puja</span>
             <ArrowRight
               size={14}
-              className="transition-transform duration-300 group-hover/btn:translate-x-1"
+              className="transition-transform duration-300 group-hover:translate-x-1"
             />
-          </Link>
+          </span>
         </div>
       </div>
 
       {/* Bottom Gold Accent Line */}
       <span className="absolute bottom-0 left-0 h-[3px] w-0 bg-gradient-to-r from-[#eab12c] via-[#ffdf88] to-transparent transition-all duration-500 group-hover:w-full" />
-    </article>
+    </Link>
   );
 };
 

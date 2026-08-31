@@ -12,7 +12,9 @@ import {
 } from "lucide-react";
 import { getPujaBySlug, PUJA_LIST } from "../data/pujaData";
 import PujaHero from "../components/PujaHero";
+import PujaAbout from "../components/PujaAbout";
 import PujaBenefits from "../components/PujaBenefits";
+import PujaSignificance from "../components/PujaSignificance";
 import PujaProcedure from "../components/PujaProcedure";
 import PujaPackages from "../components/PujaPackages";
 import SankalpForm from "../components/SankalpForm";
@@ -37,8 +39,18 @@ const PujaDetails = () => {
   const handleScrollToBooking = () => {
     const el = document.getElementById("packages");
     if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
+  };
+
+  const handleSelectPackage = (packageId) => {
+    setSelectedPackageId(packageId);
+    setTimeout(() => {
+      const el = document.getElementById("sankalp-details") || document.getElementById("sankalp-form");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 50);
   };
 
   // Related Pujas (exclude current)
@@ -65,59 +77,14 @@ const PujaDetails = () => {
       {/* 1. HERO */}
       <PujaHero puja={puja} onBookClick={handleScrollToBooking} />
 
-      {/* 2. ABOUT THE PUJA */}
-      <section className="border-b border-[#ead8b8] bg-[#fffdfa] px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
-        <div className="mx-auto max-w-[960px]">
-          <div className="text-center">
-            <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-[#b36c1e]">
-              SACRED OVERVIEW
-            </p>
-            <h2 className="mt-3 font-serif text-[32px] font-semibold text-[#2b241d] sm:text-[42px]">
-              About the Puja
-            </h2>
-          </div>
-
-          <div className="mt-8 space-y-5 text-[16px] leading-[1.8] text-[#5e5143]">
-            <p>{puja.fullDescription || puja.description}</p>
-            <p>
-              In our ancient scriptures, participating in a consecrated Yagya or Abhishek invokes divine alignment between the microcosm of the devotee's life and the macrocosmic cosmic order (Rta). Every mantra chanted during this ritual resonates with specific sonic frequencies that disperse stagnated energy and bestow auspicious clarity.
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* 2. ABOUT THE PUJA / SACRED OVERVIEW */}
+      <PujaAbout puja={puja} />
 
       {/* 3. WHY PERFORM THIS PUJA? */}
       <PujaBenefits benefits={puja.whyPerform} />
 
       {/* 4. SPIRITUAL SIGNIFICANCE */}
-      {puja.significance && puja.significance.length > 0 && (
-        <section className="border-b border-[#ead8b8] bg-[#fffdfa] px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
-          <div className="mx-auto max-w-[960px]">
-            <div className="text-center">
-              <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-[#b36c1e]">
-                SCRIPTURAL WISDOM
-              </p>
-              <h2 className="mt-3 font-serif text-[32px] font-semibold text-[#2b241d] sm:text-[42px]">
-                Spiritual Significance
-              </h2>
-            </div>
-
-            <div className="mt-10 space-y-4">
-              {puja.significance.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-start gap-4 rounded-2xl border border-[#e6cca0]/80 bg-[#fffaf0] p-5 shadow-sm"
-                >
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f8edd8] text-[#c77722]">
-                    <Sparkles size={16} />
-                  </div>
-                  <p className="text-[15px] leading-relaxed text-[#5e5143]">{item}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      <PujaSignificance puja={puja} />
 
       {/* 5. WHAT'S INCLUDED? */}
       <section className="border-b border-[#ead8b8] bg-[#f8edd8] px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
@@ -187,7 +154,7 @@ const PujaDetails = () => {
       <PujaPackages
         packages={puja.packages}
         selectedPackageId={selectedPackageId}
-        onSelectPackage={setSelectedPackageId}
+        onSelectPackage={handleSelectPackage}
       />
 
       {/* 9. SANKALP DETAILS FORM */}

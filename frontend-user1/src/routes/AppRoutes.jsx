@@ -20,6 +20,8 @@ import NotFound from "../pages/NotFound";
 
 import PujaListing from "../features/puja/pages/PujaListing";
 import PujaDetails from "../features/puja/pages/PujaDetails";
+import YagyaListing from "../features/yagya/pages/YagyaListing";
+import YagyaDetails from "../features/yagya/pages/YagyaDetails";
 
 const AppRoutes = () => {
   return (
@@ -48,10 +50,18 @@ const AppRoutes = () => {
 
         <Route path="/book-consultation" element={<Consultation />} />
 
-        {/* Puja & Yagya */}
+        {/* Puja */}
         <Route path="/puja" element={<PujaListing />} />
         <Route path="/puja/upcoming" element={<PujaListing />} />
         <Route path="/puja/:slug" element={<PujaDetails />} />
+
+        {/* Vedic Yagyas */}
+        <Route path="/yagya" element={<YagyaListing />} />
+        <Route path="/yagyas" element={<YagyaListing />} />
+        <Route path="/vedic-yagyas" element={<YagyaListing />} />
+        <Route path="/yagya/:slug" element={<YagyaDetails />} />
+        <Route path="/yagyas/:slug" element={<YagyaDetails />} />
+        <Route path="/vedic-yagya/:slug" element={<YagyaDetails />} />
 
         {/* Astrologers */}
         <Route path="/astrologers" element={<Astrologers />} />

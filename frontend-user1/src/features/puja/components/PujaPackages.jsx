@@ -4,7 +4,7 @@ const PujaPackages = ({ packages = [], selectedPackageId, onSelectPackage }) => 
   if (!packages || packages.length === 0) return null;
 
   return (
-    <section id="packages" className="border-b border-[#ead8b8] bg-[#fffaf0] px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
+    <section id="packages" className="scroll-mt-20 sm:scroll-mt-24 border-b border-[#ead8b8] bg-[#fffaf0] px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
       <div className="mx-auto max-w-[1240px]">
         {/* Section Header */}
         <div className="mx-auto mb-12 max-w-[700px] text-center sm:mb-14">
@@ -81,6 +81,10 @@ const PujaPackages = ({ packages = [], selectedPackageId, onSelectPackage }) => 
                 <div className="mt-6">
                   <button
                     type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectPackage(pkg.id);
+                    }}
                     className={`w-full rounded-full py-2.5 text-[13px] font-bold transition-all ${
                       isSelected
                         ? "bg-[#eab12c] text-[#1c1308] shadow-sm"
