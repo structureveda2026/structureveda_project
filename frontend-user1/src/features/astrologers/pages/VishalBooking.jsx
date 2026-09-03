@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useToast } from "../../../components/ui/toastContext";
 import bookingService from "../bookingService";
+import paymentService from "../paymentService";
 import {
   ArrowLeft,
   Check,
@@ -103,8 +104,24 @@ const VishalBooking = () => {
   const { user } = useSelector((state) => state.auth);
   const { showToast } = useToast();
 
+  const STORAGE_KEY = "veda_active_payment_booking";
+
+  // isConfirmed is reserved for AFTER successful payment verification (Phase 2C+).
   const [isConfirmed, setIsConfirmed] = useState(false);
+  // isAwaitingPayment: booking created with Pending status. User sees the Pay button.
+  const [isAwaitingPayment, setIsAwaitingPayment] = useState(false);
+  // isOpeningPayment: create-order call is in flight or checkout is opening.
+  const [isOpeningPayment, setIsOpeningPayment] = useState(false);
+  // isVerifyingPayment: checking status with /api/payments/verify after checkout modal
+  const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
+  // isRecoveringPayment: checking localStorage for in-flight booking on mount (Phase 2D)
+  const [isRecoveringPayment, setIsRecoveringPayment] = useState(false);
+  // paymentReturned: user returned from Cashfree checkout (success, failure, or close).
+  const [paymentReturned, setPaymentReturned] = useState(false);
+  const [paymentReturnResult, setPaymentReturnResult] = useState(null); // raw Cashfree result object
   const [bookingReference, setBookingReference] = useState("");
+  const [paymentSessionId, setPaymentSessionId] = useState("");
+  const [cashfreeOrderAmount, setCashfreeOrderAmount] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmedBooking, setConfirmedBooking] = useState(null);
 
@@ -133,6 +150,75 @@ const VishalBooking = () => {
     addOnReport: false, // +500
     addOnExpress: false, // +400
   });
+
+  // ---------------------------------------------------------------------------
+  // PHASE 2D: ACTIVE BOOKING RECOVERY ON MOUNT
+  // Checks localStorage for veda_active_payment_booking.
+  // Queries backend for authoritative booking status.
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    const recoverActiveBooking = async () => {
+      const storedRef = localStorage.getItem(STORAGE_KEY);
+      if (!storedRef) return;
+
+      setIsRecoveringPayment(true);
+      try {
+        const res = await paymentService.getBookingStatus(storedRef);
+        if (res?.success && res?.data) {
+          const booking = res.data;
+
+          if (booking.bookingStatus === "Confirmed" && booking.paymentStatus === "Paid") {
+            setBookingReference(booking.bookingReference);
+            setConfirmedBooking(booking);
+            setIsConfirmed(true);
+            setIsAwaitingPayment(false);
+            localStorage.removeItem(STORAGE_KEY);
+          } else if (booking.bookingStatus === "Cancelled") {
+            localStorage.removeItem(STORAGE_KEY);
+            showToast("Previous booking request was cancelled.", "info");
+          } else if (booking.bookingStatus === "Pending" && booking.paymentStatus === "Pending") {
+            setBookingReference(booking.bookingReference);
+            setConfirmedBooking(booking);
+            if (booking.amount) setCashfreeOrderAmount(Number(booking.amount));
+
+            const matchedPkg = PACKAGES.find((p) => p.id === booking.packageId);
+            if (matchedPkg) setSelectedPackage(matchedPkg);
+
+            setFormData((prev) => ({
+              ...prev,
+              fullName: booking.fullName || prev.fullName,
+              phone: booking.phone || prev.phone,
+              whatsappNumber: booking.phone || prev.whatsappNumber,
+              email: booking.email || prev.email,
+              gender: booking.gender || prev.gender,
+              dateOfBirth: booking.dateOfBirth || prev.dateOfBirth,
+              placeOfBirth: booking.placeOfBirth || prev.placeOfBirth,
+              consultationDate: booking.consultationDate || prev.consultationDate,
+              consultationTime: booking.consultationTime || prev.consultationTime,
+              consultationMode: booking.consultationMode || prev.consultationMode,
+              reportLanguage: booking.reportLanguage || prev.reportLanguage,
+            }));
+
+            setIsAwaitingPayment(true);
+            setIsConfirmed(false);
+            setPaymentReturned(false);
+            showToast("Your previous booking is awaiting payment. You can continue payment.", "info");
+          }
+        } else {
+          localStorage.removeItem(STORAGE_KEY);
+        }
+      } catch (err) {
+        console.warn("Could not recover booking from storage:", err);
+        if (err.response?.status === 404) {
+          localStorage.removeItem(STORAGE_KEY);
+        }
+      } finally {
+        setIsRecoveringPayment(false);
+      }
+    };
+
+    recoverActiveBooking();
+  }, []);
 
   // Prefill when authenticated user becomes available
   useEffect(() => {
@@ -211,6 +297,15 @@ const VishalBooking = () => {
     }
   };
 
+  // ---------------------------------------------------------------------------
+  // handlePayNow — Phase 2B: 3-step sequential flow
+  //
+  // Step 1. POST /api/bookings          → creates Pending booking, gets bookingReference
+  // Step 2. POST /api/payments/create-order → gets paymentSessionId from Cashfree Sandbox
+  // Step 3. cashfree.checkout()          → opens Cashfree Sandbox payment modal
+  //
+  // DO NOT set isConfirmed here — that belongs to Phase 2C (server-side verification).
+  // ---------------------------------------------------------------------------
   const handlePayNow = async (e) => {
     e.preventDefault();
 
@@ -234,6 +329,9 @@ const VishalBooking = () => {
     try {
       setIsSubmitting(true);
 
+      // ------------------------------------------------------------------
+      // STEP 1: Create the booking record (bookingStatus = Pending)
+      // ------------------------------------------------------------------
       const bookingPayload = {
         astrologerId: "ast-vishal",
         astrologerName: "Vishal Bhardwaj",
@@ -262,25 +360,274 @@ const VishalBooking = () => {
         },
       };
 
-      const result = await bookingService.createBooking(bookingPayload);
+      const bookingResult = await bookingService.createBooking(bookingPayload);
 
-      if (result.success && result.data) {
-        setBookingReference(result.data.bookingReference);
-        setConfirmedBooking(result.data);
-        setIsConfirmed(true);
-        showToast("Consultation booked successfully!", "success");
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      } else {
-        showToast(result.message || "Failed to create consultation booking.", "error");
+      if (!bookingResult.success || !bookingResult.data) {
+        showToast(bookingResult.message || "Failed to create consultation booking.", "error");
+        return;
+      }
+
+      const ref = bookingResult.data.bookingReference;
+      setBookingReference(ref);
+      setConfirmedBooking(bookingResult.data);
+      // Phase 2D: Persist active booking reference in localStorage
+      localStorage.setItem(STORAGE_KEY, ref);
+      // Show the awaiting-payment screen immediately while we call create-order.
+      setIsAwaitingPayment(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      // ------------------------------------------------------------------
+      // STEP 2: Create Cashfree Sandbox order
+      // Only the bookingReference is sent — backend reads amount from DB.
+      // ------------------------------------------------------------------
+      setIsOpeningPayment(true);
+      let sessionId;
+      let cfAmount;
+      try {
+        const orderResult = await paymentService.createPaymentOrder(ref);
+
+        // Phase 2D: Check if already paid
+        if (orderResult?.alreadyPaid) {
+          setIsConfirmed(true);
+          setIsAwaitingPayment(false);
+          localStorage.removeItem(STORAGE_KEY);
+          if (orderResult.data) {
+            setConfirmedBooking(orderResult.data);
+          }
+          showToast("Payment already verified! Your consultation is scheduled.", "success");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          return;
+        }
+
+        if (!orderResult.success || !orderResult.data?.paymentSessionId) {
+          showToast(
+            orderResult.message || "Failed to initiate payment. Please try again.",
+            "error",
+          );
+          setIsOpeningPayment(false);
+          return;
+        }
+        sessionId = orderResult.data.paymentSessionId;
+        cfAmount = orderResult.data.orderAmount;
+        setPaymentSessionId(sessionId);
+        setCashfreeOrderAmount(cfAmount);
+      } catch (orderError) {
+        console.error("Payment order creation error:", orderError);
+        const msg =
+          orderError.response?.data?.message ||
+          "Failed to connect to the payment gateway. Please try again.";
+        showToast(msg, "error");
+        setIsOpeningPayment(false);
+        return;
+      }
+
+      // ------------------------------------------------------------------
+      // STEP 3: Load Cashfree JS SDK and open Sandbox checkout
+      // ------------------------------------------------------------------
+      let cashfree;
+      try {
+        const { load } = await import("@cashfreepayments/cashfree-js");
+        cashfree = await load({ mode: "sandbox" });
+      } catch (sdkError) {
+        console.error("Cashfree SDK load error:", sdkError);
+        showToast(
+          "Payment gateway could not be loaded. Please refresh and try again.",
+          "error",
+        );
+        setIsOpeningPayment(false);
+        return;
+      }
+
+      if (!cashfree) {
+        showToast("Payment gateway initialisation failed. Please try again.", "error");
+        setIsOpeningPayment(false);
+        return;
+      }
+
+      setIsOpeningPayment(false);
+
+      // Open the Cashfree checkout modal.
+      // _modal keeps the user on the same page — important for post-checkout handling.
+      try {
+        const checkoutResult = await cashfree.checkout({
+          paymentSessionId: sessionId,
+          redirectTarget: "_modal",
+        });
+
+        console.log("Cashfree checkout returned:", checkoutResult);
+        setPaymentReturnResult(checkoutResult);
+
+        // ------------------------------------------------------------------
+        // STEP 4: Server-Side Authoritative Payment Verification (Phase 2C)
+        // Never confirm based solely on frontend callback; verify with server.
+        // ------------------------------------------------------------------
+        setIsVerifyingPayment(true);
+        try {
+          const verifyResult = await paymentService.verifyPayment(ref);
+          console.log("Payment verification result:", verifyResult);
+
+          if (verifyResult?.success && verifyResult?.confirmed) {
+            setIsConfirmed(true);
+            setIsAwaitingPayment(false);
+            localStorage.removeItem(STORAGE_KEY);
+            if (verifyResult.data) {
+              setConfirmedBooking(verifyResult.data);
+            }
+            showToast("Payment verified! Your consultation is scheduled.", "success");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            return;
+          } else {
+            setPaymentReturned(true);
+            setIsAwaitingPayment(true);
+            showToast(
+              verifyResult?.message || "Payment is pending verification.",
+              "info",
+            );
+          }
+        } catch (verifyErr) {
+          console.error("Verification error:", verifyErr);
+          setPaymentReturned(true);
+          setIsAwaitingPayment(true);
+          showToast(
+            verifyErr.response?.data?.message ||
+              "Payment is pending verification. Please check status or retry.",
+            "info",
+          );
+        } finally {
+          setIsVerifyingPayment(false);
+        }
+      } catch (checkoutError) {
+        console.error("Cashfree checkout error:", checkoutError);
+        showToast(
+          "An unexpected error occurred during payment. Your booking " + ref + " has been saved.",
+          "error",
+        );
+        setPaymentReturnResult({ error: checkoutError });
+        setPaymentReturned(true);
       }
     } catch (error) {
       console.error("Booking creation error:", error);
       const msg =
         error.response?.data?.message ||
-        "Something went wrong while booking consultation. Please try again.";
+        "Something went wrong. Please try again.";
       showToast(msg, "error");
     } finally {
       setIsSubmitting(false);
+      setIsOpeningPayment(false);
+      setIsVerifyingPayment(false);
+    }
+  };
+
+  // ---------------------------------------------------------------------------
+  // handleProceedToPayment — called from the awaiting-payment screen
+  // when the user clicks "Proceed to Payment" (retry / continue after page load).
+  // Re-uses the existing bookingReference and paymentSessionId if already obtained.
+  // ---------------------------------------------------------------------------
+  const handleProceedToPayment = async () => {
+    if (!bookingReference) {
+      showToast("Booking reference not found. Please go back and try again.", "error");
+      return;
+    }
+
+    setIsOpeningPayment(true);
+    setPaymentReturned(false);
+    setPaymentReturnResult(null);
+
+    try {
+      // If we already have a paymentSessionId from an earlier step, reuse it.
+      // Otherwise (e.g., page reload / retry), call create-order again.
+      let sessionId = paymentSessionId;
+      if (!sessionId) {
+        const orderResult = await paymentService.createPaymentOrder(bookingReference);
+
+        // Phase 2D: If backend determines it was already paid
+        if (orderResult?.alreadyPaid) {
+          setIsConfirmed(true);
+          setIsAwaitingPayment(false);
+          localStorage.removeItem(STORAGE_KEY);
+          if (orderResult.data) {
+            setConfirmedBooking(orderResult.data);
+          }
+          showToast("Payment already verified! Your consultation is scheduled.", "success");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          return;
+        }
+
+        if (!orderResult.success || !orderResult.data?.paymentSessionId) {
+          showToast(
+            orderResult.message || "Failed to initiate payment. Please try again.",
+            "error",
+          );
+          setIsOpeningPayment(false);
+          return;
+        }
+        sessionId = orderResult.data.paymentSessionId;
+        setPaymentSessionId(sessionId);
+        setCashfreeOrderAmount(orderResult.data.orderAmount);
+      }
+
+      const { load } = await import("@cashfreepayments/cashfree-js");
+      const cashfree = await load({ mode: "sandbox" });
+
+      if (!cashfree) {
+        showToast("Payment gateway initialisation failed. Please try again.", "error");
+        setIsOpeningPayment(false);
+        return;
+      }
+
+      setIsOpeningPayment(false);
+
+      const checkoutResult = await cashfree.checkout({
+        paymentSessionId: sessionId,
+        redirectTarget: "_modal",
+      });
+
+      console.log("Cashfree checkout returned:", checkoutResult);
+      setPaymentReturnResult(checkoutResult);
+
+      // Server-Side Verification for retry flow as well
+      setIsVerifyingPayment(true);
+      try {
+        const verifyResult = await paymentService.verifyPayment(bookingReference);
+        console.log("Retry verification result:", verifyResult);
+
+        if (verifyResult?.success && verifyResult?.confirmed) {
+          setIsConfirmed(true);
+          setIsAwaitingPayment(false);
+          localStorage.removeItem(STORAGE_KEY);
+          if (verifyResult.data) {
+            setConfirmedBooking(verifyResult.data);
+          }
+          showToast("Payment verified! Your consultation is scheduled.", "success");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          return;
+        } else {
+          setPaymentReturned(true);
+          setIsAwaitingPayment(true);
+          showToast(
+            verifyResult?.message || "Payment is pending verification.",
+            "info",
+          );
+        }
+      } catch (verifyErr) {
+        console.error("Retry verification error:", verifyErr);
+        setPaymentReturned(true);
+        setIsAwaitingPayment(true);
+        showToast(
+          verifyErr.response?.data?.message ||
+            "Payment is pending verification. Please check status or retry.",
+          "info",
+        );
+      } finally {
+        setIsVerifyingPayment(false);
+      }
+    } catch (err) {
+      console.error("Proceed to payment error:", err);
+      showToast("An unexpected error occurred. Please try again.", "error");
+      setPaymentReturned(true);
+    } finally {
+      setIsOpeningPayment(false);
+      setIsVerifyingPayment(false);
     }
   };
 
@@ -288,9 +635,28 @@ const VishalBooking = () => {
     navigate("/astrologers/vishal-bhardwaj");
   };
 
-  // ----------------------------------------------------
-  // CONFIRMATION SUCCESS VIEW
-  // ----------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // PHASE 2D: RECOVERING ACTIVE PAYMENT STATE
+  // ---------------------------------------------------------------------------
+  if (isRecoveringPayment) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#fffaf0] py-16">
+        <div className="text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#fff7e6] text-[#d4872b] shadow-[0_4px_20px_rgba(212,135,43,0.18)]">
+            <Loader2 size={36} className="animate-spin" />
+          </div>
+          <p className="mt-4 text-[14px] font-medium text-[#685c4f]">
+            Checking for active consultation booking...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // PHASE 2C/2D: BOOKING CONFIRMED SUCCESS VIEW
+  // Only rendered when isConfirmed is TRUE (after successful server verification).
+  // ---------------------------------------------------------------------------
   if (isConfirmed) {
     return (
       <div className="min-h-screen bg-[#fffaf0] py-12 sm:py-16">
@@ -313,6 +679,11 @@ const VishalBooking = () => {
               <p className="mt-2 text-[14.5px] text-[#685c4f]">
                 Booking Reference: <strong className="font-mono text-[#b36c1e]">{bookingReference}</strong>
               </p>
+              {confirmedBooking?.transactionId && (
+                <p className="mt-1 text-[12.5px] text-[#8c7e6c]">
+                  Transaction ID: <strong className="font-mono text-[#2b241d]">{confirmedBooking.transactionId}</strong>
+                </p>
+              )}
             </div>
 
             {/* Appointment Summary Box */}
@@ -345,7 +716,9 @@ const VishalBooking = () => {
                 </div>
                 <div>
                   <p className="text-[11px] font-bold uppercase text-[#8c7e6c]">Total Paid</p>
-                  <p className="font-serif text-[18px] font-bold text-[#c77722]">₹{totalPrice.toLocaleString("en-IN")}</p>
+                  <p className="font-serif text-[18px] font-bold text-[#c77722]">
+                    ₹{Number(confirmedBooking?.amount || cashfreeOrderAmount || totalPrice).toLocaleString("en-IN")}
+                  </p>
                 </div>
               </div>
 
@@ -370,7 +743,10 @@ const VishalBooking = () => {
             <div className="mt-8 flex flex-col gap-3.5 sm:flex-row sm:justify-center">
               <button
                 type="button"
-                onClick={handleBackToDetails}
+                onClick={() => {
+                  localStorage.removeItem(STORAGE_KEY);
+                  handleBackToDetails();
+                }}
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-[#eab12c] px-8 py-3.5 text-[14px] font-bold text-[#2b241d] shadow-[0_8px_20px_rgba(234,177,44,0.25)] transition-all hover:bg-[#dfa420]"
               >
                 <span>Return to Astrologer Profile</span>
@@ -385,6 +761,206 @@ const VishalBooking = () => {
                 Download Summary Receipt
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // PHASE 2B/2C: AWAITING PAYMENT SCREEN
+  // Booking exists in DB with bookingStatus="Pending" and paymentStatus="Pending".
+  // User can proceed to Cashfree Sandbox checkout from this screen.
+  // This screen also handles the post-checkout returned / verifying state.
+  // ---------------------------------------------------------------------------
+  if (isAwaitingPayment) {
+    return (
+      <div className="min-h-screen bg-[#fffaf0] py-12 sm:py-16">
+        <div className="mx-auto max-w-[760px] px-5 sm:px-8">
+          <div className="overflow-hidden rounded-[30px] border-2 border-[#d4872b] bg-white p-8 shadow-[0_20px_60px_rgba(212,135,43,0.18)] sm:p-12">
+
+            {/* Status Badge */}
+            <div className="text-center">
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#fff7e6] text-[#d4872b] shadow-[0_4px_20px_rgba(212,135,43,0.18)]">
+                {isOpeningPayment || isVerifyingPayment ? (
+                  <Loader2 size={44} strokeWidth={2} className="animate-spin" />
+                ) : (
+                  <Clock size={44} strokeWidth={2} />
+                )}
+              </div>
+
+              <span className="mt-6 inline-block rounded-full border border-[#d4872b] bg-[#fff7e6] px-4 py-1 text-[11px] font-bold uppercase tracking-widest text-[#b36c1e]">
+                {isVerifyingPayment
+                  ? "Verifying Payment"
+                  : paymentReturned
+                  ? "Payment Attempted"
+                  : "Awaiting Payment"}
+              </span>
+
+              <h1 className="mt-3 font-serif text-[30px] font-semibold text-[#2b241d] sm:text-[38px]">
+                {isOpeningPayment
+                  ? "Opening Payment Gateway..."
+                  : isVerifyingPayment
+                  ? "Verifying Payment with Server..."
+                  : paymentReturned
+                  ? "Payment Pending Verification"
+                  : "Booking Request Received"}
+              </h1>
+
+              <p className="mt-2 text-[14px] leading-6 text-[#685c4f]">
+                {isOpeningPayment
+                  ? "Please wait while we connect to the Cashfree Sandbox payment gateway."
+                  : isVerifyingPayment
+                  ? "We are verifying your transaction directly with the payment gateway. Please wait..."
+                  : paymentReturned
+                  ? "Your payment attempt has been recorded. We are verifying the payment status with our server. This will be confirmed shortly."
+                  : "Your consultation details have been saved. Complete payment to confirm your slot with Astrologer Vishal Bhardwaj."}
+              </p>
+
+              <p className="mt-3 text-[13px] text-[#8c7e6c]">
+                Booking Reference:{" "}
+                <strong className="font-mono text-[#b36c1e]">{bookingReference}</strong>
+              </p>
+            </div>
+
+            {/* Booking Summary Box */}
+            <div className="mt-8 rounded-2xl border border-[#ead8b8] bg-[#fffdf9] p-6">
+              <div className="flex items-center gap-4 border-b border-[#f0e2cd] pb-5">
+                <img
+                  src={vishalImage}
+                  alt="Vishal Bhardwaj"
+                  className="h-14 w-14 rounded-full border-2 border-[#eab12c] object-cover object-top"
+                />
+                <div>
+                  <h3 className="font-serif text-[20px] font-semibold text-[#2b241d]">
+                    Astrologer Vishal Bhardwaj
+                  </h3>
+                  <p className="text-[12.5px] text-[#8c7e6c]">
+                    Vedic Astrologer • Kashi / Varanasi
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3">
+                <div>
+                  <p className="text-[11px] font-bold uppercase text-[#8c7e6c]">Package</p>
+                  <p className="font-serif text-[15px] font-semibold text-[#2b241d]">{selectedPackage.title}</p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold uppercase text-[#8c7e6c]">Date & Time</p>
+                  <p className="font-serif text-[15px] font-semibold text-[#2b241d]">{formData.consultationDate}</p>
+                  <p className="text-[12px] text-[#685c4f]">{formData.consultationTime}</p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold uppercase text-[#8c7e6c]">Amount Due</p>
+                  <p className="font-serif text-[18px] font-bold text-[#c77722]">
+                    ₹{(cashfreeOrderAmount ?? totalPrice).toLocaleString("en-IN")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5 border-t border-[#f0e2cd] pt-4 text-[13px] text-[#554739]">
+                <p>
+                  <strong>Seeker:</strong> {formData.fullName} ({formData.gender}) •{" "}
+                  <strong>DOB:</strong> {formData.dateOfBirth} at{" "}
+                  {formData.isTimeUnknown ? "Time Unknown" : `${formData.birthHour}:${formData.birthMinute} ${formData.birthAmPm}`}{" "}
+                  ({formData.placeOfBirth})
+                </p>
+                <p className="mt-1">
+                  <strong>Language:</strong> {formData.reportLanguage} •{" "}
+                  <strong>Mode:</strong> {formData.consultationMode}
+                </p>
+              </div>
+            </div>
+
+            {/* Status Notice */}
+            <div className="mt-6 rounded-2xl border border-[#e6cca0] bg-[#fff7e6]/70 p-5 text-center">
+              {paymentReturned ? (
+                <>
+                  <p className="text-[13.5px] font-medium leading-relaxed text-[#5a4d40]">
+                    ⏳ Payment is <strong>awaiting server verification</strong>. Your slot is{" "}
+                    <strong>not yet confirmed</strong> until verification completes.
+                  </p>
+                  <p className="mt-2 text-[12px] text-[#8c7e6c]">
+                    If payment was successful, your confirmation will be processed shortly.
+                    Reference: <strong className="font-mono">{bookingReference}</strong>
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-[13.5px] font-medium leading-relaxed text-[#5a4d40]">
+                    ⚠️ Your slot is <strong>not yet confirmed</strong>. Complete payment to secure your consultation.
+                  </p>
+                  <p className="mt-2 text-[12px] text-[#8c7e6c]">
+                    We will notify you on WhatsApp:{" "}
+                    <strong>+91 {formData.whatsappNumber || "Registered Number"}</strong>
+                  </p>
+                </>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="mt-8 flex flex-col items-center gap-3">
+              {/* Primary CTA: Proceed to Payment (hidden while opening or after return) */}
+              {!isOpeningPayment && !paymentReturned && (
+                <button
+                  type="button"
+                  onClick={handleProceedToPayment}
+                  className="group inline-flex w-full max-w-[360px] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#eab12c] via-[#f0bb3b] to-[#dca522] py-4 text-[15px] font-bold text-[#1c1308] shadow-[0_8px_25px_rgba(234,177,44,0.35)] transition-all duration-300 hover:brightness-105"
+                >
+                  <Lock size={16} />
+                  <span>Proceed to Secure Payment</span>
+                  <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
+                </button>
+              )}
+
+              {/* Loading state while SDK initialises or checkout is opening */}
+              {isOpeningPayment && (
+                <div className="inline-flex items-center gap-3 rounded-xl bg-[#fff7e6] px-8 py-4 text-[14px] font-semibold text-[#b36c1e]">
+                  <Loader2 size={18} className="animate-spin" />
+                  <span>Connecting to payment gateway...</span>
+                </div>
+              )}
+
+              {/* After checkout returns: offer retry option */}
+              {paymentReturned && !isOpeningPayment && (
+                <button
+                  type="button"
+                  onClick={handleProceedToPayment}
+                  className="group inline-flex w-full max-w-[360px] items-center justify-center gap-2 rounded-xl border-2 border-[#d4872b] bg-white py-3.5 text-[14px] font-semibold text-[#b36c1e] transition-all hover:bg-[#fff7e6]"
+                >
+                  <ArrowRight size={16} />
+                  <span>Retry Payment</span>
+                </button>
+              )}
+
+              {/* Secondary: back to profile */}
+              <button
+                type="button"
+                onClick={handleBackToDetails}
+                className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-[#d6b8a0] bg-white px-7 py-3 text-[13px] font-semibold text-[#6b5f52] transition-all hover:border-[#eab12c] hover:bg-[#fffaf0]"
+              >
+                <ArrowLeft size={15} />
+                <span>Back to Astrologer Profile</span>
+              </button>
+
+              {/* Start New Booking option (Phase 2D) */}
+              <button
+                type="button"
+                onClick={() => {
+                  localStorage.removeItem(STORAGE_KEY);
+                  setIsAwaitingPayment(false);
+                  setBookingReference("");
+                  setPaymentSessionId("");
+                  setPaymentReturned(false);
+                  showToast("Previous booking cleared. You can start a new booking.", "info");
+                }}
+                className="mt-2 text-[12px] font-medium text-[#8c7e6c] underline transition-colors hover:text-[#b36c1e]"
+              >
+                Or click here to start a new booking
+              </button>
+            </div>
+
           </div>
         </div>
       </div>
