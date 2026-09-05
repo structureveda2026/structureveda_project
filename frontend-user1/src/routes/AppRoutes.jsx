@@ -22,6 +22,16 @@ import PujaListing from "../features/puja/pages/PujaListing";
 import PujaDetails from "../features/puja/pages/PujaDetails";
 import YagyaListing from "../features/yagya/pages/YagyaListing";
 import YagyaDetails from "../features/yagya/pages/YagyaDetails";
+import YagyaPujaLanding from "../features/yagyaPuja/pages/YagyaPujaLanding";
+import PujaCatalogueListing from "../features/yagyaPuja/pages/PujaCatalogueListing";
+import PujaServiceDetails from "../features/yagyaPuja/pages/PujaServiceDetails";
+import YagyaCatalogueListing from "../features/yagyaPuja/pages/YagyaCatalogueListing";
+import JapaCatalogueListing from "../features/yagyaPuja/pages/JapaCatalogueListing";
+import JapaServiceDetails from "../features/yagyaPuja/pages/JapaServiceDetails";
+import PathCatalogueListing from "../features/yagyaPuja/pages/PathCatalogueListing";
+import PathServiceDetails from "../features/yagyaPuja/pages/PathServiceDetails";
+import HomaCatalogueListing from "../features/yagyaPuja/pages/HomaCatalogueListing";
+import HomaServiceDetails from "../features/yagyaPuja/pages/HomaServiceDetails";
 
 const AppRoutes = () => {
   return (
@@ -50,7 +60,7 @@ const AppRoutes = () => {
 
         <Route path="/book-consultation" element={<Consultation />} />
 
-        {/* Puja */}
+        {/* Upcoming Puja Events (Preserved & Independent) */}
         <Route path="/puja" element={<PujaListing />} />
         <Route path="/puja/upcoming" element={<PujaListing />} />
         <Route path="/puja/:slug" element={<PujaDetails />} />
@@ -62,6 +72,20 @@ const AppRoutes = () => {
         <Route path="/yagya/:slug" element={<YagyaDetails />} />
         <Route path="/yagyas/:slug" element={<YagyaDetails />} />
         <Route path="/vedic-yagya/:slug" element={<YagyaDetails />} />
+
+        {/* Yagya & Puja Module (Service Catalogue) */}
+        <Route path="/yagya-puja" element={<YagyaPujaLanding />} />
+        <Route path="/yagya-puja/puja" element={<PujaCatalogueListing />} />
+        <Route path="/yagya-puja/puja/:slug" element={<PujaServiceDetails />} />
+        <Route path="/yagya-puja/yagya" element={<YagyaCatalogueListing />} />
+        <Route path="/yagya-puja/yagya/:slug" element={<YagyaDetails />} />
+        <Route path="/yagya-puja/japa" element={<JapaCatalogueListing />} />
+        <Route path="/yagya-puja/japa/:slug" element={<JapaServiceDetails />} />
+        <Route path="/yagya-puja/path" element={<PathCatalogueListing />} />
+        <Route path="/yagya-puja/path/:slug" element={<PathServiceDetails />} />
+        <Route path="/yagya-puja/homa" element={<HomaCatalogueListing />} />
+        <Route path="/yagya-puja/homa/:slug" element={<HomaServiceDetails />} />
+        <Route path="/yagya-puja/kashi" element={<PujaListing />} />
 
         {/* Astrologers */}
         <Route path="/astrologers" element={<Astrologers />} />

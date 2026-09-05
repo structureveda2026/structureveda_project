@@ -11,11 +11,23 @@ const NAVBAR_ASTROLOGERS = [
   { name: "Acharya Anurag Bhardwaj", slug: "acharya-anurag-bhardwaj" }
 ];
 
+// Yagya & Puja dropdown items
+const YAGYA_PUJA_NAV_ITEMS = [
+  { label: "Puja", path: "/yagya-puja/puja" },
+  { label: "Yagya", path: "/yagya-puja/yagya" },
+  { label: "Japa / Chanting", path: "/yagya-puja/japa" },
+  { label: "Path / Recitation", path: "/yagya-puja/path" },
+  { label: "Homa / Havan", path: "/yagya-puja/homa" },
+  { label: "Puja in Kashi", path: "/yagya-puja/kashi" },
+];
+
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAstrologerDropdownOpen, setIsAstrologerDropdownOpen] = useState(false);
+  const [isYagyaPujaDropdownOpen, setIsYagyaPujaDropdownOpen] = useState(false);
   const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
   const [isMobileAstrologerOpen, setIsMobileAstrologerOpen] = useState(false);
+  const [isMobileYagyaPujaOpen, setIsMobileYagyaPujaOpen] = useState(false);
 
   const accountDropdownRef = useRef(null);
 
@@ -36,6 +48,7 @@ const Navbar = () => {
     const handleEscape = (event) => {
       if (event.key === "Escape") {
         setIsAstrologerDropdownOpen(false);
+        setIsYagyaPujaDropdownOpen(false);
         setIsAccountDropdownOpen(false);
       }
     };
@@ -162,13 +175,58 @@ const Navbar = () => {
             Upcoming Puja
           </Link>
 
-          {/* Vedic Yagyas Link */}
-          <Link
-            to="/yagya"
-            className="text-[14px] font-medium text-[#5f554a] transition-colors hover:text-[#c88918]"
+          {/* Yagya & Puja Dropdown */}
+          <div
+            className="relative"
+            onMouseEnter={() => setIsYagyaPujaDropdownOpen(true)}
+            onMouseLeave={() => setIsYagyaPujaDropdownOpen(false)}
           >
-            Vedic Yagyas
-          </Link>
+            <Link
+              to="/yagya-puja"
+              className="flex items-center gap-1.5 text-[14px] font-medium text-[#5f554a] transition-colors hover:text-[#c88918]"
+            >
+              <span>Yagya & Puja</span>
+              <ChevronDown
+                size={16}
+                className={`transition-transform duration-200 ${
+                  isYagyaPujaDropdownOpen ? "rotate-180" : ""
+                }`}
+              />
+            </Link>
+
+            {isYagyaPujaDropdownOpen && (
+              <div className="absolute left-0 top-full z-50 pt-2 w-[240px]">
+                <div className="overflow-hidden rounded-xl border border-[#e3ca97] bg-[#fffdf9] shadow-[0_12px_32px_rgba(80,60,30,0.12)] animate-in fade-in slide-in-from-top-2 duration-200">
+                  {/* Header */}
+                  <div className="border-b border-[#eee1ca] bg-[#faf6ed] px-4 py-2.5">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#c88918]">
+                      YAGYA & PUJA
+                    </p>
+                  </div>
+
+                  {/* Links List */}
+                  <div className="py-1">
+                    {YAGYA_PUJA_NAV_ITEMS.map((item) => (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        onClick={() => setIsYagyaPujaDropdownOpen(false)}
+                        className="group flex w-full items-center justify-between px-4 py-2.5 text-left transition-colors hover:bg-[#faf6ed]"
+                      >
+                        <span className="text-[13px] font-medium text-[#2b241d] transition-colors group-hover:text-[#c88918]">
+                          {item.label}
+                        </span>
+                        <ArrowRight
+                          size={14}
+                          className="text-[#8a7c6b] opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100 group-hover:text-[#c88918]"
+                        />
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </nav>
 
         {/* =====================================================
@@ -341,14 +399,38 @@ const Navbar = () => {
               Upcoming Puja
             </Link>
 
-            {/* Vedic Yagyas */}
-            <Link
-              to="/yagya"
-              onClick={() => setIsMenuOpen(false)}
-              className="border-b border-[#eee1ca] py-3 text-[14px] font-medium text-[#5f554a]"
-            >
-              Vedic Yagyas
-            </Link>
+            {/* Yagya & Puja Mobile Dropdown */}
+            <div className="border-b border-[#eee1ca]">
+              <button
+                type="button"
+                onClick={() => setIsMobileYagyaPujaOpen(!isMobileYagyaPujaOpen)}
+                className="flex w-full items-center justify-between py-3 text-left text-[14px] font-medium text-[#5f554a]"
+              >
+                Yagya & Puja
+                <ChevronDown
+                  size={16}
+                  className={`transition-transform ${isMobileYagyaPujaOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+              {isMobileYagyaPujaOpen && (
+                <div className="space-y-1 pb-3">
+                  {YAGYA_PUJA_NAV_ITEMS.map((item) => (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => {
+                        setIsMobileYagyaPujaOpen(false);
+                        setIsMenuOpen(false);
+                      }}
+                      className="flex w-full items-center justify-between rounded-lg border border-[#e3ca97] bg-[#fffdf9] px-4 py-2.5 text-left text-[13px] font-medium text-[#2b241d] transition-colors hover:bg-[#faf6ed]"
+                    >
+                      <span>{item.label}</span>
+                      <ArrowRight size={14} className="text-[#8a7c6b]" />
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Book Consultation */}
             <Link
