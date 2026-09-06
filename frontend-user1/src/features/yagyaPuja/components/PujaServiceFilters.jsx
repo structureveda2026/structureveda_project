@@ -44,56 +44,58 @@ const PujaServiceFilters = ({
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   return (
-    <div className="mb-10 space-y-4">
+    <div className="space-y-3">
       {/* Search and Quick Filters Row */}
       <div className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between">
         {/* Search Input */}
-        <div className="relative flex-1 max-w-[420px]">
+        <div className="relative w-full sm:flex-1 sm:max-w-[440px]">
           <Search
-            size={16}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8a7c6b]"
+            size={15}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-[#a89d91]"
           />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by deity, tradition, or purpose..."
-            className="h-[44px] w-full rounded-full border border-[#e5d8c0] bg-white pl-11 pr-4 text-[13.5px] text-[#2b241d] shadow-2xs outline-none transition placeholder:text-[#a89d91] hover:border-[#c77722]/50 focus:border-[#c77722] focus:ring-2 focus:ring-[#c77722]/10"
+            placeholder="Search Pujas, deities or purpose..."
+            aria-label="Search Puja services"
+            className="h-[42px] w-full rounded-full border border-[#e0ceaf] bg-[#fffaf5] pl-10 pr-10 text-[13px] text-[#2b241d] outline-none transition placeholder:text-[#b0a494] hover:border-[#c77722]/50 focus:border-[#c77722] focus:ring-2 focus:ring-[#c77722]/10"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery("")}
+              aria-label="Clear search"
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8a7c6b] hover:text-[#2b241d]"
             >
-              <X size={14} />
+              <X size={13} />
             </button>
           )}
         </div>
 
         {/* Action Controls */}
         <div className="flex flex-wrap items-center gap-3">
-          {/* Featured Pill Button */}
+          {/* Featured toggle */}
           <button
             type="button"
             onClick={() => setIsFeaturedOnly(!isFeaturedOnly)}
-            className={`flex items-center gap-1.5 rounded-full border px-4 py-2 text-[12.5px] font-semibold transition-all ${
+            className={`flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-all ${
               isFeaturedOnly
                 ? "border-[#c77722] bg-[#eab12c] text-[#1c1308] shadow-xs"
-                : "border-[#e5d8c0] bg-white text-[#5c4f42] hover:border-[#c77722]"
+                : "border-[#e0ceaf] bg-[#fffaf5] text-[#5c4f42] hover:border-[#c77722]/60"
             }`}
           >
-            {isFeaturedOnly && <Check size={13} />}
-            <span>Featured Services</span>
+            {isFeaturedOnly && <Check size={11} />}
+            <span>Featured</span>
           </button>
 
           {/* Sort Selector */}
-          <div className="flex items-center gap-1.5 rounded-full border border-[#e5d8c0] bg-white px-3.5 py-1.5 shadow-2xs">
-            <ArrowUpDown size={14} className="text-[#8a7c6b]" />
+          <div className="flex items-center gap-1.5 rounded-full border border-[#e0ceaf] bg-[#fffaf5] px-3 py-1.5">
+            <ArrowUpDown size={13} className="text-[#a89d91]" />
             <select
               value={selectedSort}
               onChange={(e) => setSelectedSort(e.target.value)}
-              className="bg-transparent text-[12.5px] font-medium text-[#2b241d] outline-none cursor-pointer"
+              className="bg-transparent text-[12px] font-medium text-[#2b241d] outline-none cursor-pointer"
             >
               {SORT_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -107,12 +109,13 @@ const PujaServiceFilters = ({
           <button
             type="button"
             onClick={() => setIsMobileFilterOpen(true)}
-            className="flex items-center gap-2 rounded-full border border-[#e5d8c0] bg-white px-4 py-2 text-[13px] font-semibold text-[#2b241d] shadow-2xs hover:border-[#c77722] lg:hidden"
+            aria-label="Open filter drawer"
+            className="flex items-center gap-2 rounded-full border border-[#e0ceaf] bg-[#fffaf5] px-3.5 py-1.5 text-[12px] font-semibold text-[#2b241d] hover:border-[#c77722]/60 lg:hidden"
           >
-            <Filter size={14} className="text-[#c77722]" />
+            <Filter size={13} className="text-[#c77722]" />
             <span>Filters</span>
             {activeFilterCount > 0 && (
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#eab12c] text-[10.5px] font-bold text-[#1c1308]">
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#eab12c] text-[10px] font-bold text-[#1c1308]">
                 {activeFilterCount}
               </span>
             )}
@@ -121,53 +124,51 @@ const PujaServiceFilters = ({
       </div>
 
       {/* Desktop Detailed Filters */}
-      <div className="hidden rounded-[22px] border border-[#ead8b8] bg-[#fffdf9] p-4 shadow-[0_4px_16px_rgba(80,60,30,0.04)] lg:block">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wider text-[#b36c1e]">
-              <SlidersHorizontal size={14} />
-              Filter By:
-            </span>
+      <div className="hidden lg:flex flex-wrap items-center gap-3 pt-0.5">
+        <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-[#b36c1e]">
+          <SlidersHorizontal size={12} />
+          Filter:
+        </span>
 
-            {/* Purpose Select */}
-            <select
-              value={selectedPurpose}
-              onChange={(e) => setSelectedPurpose(e.target.value)}
-              className="rounded-full border border-[#d6b8a0] bg-[#fffaf0] px-4 py-2 text-[13px] font-medium text-[#2b241d] outline-none transition focus:border-[#d4872b]"
-            >
-              {PURPOSES.map((pur) => (
-                <option key={pur} value={pur}>
-                  {pur}
-                </option>
-              ))}
-            </select>
+        {/* Purpose Select */}
+        <select
+          value={selectedPurpose}
+          onChange={(e) => setSelectedPurpose(e.target.value)}
+          aria-label="Filter by purpose"
+          className="rounded-full border border-[#e0ceaf] bg-[#fffaf5] px-3.5 py-1.5 text-[12.5px] font-medium text-[#2b241d] outline-none transition focus:border-[#c77722] cursor-pointer"
+        >
+          {PURPOSES.map((pur) => (
+            <option key={pur} value={pur}>
+              {pur}
+            </option>
+          ))}
+        </select>
 
-            {/* Duration Select */}
-            <select
-              value={selectedDuration}
-              onChange={(e) => setSelectedDuration(e.target.value)}
-              className="rounded-full border border-[#d6b8a0] bg-[#fffaf0] px-4 py-2 text-[13px] font-medium text-[#2b241d] outline-none transition focus:border-[#d4872b]"
-            >
-              {DURATIONS.map((dur) => (
-                <option key={dur} value={dur}>
-                  {dur}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* Duration Select */}
+        <select
+          value={selectedDuration}
+          onChange={(e) => setSelectedDuration(e.target.value)}
+          aria-label="Filter by duration"
+          className="rounded-full border border-[#e0ceaf] bg-[#fffaf5] px-3.5 py-1.5 text-[12.5px] font-medium text-[#2b241d] outline-none transition focus:border-[#c77722] cursor-pointer"
+        >
+          {DURATIONS.map((dur) => (
+            <option key={dur} value={dur}>
+              {dur}
+            </option>
+          ))}
+        </select>
 
-          {/* Reset Filters Link */}
-          {activeFilterCount > 0 && (
-            <button
-              type="button"
-              onClick={onResetFilters}
-              className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-[#c77722] hover:underline"
-            >
-              <X size={13} />
-              Reset All Filters ({activeFilterCount})
-            </button>
-          )}
-        </div>
+        {/* Reset link */}
+        {activeFilterCount > 0 && (
+          <button
+            type="button"
+            onClick={onResetFilters}
+            className="ml-1 inline-flex items-center gap-1 text-[12px] font-semibold text-[#c77722] hover:underline"
+          >
+            <X size={12} />
+            Reset ({activeFilterCount})
+          </button>
+        )}
       </div>
 
       {/* Mobile Drawer */}

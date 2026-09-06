@@ -131,23 +131,49 @@ const PujaCatalogueListing = () => {
       <PujaSankalpaProcess />
 
       {/* 3. EXPLORE VEDIC PUJAS (PRIMARY CATALOGUE SECTION) */}
-      <section id="puja-catalogue" className="border-b border-[#ebdcc4] bg-[#fffaf0] px-4 py-14 sm:px-6 sm:py-20 lg:px-8 xl:px-10">
+      <section id="puja-catalogue" className="border-b border-[#ebdcc4] bg-[#fdf8ef] px-4 py-16 sm:px-6 sm:py-20 lg:px-8 xl:px-10">
         <div className="mx-auto max-w-[1400px]">
-          {/* Section Header */}
-          <div className="text-center">
-            <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#b36c1e]">
-              PRIMARY CATALOGUE
-            </p>
-            <h2 className="mt-2.5 font-serif text-[30px] font-semibold text-[#2b241d] sm:text-[38px] lg:text-[42px]">
-              Explore Vedic Pujas
+
+          {/* ── Section Header ── */}
+          <div className="mb-12 text-center lg:mb-14">
+
+            {/* Eyebrow label */}
+            <div className="inline-flex items-center gap-2 border-b border-[#c77722]/40 pb-1.5">
+              <Sparkles size={11} className="text-[#c77722]" />
+              <span className="font-sans text-[10px] font-bold uppercase tracking-[0.28em] text-[#b36c1e]">
+                Primary Catalogue
+              </span>
+            </div>
+
+            {/* Two-color heading */}
+            <h2 className="mt-5 font-serif leading-[1.15]">
+              <span className="block text-[28px] font-semibold text-[#2b241d] sm:text-[36px] lg:text-[42px]">
+                Explore Vedic
+              </span>
+              <span className="block text-[36px] font-bold text-[#c77722] sm:text-[44px] lg:text-[50px]">
+                Pujas
+                <span
+                  aria-hidden="true"
+                  className="mx-auto mt-1 block h-[2px] w-14 rounded-full bg-[#c77722]/50 sm:w-16"
+                />
+              </span>
             </h2>
-            <p className="mx-auto mt-2.5 max-w-[640px] text-[15px] leading-relaxed text-[#685c4f]">
-              Choose a Puja according to your purpose and requirement.
+
+            {/* Description */}
+            <p className="mx-auto mt-5 max-w-[600px] text-[14.5px] leading-[1.75] text-[#5c4e3f] sm:text-[15.5px]">
+              Choose a Puja according to your purpose and devotional intention.
             </p>
+
+            {/* Decorative divider */}
+            <div aria-hidden="true" className="mx-auto mt-6 flex items-center justify-center gap-3 text-[#c77722]/70">
+              <span className="h-px w-10 bg-[#c77722]/35 sm:w-14" />
+              <span className="text-[13px]">✦</span>
+              <span className="h-px w-10 bg-[#c77722]/35 sm:w-14" />
+            </div>
           </div>
 
-          {/* Filters Bar */}
-          <div className="mt-10">
+          {/* ── Filter Area ── */}
+          <div className="mb-8 rounded-2xl border border-[#e8d9bc] bg-[#fffdf8] px-5 py-4 shadow-[0_2px_12px_rgba(80,55,20,0.05)] sm:px-6 sm:py-5">
             <PujaServiceFilters
               selectedPurpose={selectedPurpose}
               setSelectedPurpose={setSelectedPurpose}
@@ -164,10 +190,14 @@ const PujaCatalogueListing = () => {
             />
           </div>
 
-          {/* Counter Bar */}
-          <div className="mb-6 flex items-center justify-between text-[13.5px] text-[#75695c]">
+          {/* ── Counter Bar ── */}
+          <div className="mb-7 flex items-center justify-between text-[13px] text-[#75695c]">
             <span>
-              Showing <strong className="text-[#2b241d]">{filteredServices.length}</strong> Sacred Vedic Puja Services
+              Showing{" "}
+              <strong className="font-bold text-[#2b241d] text-[15px]">
+                {filteredServices.length}
+              </strong>{" "}
+              Sacred Vedic Puja Services
             </span>
             {activeFilterCount > 0 && (
               <button
@@ -180,9 +210,9 @@ const PujaCatalogueListing = () => {
             )}
           </div>
 
-          {/* Service Cards Grid */}
+          {/* ── Service Cards Grid ── */}
           {filteredServices.length > 0 ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-7">
+            <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3 xl:gap-8">
               {filteredServices.map((service) => (
                 <PujaServiceCard key={service.id} service={service} />
               ))}

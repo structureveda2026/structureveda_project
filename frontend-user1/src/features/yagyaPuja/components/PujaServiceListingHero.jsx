@@ -1,6 +1,6 @@
-import { Sparkles, ArrowRight, ChevronRight, MessageSquareQuote } from "lucide-react";
+import { Sparkles, ArrowRight, ChevronRight, MessageSquareQuote, ShieldCheck, Award } from "lucide-react";
 import { Link } from "react-router-dom";
-import defaultPujaHeroImage from "../../../assets/images/puja_hero1.png";
+import heroBgImg from "../../../assets/images/puja/puja-kashi.webp.png";
 
 const PujaServiceListingHero = ({ onExploreClick }) => {
   const handleScrollToCatalogue = () => {
@@ -15,89 +15,116 @@ const PujaServiceListingHero = ({ onExploreClick }) => {
   };
 
   return (
-    <section className="relative overflow-hidden border-b border-[#ead8b8] bg-gradient-to-b from-[#fbf4e8] via-[#f8edd8] to-[#f4e4c7] px-5 py-10 sm:px-8 sm:py-14 lg:px-12 lg:py-16">
-      {/* Ambient Warm Golden Background Glows */}
-      <div className="pointer-events-none absolute -left-20 top-1/2 h-[400px] w-[400px] -translate-y-1/2 rounded-full bg-[#eab12c]/12 blur-[120px]" />
-      <div className="pointer-events-none absolute right-0 top-0 h-[360px] w-[360px] rounded-full bg-[#d4872b]/10 blur-[110px]" />
+    <section className="relative flex min-h-[620px] items-center overflow-hidden border-b border-[#ebdcc4] px-5 py-12 sm:min-h-[660px] sm:px-8 sm:py-16 lg:min-h-[700px] lg:px-12 lg:py-20">
+      {/* ── Layer 1: Full-Bleed Atmospheric Kashi / Priest Background Image ── */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-cover bg-center sm:bg-[center_right_15%] lg:bg-[center_right_10%]"
+        style={{ backgroundImage: `url(${heroBgImg})` }}
+      />
 
-      <div className="relative mx-auto max-w-[1320px]">
+      {/* ── Layer 2: Localized Soft Directional Readability Overlay ── */}
+      {/* Left side is calm parchment canvas; Right side is transparent so Kashi/priest scene remains vibrant & rich */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#fffaf0]/92 via-[#fffaf0]/82 via-[36%] via-[#fffaf0]/32 via-[56%] to-transparent to-[76%] max-lg:bg-gradient-to-b max-lg:from-[#fffaf0]/95 max-lg:via-[#fffaf0]/85 max-lg:to-[#fffaf0]/40"
+      />
+
+      {/* ── Layer 3: Subtle Warm Golden Atmospheric Glow (Restrained) ── */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/3 top-1/2 h-[380px] w-[380px] -translate-y-1/2 rounded-full bg-[#eab12c]/6 blur-[130px]"
+      />
+
+      {/* ── Main Editorial Content ── */}
+      <div className="relative z-10 mx-auto w-full max-w-[1360px]">
+
         {/* Contextual Breadcrumb Navigation */}
-        <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1.5 text-[12px] font-medium text-[#7a6d5f]">
-          <Link to="/" className="transition-colors hover:text-[#c77722]">
+        <nav aria-label="Breadcrumb" className="mb-8 flex items-center gap-1.5 text-[12.5px] font-medium text-[#5c4e3f] sm:mb-10">
+          <Link to="/" className="transition-colors hover:text-[#b36c1e]">
             Home
           </Link>
-          <ChevronRight size={13} className="text-[#a89d91]" />
-          <Link to="/yagya-puja" className="transition-colors hover:text-[#c77722]">
+          <ChevronRight size={13} className="text-[#b36c1e]" />
+          <Link to="/yagya-puja" className="transition-colors hover:text-[#b36c1e]">
             Yagya & Puja
           </Link>
-          <ChevronRight size={13} className="text-[#a89d91]" />
+          <ChevronRight size={13} className="text-[#b36c1e]" />
           <span className="font-semibold text-[#2b241d]">Puja Services</span>
         </nav>
 
-        <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-12 xl:gap-16">
-          {/* LEFT COLUMN: ARTWORK */}
-          <div className="order-1 flex items-center justify-center lg:order-1 lg:col-span-5">
-            <div className="relative flex w-full max-w-[360px] items-center justify-center sm:max-w-[420px] lg:max-w-[460px]">
-              <div className="pointer-events-none absolute inset-0 -m-6 rounded-full bg-gradient-to-tr from-[#eab12c]/20 via-[#f5cf73]/15 to-transparent blur-3xl" />
-              <img
-                src={defaultPujaHeroImage}
-                alt="Vedic Puja, Performed With Purpose"
-                className="relative z-10 max-h-[320px] w-full object-contain drop-shadow-[0_16px_32px_rgba(43,36,29,0.12)] transition-transform duration-700 hover:scale-[1.02] sm:max-h-[380px] lg:max-h-[440px]"
-                loading="eager"
-              />
+        {/* Left Editorial Content Area (48-52% width, leaving the right side open for Kashi visual) */}
+        <div className="max-w-[620px] lg:max-w-[640px]">
+
+          {/* Editorial Eyebrow with Fine Gold Divider Accent */}
+          <div className="inline-flex items-center gap-2 text-[#b36c1e]">
+            <span className="text-[12px] text-[#c77722]">✦</span>
+            <span className="font-sans text-[11px] font-bold uppercase tracking-[0.24em] text-[#8e4f0d]">
+              VEDIC PUJA • SANKALPA • VIDHI
+            </span>
+            <span aria-hidden="true" className="h-px w-12 bg-[#c77722]/35 sm:w-16" />
+          </div>
+
+          {/* Main Editorial Heading with Controlled 2-Line Rhythm & Antique Gold Accent */}
+          <h1 className="mt-3.5 max-w-[540px] font-serif text-[36px] font-semibold leading-[1.08] tracking-[-0.02em] sm:text-[40px] lg:text-[50px] xl:text-[54px]">
+            <span className="text-[#2b241d]">Vedic Puja,</span>
+            <br className="hidden sm:inline" />
+            <span className="text-[#b36c1e]"> Performed With </span>
+            <span className="text-[#2b241d]">Purpose</span>
+          </h1>
+
+          {/* Subtitle */}
+          <p className="mt-3.5 max-w-[580px] font-serif text-[17px] font-medium leading-relaxed text-[#45372a] sm:text-[18.5px]">
+            Traditional Vedic rituals, thoughtfully arranged around your Sankalpa.
+          </p>
+
+          {/* Supporting Description */}
+          <p className="mt-3 max-w-[560px] font-sans text-[14px] leading-relaxed text-[#65584a] sm:text-[15px]">
+            Choose a Puja according to your purpose, preferred arrangement and requirements. Veda Structure helps coordinate the ritual, Acharyas and applicable Samagri.
+          </p>
+
+          {/* Refined Lightweight Trust Points Row */}
+          <div className="mt-6 flex flex-wrap items-center gap-3 text-[12.5px] font-medium text-[#473a2e] sm:gap-4">
+            <div className="flex items-center gap-1.5">
+              <ShieldCheck size={15} className="text-[#b36c1e]" />
+              <span>Prescribed Shastric Vidhi</span>
+            </div>
+            <span aria-hidden="true" className="hidden text-[#d5c3aa] sm:inline">•</span>
+            <div className="flex items-center gap-1.5">
+              <Award size={15} className="text-[#b36c1e]" />
+              <span>Learned Vedic Acharyas</span>
+            </div>
+            <span aria-hidden="true" className="hidden text-[#d5c3aa] sm:inline">•</span>
+            <div className="flex items-center gap-1.5">
+              <Sparkles size={15} className="text-[#b36c1e]" />
+              <span>Personal Sankalpa</span>
             </div>
           </div>
 
-          {/* RIGHT COLUMN: EDITORIAL CONTENT & ACTIONS */}
-          <div className="order-2 text-center lg:order-2 lg:col-span-7 lg:text-left">
-            {/* Client Eyebrow */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#ead8b8] bg-[#fffaf0]/95 px-3.5 py-1.5 shadow-[0_2px_10px_rgba(43,36,29,0.04)] backdrop-blur-xs">
-              <Sparkles size={13} className="text-[#c77722]" />
-              <span className="text-[10.5px] font-bold uppercase tracking-[0.24em] text-[#b36c1e] sm:text-[11px]">
-                VEDIC PUJA • SANKALPA • VIDHI
-              </span>
-            </div>
+          {/* Primary & Secondary Action CTAs */}
+          <div className="mt-8 flex flex-wrap items-center gap-3.5 sm:gap-4">
+            <button
+              type="button"
+              onClick={handleScrollToCatalogue}
+              className="group inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-[#eab12c] px-7 py-3.5 text-[14px] font-bold text-[#1c1308] shadow-[0_4px_18px_rgba(234,177,44,0.3)] transition-all duration-300 hover:bg-[#dda018] hover:shadow-[0_6px_24px_rgba(234,177,44,0.4)] active:scale-[0.98]"
+            >
+              <span>Explore Vedic Pujas</span>
+              <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
+            </button>
 
-            {/* Client H1 */}
-            <h1 className="mt-3.5 font-serif text-[32px] font-medium leading-[1.12] tracking-[-0.02em] text-[#2b241d] sm:text-[42px] lg:text-[48px] xl:text-[52px]">
-              Vedic Puja, Performed With Purpose
-            </h1>
-
-            {/* Client Subtitle */}
-            <p className="mx-auto mt-3 max-w-[620px] font-serif text-[16.5px] font-medium leading-relaxed text-[#473a2e] sm:text-[18px] lg:mx-0">
-              Traditional Vedic Pujas thoughtfully arranged around your Sankalpa, selected ritual, date and requirements.
-            </p>
-
-            {/* Client Supporting Text */}
-            <p className="mx-auto mt-2.5 max-w-[600px] text-[14px] leading-relaxed text-[#6b5c4e] sm:text-[14.5px] lg:mx-0">
-              From personal and family rituals to specific spiritual purposes, choose a Puja according to your requirement and let Veda Structure coordinate the ritual arrangements.
-            </p>
-
-            {/* CTAs */}
-            <div className="mt-7 flex flex-wrap items-center justify-center gap-3 sm:gap-4 lg:justify-start">
-              <button
-                type="button"
-                onClick={handleScrollToCatalogue}
-                className="group inline-flex items-center justify-center gap-2 rounded-full bg-[#eab12c] px-7 py-3 text-[13.5px] font-bold text-[#1c1308] shadow-[0_6px_22px_rgba(234,177,44,0.32)] transition-all duration-300 hover:bg-[#dda018] hover:shadow-[0_8px_28px_rgba(234,177,44,0.42)] cursor-pointer"
-              >
-                <span>Explore Pujas</span>
-                <ArrowRight size={15} className="transition-transform duration-300 group-hover:translate-x-1" />
-              </button>
-
-              <Link
-                to="/astrologers"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-[#d6b8a0] bg-white/95 px-6 py-3 text-[13.5px] font-semibold text-[#2b241d] shadow-2xs backdrop-blur-xs transition-all duration-300 hover:border-[#c77722] hover:bg-[#fffaf0] hover:text-[#c77722]"
-              >
-                <MessageSquareQuote size={15} className="text-[#c77722]" />
-                <span>Talk to a Vedic Expert</span>
-              </Link>
-            </div>
+            <Link
+              to="/astrologers"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-[#dcc5a7] bg-[#fffaf0]/85 px-6 py-3.5 text-[13.5px] font-semibold text-[#2b241d] shadow-2xs transition-all duration-300 hover:border-[#b36c1e] hover:bg-[#fffdfa] hover:text-[#b36c1e]"
+            >
+              <MessageSquareQuote size={15} className="text-[#b36c1e]" />
+              <span>Talk to a Vedic Expert</span>
+            </Link>
           </div>
+
         </div>
+
       </div>
     </section>
   );
 };
 
 export default PujaServiceListingHero;
-

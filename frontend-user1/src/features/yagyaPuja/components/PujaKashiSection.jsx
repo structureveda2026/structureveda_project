@@ -1,8 +1,11 @@
-import { MapPin, ArrowRight } from "lucide-react";
+import { useState } from "react";
+import { MapPin, ArrowRight, Sparkles, User, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
-import kashiImg from "../../../assets/images/puja-kashi.jpg";
+import pujaKashiImg from "../../../assets/images/puja/puja-kashi.webp.png";
 
 const PujaKashiSection = ({ onFilterRemote }) => {
+  const [activeMode, setActiveMode] = useState("visiting");
+
   const handleBookFromAnywhere = () => {
     if (onFilterRemote) {
       onFilterRemote();
@@ -10,99 +13,150 @@ const PujaKashiSection = ({ onFilterRemote }) => {
     const el = document.getElementById("puja-catalogue");
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
+
   return (
-    <section className="border-b border-[#ebdcc4] bg-[#fffcf7] px-5 py-14 sm:px-8 sm:py-20 lg:px-12">
-      <div className="mx-auto max-w-[1280px]">
-        {/* Editorial Container */}
-        <div className="relative overflow-hidden rounded-[28px] border border-[#ead8b8] bg-[#fbf5e8] p-8 shadow-xs sm:p-10 lg:p-12">
-          {/* Subtle Golden Glow */}
-          <div className="pointer-events-none absolute -right-20 -top-20 h-[300px] w-[300px] rounded-full bg-[#eab12c]/10 blur-[100px]" />
+    <section className="relative border-b border-[#ebdcc4] bg-[#fffaf0] px-5 py-18 sm:px-8 sm:py-24 lg:px-12">
+      <div className="mx-auto max-w-[1360px]">
+        <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
 
-          <div className="grid items-center gap-10 lg:grid-cols-12">
-            {/* Left Column: Context Copy */}
-            <div className="lg:col-span-7">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#ead8b8] bg-[#fffdfa] px-3.5 py-1.5 shadow-2xs">
-                <MapPin size={13} className="text-[#c77722]" />
-                <span className="text-[10.5px] font-bold uppercase tracking-[0.24em] text-[#b36c1e]">
-                  KASHI • VARANASI
-                </span>
-              </div>
-
-              <h2 className="mt-4 font-serif text-[30px] font-semibold leading-tight text-[#2b241d] sm:text-[38px] lg:text-[42px]">
-                Perform Your Puja in Kashi
-              </h2>
-
-              <p className="mt-4 text-[14.5px] leading-relaxed text-[#5e5143] sm:text-[15.5px]">
-                For generations, devotees have travelled to Kashi with a Sankalpa for Darshan, Puja and spiritual practice.
-              </p>
-
-              <p className="mt-2 text-[14.5px] leading-relaxed text-[#5e5143] sm:text-[15.5px]">
-                Veda Structure helps coordinate selected traditional Puja services in Kashi for visitors as well as devotees who cannot travel to Varanasi.
-              </p>
-
-              {/* Two Choices */}
-              <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                {/* Choice 1: Visiting */}
-                <div className="flex flex-col justify-between rounded-[20px] border border-[#e5d2b3] bg-[#fffdfa] p-5 shadow-2xs">
-                  <div>
-                    <h3 className="font-serif text-[17px] font-bold text-[#2b241d]">
-                      I AM VISITING KASHI
-                    </h3>
-                    <p className="mt-1.5 text-[13px] leading-relaxed text-[#685c4f]">
-                      Plan your Puja around your Kashi visit.
-                    </p>
-                  </div>
-                  <div className="mt-5">
-                    <Link
-                      to="/yagya-puja/kashi"
-                      className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#eab12c] px-5 py-2.5 text-[12.5px] font-bold text-[#1c1308] shadow-xs transition hover:bg-[#dda018]"
-                    >
-                      <span>Plan My Kashi Puja</span>
-                      <ArrowRight size={13} />
-                    </Link>
-                  </div>
-                </div>
-
-                {/* Choice 2: Cannot Visit */}
-                <div className="flex flex-col justify-between rounded-[20px] border border-[#e5d2b3] bg-[#fffdfa] p-5 shadow-2xs">
-                  <div>
-                    <h3 className="font-serif text-[17px] font-bold text-[#2b241d]">
-                      I CANNOT VISIT KASHI
-                    </h3>
-                    <p className="mt-1.5 text-[13px] leading-relaxed text-[#685c4f]">
-                      Explore selected Puja services that may be arranged remotely.
-                    </p>
-                  </div>
-                  <div className="mt-5">
-                    <button
-                      type="button"
-                      onClick={handleBookFromAnywhere}
-                      className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#d6b8a0] bg-white px-5 py-2.5 text-[12.5px] font-bold text-[#2b241d] shadow-2xs transition hover:border-[#c77722] hover:bg-[#fffaf0] hover:text-[#c77722] cursor-pointer"
-                    >
-                      <span>Book From Anywhere</span>
-                      <ArrowRight size={13} />
-                    </button>
-                  </div>
-                </div>
-              </div>
+          {/* ── Left Column: Editorial Context & Segmented Choices ── */}
+          <div className="lg:col-span-7">
+            {/* Location Eyebrow */}
+            <div className="inline-flex items-center gap-1.5 text-[#b36c1e]">
+              <MapPin size={13} className="text-[#c77722]" />
+              <span className="font-sans text-[11px] font-bold uppercase tracking-[0.24em]">
+                Kashi • Varanasi
+              </span>
             </div>
 
-            {/* Right Column: Visual Frame */}
-            <div className="lg:col-span-5">
-              <div className="relative overflow-hidden rounded-[24px] border border-[#e2cca4] shadow-md">
-                <img
-                  src={kashiImg}
-                  alt="Holy Ghats of Kashi Varanasi"
-                  className="h-[340px] w-full object-cover sm:h-[400px]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1f160e]/85 via-transparent to-transparent" />
-                <div className="absolute bottom-5 left-5 right-5 text-[#f5ebd9]">
-                  <p className="font-serif text-[18px] font-bold">Kashi Mokshapuri</p>
-                  <p className="text-[12px] opacity-90">Sacred Ganga Ghats & Venerable Mandir Kshetras</p>
+            <h2 className="mt-2.5 font-serif text-[28px] font-semibold leading-[1.15] sm:text-[36px] lg:text-[40px]">
+              <span className="text-[#2b241d]">
+                Perform Your
+              </span>
+              <span className="text-[#c77722]">
+                {" "}Puja in Kashi
+              </span>
+            </h2>
+
+
+
+            {/* Two Narrative Paragraphs */}
+            <div className="mt-5 space-y-3 max-w-[620px]">
+              <p className="text-[15px] leading-[1.75] text-[#5e5143] sm:text-[16px]">
+                For millennia, devotees have journeyed to Kashi with a sacred Sankalpa for Darshan, ritual purification, and Vedic ceremonies along the eternal Ganga.
+              </p>
+              <p className="text-[14px] leading-[1.75] text-[#5e5143] sm:text-[14.5px]">
+                Veda Structure coordinates selected traditional Puja services in Kashi for visitors as well as devotees who cannot travel to Varanasi in person.
+              </p>
+            </div>
+
+            {/* ── Single Unified Segmented Choice Selector ── */}
+            <div className="mt-8 inline-flex w-full max-w-[580px] rounded-[14px] border border-[#dcc5a5] bg-[#f7eee1]/70 p-1">
+              <button
+                type="button"
+                onClick={() => setActiveMode("visiting")}
+                className={`flex-1 inline-flex items-center justify-center gap-2 rounded-[10px] py-2.5 px-3 text-[13px] font-semibold transition-all duration-250 cursor-pointer ${activeMode === "visiting"
+                  ? "bg-[#eab12c] text-[#1c1308] shadow-xs font-bold"
+                  : "text-[#685c4f] hover:text-[#2b241d] hover:bg-[#ebdcc4]/40"
+                  }`}
+              >
+                <User size={15} />
+                <span>I Am Visiting Kashi</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveMode("remote")}
+                className={`flex-1 inline-flex items-center justify-center gap-2 rounded-[10px] py-2.5 px-3 text-[13px] font-semibold transition-all duration-250 cursor-pointer ${activeMode === "remote"
+                  ? "bg-[#eab12c] text-[#1c1308] shadow-xs font-bold"
+                  : "text-[#685c4f] hover:text-[#2b241d] hover:bg-[#ebdcc4]/40"
+                  }`}
+              >
+                <Globe size={15} />
+                <span>I Cannot Visit Kashi</span>
+              </button>
+            </div>
+
+            {/* ── Choice Descriptions & CTAs (Clean 2-Column Editorial Blocks) ── */}
+            <div className="mt-6 grid gap-6 sm:grid-cols-2 max-w-[580px]">
+              {/* In-Person Presence */}
+              <div className={`transition-opacity duration-300 ${activeMode === "visiting" ? "opacity-100" : "opacity-75 sm:opacity-90"}`}>
+                <span className="block text-[10.5px] font-bold uppercase tracking-[0.2em] text-[#b36c1e]">
+                  In-Person Presence
+                </span>
+                <p className="mt-1.5 text-[13px] leading-[1.6] text-[#685c4f]">
+                  Plan your private ceremony around your Kashi travel dates and family schedule.
+                </p>
+                <div className="mt-4">
+                  <Link
+                    to="/yagya-puja/kashi"
+                    className={`group inline-flex w-full items-center justify-center gap-2 rounded-[12px] px-5 h-11 text-[13px] font-bold transition-all duration-300 ${activeMode === "visiting"
+                      ? "bg-[#eab12c] text-[#1c1308] shadow-xs hover:bg-[#dda018]"
+                      : "border border-[#d6b8a0] bg-transparent text-[#2b241d] hover:border-[#c77722] hover:bg-[#fcf5e9] hover:text-[#c77722]"
+                      }`}
+                  >
+                    <span>Plan My Kashi Puja</span>
+                    <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Remote Devotion */}
+              <div className={`transition-opacity duration-300 ${activeMode === "remote" ? "opacity-100" : "opacity-75 sm:opacity-90"}`}>
+                <span className="block text-[10.5px] font-bold uppercase tracking-[0.2em] text-[#b36c1e]">
+                  Remote Devotion
+                </span>
+                <p className="mt-1.5 text-[13px] leading-[1.6] text-[#685c4f]">
+                  Explore selected Puja services performed on holy Ganga ghats on your behalf.
+                </p>
+                <div className="mt-4">
+                  <button
+                    type="button"
+                    onClick={handleBookFromAnywhere}
+                    className={`group inline-flex w-full items-center justify-center gap-2 rounded-[12px] px-5 h-11 text-[13px] font-bold transition-all duration-300 cursor-pointer ${activeMode === "remote"
+                      ? "bg-[#eab12c] text-[#1c1308] shadow-xs hover:bg-[#dda018]"
+                      : "border border-[#d6b8a0] bg-transparent text-[#2b241d] hover:border-[#c77722] hover:bg-[#fcf5e9] hover:text-[#c77722]"
+                      }`}
+                  >
+                    <span>Book From Anywhere</span>
+                    <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+                  </button>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* ── Right Column: Editorial Visual Anchor ── */}
+          <div className="lg:col-span-5">
+            <div className="group relative overflow-hidden rounded-[22px] border border-[#e2d2ba] bg-[#1c1209] shadow-[0_8px_24px_rgba(50,35,20,0.08)] transition-all duration-300 hover:border-[#c77722]">
+              <div className="relative h-[400px] w-full overflow-hidden sm:h-[460px] lg:h-[490px]">
+                <img
+                  src={pujaKashiImg}
+                  alt="Sacred Ganga Aarti and Ghats of Kashi Varanasi"
+                  className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                  loading="lazy"
+                />
+
+                {/* Subtle dark warm bottom gradient */}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#140c06]/90 via-[#140c06]/25 via-40% to-transparent transition-opacity duration-300 group-hover:from-[#140c06]/95" />
+
+                {/* Direct Editorial Caption Over Image */}
+                <div className="absolute bottom-5 left-5 right-5 sm:bottom-6 sm:left-6 sm:right-6 text-[#f5ebd9]">
+                  <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-[#eab12c]/35 bg-[#160d06]/60 px-2.5 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.2em] text-[#f5ce6f] backdrop-blur-xs">
+                    <Sparkles size={10} className="text-[#eab12c]" />
+                    <span>Kshetra Mahatmya</span>
+                  </div>
+                  <h3 className="font-serif text-[19px] font-bold text-[#faf4e8] sm:text-[20px] leading-snug">
+                    Kashi Mokshapuri
+                  </h3>
+                  <p className="mt-1 text-[12.5px] text-[#eedcc5]/90">
+                    Venerable Ganga Ghats &amp; Sacred Mandir Kshetras
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
