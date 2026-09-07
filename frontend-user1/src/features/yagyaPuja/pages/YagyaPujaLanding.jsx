@@ -1,46 +1,69 @@
-import YagyaPujaHero from "../components/YagyaPujaHero";
-import YagyaPujaIntro from "../components/YagyaPujaIntro";
-import ServiceCategoryCards from "../components/ServiceCategoryCards";
-import ExploreByPurpose from "../components/ExploreByPurpose";
-import PopularRituals from "../components/PopularRituals";
-import WhyVedaStructure from "../components/WhyVedaStructure";
-import KashiSection from "../components/KashiSection";
-import HowItWorksSection from "../components/HowItWorksSection";
-import YagyaPujaFaq from "../components/YagyaPujaFaq";
-import YagyaPujaFinalCta from "../components/YagyaPujaFinalCta";
+import { useEffect } from "react";
 
+import UmbrellaTrustBar from "../components/umbrella/UmbrellaTrustBar";
+import UmbrellaHero from "../components/umbrella/UmbrellaHero";
+import UmbrellaTrustStrip from "../components/umbrella/UmbrellaTrustStrip";
+import UmbrellaRitualCategories from "../components/umbrella/UmbrellaRitualCategories";
+import UmbrellaPopularServices from "../components/umbrella/UmbrellaPopularServices";
+import UmbrellaPurposeDiscovery from "../components/umbrella/UmbrellaPurposeDiscovery";
+import UmbrellaWhyVeda from "../components/umbrella/UmbrellaWhyVeda";
+import UmbrellaBookingProcess from "../components/umbrella/UmbrellaBookingProcess";
+import UmbrellaFeaturedKashiRitual from "../components/umbrella/UmbrellaFeaturedKashiRitual";
+import UmbrellaKashiStory from "../components/umbrella/UmbrellaKashiStory";
+import UmbrellaGallery from "../components/umbrella/UmbrellaGallery";
+import UmbrellaFaq from "../components/umbrella/UmbrellaFaq";
+import UmbrellaFinalCta from "../components/umbrella/UmbrellaFinalCta";
+
+/**
+ * MAIN YAGYA & PUJA UMBRELLA LANDING PAGE (/yagya-puja)
+ * Primary discovery and conversion showcase for Veda Structure Vedic rituals.
+ */
 const YagyaPujaLanding = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.title = "Vedic Yagya & Puja in Kashi • Veda Structure";
+  }, []);
+
   return (
-    <div className="min-h-screen bg-[#fffaf0]">
-      {/* 1. Hero Section */}
-      <YagyaPujaHero />
+    <div className="min-h-screen bg-[#fffaf0] text-[#2b241d]">
+      {/* SECTION 1: TOP TRUST BAR */}
+      <UmbrellaTrustBar />
 
-      {/* 2. Introduction */}
-      <YagyaPujaIntro />
+      {/* SECTION 2: HERO */}
+      <UmbrellaHero />
 
-      {/* 3. Six Service Categories */}
-      <ServiceCategoryCards />
+      {/* SECTION 3: TRUST STRIP */}
+      <UmbrellaTrustStrip />
 
-      {/* 4. Explore by Purpose */}
-      <ExploreByPurpose />
+      {/* SECTION 4: CHOOSE THE RITUAL THAT MATCHES YOUR PURPOSE */}
+      <UmbrellaRitualCategories />
 
-      {/* 5. Popular Rituals */}
-      <PopularRituals />
+      {/* SECTION 5: POPULAR PUJA + POPULAR YAGYA */}
+      <UmbrellaPopularServices />
 
-      {/* 6. Why Veda Structure */}
-      <WhyVedaStructure />
+      {/* SECTION 6: PURPOSE-BASED DISCOVERY */}
+      <UmbrellaPurposeDiscovery />
 
-      {/* 7. Kashi Section */}
-      <KashiSection />
+      {/* SECTION 7: WHY VEDA STRUCTURE */}
+      <UmbrellaWhyVeda />
 
-      {/* 8. How It Works */}
-      <HowItWorksSection />
+      {/* SECTION 8: FROM BOOKING TO SANKALP */}
+      <UmbrellaBookingProcess />
 
-      {/* 9. FAQ Section */}
-      <YagyaPujaFaq />
+      {/* SECTION 9: FEATURED KASHI RITUAL */}
+      <UmbrellaFeaturedKashiRitual />
 
-      {/* 10. Final CTA */}
-      <YagyaPujaFinalCta />
+      {/* SECTION 10: PERFORMED IN THE SACRED LAND OF KASHI */}
+      <UmbrellaKashiStory />
+
+      {/* SECTION 11: RITUAL GALLERY */}
+      <UmbrellaGallery />
+
+      {/* SECTION 13: FAQ */}
+      <UmbrellaFaq />
+
+      {/* SECTION 14: FINAL CTA */}
+      <UmbrellaFinalCta />
     </div>
   );
 };
