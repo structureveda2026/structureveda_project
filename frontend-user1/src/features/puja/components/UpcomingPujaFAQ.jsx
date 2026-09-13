@@ -69,37 +69,37 @@ const UpcomingPujaFAQ = () => {
     <section
       id="upcoming-puja-faq"
       aria-label="Frequently Asked Questions About Upcoming Pujas"
-      className="mt-16 mb-8 sm:mt-20 sm:mb-12"
+      className="mt-14 mb-8 sm:mt-18 sm:mb-12"
     >
-      <div className="mx-auto max-w-[960px]">
+      <div className="mx-auto max-w-[1120px]">
         {/* ── Section Header ── */}
-        <div className="mb-10 text-center space-y-2.5">
+        <div className="mb-7 sm:mb-8 text-center space-y-2">
           <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.25em] text-[#b36c1e]">
             <HelpCircle size={12} className="text-[#c77722]" />
             <span>FREQUENTLY ASKED QUESTIONS</span>
           </div>
 
-          <h2 className="font-serif text-[28px] font-bold text-[#2b241d] sm:text-[36px]">
+          <h2 className="font-serif text-[26px] font-bold text-[#2b241d] sm:text-[32px] lg:text-[34px] leading-tight">
             Frequently Asked Questions
           </h2>
 
-          <p className="mx-auto max-w-[680px] text-[14.5px] leading-relaxed text-[#6b5d4e]">
+          <p className="mx-auto max-w-[680px] text-[13.5px] sm:text-[14px] leading-relaxed text-[#6b5d4e]">
             Everything you need to know about remote participation, personalized Sankalp chanting in
             Kashi, Shastric Muhurats, and Prasad delivery.
           </p>
 
           <div
             aria-hidden="true"
-            className="mx-auto mt-4 flex items-center justify-center gap-2.5 text-[#c77722]/50"
+            className="mx-auto mt-2.5 flex items-center justify-center gap-2 text-[#c77722]/50"
           >
-            <span className="h-px w-8 bg-[#c77722]/30 sm:w-12" />
+            <span className="h-px w-7 bg-[#c77722]/30 sm:w-10" />
             <Sparkles size={11} className="text-[#c77722]" />
-            <span className="h-px w-8 bg-[#c77722]/30 sm:w-12" />
+            <span className="h-px w-7 bg-[#c77722]/30 sm:w-10" />
           </div>
         </div>
 
-        {/* ── FAQ Accordion Stack ── */}
-        <div className="space-y-3.5">
+        {/* ── FAQ Accordion Grid (2 columns on desktop/tablet, 1 on mobile) ── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-3 sm:gap-4">
           {FAQ_ITEMS.map((faq, idx) => {
             const isOpen = openIndex === idx;
             const contentId = `faq-panel-${idx}`;
@@ -108,10 +108,10 @@ const UpcomingPujaFAQ = () => {
             return (
               <div
                 key={idx}
-                className={`overflow-hidden rounded-[20px] border transition-all duration-200 ${
+                className={`overflow-hidden rounded-[16px] border transition-all duration-200 ${
                   isOpen
-                    ? "border-[#c77722] bg-[#fffdfa] shadow-[0_6px_22px_rgba(199,119,34,0.08)]"
-                    : "border-[#ebdcc4] bg-[#fffdfa]/90 hover:border-[#c77722]/70 hover:bg-[#fffdfa]"
+                    ? "border-[#c77722] bg-[#fffdfa] shadow-[0_4px_16px_rgba(199,119,34,0.06)]"
+                    : "border-[#ebdcc4] bg-[#fffdfa] hover:border-[#c77722]/70"
                 }`}
               >
                 <button
@@ -120,20 +120,20 @@ const UpcomingPujaFAQ = () => {
                   onClick={() => handleToggle(idx)}
                   aria-expanded={isOpen}
                   aria-controls={contentId}
-                  className="flex w-full items-center justify-between p-5 text-left transition-colors sm:px-6 sm:py-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#eab12c]"
+                  className="flex w-full items-center justify-between gap-3.5 p-4 sm:p-4.5 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#eab12c]"
                 >
-                  <span className="font-serif text-[16.5px] font-bold text-[#2b241d] sm:text-[18px]">
+                  <span className="min-w-0 flex-1 font-serif text-[15px] sm:text-[16px] font-bold text-[#2b241d] leading-snug">
                     {faq.question}
                   </span>
 
                   <div
-                    className={`ml-4 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition-all duration-200 ${
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition-all duration-200 ${
                       isOpen
                         ? "border-[#c77722] bg-[#eab12c] text-[#1c1308] rotate-180"
                         : "border-[#ebdcc4] bg-[#fffaf0] text-[#b36c1e]"
                     }`}
                   >
-                    <ChevronDown size={15} />
+                    <ChevronDown size={14} />
                   </div>
                 </button>
 
@@ -142,7 +142,7 @@ const UpcomingPujaFAQ = () => {
                     id={contentId}
                     role="region"
                     aria-labelledby={buttonId}
-                    className="border-t border-[#f0e2cd] px-5 pt-3.5 pb-5 text-[13.5px] leading-relaxed text-[#685c4f] sm:px-6 sm:pb-6"
+                    className="border-t border-[#f0e2cd] px-4.5 pt-3 pb-4.5 sm:px-5 sm:pb-5 text-[13px] sm:text-[13.5px] leading-relaxed text-[#685c4f]"
                   >
                     <p>{faq.answer}</p>
                   </div>

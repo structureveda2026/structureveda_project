@@ -1,9 +1,17 @@
-import { BookOpen, Users, Sparkles, MapPin, Package, Globe, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
+
+// Authentic local trust icons from Book_With_Veda_Structure
+import traditionalVidhiImg from "../../../assets/images/Book_With_Veda_Structure/Traditional Vidhi.png";
+import experiencedAcharyasImg from "../../../assets/images/Book_With_Veda_Structure/Experienced Acharyas.png";
+import personalSankalpImg from "../../../assets/images/Book_With_Veda_Structure/Personal Sankalp.png";
+import sacredKashiImg from "../../../assets/images/Book_With_Veda_Structure/Sacred Kashi.png";
+import prasadConfirmationImg from "../../../assets/images/Book_With_Veda_Structure/Prasad & Confirmation.png";
+import onlineParticipationImg from "../../../assets/images/Book_With_Veda_Structure/Online Participation.png";
 
 /**
  * Why Book with Veda Structure
- * Compact, editorial trust panel highlighting the 6 authentic client-approved benefits.
- * Features a refined, noticeable warm antique-gold hover interaction per benefit tile.
+ * Clean, open editorial trust section featuring the 6 authentic client-approved benefits.
+ * Displays dedicated local image icons directly on the warm ivory page background.
  */
 const WhyBookWithVedaStructure = () => {
   const benefits = [
@@ -11,37 +19,37 @@ const WhyBookWithVedaStructure = () => {
       id: "traditional-vidhi",
       title: "Traditional Vidhi",
       description: "Authentic Vedic procedure",
-      icon: BookOpen,
+      image: traditionalVidhiImg,
     },
     {
       id: "experienced-acharyas",
       title: "Experienced Acharyas",
       description: "Guided by trained Vedic practitioners",
-      icon: Users,
+      image: experiencedAcharyasImg,
     },
     {
       id: "personal-sankalp",
       title: "Personal Sankalp",
       description: "Your name & intention included",
-      icon: Sparkles,
+      image: personalSankalpImg,
     },
     {
       id: "sacred-kashi",
       title: "Sacred Kashi",
       description: "Rituals performed in Kashi",
-      icon: MapPin,
+      image: sacredKashiImg,
     },
     {
       id: "prasad-confirmation",
       title: "Prasad & Confirmation",
       description: "Available as per selected Puja",
-      icon: Package,
+      image: prasadConfirmationImg,
     },
     {
       id: "online-participation",
       title: "Online Participation",
       description: "Participate even when you cannot be present",
-      icon: Globe,
+      image: onlineParticipationImg,
     },
   ];
 
@@ -49,54 +57,57 @@ const WhyBookWithVedaStructure = () => {
     <section
       id="why-book-with-veda-structure"
       aria-label="Why Book with Veda Structure"
-      className="mt-12 mb-10 sm:mt-16 sm:mb-14"
+      className="mt-16 mb-16 sm:mt-20 sm:mb-20"
     >
-      <div className="rounded-[20px] border border-[#ebdcc4] bg-[#fbf5e8] p-5 sm:p-7 lg:p-9 shadow-xs">
-        {/* ── Section Heading ── */}
-        <div className="mb-6 sm:mb-7 text-center space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-[0.25em] text-[#b36c1e]">
-            <ShieldCheck size={12} className="text-[#c77722]" />
-            <span>TRUST &amp; AUTHENTICITY</span>
-          </div>
-          <h2 className="font-serif text-[22px] font-bold text-[#2b241d] sm:text-[26px]">
-            Why Book With Veda Structure?
-          </h2>
+      {/* ── Section Heading (Open, Centered, Editorial) ── */}
+      <div className="mb-10 sm:mb-12 text-center space-y-2">
+        <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.25em] text-[#b36c1e]">
+          <ShieldCheck size={13} className="text-[#c77722]" />
+          <span>TRUST &amp; AUTHENTICITY</span>
         </div>
+        <h2 className="font-serif text-[26px] font-bold text-[#2b241d] sm:text-[30px] lg:text-[32px]">
+          Why Book With Veda Structure?
+        </h2>
+      </div>
 
-        {/* ── 6 Unified Benefit Items (Desktop: 6 cols, Tablet: 3 cols, Mobile: 2 cols) ── */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6 lg:gap-2.5 text-center">
-          {benefits.map((benefit) => {
-            const Icon = benefit.icon;
-
-            return (
-              <div
-                key={benefit.id}
-                className="group relative flex flex-col items-center rounded-[16px] border border-transparent p-3 sm:p-3.5 transition-all duration-300 ease-out hover:-translate-y-[3px] hover:border-[#d9a13a] hover:bg-[#f6e7bf] hover:shadow-[0_8px_22px_rgba(199,119,34,0.14)] motion-reduce:hover:translate-y-0 motion-reduce:transition-none cursor-default"
-              >
-                {/* Icon with circular background */}
-                <div className="mb-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-[#f2e6d2] text-[#b36c1e] shadow-2xs transition-all duration-300 ease-out group-hover:scale-[1.08] group-hover:bg-[#eab12c] group-hover:text-[#2b241d] group-hover:shadow-xs motion-reduce:group-hover:scale-100">
-                  <Icon size={17} />
-                </div>
-
-                {/* Title with antique gold transition */}
-                <h3 className="font-serif text-[14px] sm:text-[14.5px] font-bold text-[#2b241d] leading-snug transition-colors duration-300 ease-out group-hover:text-[#5b3817]">
-                  {benefit.title}
-                </h3>
-
-                {/* Small antique-gold accent line (20px on hover) */}
-                <div
-                  aria-hidden="true"
-                  className="mx-auto mt-1.5 h-[1.5px] w-0 bg-[#d9a13a] transition-all duration-300 ease-out group-hover:w-5 motion-reduce:transition-none"
+      {/* ── 6 Open Editorial Benefit Items (Desktop: 6 cols in 1 row, Tablet: 3 cols, Mobile: 2 cols) ── */}
+      <div className="grid grid-cols-2 gap-y-8 gap-x-4 sm:grid-cols-3 sm:gap-y-8 sm:gap-x-6 lg:grid-cols-6 lg:gap-0 text-center">
+        {benefits.map((benefit, idx) => {
+          return (
+            <div
+              key={benefit.id}
+              className={`group flex flex-col items-center px-3 sm:px-4 lg:px-3.5 xl:px-4 transition-all duration-300 ${
+                idx < benefits.length - 1 ? "lg:border-r lg:border-[#ebdcc4]/70" : ""
+              }`}
+            >
+              {/* Image Icon - Directly on page background, no circular container or box */}
+              <div className="mb-3.5 flex h-[46px] w-[46px] items-center justify-center">
+                <img
+                  src={benefit.image}
+                  alt={benefit.title}
+                  className="h-[42px] w-[42px] object-contain transition-transform duration-300 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100"
+                  loading="lazy"
                 />
-
-                {/* Description with richer tone on hover */}
-                <p className="mt-1.5 text-[11.5px] sm:text-[12px] leading-snug text-[#685c4f] transition-colors duration-300 ease-out group-hover:text-[#6b4a27]">
-                  {benefit.description}
-                </p>
               </div>
-            );
-          })}
-        </div>
+
+              {/* Title with serif styling & subtle warm hover */}
+              <h3 className="font-serif text-[14px] sm:text-[14.5px] lg:text-[15px] font-bold text-[#2b241d] leading-snug transition-colors duration-300 group-hover:text-[#c77722]">
+                {benefit.title}
+              </h3>
+
+              {/* Small decorative gold accent line */}
+              <div
+                aria-hidden="true"
+                className="my-2 h-[1.5px] w-4 bg-[#eab12c]/60 transition-all duration-300 ease-out group-hover:w-6 group-hover:bg-[#c77722] motion-reduce:transition-none"
+              />
+
+              {/* Description */}
+              <p className="text-[11.5px] sm:text-[12px] leading-relaxed text-[#75695c] transition-colors duration-300 group-hover:text-[#423629] max-w-[170px]">
+                {benefit.description}
+              </p>
+            </div>
+          );
+        })}
       </div>
     </section>
   );

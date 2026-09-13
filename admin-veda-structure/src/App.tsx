@@ -22,6 +22,9 @@ import Notifications from "@/pages/Notifications";
 import Reports from "@/pages/Reports";
 import Settings from "@/pages/Settings";
 import Consultations from "@/pages/Consultations";
+import UpcomingPujas from "@/pages/UpcomingPujas";
+import UpcomingPujaForm from "@/pages/UpcomingPujaForm";
+import UpcomingPujaDetail from "@/pages/UpcomingPujaDetail";
 import ConsultationDetail from "@/pages/ConsultationDetail";
 
 export default function App() {
@@ -41,6 +44,10 @@ export default function App() {
             <Route path="courses" element={<Courses />} />
             <Route path="courses/new" element={<ProductForm />} />
             <Route path="courses/:id/edit" element={<ProductForm />} />
+            <Route path="upcoming-pujas" element={<UpcomingPujas />} />
+            <Route path="upcoming-pujas/new" element={<UpcomingPujaForm />} />
+            <Route path="upcoming-pujas/:id" element={<UpcomingPujaDetail />} />
+            <Route path="upcoming-pujas/:id/edit" element={<UpcomingPujaForm />} />
             <Route path="bookings" element={<Bookings />} />
             <Route path="bookings/:id" element={<BookingDetail />} />
             <Route path="consultations" element={<Consultations />} />

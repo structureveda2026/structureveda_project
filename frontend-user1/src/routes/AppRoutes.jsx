@@ -19,6 +19,7 @@ import Favorites from "../pages/Favorites";
 import NotFound from "../pages/NotFound";
 
 import PujaListing from "../features/puja/pages/PujaListing";
+import UpcomingPujaAll from "../features/puja/pages/UpcomingPujaAll";
 import PujaDetails from "../features/puja/pages/PujaDetails";
 import YagyaListing from "../features/yagya/pages/YagyaListing";
 import YagyaDetails from "../features/yagya/pages/YagyaDetails";
@@ -63,6 +64,7 @@ const AppRoutes = () => {
         {/* Upcoming Puja Events (Preserved & Independent) */}
         <Route path="/puja" element={<PujaListing />} />
         <Route path="/puja/upcoming" element={<PujaListing />} />
+        <Route path="/puja/upcoming/all" element={<UpcomingPujaAll />} />
         <Route path="/puja/:slug" element={<PujaDetails />} />
 
         {/* Vedic Yagyas */}

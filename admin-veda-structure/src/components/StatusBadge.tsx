@@ -66,6 +66,7 @@ const statusConfig: Record<string, { bg: string; text: string; dot: string }> =
       text: "text-charcoal-500",
       dot: "bg-charcoal-400",
     },
+    "Booking Closed": { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500" },
     Published: {
       bg: "bg-green-50",
       text: "text-green-700",

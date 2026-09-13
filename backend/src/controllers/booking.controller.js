@@ -1,4 +1,4 @@
-﻿import Booking from "../models/bookingModel.js";
+import Booking from "../models/bookingModel.js";
 import User from "../models/userModel.js";
 
 // Server-side source of truth for astrologer package pricing and add-ons
@@ -175,8 +175,8 @@ export const createBooking = async (req, res) => {
       consultationTime,
       consultationMode,
       selectedTopics: Array.isArray(selectedTopics) ? selectedTopics : [],
-      bookingStatus: "Confirmed",
-      paymentStatus: "Pending", // No gateway integrated yet; pending real transaction
+      bookingStatus: "Pending", // Awaiting payment; will be set to "Confirmed" after successful payment verification (Phase 2)
+      paymentStatus: "Pending", // Awaiting payment gateway transaction
       paymentMethod: "Online",
       notes: notes ? notes.trim() : null,
     });

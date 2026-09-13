@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import { ChevronDown, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Sparkles, ArrowRight } from "lucide-react";
 import { PUJA_LIST } from "../data/pujaData";
 import PujaListingHero from "../components/PujaListingHero";
 import NextUpcomingPujaSpotlight from "../components/NextUpcomingPujaSpotlight";
@@ -7,7 +8,6 @@ import UpcomingPujaDiscovery from "../components/UpcomingPujaDiscovery";
 import UpcomingPujaCard from "../components/UpcomingPujaCard";
 import FeaturedUpcomingPuja from "../components/FeaturedUpcomingPuja";
 import UpcomingPujaCalendar from "../components/UpcomingPujaCalendar";
-import PujaByPurpose from "../components/PujaByPurpose";
 import PujaByOccasion from "../components/PujaByOccasion";
 import WhyBookWithVedaStructure from "../components/WhyBookWithVedaStructure";
 import UpcomingPujaHowItWorks from "../components/UpcomingPujaHowItWorks";
@@ -18,11 +18,9 @@ import UpcomingPujaFinalCta from "../components/UpcomingPujaFinalCta";
 
 const PujaListing = () => {
   const [selectedPurpose, setSelectedPurpose] = useState("All");
-  const [showAllCards, setShowAllCards] = useState(false);
 
   const handleResetFilters = () => {
     setSelectedPurpose("All");
-    setShowAllCards(false);
   };
 
   // Filter and sort items chronologically strictly by startDateTime
@@ -44,8 +42,8 @@ const PujaListing = () => {
     });
   }, [selectedPurpose]);
 
-  // Primary view: exactly 3 cards, or all cards when expanded
-  const visiblePujas = showAllCards ? filteredPujas : filteredPujas.slice(0, 3);
+  // Primary view: exactly the top 3 cards for the main page
+  const displayedPujas = filteredPujas.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-[#fffaf0] pb-24">
@@ -67,10 +65,7 @@ const PujaListing = () => {
         {/* SECTION 3: FILTER / DISCOVERY BAR */}
         <UpcomingPujaDiscovery
           selectedPurpose={selectedPurpose}
-          onSelectPurpose={(pur) => {
-            setSelectedPurpose(pur);
-            setShowAllCards(false);
-          }}
+          onSelectPurpose={(pur) => setSelectedPurpose(pur)}
           onResetFilters={handleResetFilters}
           totalResults={filteredPujas.length}
         />
@@ -93,29 +88,25 @@ const PujaListing = () => {
         {filteredPujas.length > 0 ? (
           <div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-7">
-              {visiblePujas.map((puja) => (
+              {displayedPujas.map((puja) => (
                 <UpcomingPujaCard key={puja.id} puja={puja} />
               ))}
             </div>
 
-            {/* View All / Show Less Toggle (when results exceed 3) */}
+            {/* View All Button navigating to /puja/upcoming/all (when results exceed 3) */}
             {filteredPujas.length > 3 && (
               <div className="mt-10 text-center">
-                <button
-                  type="button"
-                  onClick={() => setShowAllCards((prev) => !prev)}
-                  className="inline-flex items-center gap-2 rounded-full border border-[#ebdcc4] bg-[#fffdfa] px-8 py-3.5 text-[13.5px] font-bold text-[#2b241d] shadow-2xs transition-all duration-200 hover:border-[#c77722] hover:bg-[#fffaf0] hover:text-[#c77722] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#eab12c]"
+                <Link
+                  to="/puja/upcoming/all"
+                  aria-label={`View all ${filteredPujas.length} upcoming ceremonies`}
+                  className="group inline-flex items-center gap-2 rounded-full border border-[#ebdcc4] bg-[#fffdfa] px-8 py-3.5 text-[13.5px] font-bold text-[#2b241d] shadow-2xs transition-all duration-200 hover:border-[#c77722] hover:bg-[#fffaf0] hover:text-[#c77722] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#eab12c]"
                 >
-                  <span>
-                    {showAllCards
-                      ? "Show Less (First 3 Only)"
-                      : `View All (${filteredPujas.length}) Upcoming Ceremonies`}
-                  </span>
-                  <ChevronDown
+                  <span>View All ({filteredPujas.length}) Upcoming Ceremonies</span>
+                  <ArrowRight
                     size={16}
-                    className={`transition-transform duration-300 ${showAllCards ? "rotate-180" : ""}`}
+                    className="transition-transform duration-200 group-hover:translate-x-1"
                   />
-                </button>
+                </Link>
               </div>
             )}
           </div>
@@ -144,19 +135,11 @@ const PujaListing = () => {
         <FeaturedUpcomingPuja />
 
         {/* =========================================================
-            SECTION 7: UPCOMING PUJA CALENDAR (PHASE 5)
+            SECTION 7: UPCOMING PUJA CALENDAR & PURPOSE DIRECTORY
         ========================================================== */}
-        <UpcomingPujaCalendar />
-
-        {/* =========================================================
-            SECTION 8: PUJA BY PURPOSE (PHASE 6)
-        ========================================================== */}
-        <PujaByPurpose
+        <UpcomingPujaCalendar
           selectedPurpose={selectedPurpose}
-          onSelectPurpose={(purpose) => {
-            setSelectedPurpose(purpose);
-            setShowAllCards(false);
-          }}
+          onSelectPurpose={(purpose) => setSelectedPurpose(purpose)}
         />
 
         {/* =========================================================

@@ -36,5 +36,8 @@ const post = async (path: string, body: unknown) =>
   request(path, { method: "POST", body: JSON.stringify(body) });
 const patch = async (path: string, body: unknown) =>
   request(path, { method: "PATCH", body: JSON.stringify(body) });
+const put = async (path: string, body: unknown) =>
+  request(path, { method: "PUT", body: JSON.stringify(body) });
+const del = async (path: string) => request(path, { method: "DELETE" });
 
-export default { get, post, patch };
+export default { get, post, patch, put, delete: del, del };

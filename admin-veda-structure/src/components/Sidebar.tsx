@@ -5,6 +5,7 @@ import {
   FolderTree,
   GraduationCap,
   CalendarCheck,
+  Sparkles,
   ShoppingBag,
   Users,
   UserCog,
@@ -50,7 +51,16 @@ const navItems: NavItem[] = [
       { label: "Categories", path: "/admin/courses?tab=categories" },
     ],
   },
-  {
+    {
+    label: "Upcoming Puja",
+    path: "/admin/upcoming-pujas",
+    icon: Sparkles,
+    children: [
+      { label: "All Upcoming Pujas", path: "/admin/upcoming-pujas" },
+      { label: "Create Puja", path: "/admin/upcoming-pujas/new" },
+    ],
+  },
+{
     label: "Bookings",
     path: "/admin/bookings",
     icon: CalendarCheck,
