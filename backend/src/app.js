@@ -6,6 +6,7 @@ import consultationRoutes from "./routes/consultation.routes.js";
 import bookingRoutes from "./routes/booking.routes.js";
 import paymentRoutes from "./routes/payment.routes.js";
 import upcomingPujaAdminRoutes from "./routes/upcomingPujaAdmin.routes.js";
+import upcomingPujaRoutes from "./routes/upcomingPuja.routes.js";
 
 const app = express();
 
@@ -36,6 +37,6 @@ app.use("/api/consultations", consultationRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/admin/upcoming-pujas", upcomingPujaAdminRoutes);
-app.use("/admin/upcoming-pujas", upcomingPujaAdminRoutes);
+app.use("/api/upcoming-pujas", upcomingPujaRoutes);
 
 export default app;

@@ -7,7 +7,7 @@
   "type": "module",
   "main": "src/server.js",
   "scripts": {
-    "dev": "node --watch src/server.js",
+    "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "migrate": "sequelize-cli db:migrate --config src/config/config.cjs --migrations-path migrations",
     "migration:status": "sequelize-cli db:migrate:status --config src/config/config.cjs --migrations-path migrations",
@@ -25,6 +25,7 @@
     "sequelize": "^6.37.8"
   },
   "devDependencies": {
+    "nodemon": "^3.1.14",
     "sequelize-cli": "^6.6.5"
   }
 }

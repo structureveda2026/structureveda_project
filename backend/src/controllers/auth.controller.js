@@ -94,6 +94,7 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+
     // 1. Validate input
     if (!email || !password) {
       return res.status(400).json({
@@ -111,6 +112,7 @@ export const login = async (req, res) => {
         email: normalizedEmail,
       },
     });
+
 
     if (!user) {
       return res.status(401).json({
