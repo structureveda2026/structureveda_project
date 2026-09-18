@@ -1,5 +1,6 @@
 import { Calendar, MapPin, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import defaultPujaImg from "../../../assets/images/puja-kashi.jpg";
 
 /**
  * Status badge styling mapper adhering strictly to Veda Structure guidelines.
@@ -79,6 +80,10 @@ const UpcomingPujaCard = ({ puja }) => {
           alt={puja.name}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = defaultPujaImg;
+          }}
         />
         {/* Soft dark vignette */}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/25" />

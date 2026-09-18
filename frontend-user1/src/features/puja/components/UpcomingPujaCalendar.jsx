@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Calendar as CalendarIcon,
@@ -128,8 +128,37 @@ const getStatusBadge = (status) => {
   }
 };
 
-const UpcomingPujaCalendar = ({ selectedPurpose, onSelectPurpose }) => {
-  const [{ year, monthIndex, selectedDate }, setCalendarState] = useState(getInitialCalendarState);
+const UpcomingPujaCalendar = ({ selectedPurpose, onSelectPurpose, pujas = null }) => {
+  const activeList = useMemo(() => {
+    return Array.isArray(pujas) ? pujas : PUJA_LIST;
+  }, [pujas]);
+
+  const [{ year, monthIndex, selectedDate }, setCalendarState] = useState(() => {
+    return getInitialCalendarState();
+  });
+
+  // When dynamic pujas change, center calendar on the earliest scheduled ceremony
+  useEffect(() => {
+    if (Array.isArray(pujas) && pujas.length > 0) {
+      const now = Date.now();
+      const futureEvents = [...pujas]
+        .filter((p) => p.startDateTime && new Date(p.startDateTime).getTime() > now)
+        .sort((a, b) => new Date(a.startDateTime) - new Date(b.startDateTime));
+
+      if (futureEvents.length > 0) {
+        const earliest = futureEvents[0];
+        const datePart = (earliest.ceremonyDate || earliest.date || "").slice(0, 10);
+        if (datePart && datePart.includes("-")) {
+          const [yStr, mStr] = datePart.split("-");
+          setCalendarState({
+            year: parseInt(yStr, 10),
+            monthIndex: parseInt(mStr, 10) - 1,
+            selectedDate: datePart,
+          });
+        }
+      }
+    }
+  }, [pujas]);
 
   // Calculate calendar grid days for current viewed month
   const calendarGrid = useMemo(() => {
@@ -147,7 +176,10 @@ const UpcomingPujaCalendar = ({ selectedPurpose, onSelectPurpose }) => {
     // Days in current month
     for (let day = 1; day <= totalDays; day++) {
       const isoDate = formatISODate(year, monthIndex, day);
-      const rawEvents = getPujasByDate(isoDate);
+      const rawEvents = activeList.filter((p) => {
+        const d = (p.ceremonyDate || p.date || p.startDateTime || "").slice(0, 10);
+        return d === isoDate;
+      });
       const upcomingEventsOnDate = rawEvents.filter(
         (p) => !p.startDateTime || new Date(p.startDateTime).getTime() > now
       );
@@ -163,7 +195,7 @@ const UpcomingPujaCalendar = ({ selectedPurpose, onSelectPurpose }) => {
     }
 
     return cells;
-  }, [year, monthIndex]);
+  }, [year, monthIndex, activeList]);
 
   // Month navigation: update currentMonth and auto-select first scheduled ceremony in new month
   const handlePrevMonth = () => {
@@ -177,16 +209,17 @@ const UpcomingPujaCalendar = ({ selectedPurpose, onSelectPurpose }) => {
 
       const now = Date.now();
       const targetPrefix = `${nextYear}-${String(nextMonth + 1).padStart(2, "0")}`;
-      const monthEvents = PUJA_LIST
-        .filter(
-          (p) =>
-            p.date &&
-            p.date.startsWith(targetPrefix) &&
+      const monthEvents = activeList
+        .filter((p) => {
+          const d = (p.ceremonyDate || p.date || p.startDateTime || "").slice(0, 10);
+          return (
+            d.startsWith(targetPrefix) &&
             (!p.startDateTime || new Date(p.startDateTime).getTime() > now)
-        )
-        .sort((a, b) => a.date.localeCompare(b.date));
+          );
+        })
+        .sort((a, b) => (a.ceremonyDate || a.date || "").localeCompare(b.ceremonyDate || b.date || ""));
 
-      const newSelectedDate = monthEvents.length > 0 ? monthEvents[0].date : null;
+      const newSelectedDate = monthEvents.length > 0 ? (monthEvents[0].ceremonyDate || monthEvents[0].date) : null;
       return { year: nextYear, monthIndex: nextMonth, selectedDate: newSelectedDate };
     });
   };
@@ -202,16 +235,17 @@ const UpcomingPujaCalendar = ({ selectedPurpose, onSelectPurpose }) => {
 
       const now = Date.now();
       const targetPrefix = `${nextYear}-${String(nextMonth + 1).padStart(2, "0")}`;
-      const monthEvents = PUJA_LIST
-        .filter(
-          (p) =>
-            p.date &&
-            p.date.startsWith(targetPrefix) &&
+      const monthEvents = activeList
+        .filter((p) => {
+          const d = (p.ceremonyDate || p.date || p.startDateTime || "").slice(0, 10);
+          return (
+            d.startsWith(targetPrefix) &&
             (!p.startDateTime || new Date(p.startDateTime).getTime() > now)
-        )
-        .sort((a, b) => a.date.localeCompare(b.date));
+          );
+        })
+        .sort((a, b) => (a.ceremonyDate || a.date || "").localeCompare(b.ceremonyDate || b.date || ""));
 
-      const newSelectedDate = monthEvents.length > 0 ? monthEvents[0].date : null;
+      const newSelectedDate = monthEvents.length > 0 ? (monthEvents[0].ceremonyDate || monthEvents[0].date) : null;
       return { year: nextYear, monthIndex: nextMonth, selectedDate: newSelectedDate };
     });
   };
@@ -220,10 +254,14 @@ const UpcomingPujaCalendar = ({ selectedPurpose, onSelectPurpose }) => {
   const selectedDateEvents = useMemo(() => {
     if (!selectedDate) return [];
     const now = Date.now();
-    return getPujasByDate(selectedDate).filter(
-      (p) => !p.startDateTime || new Date(p.startDateTime).getTime() > now
-    );
-  }, [selectedDate]);
+    return activeList.filter((p) => {
+      const d = (p.ceremonyDate || p.date || p.startDateTime || "").slice(0, 10);
+      return (
+        d === selectedDate &&
+        (!p.startDateTime || new Date(p.startDateTime).getTime() > now)
+      );
+    });
+  }, [selectedDate, activeList]);
 
   // Format selected date for display
   const formattedSelectedDate = useMemo(() => {
@@ -401,6 +439,10 @@ const UpcomingPujaCalendar = ({ selectedPurpose, onSelectPurpose }) => {
                             alt={event.name}
                             className="h-full w-full object-cover object-center transition-transform duration-500 hover:scale-105"
                             loading="lazy"
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = defaultPujaImg;
+                            }}
                           />
                           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-black/25" />
 

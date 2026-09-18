@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   ArrowRight,
   BookOpen,
@@ -33,6 +34,7 @@ import meeraExpertImage from "../../../assets/images/e-2.jpg";
 import ananyaExpertImage from "../../../assets/images/e-4.jpg";
 import PujaCard from "../../puja/components/PujaCard";
 import { getFeaturedPujas } from "../../puja/data/pujaData";
+import upcomingPujaService from "../../../services/upcomingPujaService";
 
 const categories = [
   {
@@ -267,7 +269,27 @@ const experts = [
 ];
 
 const Home = () => {
-  const featuredPujas = getFeaturedPujas();
+  const [featuredPujas, setFeaturedPujas] = useState(() => getFeaturedPujas());
+
+  useEffect(() => {
+    let isMounted = true;
+    upcomingPujaService
+      .getUpcomingPujas()
+      .then((data) => {
+        if (!isMounted) return;
+        if (Array.isArray(data) && data.length > 0) {
+          const featured = data.filter((p) => p.isFeatured || p.featured);
+          setFeaturedPujas(featured.length > 0 ? featured : data);
+        }
+      })
+      .catch((err) => {
+        console.warn("Could not load dynamic pujas for Home page, using default:", err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <main className="bg-[#fffaf0] text-[#2b241d]">

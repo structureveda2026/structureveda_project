@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   Calendar,
@@ -8,6 +9,7 @@ import {
   Flame,
 } from "lucide-react";
 import { getFeaturedUpcomingPuja } from "../data/pujaData";
+import defaultPujaImg from "../../../assets/images/puja-kashi.jpg";
 
 const BENEFITS = [
   "Traditional Vedic Vidhi",
@@ -17,9 +19,23 @@ const BENEFITS = [
   "Digital Confirmation",
 ];
 
-const FeaturedUpcomingPuja = ({ excludeId = null }) => {
+const FeaturedUpcomingPuja = ({ excludeId = null, puja = null, pujas = null }) => {
   // Dynamically resolve the flagship or earliest upcoming featured ceremony
-  const event = getFeaturedUpcomingPuja(excludeId);
+  const event = useMemo(() => {
+    if (puja) return puja;
+    if (Array.isArray(pujas)) {
+      const now = Date.now();
+      const featured = pujas.filter(
+        (p) =>
+          p.isFeatured &&
+          p.id !== excludeId &&
+          (!p.startDateTime || new Date(p.startDateTime).getTime() > now)
+      );
+      if (featured.length > 0) return featured[0];
+      return null;
+    }
+    return getFeaturedUpcomingPuja(excludeId);
+  }, [puja, pujas, excludeId]);
 
   // Return nothing if no suitable featured event is scheduled
   if (!event) return null;
@@ -51,6 +67,10 @@ const FeaturedUpcomingPuja = ({ excludeId = null }) => {
                 alt={event.name}
                 className="h-[300px] w-full object-cover object-center transition-transform duration-700 hover:scale-[1.03] sm:h-[380px] lg:h-[440px]"
                 loading="lazy"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = defaultPujaImg;
+                }}
               />
               {/* Subtle edge vignette */}
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#1a120b]/75 via-transparent to-black/20" />

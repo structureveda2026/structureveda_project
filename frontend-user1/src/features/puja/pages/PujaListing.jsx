@@ -1,7 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Sparkles, ArrowRight } from "lucide-react";
-import { PUJA_LIST } from "../data/pujaData";
+import { Sparkles, ArrowRight, AlertCircle } from "lucide-react";
+import upcomingPujaService from "../../../services/upcomingPujaService";
 import PujaListingHero from "../components/PujaListingHero";
 import NextUpcomingPujaSpotlight from "../components/NextUpcomingPujaSpotlight";
 import UpcomingPujaDiscovery from "../components/UpcomingPujaDiscovery";
@@ -17,7 +17,28 @@ import UpcomingPujaFAQ from "../components/UpcomingPujaFAQ";
 import UpcomingPujaFinalCta from "../components/UpcomingPujaFinalCta";
 
 const PujaListing = () => {
+  const [pujas, setPujas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedPurpose, setSelectedPurpose] = useState("All");
+
+  const loadPujas = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await upcomingPujaService.getUpcomingPujas();
+      setPujas(data);
+    } catch (err) {
+      console.error("Failed to load upcoming pujas:", err);
+      setError("Unable to load upcoming ceremonies. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadPujas();
+  }, [loadPujas]);
 
   const handleResetFilters = () => {
     setSelectedPurpose("All");
@@ -25,7 +46,8 @@ const PujaListing = () => {
 
   // Filter and sort items chronologically strictly by startDateTime
   const filteredPujas = useMemo(() => {
-    return PUJA_LIST.filter((puja) => {
+    const list = Array.isArray(pujas) ? pujas : [];
+    return list.filter((puja) => {
       // Purpose In-Page Filter
       if (selectedPurpose !== "All") {
         const matchesPurpose =
@@ -40,7 +62,7 @@ const PujaListing = () => {
       const timeB = b.startDateTime ? new Date(b.startDateTime).getTime() : new Date(b.date).getTime();
       return timeA - timeB;
     });
-  }, [selectedPurpose]);
+  }, [pujas, selectedPurpose]);
 
   // Primary view: exactly the top 3 cards for the main page
   const displayedPujas = filteredPujas.slice(0, 3);
@@ -55,7 +77,7 @@ const PujaListing = () => {
       {/* =========================================================
           SECTION 2: NEXT UPCOMING PUJA SPOTLIGHT & DYNAMIC COUNTDOWN
       ========================================================== */}
-      <NextUpcomingPujaSpotlight />
+      <NextUpcomingPujaSpotlight pujas={pujas} />
 
       {/* =========================================================
           MAIN CONTENT AREA: DISCOVERY & MAIN CEREMONY CARDS
@@ -84,8 +106,41 @@ const PujaListing = () => {
           </p>
         </div>
 
-        {/* Ceremonies Grid (Desktop: exactly 3 cards per row, Tablet: 2, Mobile: 1) */}
-        {filteredPujas.length > 0 ? (
+        {/* Loading State */}
+        {loading ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-7">
+            {[1, 2, 3].map((n) => (
+              <div
+                key={n}
+                className="overflow-hidden rounded-[24px] border border-[#ebdcc4] bg-[#fffdfa] p-6 shadow-xs animate-pulse"
+              >
+                <div className="h-[200px] w-full rounded-2xl bg-[#ebdcc4]/40 mb-4" />
+                <div className="h-4 w-1/3 bg-[#ebdcc4]/40 rounded mb-2" />
+                <div className="h-6 w-3/4 bg-[#ebdcc4]/50 rounded mb-2" />
+                <div className="h-4 w-1/2 bg-[#ebdcc4]/40 rounded" />
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          /* Error State */
+          <div className="rounded-[28px] border border-[#ebdcc4] bg-[#fffdfa] p-12 text-center shadow-xs">
+            <AlertCircle size={36} className="mx-auto text-[#c77722] mb-3" />
+            <h3 className="font-serif text-[22px] font-bold text-[#2b241d]">
+              {error}
+            </h3>
+            <p className="mt-2 text-[14px] text-[#75695c]">
+              Please check your connection and try again.
+            </p>
+            <button
+              type="button"
+              onClick={loadPujas}
+              className="mt-6 inline-flex items-center justify-center rounded-full bg-[#eab12c] px-7 py-3 text-[13.5px] font-bold text-[#1c1308] shadow-[0_4px_14px_rgba(234,177,44,0.3)] transition-all hover:bg-[#dda018] cursor-pointer"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : filteredPujas.length > 0 ? (
+          /* Ceremonies Grid (Desktop: exactly 3 cards per row, Tablet: 2, Mobile: 1) */
           <div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-7">
               {displayedPujas.map((puja) => (
@@ -122,7 +177,7 @@ const PujaListing = () => {
             <button
               type="button"
               onClick={handleResetFilters}
-              className="mt-6 inline-flex items-center justify-center rounded-full bg-[#eab12c] px-7 py-3 text-[13.5px] font-bold text-[#1c1308] shadow-[0_4px_14px_rgba(234,177,44,0.3)] transition-all hover:bg-[#dda018]"
+              className="mt-6 inline-flex items-center justify-center rounded-full bg-[#eab12c] px-7 py-3 text-[13.5px] font-bold text-[#1c1308] shadow-[0_4px_14px_rgba(234,177,44,0.3)] transition-all hover:bg-[#dda018] cursor-pointer"
             >
               Reset Filters
             </button>
@@ -132,7 +187,7 @@ const PujaListing = () => {
         {/* =========================================================
             SECTION 6: FEATURED UPCOMING PUJA (FLAGSHIP SPOTLIGHT)
         ========================================================== */}
-        <FeaturedUpcomingPuja />
+        <FeaturedUpcomingPuja pujas={pujas} />
 
         {/* =========================================================
             SECTION 7: UPCOMING PUJA CALENDAR & PURPOSE DIRECTORY
@@ -140,12 +195,13 @@ const PujaListing = () => {
         <UpcomingPujaCalendar
           selectedPurpose={selectedPurpose}
           onSelectPurpose={(purpose) => setSelectedPurpose(purpose)}
+          pujas={pujas}
         />
 
         {/* =========================================================
             SECTION 9: PUJA BY OCCASION (PHASE 7)
         ========================================================== */}
-        <PujaByOccasion />
+        <PujaByOccasion pujas={pujas} />
 
         {/* =========================================================
             SECTION 10: WHY BOOK WITH VEDA STRUCTURE
@@ -165,7 +221,7 @@ const PujaListing = () => {
         {/* =========================================================
             SECTION 13: UPCOMING SPECIAL EVENTS (PHASE 8)
         ========================================================== */}
-        <UpcomingSpecialEvents />
+        <UpcomingSpecialEvents pujas={pujas} />
 
         {/* =========================================================
             SECTION 11: UPCOMING PUJA FAQ (PHASE 9)

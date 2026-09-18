@@ -9,8 +9,9 @@ import {
   PackageCheck,
   Video,
   HeartHandshake,
+  AlertCircle,
 } from "lucide-react";
-import { getPujaBySlug, PUJA_LIST } from "../data/pujaData";
+import upcomingPujaService from "../../../services/upcomingPujaService";
 import PujaHero from "../components/PujaHero";
 import PujaAbout from "../components/PujaAbout";
 import PujaBenefits from "../components/PujaBenefits";
@@ -23,15 +24,59 @@ import PujaCard from "../components/PujaCard";
 
 const PujaDetails = () => {
   const { slug } = useParams();
-  const puja = getPujaBySlug(slug);
+  const [puja, setPuja] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [relatedPujas, setRelatedPujas] = useState([]);
+  const [selectedPackageId, setSelectedPackageId] = useState("pkg-individual");
 
-  const [selectedPackageId, setSelectedPackageId] = useState(
-    puja?.packages?.find((p) => p.isDefault)?.id || puja?.packages?.[0]?.id || "pkg-individual"
-  );
-
-  // Scroll to top when slug changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
+    let isMounted = true;
+
+    const fetchPujaData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await upcomingPujaService.getUpcomingPujaBySlug(slug);
+        if (!isMounted) return;
+
+        if (data) {
+          setPuja(data);
+          const defaultPkg = data.packages?.find((p) => p.isDefault) || data.packages?.[0];
+          if (defaultPkg) {
+            setSelectedPackageId(defaultPkg.id);
+          }
+        } else {
+          setPuja(null);
+        }
+
+        // Fetch related upcoming pujas
+        try {
+          const allPujas = await upcomingPujaService.getUpcomingPujas();
+          if (!isMounted) return;
+          const related = allPujas.filter((p) => p.slug !== slug).slice(0, 3);
+          setRelatedPujas(related);
+        } catch (relatedErr) {
+          console.warn("Could not load related pujas:", relatedErr);
+        }
+      } catch (err) {
+        console.error("Error loading puja details:", err);
+        if (isMounted) {
+          setError("Unable to load ceremony details. Please check your connection.");
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchPujaData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [slug]);
 
   const selectedPackage = puja?.packages?.find((p) => p.id === selectedPackageId) || puja?.packages?.[0];
@@ -53,17 +98,36 @@ const PujaDetails = () => {
     }, 50);
   };
 
-  // Related Pujas (exclude current)
-  const relatedPujas = PUJA_LIST.filter((p) => p.slug !== puja.slug).slice(0, 3);
-
-  if (!puja) {
+  if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center p-6 text-center">
-        <div>
-          <h2 className="font-serif text-[28px] font-bold">Puja Not Found</h2>
+      <div className="min-h-[70vh] bg-[#fffaf0] flex items-center justify-center p-8">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="h-12 w-12 rounded-full border-4 border-[#eab12c]/30 border-t-[#c77722] animate-spin" />
+          <p className="font-serif text-[18px] font-bold text-[#2b241d]">
+            Loading Sacred Ceremony Details...
+          </p>
+          <p className="text-[13px] text-[#75695c]">
+            Connecting with consecrated Vedic schedule
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !puja) {
+    return (
+      <div className="flex min-h-[70vh] items-center justify-center p-6 text-center bg-[#fffaf0]">
+        <div className="rounded-[28px] border border-[#ebdcc4] bg-[#fffdfa] p-10 max-w-[520px] shadow-sm">
+          <AlertCircle size={44} className="mx-auto text-[#c77722] mb-3" />
+          <h2 className="font-serif text-[26px] sm:text-[28px] font-bold text-[#2b241d]">
+            {error ? "Unable to Load Ceremony" : "Puja Not Found"}
+          </h2>
+          <p className="mt-2.5 text-[14px] leading-relaxed text-[#75695c]">
+            {error || "The sacred ritual you are looking for is either unavailable or has been rescheduled."}
+          </p>
           <Link
             to="/puja/upcoming"
-            className="mt-4 inline-block rounded-full bg-[#eab12c] px-6 py-2.5 text-[13px] font-bold"
+            className="mt-6 inline-flex items-center justify-center rounded-full bg-[#eab12c] px-7 py-3 text-[13.5px] font-bold text-[#1c1308] shadow-[0_4px_14px_rgba(234,177,44,0.3)] transition-all hover:bg-[#dda018]"
           >
             Browse Upcoming Pujas
           </Link>
