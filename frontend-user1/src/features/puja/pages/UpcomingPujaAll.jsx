@@ -1,29 +1,52 @@
-import { useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Sparkles, ChevronRight, ArrowLeft } from "lucide-react";
-import { PUJA_LIST } from "../data/pujaData";
+import { Sparkles, ChevronRight, ArrowLeft, AlertCircle } from "lucide-react";
+import upcomingPujaService from "../../../services/upcomingPujaService";
 import UpcomingPujaCard from "../components/UpcomingPujaCard";
 import heroBgImg from "../../../assets/images/upcoming_puja_hero.jpg";
 
 /**
  * All Upcoming Pujas Dedicated Page (/puja/upcoming/all)
  * Displays an image-led horizontal hero banner and the complete chronological
- * directory of all scheduled Vedic ceremonies.
+ * directory of all scheduled Vedic ceremonies from the live public API.
  */
 const UpcomingPujaAll = () => {
+  const [pujas, setPujas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   // Always scroll to top when opening this dedicated page
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+  const loadPujas = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await upcomingPujaService.getUpcomingPujas();
+      setPujas(data);
+    } catch (err) {
+      console.error("Failed to load all upcoming pujas:", err);
+      setError("Unable to load upcoming ceremonies. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadPujas();
+  }, [loadPujas]);
+
   // Chronologically sort all upcoming pujas strictly by startDateTime (with fallback to date)
   const allUpcomingPujas = useMemo(() => {
-    return [...PUJA_LIST].sort((a, b) => {
+    const list = Array.isArray(pujas) ? pujas : [];
+    return [...list].sort((a, b) => {
       const timeA = a.startDateTime ? new Date(a.startDateTime).getTime() : new Date(a.date).getTime();
       const timeB = b.startDateTime ? new Date(b.startDateTime).getTime() : new Date(b.date).getTime();
       return timeA - timeB;
     });
-  }, []);
+  }, [pujas]);
 
   return (
     <div className="min-h-screen bg-[#fffaf0] pb-24 text-[#2b241d]">
@@ -105,14 +128,48 @@ const UpcomingPujaAll = () => {
           </div>
         </header>
 
-        {/* ── All Upcoming Ceremonies Grid (Desktop: 3-col, Tablet: 2-col, Mobile: 1-col) ── */}
-        {allUpcomingPujas.length > 0 ? (
+        {/* ── Loading State ── */}
+        {loading ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-7">
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <div
+                key={n}
+                className="overflow-hidden rounded-[24px] border border-[#ebdcc4] bg-[#fffdfa] p-6 shadow-xs animate-pulse"
+              >
+                <div className="h-[200px] w-full rounded-2xl bg-[#ebdcc4]/40 mb-4" />
+                <div className="h-4 w-1/3 bg-[#ebdcc4]/40 rounded mb-2" />
+                <div className="h-6 w-3/4 bg-[#ebdcc4]/50 rounded mb-2" />
+                <div className="h-4 w-1/2 bg-[#ebdcc4]/40 rounded" />
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          /* ── Error State ── */
+          <div className="rounded-[28px] border border-[#ebdcc4] bg-[#fffdfa] p-12 text-center shadow-xs">
+            <AlertCircle size={36} className="mx-auto text-[#c77722] mb-3" />
+            <h3 className="font-serif text-[22px] font-bold text-[#2b241d]">
+              {error}
+            </h3>
+            <p className="mt-2 text-[14px] text-[#75695c]">
+              Please check your connection and try again.
+            </p>
+            <button
+              type="button"
+              onClick={loadPujas}
+              className="mt-6 inline-flex items-center justify-center rounded-full bg-[#eab12c] px-7 py-3 text-[13.5px] font-bold text-[#1c1308] shadow-[0_4px_14px_rgba(234,177,44,0.3)] transition-all hover:bg-[#dda018] cursor-pointer"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : allUpcomingPujas.length > 0 ? (
+          /* ── All Upcoming Ceremonies Grid (Desktop: 3-col, Tablet: 2-col, Mobile: 1-col) ── */
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-7">
             {allUpcomingPujas.map((puja) => (
               <UpcomingPujaCard key={puja.id} puja={puja} />
             ))}
           </div>
         ) : (
+          /* ── Empty State ── */
           <div className="rounded-[28px] border border-[#ebdcc4] bg-[#fffdfa] p-12 text-center shadow-xs">
             <h3 className="font-serif text-[22px] font-bold text-[#2b241d]">
               No upcoming ceremonies currently scheduled

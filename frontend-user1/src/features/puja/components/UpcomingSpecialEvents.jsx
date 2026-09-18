@@ -66,13 +66,14 @@ const SPECIAL_EVENTS_CONFIG = [
   },
 ];
 
-const UpcomingSpecialEvents = () => {
-  // Dynamically resolve matching upcoming events from PUJA_LIST for each theme
+const UpcomingSpecialEvents = ({ pujas = null }) => {
+  // Dynamically resolve matching upcoming events from pujas or PUJA_LIST for each theme
   const resolvedEvents = useMemo(() => {
     const now = Date.now();
+    const eventList = Array.isArray(pujas) ? pujas : PUJA_LIST;
 
     return SPECIAL_EVENTS_CONFIG.map((theme) => {
-      const matchingEvents = PUJA_LIST.filter((p) => {
+      const matchingEvents = eventList.filter((p) => {
         // Consider only upcoming events
         const isUpcoming = !p.startDateTime || new Date(p.startDateTime).getTime() > now;
         if (!isUpcoming) return false;
@@ -104,7 +105,7 @@ const UpcomingSpecialEvents = () => {
         matchingEvent: hasMatch ? matchingEvents[0] : null,
       };
     });
-  }, []);
+  }, [pujas]);
 
   return (
     <section
