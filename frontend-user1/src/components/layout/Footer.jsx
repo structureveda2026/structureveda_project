@@ -106,6 +106,13 @@ const Footer = () => {
             </Link>
 
             <Link
+              to="/library"
+              className="w-fit text-[14px] font-medium text-[#c88918] transition hover:text-[#b36c1e]"
+            >
+              Veda Library
+            </Link>
+
+            <Link
               to="/shop"
               className="w-fit text-[14px] transition hover:text-[#b36c1e]"
             >

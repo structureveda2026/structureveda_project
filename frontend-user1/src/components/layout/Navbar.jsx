@@ -4,6 +4,7 @@ import { Search, Heart, Menu, X, ChevronDown, ArrowRight, User } from "lucide-re
 import { Link, useNavigate } from "react-router-dom";
 import { logoutUser } from "../../features/auth/authSlice";
 import { useToast } from "../ui/toastContext";
+import { LibraryMegaMenu } from "../../library";
 
 // Featured astrologers for navbar dropdown
 const NAVBAR_ASTROLOGERS = [
@@ -21,13 +22,24 @@ const YAGYA_PUJA_NAV_ITEMS = [
   { label: "Puja in Kashi", path: "/yagya-puja/kashi" },
 ];
 
+// Veda Library nav items
+const VEDA_LIBRARY_NAV_ITEMS = [
+  { label: "01. Vedic Knowledge", path: "/library?category=vedic-knowledge" },
+  { label: "02. Shastra & Darshana", path: "/library?category=shastra-darshana" },
+  { label: "03. Itihasa & Purana", path: "/library?category=itihasa-purana" },
+  { label: "04. Dharma & Jeevan", path: "/library?category=dharma-jeevan" },
+  { label: "05. Puja & Anushthana", path: "/library?category=puja-anushthana" },
+];
+
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAstrologerDropdownOpen, setIsAstrologerDropdownOpen] = useState(false);
   const [isYagyaPujaDropdownOpen, setIsYagyaPujaDropdownOpen] = useState(false);
+  const [isLibraryDropdownOpen, setIsLibraryDropdownOpen] = useState(false);
   const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
   const [isMobileAstrologerOpen, setIsMobileAstrologerOpen] = useState(false);
   const [isMobileYagyaPujaOpen, setIsMobileYagyaPujaOpen] = useState(false);
+  const [isMobileLibraryOpen, setIsMobileLibraryOpen] = useState(false);
 
   const accountDropdownRef = useRef(null);
 
@@ -49,6 +61,7 @@ const Navbar = () => {
       if (event.key === "Escape") {
         setIsAstrologerDropdownOpen(false);
         setIsYagyaPujaDropdownOpen(false);
+        setIsLibraryDropdownOpen(false);
         setIsAccountDropdownOpen(false);
       }
     };
@@ -72,7 +85,7 @@ const Navbar = () => {
 
   return (
     <header className="sticky top-0 z-50 border-b border-[#eadcc2] bg-[#fffaf0]/95 backdrop-blur-md">
-      <div className="mx-auto flex h-[82px] max-w-[1280px] items-center justify-between px-5 sm:px-8 lg:px-12">
+      <div className="mx-auto flex h-[82px] max-w-[1400px] items-center justify-between px-4 sm:px-6 lg:px-6 xl:px-8">
         {/* =====================================================
             LOGO (Acts as Home)
         ====================================================== */}
@@ -110,7 +123,7 @@ const Navbar = () => {
         {/* =====================================================
             CENTER NAVIGATION (Desktop)
         ====================================================== */}
-        <nav className="ml-10 hidden items-center gap-8 lg:flex">
+        <nav className="ml-4 lg:ml-6 xl:ml-8 hidden items-center gap-4 lg:gap-5 xl:gap-7 lg:flex">
           {/* Talk to an Astrologer Dropdown */}
           <div
             className="relative"
@@ -119,7 +132,7 @@ const Navbar = () => {
           >
             <Link
               to="/astrologers"
-              className="flex items-center gap-1.5 text-[14px] font-medium text-[#5f554a] transition-colors hover:text-[#c88918]"
+              className="flex items-center gap-1.5 whitespace-nowrap text-[14px] font-medium text-[#5f554a] transition-colors hover:text-[#c88918]"
             >
               Talk to an Astrologer
               <ChevronDown
@@ -170,7 +183,7 @@ const Navbar = () => {
           {/* Upcoming Puja Link */}
           <Link
             to="/puja/upcoming"
-            className="text-[14px] font-medium text-[#5f554a] transition-colors hover:text-[#c88918]"
+            className="whitespace-nowrap text-[14px] font-medium text-[#5f554a] transition-colors hover:text-[#c88918]"
           >
             Upcoming Puja
           </Link>
@@ -183,7 +196,7 @@ const Navbar = () => {
           >
             <Link
               to="/yagya-puja"
-              className="flex items-center gap-1.5 text-[14px] font-medium text-[#5f554a] transition-colors hover:text-[#c88918]"
+              className="flex items-center gap-1.5 whitespace-nowrap text-[14px] font-medium text-[#5f554a] transition-colors hover:text-[#c88918]"
             >
               <span>Yagya & Puja</span>
               <ChevronDown
@@ -227,14 +240,38 @@ const Navbar = () => {
               </div>
             )}
           </div>
+
+          {/* Veda Library Mega Dropdown */}
+          <div
+            className="relative"
+            onMouseEnter={() => setIsLibraryDropdownOpen(true)}
+            onMouseLeave={() => setIsLibraryDropdownOpen(false)}
+          >
+            <Link
+              to="/library"
+              className="flex items-center gap-1.5 whitespace-nowrap text-[14px] font-medium text-[#5f554a] transition-colors hover:text-[#c88918]"
+            >
+              <span>Library</span>
+              <ChevronDown
+                size={16}
+                className={`transition-transform duration-200 ${
+                  isLibraryDropdownOpen ? "rotate-180" : ""
+                }`}
+              />
+            </Link>
+
+            {isLibraryDropdownOpen && (
+              <LibraryMegaMenu onClose={() => setIsLibraryDropdownOpen(false)} />
+            )}
+          </div>
         </nav>
 
         {/* =====================================================
             RIGHT SIDE CONTROLS (Desktop)
         ====================================================== */}
-        <div className="ml-auto hidden items-center gap-6 lg:flex">
+        <div className="ml-auto hidden items-center gap-3.5 xl:gap-6 lg:flex shrink-0">
           {/* Icons */}
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-3.5 xl:gap-5">
             <button
               type="button"
               aria-label="Search"
@@ -258,7 +295,7 @@ const Navbar = () => {
               <button
                 type="button"
                 onClick={() => setIsAccountDropdownOpen(!isAccountDropdownOpen)}
-                className="flex items-center gap-2 rounded-full border border-[#e5d8c0] bg-white px-4 py-2 text-[13px] font-medium text-[#2b241d] transition-all hover:border-[#c88918] hover:text-[#c88918]"
+                className="flex items-center gap-2 whitespace-nowrap rounded-full border border-[#e5d8c0] bg-white px-3.5 xl:px-4 py-2 text-[13px] font-medium text-[#2b241d] transition-all hover:border-[#c88918] hover:text-[#c88918]"
                 aria-expanded={isAccountDropdownOpen}
                 aria-haspopup="true"
               >
@@ -322,7 +359,7 @@ const Navbar = () => {
           ) : (
             <Link
               to="/login"
-              className="rounded-full border border-[#e5d8c0] bg-white px-5 py-2.5 text-[13px] font-medium text-[#2b241d] transition-all hover:border-[#c88918] hover:text-[#c88918]"
+              className="whitespace-nowrap rounded-full border border-[#e5d8c0] bg-white px-4 xl:px-5 py-2.5 text-[13px] font-medium text-[#2b241d] transition-all hover:border-[#c88918] hover:text-[#c88918]"
             >
               Login / Sign Up
             </Link>
@@ -331,7 +368,7 @@ const Navbar = () => {
           {/* Book Consultation CTA */}
           <Link
             to="/book-consultation"
-            className="rounded-full bg-[#eab12c] px-6 py-2.5 text-[13px] font-semibold text-[#2b241d] shadow-[0_4px_12px_rgba(203,151,32,0.15)] transition-all hover:bg-[#dca522] hover:shadow-[0_6px_16px_rgba(203,151,32,0.22)]"
+            className="whitespace-nowrap rounded-full bg-[#eab12c] px-4 xl:px-6 py-2.5 text-[12.5px] xl:text-[13px] font-semibold text-[#2b241d] shadow-[0_4px_12px_rgba(203,151,32,0.15)] transition-all hover:bg-[#dca522] hover:shadow-[0_6px_16px_rgba(203,151,32,0.22)]"
           >
             BOOK CONSULTATION
           </Link>
@@ -428,6 +465,49 @@ const Navbar = () => {
                       <ArrowRight size={14} className="text-[#8a7c6b]" />
                     </Link>
                   ))}
+                </div>
+              )}
+            </div>
+
+            {/* Veda Library Mobile Dropdown */}
+            <div className="border-b border-[#eee1ca]">
+              <button
+                type="button"
+                onClick={() => setIsMobileLibraryOpen(!isMobileLibraryOpen)}
+                className="flex w-full items-center justify-between py-3 text-left text-[14px] font-medium text-[#5f554a]"
+              >
+                <span>Veda Library</span>
+                <ChevronDown
+                  size={16}
+                  className={`transition-transform ${isMobileLibraryOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+              {isMobileLibraryOpen && (
+                <div className="space-y-1 pb-3">
+                  {VEDA_LIBRARY_NAV_ITEMS.map((item) => (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => {
+                        setIsMobileLibraryOpen(false);
+                        setIsMenuOpen(false);
+                      }}
+                      className="flex w-full items-center justify-between rounded-lg border border-[#e3ca97] bg-[#fffdf9] px-4 py-2.5 text-left text-[13px] font-medium text-[#2b241d] transition-colors hover:bg-[#faf6ed]"
+                    >
+                      <span>{item.label}</span>
+                      <ArrowRight size={14} className="text-[#8a7c6b]" />
+                    </Link>
+                  ))}
+                  <Link
+                    to="/library"
+                    onClick={() => {
+                      setIsMobileLibraryOpen(false);
+                      setIsMenuOpen(false);
+                    }}
+                    className="flex w-full items-center justify-center rounded-lg bg-[#c88918] py-2 text-[12px] font-bold text-white shadow-xs"
+                  >
+                    Explore Entire Veda Library
+                  </Link>
                 </div>
               )}
             </div>
