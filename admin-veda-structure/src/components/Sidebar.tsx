@@ -33,80 +33,80 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
   {
-    label: "Catalog",
-    path: "/admin/products",
-    icon: Package,
-    children: [
-      { label: "Products", path: "/admin/products" },
-      { label: "Categories", path: "/admin/categories" },
-      { label: "Inventory", path: "/admin/products?tab=inventory" },
-    ],
-  },
-  {
-    label: "Courses",
-    path: "/admin/courses",
-    icon: GraduationCap,
-    children: [
-      { label: "All Courses", path: "/admin/courses" },
-      { label: "Categories", path: "/admin/courses?tab=categories" },
-    ],
-  },
-    {
     label: "Upcoming Puja",
     path: "/admin/upcoming-pujas",
     icon: Sparkles,
     children: [
       { label: "All Upcoming Pujas", path: "/admin/upcoming-pujas" },
-      { label: "Create Puja", path: "/admin/upcoming-pujas/new" },
     ],
   },
-{
-    label: "Bookings",
-    path: "/admin/bookings",
-    icon: CalendarCheck,
-    children: [
-      { label: "Astrology Bookings", path: "/admin/bookings?type=Astrology" },
-      { label: "Pandit Bookings", path: "/admin/bookings?type=Pandit" },
-      { label: "Upcoming Sessions", path: "/admin/bookings?status=Upcoming" },
-      { label: "Completed Sessions", path: "/admin/bookings?status=Completed" },
-    ],
-  },
-  { label: "Consultations", path: "/admin/consultations", icon: MessageSquare },
-  {
-    label: "Orders",
-    path: "/admin/orders",
-    icon: ShoppingBag,
-    children: [
-      { label: "All Orders", path: "/admin/orders" },
-      { label: "Pending", path: "/admin/orders?status=Pending" },
-      { label: "Processing", path: "/admin/orders?status=Processing" },
-      { label: "Shipped", path: "/admin/orders?status=Shipped" },
-      { label: "Delivered", path: "/admin/orders?status=Delivered" },
-      { label: "Cancelled", path: "/admin/orders?status=Cancelled" },
-    ],
-  },
-  {
-    label: "Customers",
-    path: "/admin/customers",
-    icon: Users,
-    children: [{ label: "All Customers", path: "/admin/customers" }],
-  },
-  {
-    label: "Experts",
-    path: "/admin/experts",
-    icon: UserCog,
-    children: [
-      { label: "Pandits", path: "/admin/experts?type=Pandit" },
-      { label: "Astrologers", path: "/admin/experts?type=Astrologer" },
-      { label: "Spiritual Experts", path: "/admin/experts?type=Spiritual" },
-    ],
-  },
-  { label: "Payments", path: "/admin/payments", icon: CreditCard },
-  { label: "Reviews", path: "/admin/reviews", icon: Star },
-  { label: "Coupons & Offers", path: "/admin/coupons", icon: Ticket },
-  { label: "Notifications", path: "/admin/notifications", icon: Bell },
-  { label: "Reports & Analytics", path: "/admin/reports", icon: BarChart3 },
-  { label: "Settings", path: "/admin/settings", icon: Settings },
+  // {
+  //   label: "Catalog",
+  //   path: "/admin/products",
+  //   icon: Package,
+  //   children: [
+  //     { label: "Products", path: "/admin/products" },
+  //     { label: "Categories", path: "/admin/categories" },
+  //     { label: "Inventory", path: "/admin/products?tab=inventory" },
+  //   ],
+  // },
+  // {
+  //   label: "Courses",
+  //   path: "/admin/courses",
+  //   icon: GraduationCap,
+  //   children: [
+  //     { label: "All Courses", path: "/admin/courses" },
+  //     { label: "Categories", path: "/admin/courses?tab=categories" },
+  //   ],
+  // },
+
+  // {
+  //     label: "Bookings",
+  //     path: "/admin/bookings",
+  //     icon: CalendarCheck,
+  //     children: [
+  //       { label: "Astrology Bookings", path: "/admin/bookings?type=Astrology" },
+  //       { label: "Pandit Bookings", path: "/admin/bookings?type=Pandit" },
+  //       { label: "Upcoming Sessions", path: "/admin/bookings?status=Upcoming" },
+  //       { label: "Completed Sessions", path: "/admin/bookings?status=Completed" },
+  //     ],
+  //   },
+  // { label: "Consultations", path: "/admin/consultations", icon: MessageSquare },
+  // {
+  //   label: "Orders",
+  //   path: "/admin/orders",
+  //   icon: ShoppingBag,
+  //   children: [
+  //     { label: "All Orders", path: "/admin/orders" },
+  //     { label: "Pending", path: "/admin/orders?status=Pending" },
+  //     { label: "Processing", path: "/admin/orders?status=Processing" },
+  //     { label: "Shipped", path: "/admin/orders?status=Shipped" },
+  //     { label: "Delivered", path: "/admin/orders?status=Delivered" },
+  //     { label: "Cancelled", path: "/admin/orders?status=Cancelled" },
+  //   ],
+  // },
+  // {
+  //   label: "Customers",
+  //   path: "/admin/customers",
+  //   icon: Users,
+  //   children: [{ label: "All Customers", path: "/admin/customers" }],
+  // },
+  // {
+  //   label: "Experts",
+  //   path: "/admin/experts",
+  //   icon: UserCog,
+  //   children: [
+  //     { label: "Pandits", path: "/admin/experts?type=Pandit" },
+  //     { label: "Astrologers", path: "/admin/experts?type=Astrologer" },
+  //     { label: "Spiritual Experts", path: "/admin/experts?type=Spiritual" },
+  //   ],
+  // },
+  // { label: "Payments", path: "/admin/payments", icon: CreditCard },
+  // { label: "Reviews", path: "/admin/reviews", icon: Star },
+  // { label: "Coupons & Offers", path: "/admin/coupons", icon: Ticket },
+  // { label: "Notifications", path: "/admin/notifications", icon: Bell },
+  // { label: "Reports & Analytics", path: "/admin/reports", icon: BarChart3 },
+  // { label: "Settings", path: "/admin/settings", icon: Settings },
 ];
 
 interface SidebarProps {
@@ -161,11 +161,10 @@ export default function Sidebar({
               <NavLink
                 key={item.label}
                 to={item.path}
-                className={`flex items-center justify-center w-10 h-10 mx-auto rounded-lg transition group relative ${
-                  active
-                    ? "bg-saffron-500 text-white"
-                    : "text-charcoal-500 hover:bg-cream-100"
-                }`}
+                className={`flex items-center justify-center w-10 h-10 mx-auto rounded-lg transition group relative ${active
+                  ? "bg-saffron-500 text-white"
+                  : "text-charcoal-500 hover:bg-cream-100"
+                  }`}
                 title={item.label}
               >
                 <Icon className="w-5 h-5" />
@@ -180,11 +179,10 @@ export default function Sidebar({
             <div key={item.label}>
               <NavLink
                 to={item.path}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${
-                  active
-                    ? "bg-saffron-50 text-saffron-700"
-                    : "text-charcoal-600 hover:bg-cream-100"
-                }`}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${active
+                  ? "bg-saffron-50 text-saffron-700"
+                  : "text-charcoal-600 hover:bg-cream-100"
+                  }`}
               >
                 <Icon
                   className={`w-[18px] h-[18px] ${active ? "text-saffron-600" : "text-charcoal-400"}`}
@@ -202,11 +200,10 @@ export default function Sidebar({
                     <NavLink
                       key={child.label}
                       to={child.path}
-                      className={`block px-3 py-2 rounded-lg text-[13px] transition ${
-                        isActive(child.path)
-                          ? "text-saffron-700 font-medium"
-                          : "text-charcoal-400 hover:text-charcoal-600 hover:bg-cream-50"
-                      }`}
+                      className={`block px-3 py-2 rounded-lg text-[13px] transition ${isActive(child.path)
+                        ? "text-saffron-700 font-medium"
+                        : "text-charcoal-400 hover:text-charcoal-600 hover:bg-cream-50"
+                        }`}
                     >
                       {child.label}
                     </NavLink>

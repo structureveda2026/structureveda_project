@@ -40,7 +40,7 @@ export default function Dashboard() {
       {/* Revenue chart + Booking overview */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Revenue Overview */}
-        <div className="card p-5 lg:col-span-2">
+        {/* <div className="card p-5 lg:col-span-2">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
             <div>
               <h3 className="text-lg font-semibold text-charcoal-800">Revenue Overview</h3>
@@ -95,10 +95,10 @@ export default function Dashboard() {
               <span className="w-3 h-3 rounded-full bg-purple-500" /> Orders
             </span>
           </div>
-        </div>
+        </div> */}
 
         {/* Booking Overview */}
-        <div className="card p-5">
+        {/* <div className="card p-5">
           <h3 className="text-lg font-semibold text-charcoal-800 mb-1">Booking Overview</h3>
           <p className="text-sm text-charcoal-400 mb-4">Distribution by service type</p>
 
@@ -146,12 +146,12 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Recent Orders */}
       <div className="card overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-cream-200">
+        {/* <div className="flex items-center justify-between px-5 py-4 border-b border-cream-200">
           <div>
             <h3 className="text-lg font-semibold text-charcoal-800">Recent Orders</h3>
             <p className="text-sm text-charcoal-400">Latest customer orders</p>
@@ -193,7 +193,7 @@ export default function Dashboard() {
               ))}
             </tbody>
           </table>
-        </div>
+        </div> */}
       </div>
 
       {/* Upcoming Bookings */}

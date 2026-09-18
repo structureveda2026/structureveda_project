@@ -21,6 +21,7 @@ import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import EmptyState from "@/components/EmptyState";
+import { useToast } from "@/context/ToastContext";
 import upcomingPujaService, {
   UpcomingPujaData,
 } from "@/services/upcomingPujaService";
@@ -28,6 +29,7 @@ import upcomingPujaService, {
 export default function UpcomingPujaDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const [puja, setPuja] = useState<UpcomingPujaData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -60,12 +62,12 @@ export default function UpcomingPujaDetail() {
     setError("");
     try {
       await upcomingPujaService.deleteUpcomingPuja(puja.id);
+      toast.success("Upcoming Puja deleted successfully.");
       navigate("/admin/upcoming-pujas");
     } catch (err) {
-      setError(
-        (err as Error).message ||
-          "Cannot delete this Puja. If devotee bookings already exist, deletion is restricted.",
-      );
+      const msg = (err as Error).message || "Unable to delete Upcoming Puja.";
+      toast.error(msg);
+      setError(msg);
       setDeleteOpen(false);
     } finally {
       setDeleting(false);

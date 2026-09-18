@@ -9,6 +9,7 @@ import bookingRoutes from "./routes/booking.routes.js";
 import paymentRoutes from "./routes/payment.routes.js";
 import upcomingPujaAdminRoutes from "./routes/upcomingPujaAdmin.routes.js";
 import upcomingPujaRoutes from "./routes/upcomingPuja.routes.js";
+import uploadRoutes from "./routes/upload.routes.js";
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.use("/api/bookings", bookingRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/admin/upcoming-pujas", upcomingPujaAdminRoutes);
 app.use("/api/upcoming-pujas", upcomingPujaRoutes);
+app.use("/api/admin/uploads", uploadRoutes);
 
 const startServer = async () => {
   try {
