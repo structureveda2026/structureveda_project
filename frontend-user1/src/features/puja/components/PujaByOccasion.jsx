@@ -31,28 +31,32 @@ const OCCASION_CONFIG = [
   { id: "special-kashi-rituals", title: "Special Kashi Rituals", occasionKey: "Special Kashi Rituals", icon: templeIcon },
 ];
 
-const PujaByOccasion = () => {
-  // Dynamically resolve upcoming events for each occasion from PUJA_LIST
+const PujaByOccasion = ({ pujas = null }) => {
+  // Dynamically resolve upcoming events for each occasion from pujas or PUJA_LIST
   const occasionEventsMap = useMemo(() => {
     const now = Date.now();
     const map = {};
+    const eventList = Array.isArray(pujas) ? pujas : PUJA_LIST;
 
     OCCASION_CONFIG.forEach((cat) => {
-      const matchingEvents = PUJA_LIST.filter(
-        (p) =>
-          p.occasion === cat.occasionKey &&
-          (!p.startDateTime || new Date(p.startDateTime).getTime() > now)
-      ).sort((a, b) => {
-        const timeA = a.startDateTime ? new Date(a.startDateTime).getTime() : 0;
-        const timeB = b.startDateTime ? new Date(b.startDateTime).getTime() : 0;
-        return timeA - timeB;
-      });
+      const matchingEvents = eventList
+        .filter(
+          (p) =>
+            p.occasion &&
+            p.occasion.toLowerCase() === cat.occasionKey.toLowerCase() &&
+            (!p.startDateTime || new Date(p.startDateTime).getTime() > now)
+        )
+        .sort((a, b) => {
+          const timeA = a.startDateTime ? new Date(a.startDateTime).getTime() : 0;
+          const timeB = b.startDateTime ? new Date(b.startDateTime).getTime() : 0;
+          return timeA - timeB;
+        });
 
       map[cat.occasionKey] = matchingEvents;
     });
 
     return map;
-  }, []);
+  }, [pujas]);
 
   const handleScrollToCeremonies = () => {
     const targetElement = document.getElementById("upcoming-ceremonies");

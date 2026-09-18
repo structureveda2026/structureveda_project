@@ -11,6 +11,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { getNextUpcomingPujas, PUJA_LIST } from "../data/pujaData";
+import defaultPujaImg from "../../../assets/images/puja-kashi.jpg";
 
 const getStatusBadge = (status) => {
   switch (status) {
@@ -108,11 +109,22 @@ const CompactCountdown = ({ targetDateTime }) => {
  * - Clickable carousel dots below
  * - Auto-rotation with hover/focus pause
  */
-const NextUpcomingPujaSpotlight = () => {
+const NextUpcomingPujaSpotlight = ({ pujas }) => {
   const upcomingEvents = useMemo(() => {
+    if (Array.isArray(pujas)) {
+      const now = Date.now();
+      return [...pujas]
+        .filter((p) => !p.startDateTime || new Date(p.startDateTime).getTime() > now)
+        .sort((a, b) => {
+          const timeA = a.startDateTime ? new Date(a.startDateTime).getTime() : 0;
+          const timeB = b.startDateTime ? new Date(b.startDateTime).getTime() : 0;
+          return timeA - timeB;
+        })
+        .slice(0, 5);
+    }
     const list = getNextUpcomingPujas(5);
     return list.length > 0 ? list : PUJA_LIST.slice(0, 5);
-  }, []);
+  }, [pujas]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -133,7 +145,7 @@ const NextUpcomingPujaSpotlight = () => {
 
   // Auto-rotation every 5 seconds (pauses on hover/focus and respects prefers-reduced-motion)
   useEffect(() => {
-    if (isPaused || upcomingEvents.length <= 1) return;
+    if (isPaused || !currentEvent || upcomingEvents.length <= 1) return;
 
     if (
       typeof window !== "undefined" &&
@@ -147,7 +159,10 @@ const NextUpcomingPujaSpotlight = () => {
     }, 5000);
 
     return () => clearInterval(timer);
-  }, [isPaused, upcomingEvents.length, currentIndex]);
+  }, [isPaused, upcomingEvents.length, currentIndex, currentEvent]);
+
+  // Early return must only occur AFTER all hooks have executed unconditionally
+  if (!currentEvent) return null;
 
   const statusConfig = getStatusBadge(currentEvent.bookingStatus);
   const isBookable =
@@ -266,6 +281,10 @@ const NextUpcomingPujaSpotlight = () => {
                 alt={currentEvent.name}
                 className="h-full w-full object-cover"
                 loading="eager"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = defaultPujaImg;
+                }}
               />
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
               

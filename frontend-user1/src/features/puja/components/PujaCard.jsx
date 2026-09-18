@@ -1,5 +1,6 @@
 import { Calendar, MapPin, Sparkles, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import defaultPujaImg from "../../../assets/images/puja-kashi.jpg";
 
 const PujaCard = ({ puja }) => {
   if (!puja) return null;
@@ -15,6 +16,10 @@ const PujaCard = ({ puja }) => {
           src={puja.image}
           alt={puja.name}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = defaultPujaImg;
+          }}
         />
         {/* Soft Gradient Scrim */}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#1c130b]/80 via-[#1c130b]/20 to-transparent" />

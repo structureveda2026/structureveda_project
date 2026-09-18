@@ -10,14 +10,13 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import defaultPujaImg from "../../../assets/images/puja-kashi.jpg";
 
 const PujaHero = ({ puja, onBookClick }) => {
-  if (!puja) return null;
-
   // Multiple carousel images support
-  const images = Array.isArray(puja.images) && puja.images.length > 0
+  const images = Array.isArray(puja?.images) && puja.images.length > 0
     ? puja.images
-    : [puja.image].filter(Boolean);
+    : [puja?.image].filter(Boolean);
 
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -39,6 +38,8 @@ const PujaHero = ({ puja, onBookClick }) => {
   });
 
   useEffect(() => {
+    if (!puja) return;
+
     const getTargetTime = () => {
       if (puja.bookingCloseAt) {
         const target = new Date(puja.bookingCloseAt).getTime();
@@ -81,7 +82,10 @@ const PujaHero = ({ puja, onBookClick }) => {
     const interval = setInterval(updateTimer, 1000);
 
     return () => clearInterval(interval);
-  }, [puja.bookingCloseAt, puja.date]);
+  }, [puja?.bookingCloseAt, puja?.date]);
+
+  // Early return only after all hooks execute unconditionally
+  if (!puja) return null;
 
   return (
     <section className="relative overflow-hidden border-b border-[#ead8b8] bg-gradient-to-b from-[#fbf4e8] via-[#fffaf0] to-[#fffdfa] px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16 xl:px-12">
@@ -102,6 +106,10 @@ const PujaHero = ({ puja, onBookClick }) => {
                   src={images[currentSlide] || puja.image}
                   alt={`${puja.name} - slide ${currentSlide + 1}`}
                   className="h-full w-full object-cover object-center transition-all duration-500"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = defaultPujaImg;
+                  }}
                 />
                 
                 {/* Subtle Bottom Gradient Scrim */}
