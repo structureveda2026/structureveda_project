@@ -34,6 +34,8 @@ import PathServiceDetails from "../features/yagyaPuja/pages/PathServiceDetails";
 import HomaCatalogueListing from "../features/yagyaPuja/pages/HomaCatalogueListing";
 import HomaServiceDetails from "../features/yagyaPuja/pages/HomaServiceDetails";
 
+import { LibraryPage, LibraryTopicPage } from "../library";
+
 const AppRoutes = () => {
   return (
     <Routes>
@@ -58,6 +60,11 @@ const AppRoutes = () => {
       <Route element={<MainLayout />}>
         {/* Home */}
         <Route path="/" element={<Home />} />
+
+        {/* Veda Library Module */}
+        <Route path="/library" element={<LibraryPage />} />
+        <Route path="/library/:topicSlug" element={<LibraryTopicPage />} />
+        <Route path="/veda-library" element={<LibraryPage />} />
 
         <Route path="/book-consultation" element={<Consultation />} />
 
