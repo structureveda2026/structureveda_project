@@ -1,4 +1,4 @@
-import { CheckCircle2, Check, Sparkles } from "lucide-react";
+import { CheckCircle2, Check, Users } from "lucide-react";
 
 const PujaPackages = ({ packages = [], selectedPackageId, onSelectPackage }) => {
   if (!packages || packages.length === 0) return null;
@@ -49,6 +49,14 @@ const PujaPackages = ({ packages = [], selectedPackageId, onSelectPackage }) => 
                     >
                       {isSelected && <Check size={14} strokeWidth={3} />}
                     </div>
+                  </div>
+
+                  {/* Devotee Capacity Badge */}
+                  <div className="mt-2.5">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#faeedb] px-2.5 py-0.5 text-[11.5px] font-medium text-[#8f4a13] border border-[#f0dac0]">
+                      <Users size={12} className="text-[#c87620]" />
+                      {Number(pkg.maxDevotees) === 1 ? "1 Devotee" : `Up to ${pkg.maxDevotees} Devotees`}
+                    </span>
                   </div>
 
                   {/* Price */}
