@@ -2,9 +2,11 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Sun, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import authService from "@/services/authService";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { setUser } = useAuth();
   const [email, setEmail] = useState("admin@vedastructure.com");
   const [password, setPassword] = useState("admin123");
   const [showPassword, setShowPassword] = useState(false);
@@ -21,6 +23,7 @@ export default function Login() {
       const response = await authService.login({ email, password });
       localStorage.setItem("accessToken", response.accessToken);
       localStorage.setItem("user", JSON.stringify(response.user));
+      setUser(response.user);
       navigate("/admin/dashboard");
     } catch (err) {
       setError((err as Error).message || "Unable to login.");

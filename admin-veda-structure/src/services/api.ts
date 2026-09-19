@@ -1,6 +1,18 @@
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-const getToken = () => localStorage.getItem("accessToken");
+const getToken = () => (typeof window !== "undefined" ? localStorage.getItem("accessToken") : null);
+
+export class ApiError extends Error {
+  status: number;
+  data: any;
+
+  constructor(status: number, message: string, data?: any) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.data = data;
+  }
+}
 
 const request = async (path: string, options: RequestInit = {}) => {
   const isFormData =
@@ -16,10 +28,19 @@ const request = async (path: string, options: RequestInit = {}) => {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${BASE_URL}${path}`, {
-    ...options,
-    headers,
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${BASE_URL}${path}`, {
+      ...options,
+      headers,
+    });
+  } catch (networkErr: any) {
+    throw new ApiError(
+      0,
+      networkErr?.message || "Network connection error. Please verify the backend is running.",
+      null
+    );
+  }
 
   const data = await response
     .json()
@@ -27,11 +48,27 @@ const request = async (path: string, options: RequestInit = {}) => {
 
   if (!response.ok) {
     if (response.status === 401) {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("user");
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("user");
+      }
+      throw new ApiError(
+        401,
+        data.message || "Session expired or invalid. Please log in again.",
+        data
+      );
     }
-    throw new Error(
+
+    if (response.status === 403) {
+      const forbiddenMsg =
+        data.message || "Admin access required. Your account does not have administrator privileges.";
+      throw new ApiError(403, forbiddenMsg, data);
+    }
+
+    throw new ApiError(
+      response.status,
       data.message || response.statusText || "API request failed",
+      data
     );
   }
 

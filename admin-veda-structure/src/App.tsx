@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ToastProvider } from "@/context/ToastContext";
+import { AuthProvider } from "@/context/AuthContext";
 import AdminLayout from "@/components/AdminLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Login from "@/pages/Login";
@@ -36,7 +37,10 @@ export default function App() {
           <Route path="/admin/login" element={<Login />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<Navigate to="/admin/dashboard" replace />} />
+              <Route
+                index
+                element={<Navigate to="/admin/dashboard" replace />}
+              />
               <Route path="dashboard" element={<Dashboard />} />
               {/* <Route path="products" element={<Products />} />
             <Route path="products/new" element={<ProductForm />} />
@@ -48,8 +52,14 @@ export default function App() {
               <Route path="courses/:id/edit" element={<ProductForm />} /> */}
               <Route path="upcoming-pujas" element={<UpcomingPujas />} />
               <Route path="upcoming-pujas/new" element={<UpcomingPujaForm />} />
-              <Route path="upcoming-pujas/:id" element={<UpcomingPujaDetail />} />
-              <Route path="upcoming-pujas/:id/edit" element={<UpcomingPujaForm />} />
+              <Route
+                path="upcoming-pujas/:id"
+                element={<UpcomingPujaDetail />}
+              />
+              <Route
+                path="upcoming-pujas/:id/edit"
+                element={<UpcomingPujaForm />}
+              />
               {/* <Route path="bookings" element={<Bookings />} />
               <Route path="bookings/:id" element={<BookingDetail />} />
               <Route path="consultations" element={<Consultations />} />

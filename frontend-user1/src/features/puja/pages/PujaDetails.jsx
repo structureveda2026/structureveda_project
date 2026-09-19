@@ -223,8 +223,9 @@ const PujaDetails = () => {
 
       {/* 9. SANKALP DETAILS FORM */}
       <SankalpForm
+        puja={puja}
         selectedPackage={selectedPackage}
-        pujaTitle={puja.name}
+        pujaTitle={puja?.name}
       />
 
       {/* 10. FAQ */}

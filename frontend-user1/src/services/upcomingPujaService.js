@@ -48,23 +48,27 @@ export const mapApiPujaToUiModel = (item) => {
     rawPackages.length > 0
       ? rawPackages.map((pkg, idx) => {
           const pkgPrice = pkg.price != null ? Number(pkg.price) : 1100;
+          const maxDevotees = pkg.maxDevotees != null ? Number(pkg.maxDevotees) : 1;
+          const pkgFeatures = Array.isArray(pkg.features) && pkg.features.length > 0
+            ? pkg.features
+            : (Array.isArray(pkg.includes) && pkg.includes.length > 0 ? pkg.includes : [
+                "Devotee Name & Gotra in Sankalp",
+                "HD Ritual Highlights & Photos",
+                "Consecrated Prasadam delivery to home",
+              ]);
           return {
             ...pkg,
             id: pkg.id || `pkg-${idx + 1}`,
             name: pkg.name || `Participation Tier ${idx + 1}`,
             price: pkgPrice,
+            maxDevotees,
             formattedPrice:
               pkg.formattedPrice || `₹${pkgPrice.toLocaleString("en-IN")}`,
             description:
               pkg.description ||
               "Personalized Sankalp for devotees with authentic Vedic Vidhi.",
-            includes: Array.isArray(pkg.includes) && pkg.includes.length > 0
-              ? pkg.includes
-              : [
-                  "Devotee Name & Gotra in Sankalp",
-                  "HD Ritual Highlights & Photos",
-                  "Consecrated Prasadam delivery to home",
-                ],
+            includes: pkgFeatures,
+            features: pkgFeatures,
             isDefault: Boolean(pkg.isDefault),
           };
         })
@@ -73,9 +77,15 @@ export const mapApiPujaToUiModel = (item) => {
             id: "pkg-individual",
             name: "Individual",
             price: 1100,
+            maxDevotees: 1,
             formattedPrice: "₹1,100",
             description: "Personal Sankalp for 1 devotee with full ritual participation.",
             includes: [
+              "1 Devotee Name & Gotra in Sankalp",
+              "HD Ritual Video Highlights",
+              "Consecrated Prasadam delivery to home",
+            ],
+            features: [
               "1 Devotee Name & Gotra in Sankalp",
               "HD Ritual Video Highlights",
               "Consecrated Prasadam delivery to home",
@@ -86,9 +96,16 @@ export const mapApiPujaToUiModel = (item) => {
             id: "pkg-couple",
             name: "Couple (Dampati)",
             price: 1800,
+            maxDevotees: 2,
             formattedPrice: "₹1,800",
             description: "Dedicated blessings for husband & wife for marital harmony.",
             includes: [
+              "2 Devotees (Husband & Wife) in Sankalp",
+              "Personalized blessing chant by Acharyas",
+              "Full Ceremony Recording & Photos",
+              "Energized Prasad pack",
+            ],
+            features: [
               "2 Devotees (Husband & Wife) in Sankalp",
               "Personalized blessing chant by Acharyas",
               "Full Ceremony Recording & Photos",
@@ -100,9 +117,16 @@ export const mapApiPujaToUiModel = (item) => {
             id: "pkg-family",
             name: "Complete Family",
             price: 2500,
+            maxDevotees: 6,
             formattedPrice: "₹2,500",
             description: "Comprehensive Sankalp for up to 6 immediate family members.",
             includes: [
+              "Up to 6 Family Members with individual Gotras",
+              "Special Archana for each member",
+              "Priority Video delivery within 24 hours",
+              "Grand Puja Prasadam Box with sacred items",
+            ],
+            features: [
               "Up to 6 Family Members with individual Gotras",
               "Special Archana for each member",
               "Priority Video delivery within 24 hours",
@@ -330,9 +354,18 @@ export const getUpcomingPujaBySlug = async (slug) => {
   return rawData ? mapApiPujaToUiModel(rawData) : null;
 };
 
+/**
+ * Book an upcoming puja package with devotee details.
+ */
+export const bookUpcomingPuja = async (bookingData) => {
+  const response = await api.post("/upcoming-pujas/book", bookingData);
+  return response.data;
+};
+
 export default {
   getUpcomingPujas,
   getUpcomingPujaBySlug,
+  bookUpcomingPuja,
   mapApiPujaToUiModel,
   formatCeremonyDate,
 };

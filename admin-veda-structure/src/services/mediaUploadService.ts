@@ -14,7 +14,7 @@ export interface UploadOptions {
   onProgress?: (current: number, total: number) => void;
 }
 
-export const MAX_IMAGE_SIZE_MB = 5;
+export const MAX_IMAGE_SIZE_MB = 10;
 export const MAX_FILE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
 
 export const ALLOWED_IMAGE_TYPES = [
@@ -35,7 +35,9 @@ export const validateImageFile = (file: File): void => {
   }
 
   const name = file.name.toLowerCase();
-  const hasValidExt = ALLOWED_IMAGE_EXTENSIONS.some((ext) => name.endsWith(ext));
+  const hasValidExt = ALLOWED_IMAGE_EXTENSIONS.some((ext) =>
+    name.endsWith(ext),
+  );
   const hasValidMime = ALLOWED_IMAGE_TYPES.includes(file.type.toLowerCase());
 
   if (!hasValidExt && !hasValidMime) {
@@ -53,7 +55,7 @@ export const validateImageFile = (file: File): void => {
  */
 export const uploadImage = async (
   file: File,
-  options: UploadOptions = {}
+  options: UploadOptions = {},
 ): Promise<UploadedImage> => {
   validateImageFile(file);
 
@@ -79,7 +81,7 @@ export const uploadImage = async (
  */
 export const uploadImages = async (
   files: File[],
-  options: UploadOptions = {}
+  options: UploadOptions = {},
 ): Promise<UploadedImage[]> => {
   if (!files || files.length === 0) {
     throw new Error("Please select an image.");
@@ -110,7 +112,9 @@ export const uploadImages = async (
 export const deleteImage = async (publicId: string): Promise<boolean> => {
   if (!publicId) return false;
   try {
-    const res = await api.del(`/admin/uploads/images?publicId=${encodeURIComponent(publicId)}`);
+    const res = await api.del(
+      `/admin/uploads/images?publicId=${encodeURIComponent(publicId)}`,
+    );
     return Boolean(res.success);
   } catch (error) {
     console.warn("Failed to delete image from storage:", error);
