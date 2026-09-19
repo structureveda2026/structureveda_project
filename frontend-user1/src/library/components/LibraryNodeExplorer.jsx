@@ -242,7 +242,7 @@ const LibraryNodeExplorer = ({ node, onSelectChild }) => {
               <img
                 src={node.cardImage}
                 alt={node.title?.en || "Sacred Scripture"}
-                className="w-full h-full object-cover object-[center_top] filter brightness-[0.97]"
+                className="w-full h-full object-cover object-center filter brightness-[0.98]"
               />
             </div>
           )}
@@ -376,9 +376,9 @@ const LibraryNodeExplorer = ({ node, onSelectChild }) => {
                     <img
                       src={cardImg}
                       alt={child.title?.en}
-                      className="h-full w-full object-cover object-[center_top] transition-transform duration-500 group-hover:scale-105 filter brightness-[0.95]"
+                      className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.02] filter brightness-[0.96]"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent pointer-events-none" />
 
                     <div className="absolute top-2.5 left-2.5 flex items-center gap-1 flex-wrap max-w-[75%]">
                       <span className="rounded-md bg-[#c88918] px-2 py-0.5 text-[9.5px] font-bold text-white uppercase tracking-wider shadow-2xs">
