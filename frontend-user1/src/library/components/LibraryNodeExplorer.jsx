@@ -145,95 +145,105 @@ const LibraryNodeExplorer = ({ node, onSelectChild }) => {
         <div className="pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full bg-[#f8d795]/20 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-[#faecd6]/30 blur-3xl" />
 
-        <div className="relative z-10">
-          {/* Metadata Badges & Category Pill */}
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#faecd6] px-3 sm:px-3.5 py-1 text-[11px] sm:text-[12px] font-bold uppercase tracking-wider text-[#986411] border border-[#ebd2a0] shadow-2xs">
-              <BookOpen size={12} className="text-[#c88918]" />
-              {isHindi ? node.levelLabel?.hi || "पवित्र ग्रंथ" : node.levelLabel?.en || "Sacred Scripture"}
-            </span>
-
-            {currentTermDesc && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-[11px] sm:text-[11.5px] font-semibold text-[#8b5e15] border border-[#ebd8b8] shadow-2xs">
-                <Compass size={11} className="text-[#c88918]" />
-                {currentTermDesc}
+        <div className="relative z-10 flex flex-col md:flex-row md:items-start lg:items-center justify-between gap-6">
+          <div className="flex-1 min-w-0">
+            {/* Metadata Badges & Category Pill */}
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#faecd6] px-3 sm:px-3.5 py-1 text-[11px] sm:text-[12px] font-bold uppercase tracking-wider text-[#986411] border border-[#ebd2a0] shadow-2xs">
+                <BookOpen size={12} className="text-[#c88918]" />
+                {isHindi ? node.levelLabel?.hi || "पवित्र ग्रंथ" : node.levelLabel?.en || "Sacred Scripture"}
               </span>
+
+              {currentTermDesc && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-[11px] sm:text-[11.5px] font-semibold text-[#8b5e15] border border-[#ebd8b8] shadow-2xs">
+                  <Compass size={11} className="text-[#c88918]" />
+                  {currentTermDesc}
+                </span>
+              )}
+
+              {node.badge && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-[11px] sm:text-[12px] font-semibold text-[#7d5d36] border border-[#ebd8b8] shadow-2xs">
+                  <Sparkles size={11} className="text-[#c88918]" />
+                  {node.badge}
+                </span>
+              )}
+
+              {children.length > 0 && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f6eee3] px-3 py-1 text-[11px] sm:text-[12px] font-medium text-[#7d5d36] border border-[#ebdcc4]">
+                  <Layers size={11} className="text-[#986411]" />
+                  {children.length} {isHindi ? (node.childLevelName?.hi || "प्रभाग") : (node.childLevelName?.en || "Sections")}
+                </span>
+              )}
+            </div>
+
+            {/* Prominent Sanskrit Calligraphy */}
+            {node.sanskrit && (
+              <p className="font-serif text-[20px] sm:text-[26px] lg:text-[30px] font-bold tracking-wide text-[#b45309] leading-snug mb-1 break-words">
+                {node.sanskrit}
+              </p>
             )}
 
-            {node.badge && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-[11px] sm:text-[12px] font-semibold text-[#7d5d36] border border-[#ebd8b8] shadow-2xs">
-                <Sparkles size={11} className="text-[#c88918]" />
-                {node.badge}
-              </span>
+            {/* Main Title */}
+            <h1 className="font-serif text-[24px] sm:text-[32px] lg:text-[38px] font-bold text-[#2b241d] tracking-tight leading-snug break-words">
+              {isHindi ? node.title?.hi : node.title?.en}
+            </h1>
+
+            {node.tagline && (
+              <p className="mt-1 font-medium text-[#c88918] text-[13.5px] sm:text-[15.5px] leading-relaxed">
+                {isHindi ? node.tagline?.hi : node.tagline?.en}
+              </p>
             )}
 
-            {children.length > 0 && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f6eee3] px-3 py-1 text-[11px] sm:text-[12px] font-medium text-[#7d5d36] border border-[#ebdcc4]">
-                <Layers size={11} className="text-[#986411]" />
-                {children.length} {isHindi ? (node.childLevelName?.hi || "प्रभाग") : (node.childLevelName?.en || "Sections")}
-              </span>
+            {node.desc && (
+              <p className="mt-2.5 text-[13px] sm:text-[14.5px] leading-relaxed text-[#685848] max-w-[920px]">
+                {isHindi ? node.desc?.hi : node.desc?.en}
+              </p>
+            )}
+
+            {architectureGuide && (
+              <div className="mt-4 rounded-xl border border-[#ebd8b8] bg-[#fbf5e7]/80 px-3.5 py-2 text-[11.5px] sm:text-[12.5px] text-[#7d4808] flex items-center gap-2">
+                <span className="shrink-0 text-[#c88918] font-bold">✦</span>
+                <span className="font-medium">{architectureGuide}</span>
+              </div>
+            )}
+
+            {/* In-Section Search / Filter Bar */}
+            {children.length > 2 && (
+              <div className="relative mt-5 max-w-[480px]">
+                <input
+                  type="text"
+                  value={filterQuery}
+                  onChange={(e) => setFilterQuery(e.target.value)}
+                  placeholder={
+                    isHindi
+                      ? `${node.shortTitle?.hi || "इस प्रभाग"} में खोजें (जैसे सर्ग, श्लोक या नाम)...`
+                      : `Filter in ${node.shortTitle?.en || "this section"} (e.g. Sarga, verse, or title)...`
+                  }
+                  className="w-full rounded-2xl border border-[#ebd8b8] bg-white py-2.5 pl-10 pr-11 text-[16px] sm:text-[13.5px] text-[#2b241d] placeholder:text-[#9e8f7f] outline-none focus:border-[#c88918] focus:ring-2 focus:ring-[#c88918]/20 shadow-2xs transition-all"
+                />
+                <Search size={16} className="absolute left-3.5 top-3.5 text-[#9e8f7f]" />
+                {filterQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setFilterQuery("")}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 inline-flex h-11 w-11 items-center justify-center rounded-full text-[#9e8f7f] hover:bg-[#f3e7d3] hover:text-[#2b241d] transition-colors"
+                    aria-label="Clear filter"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
             )}
           </div>
 
-          {/* Prominent Sanskrit Calligraphy */}
-          {node.sanskrit && (
-            <p className="font-serif text-[20px] sm:text-[26px] lg:text-[30px] font-bold tracking-wide text-[#b45309] leading-snug mb-1 break-words">
-              {node.sanskrit}
-            </p>
-          )}
-
-          {/* Main Title */}
-          <h1 className="font-serif text-[24px] sm:text-[32px] lg:text-[38px] font-bold text-[#2b241d] tracking-tight leading-snug break-words">
-            {isHindi ? node.title?.hi : node.title?.en}
-          </h1>
-
-          {/* Tagline */}
-          {node.tagline && (
-            <p className="mt-1 font-medium text-[#c88918] text-[13.5px] sm:text-[15.5px] leading-relaxed">
-              {isHindi ? node.tagline?.hi : node.tagline?.en}
-            </p>
-          )}
-
-          {/* Description */}
-          {node.desc && (
-            <p className="mt-2.5 text-[13px] sm:text-[14.5px] leading-relaxed text-[#685848] max-w-[920px]">
-              {isHindi ? node.desc?.hi : node.desc?.en}
-            </p>
-          )}
-
-          {/* Progressive Disclosure Guide: Clear Architecture Ribbon */}
-          {architectureGuide && (
-            <div className="mt-4 rounded-xl border border-[#ebd8b8] bg-[#fbf5e7]/80 px-3.5 py-2 text-[11.5px] sm:text-[12.5px] text-[#7d4808] flex items-center gap-2">
-              <span className="shrink-0 text-[#c88918] font-bold">✦</span>
-              <span className="font-medium">{architectureGuide}</span>
-            </div>
-          )}
-
-          {/* In-Section Search / Filter Bar */}
-          {children.length > 2 && (
-            <div className="relative mt-5 max-w-[480px]">
-              <input
-                type="text"
-                value={filterQuery}
-                onChange={(e) => setFilterQuery(e.target.value)}
-                placeholder={
-                  isHindi
-                    ? `${node.shortTitle?.hi || "इस प्रभाग"} में खोजें (जैसे सर्ग, श्लोक या नाम)...`
-                    : `Filter in ${node.shortTitle?.en || "this section"} (e.g. Sarga, verse, or title)...`
-                }
-                className="w-full rounded-2xl border border-[#ebd8b8] bg-white py-2.5 pl-10 pr-11 text-[16px] sm:text-[13.5px] text-[#2b241d] placeholder:text-[#9e8f7f] outline-none focus:border-[#c88918] focus:ring-2 focus:ring-[#c88918]/20 shadow-2xs transition-all"
+          {/* Optional Sacred Header Art Preview */}
+          {node.cardImage && (
+            <div className="hidden md:block shrink-0 w-48 sm:w-56 lg:w-64 aspect-[16/9] rounded-2xl overflow-hidden border-2 border-[#ebd8b8] shadow-md bg-[#faf3e3]">
+              <img
+                src={node.cardImage}
+                alt={node.title?.en || "Sacred Scripture"}
+                className="w-full h-full object-cover object-[center_top] filter brightness-[0.97]"
               />
-              <Search size={16} className="absolute left-3.5 top-3.5 text-[#9e8f7f]" />
-              {filterQuery && (
-                <button
-                  type="button"
-                  onClick={() => setFilterQuery("")}
-                  className="absolute right-1 top-1/2 -translate-y-1/2 inline-flex h-11 w-11 items-center justify-center rounded-full text-[#9e8f7f] hover:bg-[#f3e7d3] hover:text-[#2b241d] transition-colors"
-                  aria-label="Clear filter"
-                >
-                  <X size={16} />
-                </button>
-              )}
             </div>
           )}
         </div>
@@ -366,9 +376,9 @@ const LibraryNodeExplorer = ({ node, onSelectChild }) => {
                     <img
                       src={cardImg}
                       alt={child.title?.en}
-                      className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105 filter brightness-[0.93]"
+                      className="h-full w-full object-cover object-[center_top] transition-transform duration-500 group-hover:scale-105 filter brightness-[0.95]"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
                     <div className="absolute top-2.5 left-2.5 flex items-center gap-1 flex-wrap max-w-[75%]">
                       <span className="rounded-md bg-[#c88918] px-2 py-0.5 text-[9.5px] font-bold text-white uppercase tracking-wider shadow-2xs">

@@ -90,7 +90,7 @@ const LibraryBreadcrumbs = ({ path = [], onSelectNode }) => {
             title={isHindi ? "पिछले स्तर पर वापस जाएँ" : "Go back to previous level"}
           >
             <ArrowLeft size={14} />
-            <span>{isHindi ? "← पीछे जाएँ" : "← Back"}</span>
+            <span>{isHindi ? "पीछे जाएँ" : "Back"}</span>
           </button>
         )}
 

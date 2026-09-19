@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useLibraryLanguage } from "../context/useLibraryLanguage";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { searchHierarchy } from "../data/vedaHierarchyData";
-import templeHeroBg from "../../assets/images/veda_library_hero_temple.jpg";
+import templeHeroBg from "../../assets/images/library/banners/banner-temple-hero.jpg";
 
 const LibraryHero = ({ searchQuery, setSearchQuery, onSelectNode }) => {
   const { isHindi } = useLibraryLanguage();

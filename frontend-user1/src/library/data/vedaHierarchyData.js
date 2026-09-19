@@ -3,35 +3,43 @@
 // =============================================================================
 
 // Panoramic Wide Banner Assets (16:9 widescreen, ratio 1.79 - 1.83, 2814x1536 / 1376x768)
-import bannerTempleGhat from "../../assets/images/veda_hero_temple_bg.jpg";
-import bannerYagyaHero from "../../assets/images/yagya/yagya-hero.webp.png";
-import bannerFireRitual from "../../assets/images/yagya/yagya-fire-ritual.webp.png";
-import bannerPanditTeam from "../../assets/images/yagya/yagya-pandit-team.webp.png";
-import bannerAltar from "../../assets/images/puja/puja-devotional-altar.webp.png";
-import bannerKashiGhat from "../../assets/images/puja/puja-kashi.webp.png";
-import bannerSacredDetails from "../../assets/images/puja/puja-sacred-details.webp.png";
-import bannerSamagri from "../../assets/images/puja/puja-samagri.webp.png";
-import bannerSanctum from "../../assets/images/puja/puja-final-cta.webp.png";
-import bannerRitualSetup from "../../assets/images/puja/puja-ritual-setup.webp.png";
+import bannerTempleGhat from "../../assets/images/library/banners/banner-temple-ghat.jpg";
+import bannerYagyaHero from "../../assets/images/library/banners/banner-yagya-hero.png";
+import bannerFireRitual from "../../assets/images/library/banners/banner-fire-ritual.png";
+import bannerPanditTeam from "../../assets/images/library/banners/banner-pandit-team.png";
+import bannerAltar from "../../assets/images/library/banners/banner-altar.png";
+import bannerKashiGhat from "../../assets/images/library/banners/banner-kashi-ghat.png";
+import bannerSacredDetails from "../../assets/images/library/banners/banner-sacred-details.png";
+import bannerSamagri from "../../assets/images/library/banners/banner-samagri.png";
+import bannerSanctum from "../../assets/images/library/banners/banner-sanctum.png";
+import bannerRitualSetup from "../../assets/images/library/banners/banner-ritual-setup.png";
 
-// Card-Focused Assets (16:10 / 4:3 / 1:1, ratio 1.27 - 1.5, subject/deity focused)
-import templeImg from "../../assets/images/Pujas-by-Occasion/temple.png";
-import rigvedaCardImg from "../../assets/images/c-basics.jpg";
-import yajurvedaCardImg from "../../assets/images/puja-mrityunjaya.jpg";
-import samavedaCardImg from "../../assets/images/c-mantra.jpg";
-import atharvavedaCardImg from "../../assets/images/c-meditation.jpg";
-import gitaCardImg from "../../assets/images/c-gita.jpg";
-import astrologyCardImg from "../../assets/images/c-astrology.jpg";
-import vastuCardImg from "../../assets/images/c-vastu.jpg";
-import ramayanaCardImg from "../../assets/images/puja-vishnu.jpg";
-import mahabharataCardImg from "../../assets/images/c-gita.jpg";
-import puranaCardImg from "../../assets/images/puja-kashi.jpg";
-import samskaraCardImg from "../../assets/images/hero.jpg";
-import pujaCardImg from "../../assets/images/puja-rudrabhishek.jpg";
-import pujaGaneshCardImg from "../../assets/images/puja-ganesh.jpg";
-import pujaLakshmiCardImg from "../../assets/images/puja-lakshmi.jpg";
-import pujaNavagrahaCardImg from "../../assets/images/puja-navagraha.jpg";
-import yagyaFireCardImg from "../../assets/images/yagya_sacred_fire_card.jpg";
+// Card-Focused Assets (Scriptures, Systems, Rites)
+import templeImg from "../../assets/images/library/cards/icon-temple.png";
+import rigvedaCardImg from "../../assets/images/library/cards/card-rigveda.jpg";
+import yajurvedaCardImg from "../../assets/images/library/cards/card-yajurveda.jpg";
+import samavedaCardImg from "../../assets/images/library/cards/card-samaveda.jpg";
+import atharvavedaCardImg from "../../assets/images/library/cards/card-atharvaveda.jpg";
+import gitaCardImg from "../../assets/images/library/cards/card-gita.jpg";
+import astrologyCardImg from "../../assets/images/library/cards/card-astrology.jpg";
+import vastuCardImg from "../../assets/images/library/cards/card-vastu.jpg";
+import ramayanaCardImg from "../../assets/images/library/cards/card-ramayana.jpg";
+import mahabharataCardImg from "../../assets/images/library/cards/card-mahabharata.jpg";
+import puranaCardImg from "../../assets/images/library/cards/card-purana.jpg";
+import samskaraCardImg from "../../assets/images/library/cards/card-samskara.jpg";
+import pujaCardImg from "../../assets/images/library/cards/card-puja.jpg";
+import yagyaFireCardImg from "../../assets/images/library/cards/card-yagya-fire.jpg";
+
+// Sacred Deity Assets
+import deityBrahmaCardImg from "../../assets/images/library/deities/deity-brahma.jpg";
+import deviSaraswatiCardImg from "../../assets/images/library/deities/deity-saraswati.jpg";
+import deviDurgaCardImg from "../../assets/images/library/deities/deity-durga.jpg";
+import trimurtiCardImg from "../../assets/images/library/deities/deity-trimurti.jpg";
+import deityVishnuCardImg from "../../assets/images/library/deities/deity-vishnu.jpg";
+import deityShivaCardImg from "../../assets/images/library/deities/deity-shiva.jpg";
+import deityLakshmiCardImg from "../../assets/images/library/deities/deity-lakshmi.jpg";
+import pujaGaneshCardImg from "../../assets/images/library/deities/deity-ganesh.jpg";
+import pujaNavagrahaCardImg from "../../assets/images/library/deities/deity-navagraha.jpg";
 
 export const VEDA_BANNER_IMAGES = {
   default: bannerTempleGhat,
@@ -74,15 +82,18 @@ export const VEDA_CARD_IMAGES = {
   puja: pujaCardImg,
   pujaGanesh: pujaGaneshCardImg,
   yagya: yagyaFireCardImg,
-  trimurti: pujaCardImg,
-  "trimurti-brahma": pujaGaneshCardImg,
-  "trimurti-vishnu": ramayanaCardImg,
-  "trimurti-shiva": pujaCardImg,
-  dashavatara: ramayanaCardImg,
-  tridevi: pujaLakshmiCardImg,
+  trimurti: trimurtiCardImg,
+  "trimurti-brahma": deityBrahmaCardImg,
+  "trimurti-vishnu": deityVishnuCardImg,
+  "trimurti-shiva": deityShivaCardImg,
+  dashavatara: deityVishnuCardImg,
+  tridevi: deviDurgaCardImg,
+  "tridevi-saraswati": deviSaraswatiCardImg,
+  "tridevi-lakshmi": deityLakshmiCardImg,
+  "tridevi-durga": deviDurgaCardImg,
   panchayatana: pujaGaneshCardImg,
   vaidika33Deva: pujaNavagrahaCardImg,
-  devataAvatara: ramayanaCardImg,
+  devataAvatara: deityVishnuCardImg,
 };
 
 // Backwards compatibility dictionary
@@ -294,23 +305,46 @@ export const getNodeCardImage = (node, child) => {
     return VEDA_CARD_IMAGES.dashavatara;
   }
 
-  if (
-    lineageTokens.includes("trimurti") ||
-    lineageTokens.includes("brahma") ||
-    lineageTokens.includes("shiva") ||
-    lineageTokens.includes("mahesh")
-  ) {
-    return VEDA_CARD_IMAGES.trimurti;
+  if (lineageTokens.includes("brahma")) {
+    return VEDA_CARD_IMAGES["trimurti-brahma"];
+  }
+
+  if (lineageTokens.includes("saraswati")) {
+    return VEDA_CARD_IMAGES["tridevi-saraswati"];
   }
 
   if (
-    lineageTokens.includes("tridevi") ||
-    lineageTokens.includes("lakshmi") ||
-    lineageTokens.includes("saraswati") ||
-    lineageTokens.includes("parvati") ||
     lineageTokens.includes("durga") ||
+    lineageTokens.includes("parvati") ||
     lineageTokens.includes("shakti")
   ) {
+    return VEDA_CARD_IMAGES["tridevi-durga"];
+  }
+
+  if (lineageTokens.includes("lakshmi")) {
+    return VEDA_CARD_IMAGES["tridevi-lakshmi"];
+  }
+
+  if (
+    lineageTokens.includes("shiva") ||
+    lineageTokens.includes("mahesh") ||
+    lineageTokens.includes("rudra")
+  ) {
+    return VEDA_CARD_IMAGES["trimurti-shiva"];
+  }
+
+  if (
+    lineageTokens.includes("vishnu") ||
+    lineageTokens.includes("narayana")
+  ) {
+    return VEDA_CARD_IMAGES["trimurti-vishnu"];
+  }
+
+  if (lineageTokens.includes("trimurti")) {
+    return VEDA_CARD_IMAGES.trimurti;
+  }
+
+  if (lineageTokens.includes("tridevi")) {
     return VEDA_CARD_IMAGES.tridevi;
   }
 
@@ -4941,13 +4975,169 @@ export const VEDA_HIERARCHY_TREE = [
         },
         childLevelName: { en: "Parva", hi: "पर्व" },
         children: [
+          // 01. Adi Parva
+          {
+            id: "mb-adi-parva",
+            parentId: "mahabharata",
+            type: "division",
+            levelLabel: { en: "Parva 01", hi: "पर्व ०१" },
+            title: { en: "01. Adi Parva (The Book of the Beginning)", hi: "०१. आदि पर्व: कुरुवंश उत्पत्ति एवं पाण्डव जन्म" },
+            shortTitle: { en: "01. Adi Parva", hi: "०१. आदि पर्व" },
+            sanskrit: "आदिपर्व (१९ अध्याय)",
+            badge: "Parva 01",
+            children: [
+              {
+                id: "mb-adi-shloka",
+                parentId: "mb-adi-parva",
+                type: "leaf",
+                levelLabel: { en: "Canonical Shloka", hi: "प्रमाण श्लोक" },
+                title: { en: "Adi Parva 1.1 — Narayanam Namaskritya", hi: "आदि पर्व १.१ — नारायणं नमस्कृत्य (मंगलाचरण)" },
+                shortTitle: { en: "Mangalacharana", hi: "मंगलाचरण" },
+                sanskrit: "नारायणं नमस्कृत्य नरं चैव नरोत्तमम्",
+                badge: "Invocation",
+                content: {
+                  sanskrit: "नारायणं नमस्कृत्य नरं चैव नरोत्तमम्।\nदेवीं सरस्वतीं व्यासं ततो जयमुदीरयेत्॥",
+                  transliteration: "nārāyaṇaṃ namaskṛtya naraṃ caiva narottamam |\ndevīṃ sarasvatīṃ vyāsaṃ tato jayamudīrayet ||",
+                  meaningHi: "भगवान् श्रीनारायण, नरोत्तम नर (अर्जुन), भगवती सरस्वती और महर्षि वेदव्यास को श्रद्धापूर्वक प्रणाम करके 'जय' (महाभारत) का पाठ करना चाहिए।",
+                  meaningEn: "Having bowed down to Lord Narayana, to Nara the foremost of human beings, to Mother Goddess Saraswati, and to Maharshi Vyasa, let us utter the word of victory—Jaya!",
+                  metadata: { parva: "Adi Parva", chapter: "1", verse: "1", significance: "Universal opening invocation of Mahabharata" },
+                },
+              },
+            ],
+          },
+
+          // 02. Sabha Parva
+          {
+            id: "mb-sabha-parva",
+            parentId: "mahabharata",
+            type: "division",
+            levelLabel: { en: "Parva 02", hi: "पर्व ०२" },
+            title: { en: "02. Sabha Parva (The Assembly Hall & Game of Dice)", hi: "०२. सभा पर्व: मय सभा, राजसूय यज्ञ एवं द्यूत-क्रीड़ा" },
+            shortTitle: { en: "02. Sabha Parva", hi: "०२. सभा पर्व" },
+            sanskrit: "सभापर्व (द्यूतक्रीड़ा)",
+            badge: "Parva 02",
+            children: [
+              {
+                id: "mb-sabha-shloka",
+                parentId: "mb-sabha-parva",
+                type: "leaf",
+                levelLabel: { en: "Canonical Shloka", hi: "प्रमाण श्लोक" },
+                title: { en: "Sabha Parva — Vidura's Warning on Dharma", hi: "सभा पर्व — महात्मा विदुर की नीति एवं चेतावनी" },
+                shortTitle: { en: "Vidura Niti", hi: "विदुर चेतावनी" },
+                sanskrit: "धर्मो हतो हन्ति धर्मो रक्षति रक्षितः",
+                badge: "Sabha Parva",
+                content: {
+                  sanskrit: "धर्म एव हतो हन्ति धर्मो रक्षति रक्षितः।\nतस्माद्धर्मो न हन्तव्यो मा नो धर्मो हतोऽवधीत्॥",
+                  transliteration: "dharma eva hato hanti dharmo rakṣati rakṣitaḥ |\ntasmāddharmo na hantavyo mā no dharmo hato'vadhīt ||",
+                  meaningHi: "नष्ट किया हुआ धर्म नष्ट करने वाले का नाश कर देता है, और रक्षा किया हुआ धर्म रक्षा करने वाले की रक्षा करता है। इसलिए धर्म का कभी हनन नहीं करना चाहिए।",
+                  meaningEn: "Righteousness (Dharma) when destroyed, destroys; Dharma when protected, protects. Therefore, let no one violate Dharma, lest destroyed Dharma strike us down!",
+                  metadata: { parva: "Sabha Parva", speaker: "Mahatma Vidura", theme: "Integrity in Royal Assembly" },
+                },
+              },
+            ],
+          },
+
+          // 03. Vana Parva
+          {
+            id: "mb-vana-parva",
+            parentId: "mahabharata",
+            type: "division",
+            levelLabel: { en: "Parva 03", hi: "पर्व ०३" },
+            title: { en: "03. Vana Parva / Aranyaka Parva (The Forest Exile)", hi: "०३. वन पर्व: १२ वर्ष का वनवास एवं यक्ष-प्रश्न संवाद" },
+            shortTitle: { en: "03. Vana Parva", hi: "०३. वन पर्व" },
+            sanskrit: "वनपर्व (आरण्यकपर्व)",
+            badge: "Parva 03",
+            children: [
+              {
+                id: "mb-vana-yaksha-prashna",
+                parentId: "mb-vana-parva",
+                type: "leaf",
+                levelLabel: { en: "Dialogue", hi: "यक्ष-युधिष्ठिर संवाद" },
+                title: { en: "Yaksha Prashna — What is the Greatest Wonder?", hi: "यक्ष प्रश्न — संसार का सबसे बड़ा आश्चर्य क्या है?" },
+                shortTitle: { en: "Yaksha Prashna", hi: "यक्ष प्रश्न" },
+                sanskrit: "अहन्यहनि भूतानि गच्छन्तीह यमालयम्",
+                badge: "Vana Parva",
+                content: {
+                  sanskrit: "अहन्यहनि भूतानि गच्छन्तीह यमालयम्।\nशेषाः स्थावरमिच्छन्ति किमाश्चर्यमतः परम्॥",
+                  transliteration: "ahanyahani bhūtāni gacchantīha yamālayam |\nśeṣāḥ sthāvaramicchanti kimāścaryamataḥ param ||",
+                  meaningHi: "प्रतिदिन अनगिनत प्राणी यमराज के घर (मृत्यु को) प्राप्त होते हैं, फिर भी जो शेष बचे हैं वे सदा जीवित रहने की इच्छा करते हैं। इससे बड़ा आश्चर्य इस संसार में और क्या हो सकता है?",
+                  meaningEn: "Day after day countless beings journey to the abode of Death, yet those who remain believe they will live forever. What can be a greater wonder in this world than this?",
+                  metadata: { parva: "Vana Parva 3.313", speaker: "Dharmaraja Yudhishthira", listener: "Yaksha (Dharma Devata)" },
+                },
+              },
+            ],
+          },
+
+          // 04. Virata Parva
+          {
+            id: "mb-virata-parva",
+            parentId: "mahabharata",
+            type: "division",
+            levelLabel: { en: "Parva 04", hi: "पर्व ०४" },
+            title: { en: "04. Virata Parva (The Year of Incognito Exile)", hi: "०४. विराट पर्व: अज्ञातवास एवं बृहन्नला रूप में अर्जुन" },
+            shortTitle: { en: "04. Virata Parva", hi: "०४. विराट पर्व" },
+            sanskrit: "विराटपर्व (अज्ञातवास)",
+            badge: "Parva 04",
+            children: [
+              {
+                id: "mb-virata-shloka",
+                parentId: "mb-virata-parva",
+                type: "leaf",
+                levelLabel: { en: "Canonical Shloka", hi: "प्रमाण श्लोक" },
+                title: { en: "Virata Parva — Triumph of Righteousness in Disguise", hi: "विराट पर्व — सत्य एवं धैर्य की विजय" },
+                shortTitle: { en: "Virata Triumph", hi: "विराट विजय" },
+                sanskrit: "यतो धर्मस्ततो जयः",
+                badge: "Virata Parva",
+                content: {
+                  sanskrit: "यतो धर्मस्ततः कृष्णो यतः कृष्णस्ततो जयः।\nधर्मेण लभ्यते सर्वं धर्मे सर्वं प्रतिष्ठितम्॥",
+                  transliteration: "yato dharmastataḥ kṛṣṇo yataḥ kṛṣṇastato jayaḥ |\ndharmeṇa labhyate sarvaṃ dharme sarvaṃ pratiṣṭhitam ||",
+                  meaningHi: "जहाँ धर्म है, वहाँ श्रीकृष्ण हैं; और जहाँ श्रीकृष्ण हैं, वहाँ निश्चय ही विजय है। धर्म से ही सब कुछ प्राप्त होता है और सम्पूर्ण विश्व धर्म पर ही टिका हुआ है।",
+                  meaningEn: "Where there is Dharma, there is Sri Krishna; and where there is Krishna, there is certain Victory! By Dharma alone everything is attained.",
+                  metadata: { parva: "Virata Parva", theme: "Steadfast patience of the Pandavas" },
+                },
+              },
+            ],
+          },
+
+          // 05. Udyoga Parva
+          {
+            id: "mb-udyoga-parva",
+            parentId: "mahabharata",
+            type: "division",
+            levelLabel: { en: "Parva 05", hi: "पर्व ०५" },
+            title: { en: "05. Udyoga Parva (Effort for Peace & War Preparation)", hi: "०५. उद्योग पर्व: श्रीकृष्ण शान्ति दूत एवं विदुर नीति" },
+            shortTitle: { en: "05. Udyoga Parva", hi: "०५. उद्योग पर्व" },
+            sanskrit: "उद्योगपर्व (शान्ति मन्त्रणा)",
+            badge: "Parva 05",
+            children: [
+              {
+                id: "mb-udyoga-shloka",
+                parentId: "mb-udyoga-parva",
+                type: "leaf",
+                levelLabel: { en: "Canonical Shloka", hi: "प्रमाण श्लोक" },
+                title: { en: "Udyoga Parva — Sri Krishna's Peace Embassy", hi: "उद्योग पर्व — भगवान् श्रीकृष्ण की शान्ति दूत सभा" },
+                shortTitle: { en: "Krishna Duta", hi: "कृष्ण दूत" },
+                sanskrit: "शान्तिमिच्छामि कौरव्य पाण्डवानां शमेन च",
+                badge: "Udyoga Parva",
+                content: {
+                  sanskrit: "शान्तिमिच्छामि कौरव्य पाण्डवानां शमेन च।\nन हि युद्धेन वै राज्यं लब्धुं शक्यं सुखावहम्॥",
+                  transliteration: "śāntimicchāmi kauravya pāṇḍavānāṃ śamena ca |\nna hi yuddhena vai rājyaṃ labdhuṃ śakyaṃ sukhāvaham ||",
+                  meaningHi: "हे धृतराष्ट्र! मैं कौरवों और पाण्डवों के बीच शान्ति चाहता हूँ, क्योंकि विनाशकारी युद्ध द्वारा प्राप्त राज्य कभी किसी के लिए सुखदायी नहीं हो सकता।",
+                  meaningEn: "I desire lasting peace between the Kauravas and Pandavas, O Dhritarashtra! For a kingdom acquired through cataclysmic war can never bring enduring happiness to anyone.",
+                  metadata: { parva: "Udyoga Parva", speaker: "Bhagavan Sri Krishna", theme: "Ultimate effort to avoid war" },
+                },
+              },
+            ],
+          },
+
+          // 06. Bhishma Parva (Contains Bhagavad Gita)
           {
             id: "mb-bhishma-parva",
             parentId: "mahabharata",
             type: "division",
-            levelLabel: { en: "Parva", hi: "पर्व" },
-            title: { en: "Bhishma Parva (Contains Srimad Bhagavad Gita)", hi: "भीष्म पर्व (श्रीमद्भगवद्गीता समाहित)" },
-            shortTitle: { en: "Bhishma Parva", hi: "भीष्म पर्व" },
+            levelLabel: { en: "Parva 06", hi: "पर्व ०६" },
+            title: { en: "06. Bhishma Parva (Contains Srimad Bhagavad Gita)", hi: "०६. भीष्म पर्व: श्रीमद्भगवद्गीता समाहित (१० दिन का युद्ध)" },
+            shortTitle: { en: "06. Bhishma Parva", hi: "०६. भीष्म पर्व" },
             sanskrit: "भीष्मपर्व (गीता सार)",
             badge: "Contains Gita",
             children: [
@@ -4980,7 +5170,6 @@ export const VEDA_HIERARCHY_TREE = [
                         shloka: "47",
                         speaker: "Bhagavan Sri Krishna (भगवान् श्रीकृष्ण)",
                         listener: "Arjuna (पार्थ अर्जुन)",
-                        chandas: "Anushtubh",
                         source: "Mahabharata, Bhishma Parva / Srimad Bhagavad Gita 2.47",
                       },
                     },
@@ -4989,13 +5178,170 @@ export const VEDA_HIERARCHY_TREE = [
               },
             ],
           },
+
+          // 07. Drona Parva
+          {
+            id: "mb-drona-parva",
+            parentId: "mahabharata",
+            type: "division",
+            levelLabel: { en: "Parva 07", hi: "पर्व ०७" },
+            title: { en: "07. Drona Parva (Command of Dronacharya & Abhimanyu)", hi: "०७. द्रोण पर्व: चक्रव्यूह भेदन एवं अभिमन्यु का अप्रतिम शौर्य" },
+            shortTitle: { en: "07. Drona Parva", hi: "०७. द्रोण पर्व" },
+            sanskrit: "द्रोणपर्व (चक्रव्यूह)",
+            badge: "Parva 07",
+            children: [
+              {
+                id: "mb-drona-shloka",
+                parentId: "mb-drona-parva",
+                type: "leaf",
+                levelLabel: { en: "Canonical Shloka", hi: "प्रमाण श्लोक" },
+                title: { en: "Drona Parva — Valor of Veer Abhimanyu", hi: "द्रोण पर्व — वीर अभिमन्यु का अमर बलिदान" },
+                shortTitle: { en: "Veer Abhimanyu", hi: "वीर अभिमन्यु" },
+                sanskrit: "शूरा रणमुखे शूरं चक्रव्यूहविदारिणम्",
+                badge: "Drona Parva",
+                content: {
+                  sanskrit: "एकः षड्रथिनो हत्वा व्यूहं भित्त्वा महारथः।\nअभिमन्युर्यशो लब्ध्वा स्वर्गं गतो न संशयः॥",
+                  transliteration: "ekaḥ ṣaḍrathino hatvā vyūhaṃ bhittvā mahārathaḥ |\nabhimanyuryaśo labdhvā svargaṃ gato na saṃśayaḥ ||",
+                  meaningHi: "अकेले ही द्रोणाचार्य के चक्रव्यूह को भेदकर छह-छह महारथियों से अकेले युद्ध करते हुए वीर अभिमन्यु ने अमर यश प्राप्त कर स्वर्गलोक को प्रयाण किया।",
+                  meaningEn: "Alone penetrating the impenetrable Chakravyuha and heroically fighting against six supreme Maharathis simultaneously, young Abhimanyu attained immortal glory and ascended to the heavenly realms.",
+                  metadata: { parva: "Drona Parva", hero: "Veer Abhimanyu", event: "Chakravyuha Bhedana" },
+                },
+              },
+            ],
+          },
+
+          // 08. Karna Parva
+          {
+            id: "mb-karna-parva",
+            parentId: "mahabharata",
+            type: "division",
+            levelLabel: { en: "Parva 08", hi: "पर्व ०८" },
+            title: { en: "08. Karna Parva (Command of Karna & Duel with Arjuna)", hi: "०८. कर्ण पर्व: दानवीर कर्ण का सेनापतित्व एवं महाद्वन्द्व" },
+            shortTitle: { en: "08. Karna Parva", hi: "०८. कर्ण पर्व" },
+            sanskrit: "कर्णपर्व (दानवीर कर्ण)",
+            badge: "Parva 08",
+            children: [
+              {
+                id: "mb-karna-shloka",
+                parentId: "mb-karna-parva",
+                type: "leaf",
+                levelLabel: { en: "Canonical Shloka", hi: "प्रमाण श्लोक" },
+                title: { en: "Karna Parva — Nobility of Danaveera Karna", hi: "कर्ण पर्व — दानवीर कर्ण की दानशीलता एवं तेज" },
+                shortTitle: { en: "Danaveera Karna", hi: "दानवीर कर्ण" },
+                sanskrit: "दानं शौर्यं च सत्यं च कर्णे सर्वं प्रतिष्ठितम्",
+                badge: "Karna Parva",
+                content: {
+                  sanskrit: "दानं शौर्यं च सत्यं च कर्णे सर्वं प्रतिष्ठितम्।\nकवचं कुण्डलं चैव यः प्रादाद् ब्राह्मणे मुदा॥",
+                  transliteration: "dānaṃ śauryaṃ ca satyaṃ ca karṇe sarvaṃ pratiṣṭhitam |\nkavacaṃ kuṇḍalaṃ caiva yaḥ prādād brāhmaṇe mudā ||",
+                  meaningHi: "दान, शौर्य और सत्य—ये सभी गुण कर्ण में प्रतिष्ठित थे। जिन्होंने ब्राह्मण वेशधारी इन्द्र को अपने जन्मजात कवच और कुण्डल भी सहर्ष दान कर दिए।",
+                  meaningEn: "Generosity, peerless valor, and steadfast commitment to truth were all embodied in Karna, who joyfully severed and gifted his divine armor and earrings to Indra disguised as a Brahmin.",
+                  metadata: { parva: "Karna Parva", hero: "Danaveera Karna", weapon: "Vijaya Bow" },
+                },
+              },
+            ],
+          },
+
+          // 09. Shalya Parva
+          {
+            id: "mb-shalya-parva",
+            parentId: "mahabharata",
+            type: "division",
+            levelLabel: { en: "Parva 09", hi: "पर्व ०९" },
+            title: { en: "09. Shalya Parva (Final Day of War & Mace Duel)", hi: "०९. शल्य पर्व: १८वें दिन का युद्ध एवं गदा युद्ध" },
+            shortTitle: { en: "09. Shalya Parva", hi: "०९. शल्य पर्व" },
+            sanskrit: "शल्यपर्व (गदायुद्धम्)",
+            badge: "Parva 09",
+            children: [
+              {
+                id: "mb-shalya-shloka",
+                parentId: "mb-shalya-parva",
+                type: "leaf",
+                levelLabel: { en: "Canonical Shloka", hi: "प्रमाण श्लोक" },
+                title: { en: "Shalya Parva — Bhima & Duryodhana Mace Duel", hi: "शल्य पर्व — भीम और दुर्योधन का ऐतिहासिक गदा युद्ध" },
+                shortTitle: { en: "Gada Yuddha", hi: "गदा युद्ध" },
+                sanskrit: "गदायुद्धे समाहूतो दुर्योधनो महाबली",
+                badge: "Shalya Parva",
+                content: {
+                  sanskrit: "गदायुद्धे समाहूतो दुर्योधनो महाबली।\nभीमसेनेन संक्रुद्धो हतो धर्मविपर्ययात्॥",
+                  transliteration: "gadāyuddhe samāhūto duryodhano mahābalī |\nbhīmasenena saṃkruddho hato dharmaviparyayāt ||",
+                  meaningHi: "द्वैपायन सरोवर से निकलकर महाबली दुर्योधन ने भीमसेन के साथ अंतिम गदा युद्ध किया। अधर्म का आश्रय लेने के कारण दुर्योधन पराजित हुआ और युद्ध समाप्त हुआ।",
+                  meaningEn: "Challenged from the depths of Dvaipayana Lake, mighty Duryodhana fought his final mace duel against Bhimasena, meeting his end due to the inexorable consequence of unrighteousness.",
+                  metadata: { parva: "Shalya Parva", combatants: "Bhimasena & Duryodhana", referee: "Lord Balarama" },
+                },
+              },
+            ],
+          },
+
+          // 10. Sauptika Parva
+          {
+            id: "mb-sauptika-parva",
+            parentId: "mahabharata",
+            type: "division",
+            levelLabel: { en: "Parva 10", hi: "पर्व १०" },
+            title: { en: "10. Sauptika Parva (The Nocturnal Raid & Brahmashira)", hi: "१०. सौप्तिक पर्व: अश्वत्थामा का रात्रि-धावा एवं ब्रह्मास्त्र" },
+            shortTitle: { en: "10. Sauptika Parva", hi: "१०. सौप्तिक पर्व" },
+            sanskrit: "सौप्तिकपर्व (रात्रि संहार)",
+            badge: "Parva 10",
+            children: [
+              {
+                id: "mb-sauptika-shloka",
+                parentId: "mb-sauptika-parva",
+                type: "leaf",
+                levelLabel: { en: "Canonical Shloka", hi: "प्रमाण श्लोक" },
+                title: { en: "Sauptika Parva — Tragic Consequences of Vengeance", hi: "सौप्तिक पर्व — प्रतिशोध की विनाशकारी ज्वाला" },
+                shortTitle: { en: "Vengeance Tragedy", hi: "प्रतिशोध परिणाम" },
+                sanskrit: "अधर्मेण कृतं कर्म न शुभं फलति क्वचित्",
+                badge: "Sauptika Parva",
+                content: {
+                  sanskrit: "अधर्मेण कृतं कर्म न शुभं फलति क्वचित्।\nआत्मानं घातयेत् पश्चात् पावकः शुष्कवृक्षवत्॥",
+                  transliteration: "adharmeṇa kṛtaṃ karma na śubhaṃ phalati kvacit |\nātmānaṃ ghātayet paścāt pāvakaḥ śuṣkavṛkṣavat ||",
+                  meaningHi: "अधर्म और छल से किया गया कर्म कभी कल्याणकारी फल नहीं देता; वह अंततः उसी प्रकार कर्ता का विनाश कर देता है जैसे अग्नि सूखे वृक्ष को भस्म कर देती है।",
+                  meaningEn: "An action performed through deceit and adharma never yields auspicious fruit; in the end, it incinerates its perpetrator just as a raging wildfire consumes a dried tree.",
+                  metadata: { parva: "Sauptika Parva", antagonist: "Ashwatthama", weapon: "Brahmashira Astra" },
+                },
+              },
+            ],
+          },
+
+          // 11. Stri Parva
+          {
+            id: "mb-stri-parva",
+            parentId: "mahabharata",
+            type: "division",
+            levelLabel: { en: "Parva 11", hi: "पर्व ११" },
+            title: { en: "11. Stri Parva (The Grief of the Mothers & Widows)", hi: "११. स्त्री पर्व: गांधारी का विलाप एवं युद्ध का शोक" },
+            shortTitle: { en: "11. Stri Parva", hi: "११. स्त्री पर्व" },
+            sanskrit: "स्त्रीपर्व (गांधारी विलाप)",
+            badge: "Parva 11",
+            children: [
+              {
+                id: "mb-stri-shloka",
+                parentId: "mb-stri-parva",
+                type: "leaf",
+                levelLabel: { en: "Canonical Shloka", hi: "प्रमाण श्लोक" },
+                title: { en: "Stri Parva — Queen Gandhari's Lamentation", hi: "स्त्री पर्व — महारानी गांधारी का शोक एवं वैराग्य" },
+                shortTitle: { en: "Gandhari Grief", hi: "गांधारी विलाप" },
+                sanskrit: "पश्यैतान् वारितान् शूराञ् शयानान् वसुधातले",
+                badge: "Stri Parva",
+                content: {
+                  sanskrit: "पश्यैतान् वारितान् शूराञ् शयानान् वसुधातले।\nअहंकारविमूढानां पश्य युद्धस्य चेष्टितम्॥",
+                  transliteration: "paśyaitān vāritān śūrāñ śayānān vasudhātale |\nahaṃkāravimūḍhānāṃ paśya yuddhasya ceṣṭitam ||",
+                  meaningHi: "कुरुक्षेत्र की रक्त-रंजित भूमि पर सोए हुए इन पराक्रमी वीरों को देखो! अहंकार से मूढ़ हुए मनुष्यों के युद्ध का यह कैसा हृदय-विदारक परिणाम हुआ है!",
+                  meaningEn: "Behold these mighty heroes lying silent upon the bare earth! Witness the tragic desolation wrought by war born of stubborn arrogance and delusion!",
+                  metadata: { parva: "Stri Parva", speaker: "Queen Mother Gandhari", listener: "Lord Krishna" },
+                },
+              },
+            ],
+          },
+
+          // 12. Shanti Parva (Bhishma's Teachings)
           {
             id: "mb-shanti-parva",
             parentId: "mahabharata",
             type: "division",
-            levelLabel: { en: "Parva", hi: "पर्व" },
-            title: { en: "Shanti Parva (Rajadharma & Mokshadharma - 365 Adhyayas)", hi: "शान्ति पर्व (राजधर्म एवं मोक्षधर्म - ३६५ अध्याय)" },
-            shortTitle: { en: "Shanti Parva", hi: "शान्ति पर्व" },
+            levelLabel: { en: "Parva 12", hi: "पर्व १२" },
+            title: { en: "12. Shanti Parva (Rajadharma & Mokshadharma - 365 Adhyayas)", hi: "१२. शान्ति पर्व: भीष्म उपदेश — राजधर्म एवं मोक्षधर्म (३६५ अध्याय)" },
+            shortTitle: { en: "12. Shanti Parva", hi: "१२. शान्ति पर्व" },
             sanskrit: "शान्तिपर्व (भीष्म उपदेश)",
             badge: "365 Adhyayas",
             children: [
@@ -5066,6 +5412,196 @@ export const VEDA_HIERARCHY_TREE = [
                     },
                   },
                 ],
+              },
+            ],
+          },
+
+          // 13. Anushasana Parva (Vishnu Sahasranama)
+          {
+            id: "mb-anushasana-parva",
+            parentId: "mahabharata",
+            type: "division",
+            levelLabel: { en: "Parva 13", hi: "पर्व १३" },
+            title: { en: "13. Anushasana Parva (Contains Vishnu Sahasranama & Dana Dharma)", hi: "१३. अनुशासन पर्व: विष्णु सहस्रनाम स्तोत्र एवं दान धर्म" },
+            shortTitle: { en: "13. Anushasana", hi: "१३. अनुशासन पर्व" },
+            sanskrit: "अनुशासनपर्व (विष्णुसहस्रनाम)",
+            badge: "Contains Sahasranama",
+            children: [
+              {
+                id: "mb-anushasana-vsn",
+                parentId: "mb-anushasana-parva",
+                type: "leaf",
+                levelLabel: { en: "Canonical Stotram", hi: "विष्णु सहस्रनाम" },
+                title: { en: "Vishnu Sahasranama 13.149 — Kimekam Daivatam Loke", hi: "विष्णु सहस्रनाम १३.१४९ — किमेकं दैवतं लोके (भीष्म उपदेश)" },
+                shortTitle: { en: "Vishnu Sahasranama", hi: "विष्णु सहस्रनाम" },
+                sanskrit: "किमेकं दैवतं लोके किं वाप्येकं परायणम्",
+                badge: "Anushasana Parva",
+                content: {
+                  sanskrit: "किमेकं दैवतं लोके किं वाप्येकं परायणम्।\nस्तुवन्तः कं कमर्चन्तः प्राप्नुयुर्मानवाः शुभम्॥\nभीष्म उवाच—\nजगत्प्रभुं देवदेवमनन्तं पुरुषोत्तमम्।\nस्तुवन्नामसहस्रेण पुरुषः सततोत्थितः॥",
+                  transliteration: "kimekaṃ daivataṃ loke kiṃ vāpyekaṃ parāyaṇam |\nstuvantaḥ kaṃ kamarcantaḥ prāpnuyurmānavāḥ śubham ||\nbhīṣma uvāca—\njagatprabhuṃ devadevamanantaṃ puruṣottamam |\nstuvannāmasahasreṇa puruṣaḥ satatotthitaḥ ||",
+                  meaningHi: "युधिष्ठिर ने पूछा: संसार में एकमात्र पूजनीय परम देव कौन हैं? भीष्म जी ने कहा: संपूर्ण जगत् के स्वामी, देवों के देव, अनंत पुरुषोत्तम श्रीविष्णु के एक सहस्र (१०००) दिव्य नामों की निरंतर स्तुति करने से मानव परम कल्याण को प्राप्त होता है।",
+                  meaningEn: "Yudhishthira asked: 'Who is the One Supreme Divinity in this world? Chanting whose praises do mortals attain salvation?' Bhishma replied: 'By meditating upon and praising the thousand holy names of the Infinite Lord of the Cosmos, Purushottama Narayana, man transcends all sorrow!'",
+                  metadata: { parva: "Anushasana Parva 149", speaker: "Pitamaha Bhishma", origin: "Vishnu Sahasranama Stotram" },
+                },
+              },
+            ],
+          },
+
+          // 14. Ashvamedhika Parva
+          {
+            id: "mb-ashvamedhika-parva",
+            parentId: "mahabharata",
+            type: "division",
+            levelLabel: { en: "Parva 14", hi: "पर्व १४" },
+            title: { en: "14. Ashvamedhika Parva (The Imperial Horse Sacrifice & Anugita)", hi: "१४. आश्वमेधिक पर्व: युधिष्ठिर का अश्वमेध यज्ञ एवं अनुगीता" },
+            shortTitle: { en: "14. Ashvamedhika", hi: "१४. आश्वमेधिक" },
+            sanskrit: "आश्वमेधिकपर्व (अनुगीता)",
+            badge: "Parva 14",
+            children: [
+              {
+                id: "mb-ashvamedhika-shloka",
+                parentId: "mb-ashvamedhika-parva",
+                type: "leaf",
+                levelLabel: { en: "Canonical Shloka", hi: "प्रमाण श्लोक" },
+                title: { en: "Anugita — Supreme Spiritual Counsel to Arjuna", hi: "अनुगीता — श्रीकृष्ण द्वारा अर्जुन को पुनः आत्मज्ञान उपदेश" },
+                shortTitle: { en: "Anugita", hi: "अनुगीता" },
+                sanskrit: "न हि धर्मात् परो लोके बन्धुरस्ति शरीरिणाम्",
+                badge: "Ashvamedhika",
+                content: {
+                  sanskrit: "न हि धर्मात्परो लोके बन्धुरस्ति शरीरिणाम्।\nधर्मः सखा च बन्धुश्च धर्मस्त्राता भवेत्सदा॥",
+                  transliteration: "na hi dharmātparo loke bandhurasti śarīriṇām |\ndharmaḥ sakhā ca bandhuśca dharmastrātā bhavetsadā ||",
+                  meaningHi: "संसार में देहधारी मनुष्यों का धर्म से बढ़कर कोई सच्चा सखा अथवा बंधु नहीं है। धर्म ही परम मित्र है और धर्म ही संकटों से सदा रक्षा करता है।",
+                  meaningEn: "There is no friend, relative, or protector equal to Dharma for embodied beings in this mortal world. Dharma is the eternal friend and ultimate savior.",
+                  metadata: { parva: "Ashvamedhika Parva", section: "Anugita", speaker: "Bhagavan Sri Krishna" },
+                },
+              },
+            ],
+          },
+
+          // 15. Ashramavasika Parva
+          {
+            id: "mb-ashramavasika-parva",
+            parentId: "mahabharata",
+            type: "division",
+            levelLabel: { en: "Parva 15", hi: "पर्व १५" },
+            title: { en: "15. Ashramavasika Parva (Retirement of the Elders to Forest)", hi: "१५. आश्रमवासिक पर्व: धृतराष्ट्र, गांधारी एवं कुन्ती का वानप्रस्थ" },
+            shortTitle: { en: "15. Ashramavasika", hi: "१५. आश्रमवासिक" },
+            sanskrit: "आश्रमवासिकपर्व (वानप्रस्थ)",
+            badge: "Parva 15",
+            children: [
+              {
+                id: "mb-ashramavasika-shloka",
+                parentId: "mb-ashramavasika-parva",
+                type: "leaf",
+                levelLabel: { en: "Canonical Shloka", hi: "प्रमाण श्लोक" },
+                title: { en: "Ashramavasika Parva — Vanaprastha & Detachment", hi: "आश्रमवासिक पर्व — वानप्रस्थ साधना एवं परम वैराग्य" },
+                shortTitle: { en: "Vanaprastha Vairagya", hi: "वानप्रस्थ वैराग्य" },
+                sanskrit: "तपसा प्राप्यते सर्वं नास्ति किञ्चिदतपस्कम्",
+                badge: "Ashramavasika",
+                content: {
+                  sanskrit: "तपसा प्राप्यते सर्वं नास्ति किञ्चिदतपस्कम्।\nतपसा युज्यते योगी तपसा मुच्यते भवात्॥",
+                  transliteration: "tapasā prāpyate sarvaṃ nāsti kiñcidatapaskam |\ntapasā yujyate yogī tapasā mucyate bhavāt ||",
+                  meaningHi: "तपस्या से ही सब कुछ प्राप्त होता है; तप के बिना कोई सिद्धि नहीं। तप से ही योगी परमात्मा से युक्त होता है और तप से ही संसार-बंधन से मुक्त होता है।",
+                  meaningEn: "Through self-restraint and spiritual austerity (Tapas) everything is attained. Through Tapas the yogi unites with the Supreme Self and attains liberation from worldly bondage.",
+                  metadata: { parva: "Ashramavasika Parva", elders: "Dhritarashtra, Gandhari, Kunti, Vidura" },
+                },
+              },
+            ],
+          },
+
+          // 16. Mausala Parva
+          {
+            id: "mb-mausala-parva",
+            parentId: "mahabharata",
+            type: "division",
+            levelLabel: { en: "Parva 16", hi: "पर्व १६" },
+            title: { en: "16. Mausala Parva (The Iron Club Omen & Yadava Clan)", hi: "१६. मौसल पर्व: यदुवंश का लय एवं द्वारका का जलमग्न होना" },
+            shortTitle: { en: "16. Mausala Parva", hi: "१६. मौसल पर्व" },
+            sanskrit: "मौसलपर्व (द्वारका विसर्जन)",
+            badge: "Parva 16",
+            children: [
+              {
+                id: "mb-mausala-shloka",
+                parentId: "mb-mausala-parva",
+                type: "leaf",
+                levelLabel: { en: "Canonical Shloka", hi: "प्रमाण श्लोक" },
+                title: { en: "Mausala Parva — All-Devouring Time (Kala Chakra)", hi: "मौसल पर्व — सर्वभक्षी कालचक्र एवं नश्वरता" },
+                shortTitle: { en: "Kala Chakra", hi: "कालचक्र सत्य" },
+                sanskrit: "कालो हि सर्वभूतानां प्रभवाप्ययकारणम्",
+                badge: "Mausala Parva",
+                content: {
+                  sanskrit: "कालो हि सर्वभूतानां प्रभवाप्ययकारणम्।\nकालेन सर्वमुत्पन्नं कालेन विनिहन्ति च॥",
+                  transliteration: "kālo hi sarvabhūtānāṃ prabhavāpyayakāraṇam |\nkālena sarvamutpannaṃ kālena vinihanti ca ||",
+                  meaningHi: "काल ही समस्त चराचर प्राणियों की उत्पत्ति और लय का कारण है। समय के द्वारा ही सब उत्पन्न होता है और समय ही सबको अपने में लीन कर लेता है।",
+                  meaningEn: "Time (Kala) is the ultimate cause of both the creation and dissolution of all beings. By Time everything is brought forth, and by Time everything is reabsorbed.",
+                  metadata: { parva: "Mausala Parva", event: "Submergence of Dvaraka & Ascension of Sri Krishna" },
+                },
+              },
+            ],
+          },
+
+          // 17. Mahaprasthanika Parva
+          {
+            id: "mb-mahaprasthanika-parva",
+            parentId: "mahabharata",
+            type: "division",
+            levelLabel: { en: "Parva 17", hi: "पर्व १७" },
+            title: { en: "17. Mahaprasthanika Parva (The Great Himalayan Pilgrimage)", hi: "१७. महाप्रस्थानिक पर्व: पाण्डवों की अंतिम हिमालय तीर्थयात्रा" },
+            shortTitle: { en: "17. Mahaprasthanika", hi: "१७. महाप्रस्थानिक" },
+            sanskrit: "महाप्रस्थानिकपर्व (हिमालय यात्रा)",
+            badge: "Parva 17",
+            children: [
+              {
+                id: "mb-mahaprasthanika-shloka",
+                parentId: "mb-mahaprasthanika-parva",
+                type: "leaf",
+                levelLabel: { en: "Canonical Shloka", hi: "प्रमाण श्लोक" },
+                title: { en: "Mahaprasthanika Parva — The Faithful Dog as Dharma", hi: "महाप्रस्थानिक पर्व — श्वान रूप में धर्मदेव की परीक्षा" },
+                shortTitle: { en: "Dharma Dog Test", hi: "धर्म श्वान परीक्षा" },
+                sanskrit: "भक्तानुरक्तं न त्यजेयं प्राणानामपि संक्षये",
+                badge: "Mahaprasthanika",
+                content: {
+                  sanskrit: "भक्तानुरक्तं न त्यजेयं प्राणानामपि संक्षये।\nएतन्मे व्रतमक्षय्यं शरणागतपालकम्॥",
+                  transliteration: "bhaktānuraktaṃ na tyajeyaṃ prāṇānāmapi saṃkṣaye |\netanme vratamakṣayyaṃ śaraṇāgatapālakam ||",
+                  meaningHi: "युधिष्ठिर ने इन्द्र से कहा: 'जो मेरे प्रति निष्ठावान और शरणागत है, प्राण जाने पर भी मैं उसका त्याग नहीं कर सकता।' तब वह निष्ठावान कुत्ता साक्षात् धर्मराज के रूप में प्रकट हुआ।",
+                  meaningEn: "Yudhishthira said to Indra: 'I shall never abandon a loyal companion who has sought my refuge, even at the cost of my life!' Thereupon, the faithful dog revealed Himself as Dharma incarnate.",
+                  metadata: { parva: "Mahaprasthanika Parva", hero: "Dharmaraja Yudhishthira", deity: "Dharma Devata" },
+                },
+              },
+            ],
+          },
+
+          // 18. Svargarohana Parva
+          {
+            id: "mb-svargarohana-parva",
+            parentId: "mahabharata",
+            type: "division",
+            levelLabel: { en: "Parva 18", hi: "पर्व १८" },
+            title: { en: "18. Svargarohana Parva (Ascent to Heaven & Reunion)", hi: "१८. स्वर्गारोहण पर्व: स्वर्ग प्रवेश, सत्य की विजय एवं महाभारत सार" },
+            shortTitle: { en: "18. Svargarohana", hi: "१८. स्वर्गारोहण" },
+            sanskrit: "स्वर्गारोहणपर्व (महाभारत सार)",
+            badge: "Parva 18",
+            children: [
+              {
+                id: "mb-bharata-savitri",
+                parentId: "mb-svargarohana-parva",
+                type: "leaf",
+                levelLabel: { en: "Epic Climax", hi: "महाभारत सावित्री" },
+                title: { en: "Bharata Savitri 18.5.62 — Urdhvabahur Viro myesha (The Essence)", hi: "भारत सावित्री १८.५.६२ — ऊर्ध्वबाहुर्विरौम्येष (महर्षि व्यास का अंतिम संदेश)" },
+                shortTitle: { en: "Bharata Savitri", hi: "भारत सावित्री" },
+                sanskrit: "ऊर्ध्वबाहुर्विरौम्येष न च कश्चिच्छृणोति मे",
+                badge: "Vyasa's Message",
+                content: {
+                  sanskrit: "ऊर्ध्वबाहुर्विरौम्येष न च कश्चिच्छृणोति मे।\nधर्मादर्थश्च कामश्च स किमर्थं न सेव्यते॥\nन जातु कामान्न भयान्न लोभाद् धर्मं त्यजेज्जीवितस्यापि हेतोः।\nधर्मो नित्यः सुखदुःखे त्वनित्ये जीवो नित्यो हेतुरस्य त्वनित्यः॥",
+                  transliteration: "ūrdhvabāhurviraumyeṣa na ca kaścicchṛṇoti me |\ndharmādarthaśca kāmaśca sa kimarthaṃ na sevyate ||\nna jātu kāmānna bhayānna lobhād dharmaṃ tyajejjīvitasyāpi hetoḥ |\ndharmo nityaḥ sukhaduḥkhe tvanitye jīvo nityo heturasya tvanityaḥ ||",
+                  meaningHi: "महर्षि वेदव्यास दोनों भुजाएं उठाकर पुकारते हैं: 'धर्म से ही अर्थ और काम सिद्ध होते हैं, फिर लोग धर्म का आचरण क्यों नहीं करते? काम, भय, लोभ अथवा जीवन बचाने के लिए भी धर्म का कभी त्याग नहीं करना चाहिए। क्योंकि धर्म नित्य है, सुख-दुःख अनित्य हैं; आत्मा नित्य है और उसका सांसारिक कारण अनित्य है!'",
+                  meaningEn: "Maharshi Vyasa raises his arms crying aloud: 'From Dharma flow wealth and legitimate pleasure—why then is Dharma not observed? Never should one abandon Dharma out of desire, fear, greed, or even to save one's life. Dharma is eternal; pleasure and pain are fleeting; the Soul is immortal; its mortal circumstances are transient!'",
+                  metadata: {
+                    parva: "Svargarohana Parva 18.5.62-63",
+                    title: "Bharata Savitri (Essence of the entire 100,000 verses of Mahabharata)",
+                    speaker: "Adi Guru Maharshi Vedavyasa",
+                  },
+                },
               },
             ],
           },
@@ -5270,73 +5806,356 @@ export const VEDA_HIERARCHY_TREE = [
               en: "Brahma (Creation), Vishnu (Preservation), and Shiva (Dissolution/Liberation)",
               hi: "ब्रह्मा (सृजन), विष्णु (स्थिति/पालन), एवं शिव (लय/कल्याण)",
             },
-            cardImage: pujaCardImg,
+            cardImage: trimurtiCardImg,
             children: [
+              // Brahma (Creation)
               {
                 id: "trimurti-brahma",
                 parentId: "trimurti-tattva",
-                type: "leaf",
+                type: "section",
                 levelLabel: { en: "Deity", hi: "देवता" },
                 title: { en: "Lord Brahma: The Cosmic Creator (Srishti)", hi: "भगवान ब्रह्मा: सृष्टि के रचयिता" },
                 shortTitle: { en: "Brahma", hi: "ब्रह्मा" },
                 sanskrit: "ब्रह्मा (सृष्टिकर्ता)",
-                content: {
-                  sanskrit: "ॐ वेदात्मने विद्महे हिरण्यगर्भाय धीमहि।\nतन्नो ब्रह्म प्रचोदयात्॥",
-                  transliteration: "oṃ vedātmane vidmahe hiraṇyagarbhāya dhīmahi |\ntanno brahma pracodayāt ||",
-                  meaningHi: "हम वेदस्वरूप परब्रह्म को जानते हैं, उन हिरण्यगर्भ ब्रह्मा का हम ध्यान करते हैं। वे सृष्टिकर्ता ब्रह्मा हमारी बुद्धि को ज्ञान और सन्मार्ग पर प्रेरित करें।",
-                  meaningEn: "We realize the very soul of the Vedas, we meditate upon the cosmic golden womb (Hiranyagarbha). May Lord Brahma illuminate our intellect and creative wisdom.",
-                  metadata: {
-                    function: "Srishti (Cosmic Creation)",
-                    consort: "Saraswati (Goddess of Knowledge & Arts)",
-                    vehicle: "Hamsa (Swan - symbol of discernment)",
-                    abode: "Brahmaloka / Satyaloka",
-                    source: "Brahma Gayatri Mantra / Padma Purana",
-                  },
+                badge: "Srishti Tattva",
+                tagline: {
+                  en: "The Cosmic Creator · Srishti Tattva · 4 Vedas & Brahmaloka",
+                  hi: "सृष्टिकर्ता · चतुर्मुख स्वरूप · वेदों के अधिपति",
                 },
+                cardImage: deityBrahmaCardImg,
+                bannerImage: bannerSanctum,
+                desc: {
+                  en: "Lord Brahma is the creator aspect of the Supreme Trimurti, emerging from the cosmic golden egg (Hiranyagarbha) to manifest the universe with the knowledge of the four eternal Vedas.",
+                  hi: "सृष्टिकर्ता भगवान ब्रह्मा परब्रह्म के सृजनकारी स्वरूप हैं, जो हिरण्यगर्भ से प्रकट होकर चतुर्वेदों के ज्ञान द्वारा समस्त चराचर सृष्टि की रचना करते हैं।",
+                },
+                childLevelName: { en: "Sacred Chapter / Suktam", hi: "पावन अध्याय / सूक्त" },
+                children: [
+                  {
+                    id: "brahma-svarupa",
+                    parentId: "trimurti-brahma",
+                    type: "leaf",
+                    levelLabel: { en: "Divine Iconography", hi: "दिव्य स्वरूप" },
+                    title: { en: "Chaturmukha Brahma: Iconography, Vahan & Attributes", hi: "चतुर्मुख ब्रह्मा: स्वरूप, हंस वाहन एवं चार वेद" },
+                    shortTitle: { en: "Brahma Svarupa", hi: "ब्रह्मा स्वरूप" },
+                    sanskrit: "चतुर्मुखं हंसारूढम्",
+                    badge: "Iconography",
+                    content: {
+                      sanskrit: "चतुर्मुखं पद्मनिषण्णमीड्यं कमण्डलुं चाक्षगुणं दधानम्।\nवेदान् समस्तान् वदने दधानं ब्रह्माणमीशं सततं नमामि॥",
+                      transliteration: "caturmukhaṃ padmaniṣaṇṇamīḍyaṃ kamaṇḍaluṃ cākṣaguṇaṃ dadhānam |\nvedān samastān vadane dadhānaṃ brahmāṇamīśaṃ satataṃ namāmi ||",
+                      meaningHi: "चार मुखों वाले, कमल पर आसीन, कमण्डलु और अक्षमाला (जपमाला) धारण करने वाले, तथा अपने चारों मुखों से चारों वेदों का निरंतर उच्चारण करने वाले सृष्टिकर्ता भगवान ब्रह्मा को हम नमन करते हैं।",
+                      meaningEn: "I continually salute Lord Brahma, the four-faced Creator, seated upon the cosmic lotus, holding the sacred Kamandalu (water pot of potential creation) and Akshamala (rosary of time), whose four mouths reveal the eternal four Vedas.",
+                      metadata: {
+                        faces: "East (Rigveda), South (Yajurveda), West (Samaveda), North (Atharvaveda)",
+                        attributes: "Vedas (Wisdom), Kamandalu (Creation), Akshamala (Cosmic Time), Lotus (Purity)",
+                        vehicle: "Hamsa (Swan - divine discernment of truth from untruth)",
+                        abode: "Satyaloka / Brahmaloka",
+                      },
+                    },
+                  },
+                  {
+                    id: "brahma-gayatri",
+                    parentId: "trimurti-brahma",
+                    type: "leaf",
+                    levelLabel: { en: "Sacred Gayatri", hi: "ब्रह्म गायत्री" },
+                    title: { en: "Brahma Gayatri Mantra: Meditation on the Cosmic Source", hi: "ब्रह्म गायत्री मन्त्र: हिरण्यगर्भ ध्यान" },
+                    shortTitle: { en: "Brahma Gayatri", hi: "ब्रह्म गायत्री" },
+                    sanskrit: "ॐ वेदात्मने विद्महे हिरण्यगर्भाय धीमहि",
+                    badge: "Gayatri Mantra",
+                    content: {
+                      sanskrit: "ॐ वेदात्मने विद्महे हिरण्यगर्भाय धीमहि।\nतन्नो ब्रह्म प्रचोदयात्॥",
+                      transliteration: "oṃ vedātmane vidmahe hiraṇyagarbhāya dhīmahi |\ntanno brahma pracodayāt ||",
+                      meaningHi: "हम वेदस्वरूप परब्रह्म को जानते हैं, उन हिरण्यगर्भ (स्वर्णमय ब्रह्माण्डीय गर्भ) ब्रह्मा का हम ध्यान करते हैं। वे सृष्टिकर्ता ब्रह्मा हमारी बुद्धि को दिव्य ज्ञान, सृजनशीलता और सन्मार्ग पर प्रेरित करें।",
+                      meaningEn: "We realize the cosmic spirit who is the soul of all Vedas; we meditate upon Hiranyagarbha, the Golden Cosmic Source. May Lord Brahma inspire and enlighten our intellect with creative wisdom.",
+                      metadata: {
+                        purpose: "Intellectual clarity, creative manifestation, mastery of arts and Vedic wisdom",
+                        deity: "Lord Brahma / Hiranyagarbha",
+                        source: "Padma Purana / Taittiriya Aranyaka",
+                      },
+                    },
+                  },
+                  {
+                    id: "brahma-hiranyagarbha-sukta",
+                    parentId: "trimurti-brahma",
+                    type: "leaf",
+                    levelLabel: { en: "Rigvedic Suktam", hi: "ऋग्वेद सूक्त" },
+                    title: { en: "Hiranyagarbha Sukta (Rigveda 10.121): The Golden Womb of Creation", hi: "हिरण्यगर्भ सूक्त (ऋग्वेद १०.१२१): ब्रह्माण्ड उत्पत्ति" },
+                    shortTitle: { en: "Hiranyagarbha Sukta", hi: "हिरण्यगर्भ सूक्त" },
+                    sanskrit: "हिरण्यगर्भः समवर्तताग्रे भूतस्य जातः पतिरेक आसीत्",
+                    badge: "Rigveda 10.121",
+                    content: {
+                      sanskrit: "हिरण्यगर्भः समवर्तताग्रे भूतस्य जातः पतिरेक आसीत्।\nस दाधार पृथिवीं द्यामुतेमां कस्मै देवाय हविषा विधेम॥",
+                      transliteration: "hiraṇyagarbhaḥ samavartatāgre bhūtasya jātaḥ patireka āsīt |\nsa dādhāra pṛthivīṃ dyāmutemāṃ kasmai devāya haviṣā vidhema ||",
+                      meaningHi: "सृष्टि के आरम्भ में सबसे पहले 'हिरण्यगर्भ' (स्वर्णमय तेजोमय ब्रह्माण्ड-अण्ड) प्रकट हुए। वे ही उत्पन्न हुए समस्त चराचर जगत् के एकमात्र अधिपति थे। उन्होंने इस पृथ्वी और द्युलोक को धारण किया। हम उन आनन्दस्वरूप प्रजापति देवता के लिए हवि अर्पित कर पूजन करते हैं।",
+                      meaningEn: "In the beginning arose Hiranyagarbha, the golden germ of cosmic light. Arisen, he became the sole lord of all that is created. He sustained this earth and heaven. To that blissful Lord of creation let us offer our reverent oblations.",
+                      metadata: {
+                        mandala: "Rigveda Mandala 10, Sukta 121 (Verse 1)",
+                        rishi: "Hiranyagarbha Prajapatya",
+                        devata: "Ka (Prajapati / Brahma)",
+                        chandas: "Trishtubh",
+                      },
+                    },
+                  },
+                  {
+                    id: "brahma-pushkar-tirtha",
+                    parentId: "trimurti-brahma",
+                    type: "leaf",
+                    levelLabel: { en: "Sacred Tirtha", hi: "तीर्थ माहात्म्य" },
+                    title: { en: "Pushkar Lake & Shrine: The Sanctum of Lord Brahma", hi: "पुष्कर तीर्थ एवं मन्दिर: जगत्पिता ब्रह्मा की पावन तपोभूमि" },
+                    shortTitle: { en: "Pushkar Mahatmya", hi: "पुष्कर माहात्म्य" },
+                    sanskrit: "तीर्थानां प्रवरं पुष्करं महापुण्यप्रदम्",
+                    badge: "Pushkar Sanctum",
+                    content: {
+                      sanskrit: "पद्मपत्राक्ष देवेश जगत्कर्तः पितामह।\nपुष्करे च त्वया सृष्टं जगत्सर्वं चराचरम्॥\nनमो नमस्ते देवेश सृष्टिपालनकारक।",
+                      transliteration: "padmapatrākṣa deveśa jagatkartar pitāmaha |\npuṣkare ca tvayā sṛṣṭaṃ jagatsarvaṃ carācaram ||\nnamo namaste deveśa sṛṣṭipālanakāraka |",
+                      meaningHi: "कमल नयन, देवों के ईश, जगत् के रचयिता और सबके पितामह ब्रह्मा जी को प्रणाम! राजस्थान के पावन पुष्कर क्षेत्र में आपने महायज्ञ संपन्न कर चराचर सृष्टि के कल्याण का विधान किया। तीर्थराज पुष्कर में स्नान और दर्शन से समस्त मानसिक व आध्यात्मिक क्लेश शांत होते हैं।",
+                      meaningEn: "O lotus-eyed Lord of the Devas, creator of the cosmos, revered Grandfather (Pitamaha) of all beings! In the holy realm of Pushkar, by the touch of the divine lotus, the sacred lake manifested. Salutations to You who initiate the divine cycle of creation.",
+                      metadata: {
+                        location: "Pushkar, Ajmer, Rajasthan (Foremost sanctum of Lord Brahma)",
+                        significance: "Tirtharaja (King of Sacred Pilgrimage Waters)",
+                        scripture: "Padma Purana, Srishti Khanda",
+                      },
+                    },
+                  },
+                  {
+                    id: "brahma-srishti-krama",
+                    parentId: "trimurti-brahma",
+                    type: "leaf",
+                    levelLabel: { en: "Upanishadic Truth", hi: "उपनिषद् दर्शन" },
+                    title: { en: "Srishti Krama: Cosmic Emanation (Taittiriya Upanishad 3.1)", hi: "सृष्टि क्रम: परब्रह्म से ब्रह्माण्ड उत्पत्ति (तैत्तिरीय ३.१)" },
+                    shortTitle: { en: "Srishti Krama", hi: "सृष्टि क्रम" },
+                    sanskrit: "यतो वा इमानि भूतानि जायन्ते",
+                    badge: "Taittiriya 3.1",
+                    content: {
+                      sanskrit: "यतो वा इमानि भूतानि जायन्ते। येन जातानि जीवन्ति।\nयत्प्रयन्त्यभिसंविशन्ति। तद्विजिज्ञासस्व। तद्ब्रह्मेति॥",
+                      transliteration: "yato vā imāni bhūtāni jāyante | yena jātāni jīvanti |\nyatprayantyabhisaṃviśanti | tadvijijñāsasva | tadbrahmeti ||",
+                      meaningHi: "जिस परमतत्त्व से यह समस्त भूत-प्राणी उत्पन्न होते हैं, उत्पन्न होकर जिसके द्वारा जीवन धारण करते हैं, और प्रलयकाल में जिसमें विलीन हो जाते हैं—उसी को जानने की इच्छा करो; वही 'ब्रह्म' है।",
+                      meaningEn: "That from which all beings are born, by which they live after being born, and into which they dissolve on passing away—seek to know That; That is Brahman.",
+                      metadata: {
+                        source: "Taittiriya Upanishad (Bhrigu Valli 3.1)",
+                        cosmology: "Avyakta -> Mahat -> Ahamkara -> Tanmatras -> 5 Elements (Akasha, Vayu, Agni, Jala, Prithvi)",
+                      },
+                    },
+                  },
+                ],
               },
+
+              // Vishnu (Preservation)
               {
                 id: "trimurti-vishnu",
                 parentId: "trimurti-tattva",
-                type: "leaf",
+                type: "section",
                 levelLabel: { en: "Deity", hi: "देवता" },
                 title: { en: "Lord Vishnu: The Preserver & Sustainer (Sthiti/Palan)", hi: "भगवान विष्णु: सम्पूर्ण जगत् के पालनकर्ता" },
                 shortTitle: { en: "Vishnu", hi: "विष्णु" },
                 sanskrit: "विष्णु (पालनकर्ता)",
-                content: {
-                  sanskrit: "शान्ताकारं भुजगशयनं पद्मनाभं सुरेशं विश्वाधारं गगनसदृशं मेघवर्णं शुभाङ्गम्।\nलक्ष्मीकान्तं कमलनयनं योगिभिर्ध्यानगम्यं वन्दे विष्णुं भवभयहरं सर्वलोकैकनाथम्॥",
-                  transliteration: "śāntākāraṃ bhujagaśayanaṃ padmanābhaṃ sureśaṃ viśvādhāraṃ gaganasadṛśaṃ meghavarṇaṃ śubhāṅgam |\nlakṣmīkāntaṃ kamalanayanaṃ yogibhirdhyānagamyaṃ vande viṣṇuṃ bhavabhayaharaṃ sarvalokaikanātham ||",
-                  meaningHi: "जिनकी आकृति शांत है, जो शेषनाग की शय्या पर शयन करते हैं, जिनकी नाभि में कमल है, जो देवताओं के ईश्वर और संपूर्ण जगत् के आधार हैं; जिनका वर्ण मेघ के समान श्याम है, जो योगियों द्वारा ध्यान से प्राप्त होते हैं; उन भवभय-हारी सम्पूर्ण लोकों के स्वामी भगवान विष्णु को मैं नमन करता हूँ।",
-                  meaningEn: "I bow to Lord Vishnu, whose form is supreme tranquility, resting on the cosmic serpent Shesha, from whose navel blossoms the lotus of creation. The foundation of the universe, all-pervading like space, cloud-complexioned, beloved of Lakshmi, and dispeller of worldly fears.",
-                  metadata: {
-                    function: "Sthiti & Palana (Cosmic Preservation & Order)",
-                    consort: "Lakshmi (Goddess of Wealth & Abundance)",
-                    vehicle: "Garuda (Divine Eagle)",
-                    abode: "Vaikuntha / Ksheerasagara (Ocean of Milk)",
-                    source: "Vishnu Dhyana Mantra / Vishnu Purana",
-                  },
+                badge: "Sthiti Tattva",
+                tagline: {
+                  en: "The Preserver & Sustainer · Sthiti Tattva · Chaturbhuja & Vaikuntha",
+                  hi: "पालनकर्ता · चतुर्भुज नारायण · वैकुण्ठ धाम",
                 },
+                cardImage: deityVishnuCardImg,
+                bannerImage: bannerSanctum,
+                desc: {
+                  en: "Lord Vishnu is the supreme cosmic preserver who maintains Dharma and cosmic order throughout the four Yugas, descending in divine avatars to protect the righteous.",
+                  hi: "भगवान विष्णु संपूर्ण चराचर जगत् के पालनकर्ता हैं, जो धर्म की रक्षा और अधर्म के विनाश हेतु प्रत्येक युग में पावन अवतार ग्रहण करते हैं।",
+                },
+                childLevelName: { en: "Sacred Chapter / Suktam", hi: "पावन अध्याय / सूक्त" },
+                children: [
+                  {
+                    id: "vishnu-svarupa",
+                    parentId: "trimurti-vishnu",
+                    type: "leaf",
+                    levelLabel: { en: "Divine Iconography", hi: "दिव्य स्वरूप" },
+                    title: { en: "Chaturbhuja Vishnu: Shankha, Chakra, Gada, Padma & Sheshanaga", hi: "चतुर्भुज स्वरूप: शङ्ख, चक्र, गदा, पद्म एवं शेषनाग" },
+                    shortTitle: { en: "Vishnu Svarupa", hi: "विष्णु स्वरूप" },
+                    sanskrit: "शङ्खचक्रगदापद्मधारी नारायणः",
+                    badge: "Chaturbhuja Form",
+                    content: {
+                      sanskrit: "शान्ताकारं भुजगशयनं पद्मनाभं सुरेशं विश्वाधारं गगनसदृशं मेघवर्णं शुभाङ्गम्।\nलक्ष्मीकान्तं कमलनयनं योगिभिर्ध्यानगम्यं वन्दे विष्णुं भवभयहरं सर्वलोकैकनाथम्॥",
+                      transliteration: "śāntākāraṃ bhujagaśayanaṃ padmanābhaṃ sureśaṃ viśvādhāraṃ gaganasadṛśaṃ meghavarṇaṃ śubhāṅgam |\nlakṣmīkāntaṃ kamalanayanaṃ yogibhirdhyānagamyaṃ vande viṣṇuṃ bhavabhayaharaṃ sarvalokaikanātham ||",
+                      meaningHi: "जिनकी आकृति शांत है, जो शेषनाग की शय्या पर शयन करते हैं, जिनकी नाभि में कमल है, जो देवताओं के ईश्वर और संपूर्ण जगत् के आधार हैं; जिनका वर्ण मेघ के समान श्याम है, जो योगियों द्वारा ध्यान से प्राप्त होते हैं; उन भवभय-हारी सम्पूर्ण लोकों के स्वामी भगवान विष्णु को मैं नमन करता हूँ।",
+                      meaningEn: "I bow to Lord Vishnu, whose form is supreme tranquility, resting on the cosmic serpent Shesha, from whose navel blossoms the lotus of creation. The foundation of the universe, all-pervading like space, cloud-complexioned, beloved of Lakshmi, and dispeller of worldly fears.",
+                      metadata: {
+                        fourArms: "Shankha (Panchajanya / Primordial Om), Chakra (Sudarshana / Cosmic Dharma), Gada (Kaumodaki / Intellect and Strength), Padma (Lotus / Spiritual Awakening)",
+                        consort: "Devi Mahalakshmi",
+                        vehicle: "Garuda (Veda-purusha)",
+                        abode: "Vaikuntha / Ksheerasagara",
+                      },
+                    },
+                  },
+                  {
+                    id: "vishnu-gayatri",
+                    parentId: "trimurti-vishnu",
+                    type: "leaf",
+                    levelLabel: { en: "Sacred Gayatri", hi: "विष्णु गायत्री" },
+                    title: { en: "Vishnu Gayatri Mantra: Narayanaya Vidmahe Vasudevaya Dhimahi", hi: "विष्णु गायत्री मन्त्र: नारायण ध्यान" },
+                    shortTitle: { en: "Vishnu Gayatri", hi: "विष्णु गायत्री" },
+                    sanskrit: "ॐ नारायणाय विद्महे वासुदेवाय धीमहि",
+                    badge: "Gayatri Mantra",
+                    content: {
+                      sanskrit: "ॐ नारायणाय विद्महे वासुदेवाय धीमहि।\nतन्नो विष्णुः प्रचोदयात्॥",
+                      transliteration: "oṃ nārāyaṇāya vidmahe vāsudevāya dhīmahi |\ntanno viṣṇuḥ pracodayāt ||",
+                      meaningHi: "हम सर्वव्यापी श्रीनारायण को जानते हैं, उन वसुदेव-नन्दन सर्वप्रकाशक वासुदेव का ध्यान करते हैं। वे भगवान विष्णु हमारी बुद्धि को सन्मार्ग और धर्म में प्रवृत्त करें।",
+                      meaningEn: "We realize the Supreme Narayana, the all-pervading shelter of all beings; we meditate upon Lord Vasudeva. May Lord Vishnu illuminate and guide our intellect towards righteousness.",
+                      metadata: {
+                        source: "Mahanarayana Upanishad 3.16",
+                        significance: "Daily purification, protection, devotion to Dharma and spiritual peace",
+                      },
+                    },
+                  },
+                  {
+                    id: "vishnu-purusha-sukta",
+                    parentId: "trimurti-vishnu",
+                    type: "leaf",
+                    levelLabel: { en: "Rigvedic Hymn", hi: "ऋग्वेद पुरुष सूक्त" },
+                    title: { en: "Purusha Sukta (Rigveda 10.90): The All-Pervading Cosmic Person", hi: "पुरुष सूक्त (ऋग्वेद १०.९०): विराट् पुरुष नारायण" },
+                    shortTitle: { en: "Purusha Sukta", hi: "पुरुष सूक्त" },
+                    sanskrit: "सहस्रशीर्षा पुरुषः सहस्राक्षः सहस्रपात्",
+                    badge: "Rigveda 10.90",
+                    content: {
+                      sanskrit: "सहस्रशीर्षा पुरुषः सहस्राक्षः सहस्रपात्।\nस भूमिं विश्वतो वृत्वात्यतिष्ठद्दशाङ्गुलम्॥\nपुरुष एवेदं सर्वं यद्भूतं यच्च भव्यम्।\nउतामृतत्वस्येशानो यदन्नेनातिरोहति॥",
+                      transliteration: "sahasraśīrṣā puruṣaḥ sahasrākṣaḥ sahasrapāt |\nsa bhūmiṃ viśvato vṛtvātyatiṣṭhaddaśāṅgulam ||\npuruṣa evedaṃ sarvaṃ yadbhūtaṃ yacca bhavyam |\nutāmṛtatvasyeśāno yadannenātirohati ||",
+                      meaningHi: "वे परम पुरुष सहस्रों सिरों वाले, सहस्रों आँखों वाले और सहस्रों चरणों वाले हैं। वे सम्पूर्ण ब्रह्माण्ड को सब ओर से व्याप्त करके भी दस अंगुल ऊपर स्थित हैं। जो कुछ बीत चुका है और जो कुछ आगे होने वाला है—यह सब कुछ वह विराट् पुरुष ही है। वही अमरत्व का स्वामी है।",
+                      meaningEn: "The Cosmic Supreme Being (Purusha) has a thousand heads, a thousand eyes, and a thousand feet. Pervading the cosmos on every side, He yet extends beyond it by ten fingers' breadth. Purusha alone is all this universe—that which was, and that which is yet to be.",
+                      metadata: {
+                        source: "Rigveda 10.90 / Shukla Yajurveda Adhyaya 31",
+                        deity: "Virat Purusha / Maha-Vishnu",
+                        rishi: "Narayana",
+                      },
+                    },
+                  },
+                  {
+                    id: "vishnu-sahasranama-dhyana",
+                    parentId: "trimurti-vishnu",
+                    type: "leaf",
+                    levelLabel: { en: "Mahabharata Stotra", hi: "सहस्रनाम ध्यान" },
+                    title: { en: "Vishnu Sahasranama Dhyanam: Kshirodhanvat-Pradeshe", hi: "विष्णु सहस्रनाम ध्यानम्: क्षीरसागर स्तुति" },
+                    shortTitle: { en: "Sahasranama Dhyana", hi: "सहस्रनाम ध्यान" },
+                    sanskrit: "क्षीरोदन्वत्प्रदेशे शुचिमणिविलसत्सैकते",
+                    badge: "Anushasana Parva",
+                    content: {
+                      sanskrit: "क्षीरोदन्वत्प्रदेशे शुचिमणिविलसत्सैकते मौक्तिकानां\nमालाक्लप्तासनस्थः स्फटिकमणिनिभैर्मौक्तिकैर्मण्डिताङ्गः।\nशुभ्रैरभ्रैरदभ्रैरुपरिविरचितैर्मुक्तपीयूषवर्षै-\nरानन्दी नः पुनीयादरिनलिनगदाशङ्खपाणिर्मुकुन्दः॥",
+                      transliteration: "kṣīrodanvatpradeśe śucimaṇivilasatsaikate mauktikānāṃ\nmālāklaptāsanasthaḥ sphaṭikamaṇinibhairmaunditāṅgaḥ |\nśubhrairabhrairadabhrairupariviracitairmuktapīyūṣavarṣai-\nrānandī naḥ punīyādarinalinagadāśaṅkhapāṇirmukundaḥ ||",
+                      meaningHi: "क्षीरसागर के तट पर, जहाँ मणियों और मोतियों की बालू चमकती है, उस दिव्य आसन पर विराजमान; स्फटिक और मोतियों से सुशोभित; अमृत वर्षा करने वाले मेघों की छाँव में स्थित; अपने चारों हाथों में सुदर्शन चक्र, कमल, कौमोदकी गदा और पांचजन्य शंख धारण करने वाले आनंदमय श्री मुकुन्द भगवान हमें पवित्र करें।",
+                      meaningEn: "In the realm of the Milk Ocean, on sands sparkling with pure gems and pearls, seated upon a throne of garlands; adorned with gems shining like clear crystal; under clouds showering drops of nectar; holding the discus, lotus, mace, and conch—may that blissful Lord Mukunda purify our beings.",
+                      metadata: {
+                        source: "Mahabharata Anushasana Parva (Bhishma-Yudhishthira Samvada)",
+                        benefit: "Removal of sorrow, attainment of peace, liberation",
+                      },
+                    },
+                  },
+                ],
               },
+
+              // Shiva (Dissolution & Liberation)
               {
                 id: "trimurti-shiva",
                 parentId: "trimurti-tattva",
-                type: "leaf",
+                type: "section",
                 levelLabel: { en: "Deity", hi: "देवता" },
                 title: { en: "Lord Shiva: The Auspicious Transformer (Laya/Kalyana)", hi: "भगवान शिव / महादेव: संहार एवं परम कल्याण" },
                 shortTitle: { en: "Shiva", hi: "शिव" },
                 sanskrit: "शिव (लयकर्ता व देवाधिदेव)",
-                content: {
-                  sanskrit: "कर्पूरगौरं करुणावतारं संसारसारं भुजगेन्द्रहारम्।\nसदा वसन्तं हृदयारविन्दे भवं भवानीसहितं नमामि॥",
-                  transliteration: "karpūragauraṃ karuṇāvatāraṃ saṃsārasāraṃ bhujagendrahāram |\nsadā vasantaṃ hṛdayāravinde bhavaṃ bhavānīsahitaṃ namāmi ||",
-                  meaningHi: "जो कर्पूर के समान गौर वर्ण वाले हैं, जो करुणा के साक्षात् अवतार हैं, जो संपूर्ण संसार के सार हैं, जो सर्पराज का हार धारण करते हैं; जो सदैव मेरे हृदय रूपी कमल में वास करते हैं, उन भगवान शिव को माता भवानी (पार्वती) सहित मैं सादर प्रणाम करता हूँ।",
-                  meaningEn: "I salute Lord Shiva, white as camphor, embodiment of compassion, the essence of cosmic existence, adorned with the king of serpents. He who forever abides in the lotus of my heart, I bow to that Lord Bhava united with Mother Bhavani.",
-                  metadata: {
-                    function: "Laya & Moksha (Dissolution, Renewal & Liberation)",
-                    consort: "Parvati (Goddess of Primordial Cosmic Energy)",
-                    vehicle: "Nandi (Sacred Bull of Dharma)",
-                    abode: "Mount Kailasha / Kashi",
-                    source: "Shiva Yajur Mantra / Shiva Purana",
-                  },
+                badge: "Laya & Moksha",
+                tagline: {
+                  en: "The Auspicious Transformer · Laya & Moksha · Mahadeva & Kailasha",
+                  hi: "लयकर्ता एवं मुक्तिदाता · देवाधिदेव महादेव · कैलास धाम",
                 },
+                cardImage: deityShivaCardImg,
+                bannerImage: bannerAltar,
+                desc: {
+                  en: "Lord Shiva is Mahadeva, the auspicious transformer and embodiment of pure consciousness, who dissolves worldly illusions and guides the soul to ultimate liberation (Moksha).",
+                  hi: "भगवान शिव देवाधिदेव महादेव हैं, जो काल के नियामक, संहार एवं नवसृजन के अधिपति तथा परम मोक्ष प्रदाता हैं।",
+                },
+                childLevelName: { en: "Sacred Chapter / Stotram", hi: "पावन अध्याय / स्तोत्र" },
+                children: [
+                  {
+                    id: "shiva-svarupa",
+                    parentId: "trimurti-shiva",
+                    type: "leaf",
+                    levelLabel: { en: "Divine Iconography", hi: "दिव्य स्वरूप" },
+                    title: { en: "Mahadeva Shiva: Trishula, Damaru, Ganga & Kailashapati", hi: "महादेव स्वरूप: त्रिशूल, डमरू, गंगा, चन्द्रभाल एवं कैलासपति" },
+                    shortTitle: { en: "Shiva Svarupa", hi: "शिव स्वरूप" },
+                    sanskrit: "कैलासशिखरवासी महेश्वरः",
+                    badge: "Mahadeva Form",
+                    content: {
+                      sanskrit: "कर्पूरगौरं करुणावतारं संसारसारं भुजगेन्द्रहारम्।\nसदा वसन्तं हृदयारविन्दे भवं भवानीसहितं नमामि॥",
+                      transliteration: "karpūragauraṃ karuṇāvatāraṃ saṃsārasāraṃ bhujagendrahāram |\nsadā vasantaṃ hṛdayāravinde bhavaṃ bhavānīsahitaṃ namāmi ||",
+                      meaningHi: "जो कर्पूर के समान गौर वर्ण वाले हैं, जो करुणा के साक्षात् अवतार हैं, जो संपूर्ण संसार के सार हैं, जो सर्पराज का हार धारण करते हैं; जो सदैव मेरे हृदय रूपी कमल में वास करते हैं, उन भगवान शिव को माता भवानी (पार्वती) सहित मैं सादर प्रणाम करता हूँ।",
+                      meaningEn: "I salute Lord Shiva, white as camphor, embodiment of compassion, the essence of cosmic existence, adorned with the king of serpents. He who forever abides in the lotus of my heart, I bow to that Lord Bhava united with Mother Bhavani.",
+                      metadata: {
+                        symbols: "Trishula (3 Gunas / Sat-Chit-Ananda), Damaru (Nada Brahman / Cosmic vibration), Third Eye (Transcendent wisdom), Crescent Moon (Mastery over Mind and Time)",
+                        consort: "Mata Parvati / Bhavani",
+                        vehicle: "Nandi (Bull representing Dharma)",
+                        abode: "Mount Kailasha / Kashi Sanctum",
+                      },
+                    },
+                  },
+                  {
+                    id: "shiva-mahamrityunjaya",
+                    parentId: "trimurti-shiva",
+                    type: "leaf",
+                    levelLabel: { en: "Rigvedic Mahamantra", hi: "ऋग्वेद महामन्त्र" },
+                    title: { en: "Maha Mrityunjaya Mantra (Rigveda 7.59.12): Conquering Death & Disease", hi: "महामृत्युञ्जय मन्त्र (ऋग्वेद ७.५९.१२): जीवन रक्षा एवं मोक्ष" },
+                    shortTitle: { en: "Mrityunjaya Mantra", hi: "महामृत्युञ्जय" },
+                    sanskrit: "ॐ त्र्यम्बकं यजामहे सुगन्धिं पुष्टिवर्धनम्",
+                    badge: "Rigveda 7.59.12",
+                    content: {
+                      sanskrit: "ॐ त्र्यम्बकं यजामहे सुगन्धिं पुष्टिवर्धनम्।\nउर्वारुकमिव बन्धनान्मृत्योर्मुक्षीय मामृतात्॥",
+                      transliteration: "oṃ tryambakaṃ yajāmahe sugandhiṃ puṣṭivardhanam |\nurvārukamiva bandhanānmṛtyormukṣīya māmṛtāt ||",
+                      meaningHi: "हम तीन नेत्रों वाले (भूत, वर्तमान, भविष्य के ज्ञाता) सुगंधित और पुष्टि का संवर्धन करने वाले भगवान शिव की आराधना करते हैं। जिस प्रकार पका हुआ खरबूजा बिना किसी कष्ट के अपनी बेल के बंधन से मुक्त हो जाता है, उसी प्रकार हम मृत्यु के भय और संसार के बंधनों से मुक्त हों, किन्तु अमृतत्व (मोक्ष) से विमुख न हों।",
+                      meaningEn: "We worship the three-eyed Lord Shiva, who is fragrant and nurtures all beings. Just as a ripe melon effortlessly detaches from its vine, may He liberate us from the bonds of mortality and spiritual ignorance, not depriving us of immortality.",
+                      metadata: {
+                        source: "Rigveda 7.59.12 / Shukla Yajurveda 3.60",
+                        rishi: "Maharshi Markandeya / Vashishta",
+                        devata: "Tryambaka Rudra",
+                        benefit: "Sanatana healing, dispelling mortal fears, granting longevity and enlightenment",
+                      },
+                    },
+                  },
+                  {
+                    id: "shiva-rudrashtakam",
+                    parentId: "trimurti-shiva",
+                    type: "leaf",
+                    levelLabel: { en: "Devotional Stotram", hi: "रुद्राष्टकम्" },
+                    title: { en: "Shiva Rudrashtakam: Namamishamishana Nirvanarupam (Tulsidas)", hi: "श्री रुद्राष्टकम्: नमामीशमीशान निर्वाणरूपम् (गोस्वामी तुलसीदास)" },
+                    shortTitle: { en: "Rudrashtakam", hi: "रुद्राष्टकम्" },
+                    sanskrit: "नमामीशमीशान निर्वाणरूपं विभुं व्यापकम्",
+                    badge: "Ramcharitmanas",
+                    content: {
+                      sanskrit: "नमामीशमीशान निर्वाणरूपं विभुं व्यापकं ब्रह्मवेदस्वरूपम्।\nनिजं निर्गुणं निर्विकल्पं निरीहं चिदाकाशमाकाशवासं भजेऽहम्॥\nनिराकारमोङ्कारमूलं तुरीयं गिरा ज्ञान गोतीतमीशं गिरीशम्।\nकरालं महाकाल कालं कृपालं गुणागार संसारपारं नतोऽहम्॥",
+                      transliteration: "namāmīśamīśāna nirvāṇarūpaṃ vibhuṃ vyāpakaṃ brahmavedasvarūpam |\nnijaṃ nirguṇaṃ nirvikalpaṃ nirīhaṃ cidākāśamākāśavāsaṃ bhaje'ham ||\nnirākāramoṅkāramūlaṃ turīyaṃ girā jñāna gotītamīśaṃ girīśam |\nkarālaṃ mahākāla kālaṃ kṛpālaṃ guṇāgāra saṃsārapāraṃ nato'ham ||",
+                      meaningHi: "हे ईशान! हे मोक्षस्वरूप! हे सर्वसमर्थ, सर्वव्यापी, ब्रह्म और वेद के स्वरूप! मैं आपको प्रणाम करता हूँ। जो अपने निज स्वरूप में स्थित, निर्गुण, निर्विकल्प, निष्काम, चिदाकाश और आकाशवत् सर्वत्र विद्यमान हैं, उन भगवान शिव की मैं वंदना करता हूँ।",
+                      meaningEn: "I bow to the Supreme Lord Ishana, the embodiment of Nirvana, all-pervading, the source of Brahman and the Vedas. Self-established, beyond attributes, changeless, desireless, the sky of pure consciousness. Salutations unto the merciful conqueror of time!",
+                      metadata: {
+                        source: "Ramcharitmanas, Uttara Kanda",
+                        poet: "Goswami Tulsidas",
+                        meter: "Totaka Chhanda",
+                      },
+                    },
+                  },
+                  {
+                    id: "shiva-panchakshara",
+                    parentId: "trimurti-shiva",
+                    type: "leaf",
+                    levelLabel: { en: "Sacred Stotra", hi: "पञ्चाक्षर स्तोत्र" },
+                    title: { en: "Shiva Panchakshara Stotra: Om Namah Shivaya (Adi Shankara)", hi: "शिव पञ्चाक्षर स्तोत्र: ॐ नमः शिवाय (आदि शंकराचार्य)" },
+                    shortTitle: { en: "Panchakshara Stotra", hi: "पञ्चाक्षर स्तोत्र" },
+                    sanskrit: "नागेन्द्रहाराय त्रिलोचनाय भस्माङ्गरागाय",
+                    badge: "Adi Shankara",
+                    content: {
+                      sanskrit: "नागेन्द्रहाराय त्रिलोचनाय भस्माङ्गरागाय महेश्वराय।\nनित्याय शुद्धाय दिगम्बराय तस्मै नकाराय नमः शिवाय॥\nमन्दाकिनीसलिलचन्दनचर्चिताय नन्दीश्वरप्रमथनाथमहेश्वराय।\nमन्दारपुष्पबहुपुष्पसुपूजिताय तस्मै मकाराय नमः शिवाय॥",
+                      transliteration: "nāgendrahārāya trilocanāya bhasmāṅgarāgāya maheśvarāya |\nnityāya śuddhāya digambarāya tasmai nakārāya namaḥ śivāya ||\nmandākinīsalilacandanacarcitāya nandīśvarapramathanāthamaheśvarāya |\nmandārapuṣpabahupuṣpasupūjitāya tasmai makārāya namaḥ śivāya ||",
+                      meaningHi: "जिनके गले में नागराज का हार है, जो त्रिनेत्र हैं, जिनका भस्म ही अंगराग है, जो नित्य, शुद्ध और दिगम्बर हैं—उस 'न' कार स्वरूप शिव को नमस्कार। जो गंगाजल और चन्दन से सुशोभित हैं, नन्दी और प्रमथ गणों के स्वामी हैं—उस 'म' कार स्वरूप शिव को नमस्कार।",
+                      meaningEn: "Salutations to the syllable 'Na' of Namah Shivaya, adorned with the serpent king, three-eyed, anointed with sacred ash, eternal, pure, and clothed in the cosmic horizons! Salutations to the syllable 'Ma', bathed with celestial Ganga waters and worshipped with Mandara flowers!",
+                      metadata: {
+                        composer: "Jagadguru Adi Shankaracharya",
+                        syllables: "Na-Ma-Shi-Va-Ya (5 Cosmic Elements: Earth, Water, Fire, Air, Ether)",
+                        source: "Shiva Purana / Panchakshara Vidhi",
+                      },
+                    },
+                  },
+                ],
               },
             ],
           },
@@ -5355,67 +6174,327 @@ export const VEDA_HIERARCHY_TREE = [
               en: "Saraswati (Wisdom), Lakshmi (Prosperity), and Parvati/Durga (Cosmic Power & 10 Mahavidyas)",
               hi: "सरस्वती (ज्ञान), लक्ष्मी (समृद्धि), एवं पार्वती/दुर्गा (पराशक्ति एवं १० महाविद्या)",
             },
-            cardImage: pujaLakshmiCardImg,
+            cardImage: deviDurgaCardImg,
             children: [
+              // Saraswati (Wisdom & Arts)
               {
                 id: "tridevi-saraswati",
                 parentId: "tridevi-shakti",
-                type: "leaf",
+                type: "section",
                 levelLabel: { en: "Devi", hi: "देवी" },
                 title: { en: "Devi Saraswati: Goddess of Wisdom & Arts (Jnana-Shakti)", hi: "देवी सरस्वती: ज्ञान, विद्या एवं संगीत की अधिष्ठात्री" },
                 shortTitle: { en: "Saraswati", hi: "सरस्वती" },
                 sanskrit: "सरस्वती (ज्ञानशक्ति)",
-                content: {
-                  sanskrit: "या कुन्देन्दुतुषारहारधवला या शुभ्रवस्त्रावृता\nया वीणावरदण्डमण्डितकरा या श्वेतपद्मासना।\nया ब्रह्माच्युतशंकरप्रभृतिभिर्देवैः सदा वन्दिता\nसा मां पातु सरस्वती भगवती निःशेषजाड्यापहा॥",
-                  transliteration: "yā kundendutuṣārahāradhavalā yā śubhravastrāvṛtā\nyā vīṇāvaradaṇḍamaṇḍitakarā yā śvetapadmāsanā |\nyā brahmācyutaśaṃkaraprabhṛtibhirdevaiḥ sadā vanditā\nsā māṃ pātu sarasvatī bhagavatī niḥśeṣajāḍyāpahā ||",
-                  meaningHi: "जो कुंद के पुष्प, चंद्रमा और हिमहार के समान श्वेत हैं, जो शुभ्र वस्त्र धारण करती हैं, जिनके हाथों में वीणा सुशोभित है, जो श्वेत कमल पर विराजित हैं, और जिनकी वंदना ब्रह्मा, विष्णु व महेश करते हैं—वे अज्ञान को पूर्णतः नष्ट करने वाली भगवती सरस्वती हमारी रक्षा करें।",
-                  meaningEn: "May Goddess Saraswati, who is radiant like the jasmine flower, the moon, and snow; who wears immaculate white robes, whose hands hold the Veena, seated upon a white lotus, revered by Brahma, Vishnu, and Shiva, protect us and dispel all ignorance from our minds.",
-                  metadata: {
-                    function: "Jnana-Shakti (Intellect, Learning, Arts & Speech/Vak)",
-                    symbol: "Veena, Pustaka (Vedas), Akshamala (Rosary), White Lotus",
-                    source: "Saraswati Vandana / Rigveda Saraswati Sukta",
-                  },
+                badge: "Jnana-Shakti",
+                tagline: {
+                  en: "Goddess of Wisdom, Arts & Speech · Jnana-Shakti · Brahmacharini",
+                  hi: "ज्ञान, विद्या एवं वाणी की अधिष्ठात्री · ज्ञानशक्ति",
                 },
+                cardImage: deviSaraswatiCardImg,
+                bannerImage: bannerSanctum,
+                desc: {
+                  en: "Devi Saraswati embodies the divine flow of wisdom, speech (Vak), fine arts, and spiritual discernment, seated on a white lotus holding the Veena and sacred scriptures.",
+                  hi: "भगवती सरस्वती ज्ञान, विवेक, वाणी और समस्त ललित कलाओं की अधिष्ठात्री देवी हैं, जो शुभ्र कमल पर आसीन होकर वीणा एवं वेद धारण करती हैं।",
+                },
+                childLevelName: { en: "Sacred Hymn / Suktam", hi: "पावन स्तुति / सूक्त" },
+                children: [
+                  {
+                    id: "saraswati-svarupa",
+                    parentId: "tridevi-saraswati",
+                    type: "leaf",
+                    levelLabel: { en: "Divine Iconography", hi: "दिव्य स्वरूप" },
+                    title: { en: "Devi Saraswati Iconography: Veena, Pustaka, Akshamala & Hamsa", hi: "सरस्वती स्वरूप: वीणा, पुस्तक, स्फटिक माला एवं हंस वाहन" },
+                    shortTitle: { en: "Saraswati Svarupa", hi: "सरस्वती स्वरूप" },
+                    sanskrit: "वीणापुस्तकधारिणी शारदा",
+                    badge: "Divine Form",
+                    content: {
+                      sanskrit: "शुक्लां ब्रह्मविचारसारपरमामाद्यां जगद्व्यापिनीं\nवीणापुस्तकधारिणीमभयदां जाड्यान्धकारापहाम्।\nहस्ते स्फाटिकमालिकां विदधतीं पद्मासने संस्थितां\nवन्दे तां परमेश्वरीं भगवतीं बुद्धिप्रदां शारदाम्॥",
+                      transliteration: "śuklāṃ brahmavicārasāraparamāmādyāṃ jagadvyāpinīṃ\nvīṇāpustakadhāriṇīmabhayadāṃ jāḍyāndhakārapahām |\nhaste sphāṭikamālikāṃ vidadhatīṃ padmāsane saṃsthitāṃ\nvande tāṃ parameśvarīṃ bhagavatīṃ buddhipradāṃ śāradām ||",
+                      meaningHi: "जो श्वेत वर्ण वाली, ब्रह्मविचार की परम सार, आद्या शक्ति और सम्पूर्ण जगत् में व्याप्त हैं; जो हाथों में वीणा, वेद पुस्तक और अक्षमाला धारण करती हैं; अभय प्रदान करने वाली और अज्ञान के अंधकार को मिटाने वाली, कमल पर विराजित भगवती शारदा को मैं प्रणाम करता हूँ।",
+                      meaningEn: "I bow to Supreme Goddess Sharada, pure white, embodiment of transcendent contemplation, all-pervading primordial power. Holding the Veena, the Vedas, and the rosary of crystals, dispeller of the darkness of ignorance, grantor of fearlessness and illumination.",
+                      metadata: {
+                        symbols: "Veena (Harmony of Mind), Pustaka (Vedic Wisdom), Crystal Mala (Concentration), White Lotus (Pure Consciousness)",
+                        vehicle: "Hamsa (Discernment between Truth and Illusion)",
+                        source: "Sharada Vandana / Saraswati Rahasya Upanishad",
+                      },
+                    },
+                  },
+                  {
+                    id: "saraswati-vandana",
+                    parentId: "tridevi-saraswati",
+                    type: "leaf",
+                    levelLabel: { en: "Classical Stotram", hi: "सरस्वती वन्दना" },
+                    title: { en: "Ya Kundendu Tushara Hara: Universal Saraswati Vandana", hi: "या कुन्देन्दुतुषारहारधवला: सर्वमान्य सरस्वती वन्दना" },
+                    shortTitle: { en: "Ya Kundendu", hi: "या कुन्देन्दु" },
+                    sanskrit: "या कुन्देन्दुतुषारहारधवला या शुभ्रवस्त्रावृता",
+                    badge: "Sacred Stotra",
+                    content: {
+                      sanskrit: "या कुन्देन्दुतुषारहारधवला या शुभ्रवस्त्रावृता\nया वीणावरदण्डमण्डितकरा या श्वेतपद्मासना।\nया ब्रह्माच्युतशंकरप्रभृतिभिर्देवैः सदा वन्दिता\nसा मां पातु सरस्वती भगवती निःशेषजाड्यापहा॥",
+                      transliteration: "yā kundendutuṣārahāradhavalā yā śubhravastrāvṛtā\nyā vīṇāvaradaṇḍamaṇḍitakarā yā śvetapadmāsanā |\nyā brahmācyutaśaṃkaraprabhṛtibhirdevaiḥ sadā vanditā\nsā māṃ pātu sarasvatī bhagavatī niḥśeṣajāḍyāpahā ||",
+                      meaningHi: "जो कुंद के पुष्प, चंद्रमा और हिमहार के समान श्वेत हैं, जो शुभ्र वस्त्र धारण करती हैं, जिनके हाथों में वीणा सुशोभित है, जो श्वेत कमल पर विराजित हैं, और जिनकी वंदना ब्रह्मा, विष्णु व महेश करते हैं—वे अज्ञान को पूर्णतः नष्ट करने वाली भगवती सरस्वती हमारी रक्षा करें।",
+                      meaningEn: "May Goddess Saraswati, who is radiant like the jasmine flower, the moon, and snow; who wears immaculate white robes, whose hands hold the Veena, seated upon a white lotus, revered by Brahma, Vishnu, and Shiva, protect us and dispel all ignorance from our minds.",
+                      metadata: {
+                        tradition: "Daily prayer in Vedic Gurukulas, schools, and art academies across Bharat",
+                        source: "Rigveda Saraswati Sukta & Puranic Vandana",
+                      },
+                    },
+                  },
+                  {
+                    id: "saraswati-gayatri",
+                    parentId: "tridevi-saraswati",
+                    type: "leaf",
+                    levelLabel: { en: "Sacred Gayatri", hi: "सरस्वती गायत्री" },
+                    title: { en: "Saraswati Gayatri Mantra: Awakening Supreme Intellect", hi: "सरस्वती गायत्री मन्त्र: मेधा एवं वाक्सिद्धि" },
+                    shortTitle: { en: "Saraswati Gayatri", hi: "सरस्वती गायत्री" },
+                    sanskrit: "ॐ सरस्वत्यै विद्महे ब्रह्मपुत्र्यै धीमहि",
+                    badge: "Gayatri Mantra",
+                    content: {
+                      sanskrit: "ॐ सरस्वत्यै विद्महे ब्रह्मपुत्र्यै धीमहि।\nतन्नो देवी प्रचोदयात्॥",
+                      transliteration: "oṃ saraswatyai vidmahe brahmaputryai dhīmahi |\ntanno devī pracodayāt ||",
+                      meaningHi: "हम ज्ञानस्वरूपा भगवती सरस्वती को जानते हैं, उन ब्रह्मा की मानस-पुत्री का हम ध्यान करते हैं। वे देवी हमारी बुद्धि और प्रतिभा को सन्मार्ग में प्रेरित करें।",
+                      meaningEn: "We realize the Goddess of wisdom, Saraswati; we meditate upon the supreme creative daughter of Brahman. May that divine Mother illuminate and awaken our intellect.",
+                      metadata: {
+                        significance: "Academic excellence, musical mastery, clear speech, creative writing",
+                        source: "Taittiriya Aranyaka 10.1.33",
+                      },
+                    },
+                  },
+                  {
+                    id: "saraswati-suktam",
+                    parentId: "tridevi-saraswati",
+                    type: "leaf",
+                    levelLabel: { en: "Rigvedic Suktam", hi: "ऋग्वेद सूक्त" },
+                    title: { en: "Pavaka Nah Saraswati: Rigveda 1.3.10-12 (Vedic Stream of Truth)", hi: "पावका नः सरस्वती (ऋग्वेद १.३.१०): पावन ज्ञान सरिता" },
+                    shortTitle: { en: "Vedic Saraswati", hi: "ऋग्वेद सरस्वती" },
+                    sanskrit: "पावका नः सरस्वती वाजेभिर्वाजिनीवती",
+                    badge: "Rigveda 1.3.10",
+                    content: {
+                      sanskrit: "पाव॒का नः॒ सर॑स्वती॒ वाजे॑भिर्वा॒जिनी॑वती।\nय॒ज्ञं व॑ष्टु धि॒याव॑सुः॥\nप्र चो॒दय॑त्री सू॒नृता॑नां॒ चेतं॑ती सुम॑तीनाम्।\nय॒ज्ञं द॑धे॒ सर॑स्वती॥\nम॒हो अर्णः॒ सर॑स्वती॒ प्र चे॑तयति के॒तुना॑।\nधियो॒ विश्वा॒ वि रा॑जति॥",
+                      transliteration: "pāvakā naḥ sarasvatī vājebhirvājinīvatī |\nyajñaṃ vaṣṭu dhiyāvasuḥ ||\npra codayatrī sūnṛtānāṃ cetaṃtī sumatīnām |\nyajñaṃ dadhe sarasvatī ||\nmaho arṇaḥ sarasvatī pra cetayati ketunā |\ndhiyo viśvā vi rājati ||",
+                      meaningHi: "पवित्र करने वाली, ज्ञान और कर्म के अन्न से समृद्ध, उत्तम बुद्धि प्रदान करने वाली भगवती सरस्वती हमारे यज्ञ को स्वीकार करें। सत्य व प्रिय वचनों को प्रेरित करने वाली, श्रेष्ठ विचारों को जाग्रत करने वाली सरस्वती हमारे जीवन को ज्ञानमय बनाएं। वे ज्ञान के महान समुद्र को अपने दिव्य प्रकाश से प्रकाशित करती हैं और समस्त बुद्धियों में ज्ञान का संचार करती हैं।",
+                      meaningEn: "May purifying Saraswati, rich in divine treasures, rich in sacred action, accept our prayers. Inspirer of noble truths, awakener of sublime thoughts, Saraswati upholds our inner sacrifice. With Her radiant light She illuminates the mighty ocean of knowledge and enlightens all intellects.",
+                      metadata: {
+                        mandala: "Rigveda Mandala 1, Sukta 3 (Verses 10-12)",
+                        rishi: "Madhuchhandas Vaishvamitra",
+                        devata: "Saraswati",
+                        chandas: "Gayatri",
+                      },
+                    },
+                  },
+                ],
               },
+
+              // Lakshmi (Prosperity & Auspiciousness)
               {
                 id: "tridevi-lakshmi",
                 parentId: "tridevi-shakti",
-                type: "leaf",
+                type: "section",
                 levelLabel: { en: "Devi", hi: "देवी" },
                 title: { en: "Devi Mahalakshmi: Goddess of Fortune & Grace (Kriya-Shakti)", hi: "देवी महालक्ष्मी: ऐश्वर्य, सौभाग्य एवं समृद्धि की अधिष्ठात्री" },
                 shortTitle: { en: "Mahalakshmi", hi: "महालक्ष्मी" },
                 sanskrit: "महालक्ष्मी (ऐश्वर्यशक्ति)",
-                content: {
-                  sanskrit: "नमस्तेऽस्तु महामाये श्रीपीठे सुरपूजिते।\nशङ्खचक्रगदाहस्ते महालक्ष्मि नमोऽस्तु ते॥",
-                  transliteration: "namaste'stu mahāmāye śrīpīṭhe surapūjite |\nśaṅkhacakragadāhaste mahālakṣmi namo'stu te ||",
-                  meaningHi: "हे महामाये! हे श्रीपीठ पर स्थित और देवताओं द्वारा पूजित देवी! शंख, चक्र और गदा धारण करने वाली भगवती महालक्ष्मी! आपको बारंबार नमस्कार है।",
-                  meaningEn: "Salutations to You, O Mahamaya, who abides on the holy Sri Peetha, adored by the celestials! O Mother Mahalakshmi, holding the conch, discus, and mace, prostrations unto You!",
-                  metadata: {
-                    function: "Aishwarya-Shakti (Prosperity, Auspiciousness, Spiritual Wealth)",
-                    aspects: "Ashta Lakshmi (8 Divine Forms of Abundance)",
-                    source: "Mahalakshmi Ashtakam / Sri Suktam (Rigveda Khilani)",
-                  },
+                badge: "Aishwarya-Shakti",
+                tagline: {
+                  en: "Goddess of Fortune, Wealth & Grace · Aishwarya-Shakti · Ashta-Lakshmi",
+                  hi: "ऐश्वर्य, सौभाग्य एवं समृद्धि की अधिष्ठात्री · क्रियाशक्ति",
                 },
+                cardImage: deityLakshmiCardImg,
+                bannerImage: bannerSanctum,
+                desc: {
+                  en: "Devi Mahalakshmi is the eternal consort of Lord Vishnu, manifesting divine grace, material abundance, spiritual prosperity, and auspiciousness across all three worlds.",
+                  hi: "भगवती महालक्ष्मी भगवान विष्णु की नित्य शक्ति हैं, जो धर्मानुकूल ऐश्वर्य, अष्टलक्ष्मी रूपी सौभाग्य और आंतरिक शांति प्रदान करती हैं।",
+                },
+                childLevelName: { en: "Sacred Hymn / Suktam", hi: "पावन स्तुति / सूक्त" },
+                children: [
+                  {
+                    id: "lakshmi-svarupa",
+                    parentId: "tridevi-lakshmi",
+                    type: "leaf",
+                    levelLabel: { en: "Divine Iconography", hi: "दिव्य स्वरूप" },
+                    title: { en: "Ashta Lakshmi: The Eight Divine Manifestations of Abundance", hi: "अष्टलक्ष्मी स्वरूप: धन, धान्य, विद्या, धैर्य एवं विजय" },
+                    shortTitle: { en: "Ashta Lakshmi", hi: "अष्टलक्ष्मी स्वरूप" },
+                    sanskrit: "अष्टलक्ष्मी स्वरूपम्",
+                    badge: "8 Divine Forms",
+                    content: {
+                      sanskrit: "आदिलक्ष्मीर्धान्यलक्ष्मीर्धैर्यलक्ष्मीस्तथैव च।\nगजलक्ष्मी राज्यलक्ष्मीः सन्तानलक्ष्मीस्तथा॥\nविजयलक्ष्मीर्विद्यालक्ष्मीश्चाष्टौ लक्ष्म्यः प्रकीर्तिताः।",
+                      transliteration: "ādilakṣmīrdhānyalakṣmīrdhairyalakṣmīstathaiva ca |\ngajalakṣmī rājyalakṣmīḥ santānalakṣmīstathā ||\nvijayalakṣmīrvidyālakṣmīścāṣṭau lakṣmyaḥ prakīrtitāḥ |",
+                      meaningHi: "सनातन परंपरा में महालक्ष्मी के ८ पावन स्वरूप पूजित हैं:\n१. आदिलक्ष्मी (मूल आत्म-समृद्धि)\n२. धान्यलक्ष्मी (अन्न व पोषण)\n३. धैर्यलक्ष्मी (साहस व आंतरिक बल)\n४. गजलक्ष्मी (राजसी वैभव व पशुधन)\n५. सन्तानलक्ष्मी (सद्गुणी संतति)\n६. विजयलक्ष्मी (सत्कर्मों में सफलता)\n७. विद्यालक्ष्मी (आध्यात्मिक व सांसारिक ज्ञान)\n८. धनलक्ष्मी (धर्मयुक्त स्वर्ण व संपदा)।",
+                      meaningEn: "The eight auspicious forms of Goddess Lakshmi representing all dimensions of holistic human fulfillment:\n1. Adi Lakshmi (primordial spiritual wealth)\n2. Dhanya Lakshmi (agricultural nourishment)\n3. Dhairya Lakshmi (courage and endurance)\n4. Gaja Lakshmi (royal elegance and grace)\n5. Santana Lakshmi (noble lineage and children)\n6. Vijaya Lakshmi (victory in righteous endeavors)\n7. Vidya Lakshmi (wisdom and learning)\n8. Dhana Lakshmi (ethical financial prosperity).",
+                      metadata: {
+                        concept: "Holistic abundance beyond mere money—integrating physical, mental, social, and spiritual wealth",
+                        source: "Ashta Lakshmi Stotram",
+                      },
+                    },
+                  },
+                  {
+                    id: "lakshmi-ashtakam",
+                    parentId: "tridevi-lakshmi",
+                    type: "leaf",
+                    levelLabel: { en: "Puranic Stotram", hi: "महालक्ष्मी अष्टकम्" },
+                    title: { en: "Mahalakshmi Ashtakam: Namastestu Mahamaye (Indra Kritam)", hi: "महालक्ष्मी अष्टकम्: नमस्तेऽस्तु महामाये (देवराज इन्द्र कृत)" },
+                    shortTitle: { en: "Lakshmi Ashtakam", hi: "महालक्ष्मी अष्टकम्" },
+                    sanskrit: "नमस्तेऽस्तु महामाये श्रीपीठे सुरपूजिते",
+                    badge: "Padma Purana",
+                    content: {
+                      sanskrit: "नमस्तेऽस्तु महामाये श्रीपीठे सुरपूजिते।\nशङ्खचक्रगदाहस्ते महालक्ष्मि नमोऽस्तु ते॥\nनमस्ते गरुडारूढे कोलासुरभयंकरि।\nसर्वपापहरे देवि महालक्ष्मि नमोऽस्तु ते॥",
+                      transliteration: "namaste'stu mahāmāye śrīpīṭhe surapūjite |\nśaṅkhacakragadāhaste mahālakṣmi namo'stu te ||\nnamaste garuḍārūḍhe kolāsurabhayaṃkari |\nsarvapāpahare devi mahālakṣmi namo'stu te ||",
+                      meaningHi: "हे महामाये! हे श्रीपीठ पर स्थित और देवताओं द्वारा पूजित देवी! शंख, चक्र और गदा धारण करने वाली भगवती महालक्ष्मी! आपको बारंबार नमस्कार है। हे गरुड़ारूढ़ा, कोलासुर का भय हरने वाली और समस्त पापों का नाश करने वाली महालक्ष्मी! आपको हमारा सादर प्रणाम।",
+                      meaningEn: "Salutations to You, O Mahamaya, who abides on the holy Sri Peetha, adored by the celestials! O Mother Mahalakshmi, holding the conch, discus, and mace, prostrations unto You! Seated upon Garuda, vanquisher of demonic despair, redeemer of sins, salutations unto You!",
+                      metadata: {
+                        speaker: "Devraj Indra",
+                        source: "Padma Purana",
+                        benefit: "Granting freedom from poverty, debt, sorrow, and spiritual bondage",
+                      },
+                    },
+                  },
+                  {
+                    id: "lakshmi-sri-suktam",
+                    parentId: "tridevi-lakshmi",
+                    type: "leaf",
+                    levelLabel: { en: "Vedic Khilani Hymn", hi: "ऋग्वेद श्रीसूक्त" },
+                    title: { en: "Sri Suktam (Rigveda Khilani): Hiranyavarnam Harineem", hi: "श्री सूक्तम् (ऋग्वेद खिलानि): हिरण्यवर्णां हरिणीम्" },
+                    shortTitle: { en: "Sri Suktam", hi: "श्री सूक्तम्" },
+                    sanskrit: "हिरण्यवर्णां हरिणीं सुवर्णरजतस्रजाम्",
+                    badge: "Vedic Sri Suktam",
+                    content: {
+                      sanskrit: "हिर॑ण्यवर्णां॒ हरि॑णीं सु॒वर्ण॑रज॒तस्र॑जाम्।\nच॒न्द्रां हि॒रण्म॑यीं ल॒क्ष्मीं जात॑वेदो म॒ आव॑ह॥\nतां म॒ आव॑ह॒ जात॑वेदो ल॒क्ष्मीमन॑पगा॒मिनी॑म्।\nयस्यां॒ हिर॑ण्यं वि॒न्देयं॒ गामश्वं॒ पुरु॑षान॒हम्॥",
+                      transliteration: "hiraṇyavarṇāṃ hariṇīṃ suvarṇarajatasrajām |\ncandrāṃ hiraṇmayīṃ lakṣmīṃ jātavedo ma āvaha ||\ntāṃ ma āvaha jātavedo lakṣmīmanapagāminīm |\nyasyāṃ hiraṇyaṃ vindeyaṃ gāmaśvaṃ puruṣānaham ||",
+                      meaningHi: "हे सर्वज्ञ अग्निदेव! स्वर्ण के समान देदीप्यमान वर्ण वाली, सुवर्ण और चांदी के हार धारण करने वाली, चन्द्रमा के समान शीतल एवं आनन्दमयी भगवती महालक्ष्मी का हमारे यहाँ आवाहन कीजिए। उस अविनाशी महालक्ष्मी को हमारे यहाँ प्रतिष्ठित करें, जिनके अनुग्रह से हमें ज्ञान, समृद्धि, गव्य-धन और सत्संग की प्राप्ति हो।",
+                      meaningEn: "O all-knowing Agni (Jataveda), invoke for me that radiant Goddess Lakshmi, of golden hue, gentle as a doe, adorned with garlands of gold and silver, luminous as the moon. Invoke that ever-abiding Lakshmi, by whose grace I may attain sacred prosperity, noble progeny, and spiritual enlightenment.",
+                      metadata: {
+                        source: "Rigveda Khilani (Appendix to Rigveda 5.87)",
+                        rishi: "Ananda, Kardama, Chiklita, Shrita (sons of Sri)",
+                        devata: "Sri / Mahalakshmi",
+                        chandas: "Anushtubh & Trishtubh",
+                      },
+                    },
+                  },
+                  {
+                    id: "lakshmi-gayatri",
+                    parentId: "tridevi-lakshmi",
+                    type: "leaf",
+                    levelLabel: { en: "Sacred Gayatri", hi: "महालक्ष्मी गायत्री" },
+                    title: { en: "Mahalakshmi Gayatri: Om Mahalakshmyai Cha Vidmahe", hi: "महालक्ष्मी गायत्री मन्त्र: अष्टैश्वर्य प्राप्ति" },
+                    shortTitle: { en: "Lakshmi Gayatri", hi: "महालक्ष्मी गायत्री" },
+                    sanskrit: "ॐ महालक्ष्म्यै च विद्महे विष्णुपत्न्यै च धीमहि",
+                    badge: "Gayatri Mantra",
+                    content: {
+                      sanskrit: "ॐ महालक्ष्म्यै च विद्महे विष्णुपत्न्यै च धीमहि।\nतन्नो लक्ष्मीः प्रचोदयात्॥",
+                      transliteration: "oṃ mahālakṣmyai ca vidmahe viṣṇupatnyai ca dhīmahi |\ntanno lakṣmīḥ pracodayāt ||",
+                      meaningHi: "हम परमेश्वरी महालक्ष्मी को जानते हैं, उन भगवान विष्णु की नित्य शक्ति का हम ध्यान करते हैं। वे देवी लक्ष्मी हमें धर्मानुकूल ऐश्वर्य, सद्बुद्धि और सन्मार्ग की ओर प्रेरित करें।",
+                      meaningEn: "We realize the Supreme Mother Mahalakshmi; we meditate upon the beloved divine consort of Lord Vishnu. May Mother Lakshmi enlighten and prosper our intellect and life.",
+                      metadata: {
+                        source: "Mahanarayana Upanishad 3.17",
+                        significance: "Brings harmony to households, removes distress, bestows auspiciousness",
+                      },
+                    },
+                  },
+                ],
               },
+
+              // Durga / Parvati (Cosmic Power & 10 Mahavidyas)
               {
                 id: "tridevi-durga",
                 parentId: "tridevi-shakti",
-                type: "leaf",
+                type: "section",
                 levelLabel: { en: "Devi", hi: "देवी" },
                 title: { en: "Devi Durga/Parvati: The Primordial Cosmic Power (Iccha-Shakti & 10 Mahavidyas)", hi: "देवी दुर्गा/पार्वती: पराशक्ति, नवदुर्गा एवं १० महाविद्या" },
                 shortTitle: { en: "Durga/Shakti", hi: "दुर्गा / शक्ति" },
                 sanskrit: "दुर्गा (पराशक्ति एवं १० महाविद्या)",
-                content: {
-                  sanskrit: "सर्वमङ्गलमाङ्गल्ये शिवे सर्वार्थसाधिके।\nशरण्ये त्र्यम्बके गौरि नारायणि नमोऽस्तु ते॥",
-                  transliteration: "sarvamaṅgalamāṅgalye śive sarvārthasādhike |\nśaraṇye tryambake gauri nārāyaṇi namo'stu te ||",
-                  meaningHi: "हे सर्वमंगलमयी! हे कल्याणकारी शिवे! हे धर्म, अर्थ, काम और मोक्ष चारों पुरुषार्थों को सिद्ध करने वाली, शरणागतवत्सला, त्रिनेत्रा गौरी नारायणी! आपको बारंबार नमस्कार है।",
-                  meaningEn: "O Auspiciousness of all that is auspicious! O benevolent Devi Shiva, fulfiller of all spiritual and material aims! O refuge of the surrendered, three-eyed Gauri Narayani, salutations unto You!",
-                  metadata: {
-                    function: "Param Shakti (Cosmic Energy, Protection, Destruction of Demonic forces)",
-                    manifestations: "Navadurga (9 forms) & Dasa Mahavidyas (Kali, Tara, Shodashi, Bhuvaneshwari, Bhairavi, Chhinnamasta, Dhumavati, Bagalamukhi, Matangi, Kamala)",
-                    source: "Durga Saptashati 11.10 / Devi Bhagavata Mahapurana",
-                  },
+                badge: "Iccha-Shakti",
+                tagline: {
+                  en: "Primordial Cosmic Energy · Iccha-Shakti · Navadurga & 10 Mahavidyas",
+                  hi: "पराशक्ति, असुरविनाशिनी एवं जगन्माता · इच्छाशक्ति",
                 },
+                cardImage: deviDurgaCardImg,
+                bannerImage: bannerSanctum,
+                desc: {
+                  en: "Devi Durga is the primordial invincible Shakti (Adishakti), seated upon a lion, holding celestial weapons to vanquish demonic forces, protect seekers, and manifest cosmic order.",
+                  hi: "भगवती दुर्गा सिंहवाहिनी, सर्वशत्रुविनाशिनी, नवदुर्गा एवं दश महाविद्याओं की मूल पराशक्ति हैं, जो धर्म की रक्षा और दुष्टों के दलन हेतु अवतरित होती हैं।",
+                },
+                childLevelName: { en: "Sacred Hymn / Kavacham", hi: "पावन स्तुति / कवच" },
+                children: [
+                  {
+                    id: "durga-svarupa",
+                    parentId: "tridevi-durga",
+                    type: "leaf",
+                    levelLabel: { en: "Divine Iconography", hi: "दिव्य स्वरूप" },
+                    title: { en: "Simhavahini Durga: Nine Forms (Navadurga) & 10 Mahavidyas", hi: "सिंहवाहिनी दुर्गा: नवदुर्गा एवं १० महाविद्या स्वरूप" },
+                    shortTitle: { en: "Navadurga Svarupa", hi: "नवदुर्गा स्वरूप" },
+                    sanskrit: "नवदुर्गा एवं दश महाविद्याः",
+                    badge: "Navadurga & Mahavidya",
+                    content: {
+                      sanskrit: "प्रथमं शैलपुत्री च द्वितीयं ब्रह्मचारिणी।\nतृतीयं चन्द्रघण्टेति कूष्माण्डेति चतुर्थकम्॥\nपञ्चमं स्कन्दमातेति षष्ठं कात्यायनीति च।\nसप्तमं कालरात्रीति महागौरीति चाष्टमम्॥\nनवमं सिद्धिदात्री च नवदुर्गाः प्रकीर्तिताः॥",
+                      transliteration: "prathamaṃ śailaputrī ca dvitīyaṃ brahmacāriṇī |\ntṛtīyaṃ candraghaṇṭeti kūṣmāṇḍeti caturthakam ||\npañcamaṃ skandamāteti ṣaṣṭhaṃ kātyāyanīti ca |\nsaptamaṃ kālarātrīti mahāgaurīti cāṣṭamam ||\nnavamaṃ siddhidātrī ca navadurgāḥ prakīrtitāḥ ||",
+                      meaningHi: "मां दुर्गा के ९ पावन स्वरूप (नवदुर्गा):\n१. शैलपुत्री (स्थिरता व साधना)\n२. ब्रह्मचारिणी (तपस्या व संयम)\n३. चन्द्रघण्टा (वीरता व शांति)\n४. कूष्माण्डा (ब्रह्माण्ड सृजन)\n५. स्कन्दमाता (वात्सल्य व ज्ञान)\n६. कात्यायनी (असुर संहार)\n७. कालरात्रि (अज्ञान व भय नाशिनी)\n८. महागौरी (पवित्रता व कल्याण)\n९. सिद्धिदात्री (समस्त सिद्धियों की प्रदात्री)।\nइसके साथ १० महाविद्याएं: काली, तारा, षोडशी, भुवनेश्वरी, भैरवी, छिन्नमस्ता, धूमावती, बगलामुखी, मातंगी, कमला।",
+                      meaningEn: "The nine divine manifestations of Goddess Durga (Navadurga):\n1. Shailaputri (daughter of Himalayas, grounding)\n2. Brahmacharini (unwavering ascetic devotion)\n3. Chandraghanta (courage, auspicious sound)\n4. Kushmanda (creator of cosmic sphere)\n5. Skandamata (mother of divine wisdom/Kartikeya)\n6. Katyayani (destroyer of tyranny/Mahishasura)\n7. Kalaratri (remover of darkness and fear)\n8. Mahagauri (immaculate purity and grace)\n9. Siddhidatri (bestower of supreme spiritual attainments).\nAccompanied by the Dasa Mahavidyas (the 10 Great Wisdom Goddesses).",
+                      metadata: {
+                        source: "Devi Mahatmya / Markandeya Purana / Durga Saptashati",
+                        symbol: "Lion (fearlessness and mastery over animal instincts), Trishula, Conch, Chakra",
+                      },
+                    },
+                  },
+                  {
+                    id: "durga-sarvamangala",
+                    parentId: "tridevi-durga",
+                    type: "leaf",
+                    levelLabel: { en: "Universal Prayer", hi: "मंगल स्तुति" },
+                    title: { en: "Sarvamangala Mangalye: The Universal Invocation of Auspiciousness", hi: "सर्वमङ्गलमाङ्गल्ये: जगन्माता की परम मंगलकारी स्तुति" },
+                    shortTitle: { en: "Sarvamangala", hi: "सर्वमङ्गलमाङ्गल्ये" },
+                    sanskrit: "सर्वमङ्गलमाङ्गल्ये शिवे सर्वार्थसाधिके",
+                    badge: "Durga Saptashati",
+                    content: {
+                      sanskrit: "सर्वमङ्गलमाङ्गल्ये शिवे सर्वार्थसाधिके।\nशरण्ये त्र्यम्बके गौरि नारायणि नमोऽस्तु ते॥",
+                      transliteration: "sarvamaṅgalamāṅgalye śive sarvārthasādhike |\nśaraṇye tryambake gauri nārāyaṇi namo'stu te ||",
+                      meaningHi: "हे सर्वमंगलमयी! हे कल्याणकारी शिवे! हे धर्म, अर्थ, काम और मोक्ष चारों पुरुषार्थों को सिद्ध करने वाली, शरणागतवत्सला, त्रिनेत्रा गौरी नारायणी! आपको बारंबार नमस्कार है।",
+                      meaningEn: "O Auspiciousness of all that is auspicious! O benevolent Devi Shiva, fulfiller of all spiritual and material aims! O refuge of the surrendered, three-eyed Gauri Narayani, salutations unto You!",
+                      metadata: {
+                        source: "Durga Saptashati (Devi Mahatmya) 11.10",
+                        context: "Chanted during all Sanatana pujas, weddings, and auspicious beginnings",
+                      },
+                    },
+                  },
+                  {
+                    id: "durga-saptashati-kavacham",
+                    parentId: "tridevi-durga",
+                    type: "leaf",
+                    levelLabel: { en: "Sacred Shield", hi: "देवी कवच" },
+                    title: { en: "Devi Kavacham: The Armour of Divine Protection", hi: "श्री चण्डी देवी कवचम्: समस्त दिशाओं में दिव्य रक्षा" },
+                    shortTitle: { en: "Devi Kavacham", hi: "देवी कवचम्" },
+                    sanskrit: "ब्रह्मोवाच यद्गुह्यं परमं लोके",
+                    badge: "Chandi Kavacham",
+                    content: {
+                      sanskrit: "ॐ यद्गुह्यं परमं लोके सर्वरक्षाकरं नृणाम्।\nयन्न कस्यचिदाख्यातं तन्मे ब्रूहि पितामह॥\nब्रह्मोवाच—\nअस्ति गुह्यतमं विप्र सर्वभूतोपकारकम्।\nदेव्यास्तु कवचं पुण्यं तच्छृणुष्व महामुने॥",
+                      transliteration: "oṃ yadguhyaṃ paramaṃ loke sarvarakṣākaraṃ nṛṇām |\nyanna kasyacidākhyātaṃ tanme brūhi pitāmaha ||\nbrahmovāca—\nasti guhyatamaṃ vipra sarvabhūtopakārakam |\ndevyāstu kavacaṃ puṇyaṃ tacchṛṇuṣva mahāmune ||",
+                      meaningHi: "मार्कण्डेय जी ने पूछा: हे पितामह! संसार में जो परम गोपनीय और मनुष्यों की सब प्रकार से रक्षा करने वाला साधन हो, वह मुझे बताइए। ब्रह्मा जी ने कहा: हे महामुने! संपूर्ण प्राणियों का उपकार करने वाला देवी का पवित्र कवच है, जिसे धारण करने से कोई भी संकट या नकारात्मक शक्ति साधक का स्पर्श नहीं कर सकती।",
+                      meaningEn: "Sage Markandeya asked: O Grandfather, reveal that supreme secret which affords all protection to humanity. Lord Brahma replied: Hear, O Sage, the sacred Devi Kavacham, which protects every limb, thought, and breath of the spiritual aspirant against all adversities.",
+                      metadata: {
+                        source: "Varaha Purana / Sri Durga Saptashati Anga",
+                        power: "Inviolable spiritual shield, mental strength, destruction of fear",
+                      },
+                    },
+                  },
+                  {
+                    id: "durga-gayatri",
+                    parentId: "tridevi-durga",
+                    type: "leaf",
+                    levelLabel: { en: "Sacred Gayatri", hi: "दुर्गा गायत्री" },
+                    title: { en: "Durga Gayatri Mantra: Invoking Invincible Courage", hi: "दुर्गा / कात्यायनी गायत्री मन्त्र: अमोघ शक्ति ध्यान" },
+                    shortTitle: { en: "Durga Gayatri", hi: "दुर्गा गायत्री" },
+                    sanskrit: "ॐ कात्यायन्यै विद्महे कन्याकुमार्यै धीमहि",
+                    badge: "Gayatri Mantra",
+                    content: {
+                      sanskrit: "ॐ कात्यायन्यै विद्महे कन्याकुमार्यै धीमहि।\nतन्नो दुर्गिः प्रचोदयात्॥",
+                      transliteration: "oṃ kātyāyanyai vidmahe kanyakumāryai dhīmahi |\ntanno durgiḥ pracodayāt ||",
+                      meaningHi: "हम पराशक्ति भगवती कात्यायनी को जानते हैं, उन दिव्य कन्याकुमारी का हम ध्यान करते हैं। वे भगवती दुर्गा हमारी बुद्धि को साहस, ज्ञान और शौर्य के पथ पर प्रेरित करें।",
+                      meaningEn: "We realize the invincible Goddess Katyayani; we meditate upon the transcendent Maiden of Divine Light (Kanyakumari). May Mother Durga illuminate and awaken our courage and consciousness.",
+                      metadata: {
+                        source: "Mahanarayana Upanishad 3.18 / Krishna Yajurveda",
+                        significance: "Removal of insurmountable obstacles (Durgam), inner fortitude",
+                      },
+                    },
+                  },
+                ],
               },
             ],
           },
@@ -5434,26 +6513,198 @@ export const VEDA_HIERARCHY_TREE = [
               en: "Matsya, Kurma, Varaha, Narasimha, Vamana, Parashurama, Rama, Krishna, Buddha, and Kalki",
               hi: "मत्स्य, कूर्म, वराह, नृसिंह, वामन, परशुराम, राम, कृष्ण, बुद्ध एवं कल्कि",
             },
-            cardImage: ramayanaCardImg,
+            cardImage: deityVishnuCardImg,
+            childLevelName: { en: "Avatara / Shloka", hi: "अवतार / श्लोक" },
             children: [
               {
                 id: "dashavatara-stotra-jayadeva",
                 parentId: "dashavatara-tattva",
                 type: "leaf",
-                levelLabel: { en: "Canonical Shloka", hi: "प्रमाण श्लोक" },
+                levelLabel: { en: "Canonical Order", hi: "प्रमाण श्लोक" },
                 title: { en: "The 10 Avatars of Vishnu (Matsya to Kalki)", hi: "दशावतार स्वरूप एवं क्रम (मत्स्य से कल्कि)" },
                 shortTitle: { en: "10 Avatars Order", hi: "१० अवतार क्रम" },
                 sanskrit: "दशावतार ध्यानम्",
+                badge: "Overview",
                 content: {
-                  sanskrit: "मत्स्यः कूर्मो वराहश्च नरसिंहोऽथ वामनः।\nरामो रामश्च रामश्च कृष्णो बुद्धः कल्किरेव च॥\n(परशुराम, दाशरथि राम, बलराम/कृष्ण, बुद्ध, कल्कि)",
+                  sanskrit: "मत्स्यः कूर्मो वराहश्च नरसिंहोऽथ वामनः।\nरामो रामश्च रामश्च कृष्णो बुद्धः कल्किरेव च॥",
                   transliteration: "matsyaḥ kūrmo varāhaśca narasiṃho'tha vāmanaḥ |\nrāmo rāmaśca rāmaśca kṛṣṇo buddhaḥ kalkireva ca ||",
-                  meaningHi: "भगवान विष्णु के १० मुख्य अवतार हैं:\n१. मत्स्य (जल प्रलय में वेदों की रक्षा)\n२. कूर्म (समुद्र मंथन में मन्दराचल धारण)\n३. वराह (हिरण्याक्ष संहार व भू-उद्धार)\n४. नृसिंह (हिरण्यकशिपु संहार व प्रह्लाद रक्षा)\n५. वामन (बलि का उद्धार व त्रिलोक नाप)\n६. परशुराम (अधर्मियों का दमन)\n७. श्रीराम (मर्यादा पुरुषोत्तम, रावण वध)\n८. श्रीकृष्ण (लीला पुरुषोत्तम, गीता ज्ञान)\n९. बुद्ध (अहिंसा व करुणा प्रवर्तन)\n१०. कल्कि (कलियुग अंत में अधर्म संहारक भावी अवतार)।",
-                  meaningEn: "The ten principal descents of Lord Vishnu through cosmic evolution:\n1. Matsya (Fish - rescued Vedas and Manu from the Great Deluge)\n2. Kurma (Tortoise - bore Mount Mandara during churning of cosmic ocean)\n3. Varaha (Boar - rescued Mother Earth from depths of cosmic waters)\n4. Narasimha (Man-Lion - protected Prahlada and vanquished tyranny)\n5. Vamana (Dwarf sage - restored cosmic balance across three realms)\n6. Parashurama (Warrior sage - subdued corrupt tyrants and preserved Dharma)\n7. Rama (Ideal King - embodiment of Maryada and righteousness)\n8. Krishna (Complete Avatara - cosmic guide and philosopher of Bhagavad Gita)\n9. Buddha (Enlightened Master - compassion and Ahimsa)\n10. Kalki (Prophesied Avatara on a white steed to restore Satya Yuga).",
+                  meaningHi: "भगवान विष्णु के १० मुख्य अवतार हैं: १. मत्स्य, २. कूर्म, ३. वराह, ४. नृसिंह, ५. वामन, ६. परशुराम, ७. श्रीराम, ८. श्रीकृष्ण, ९. बुद्ध, और १०. कल्कि।",
+                  meaningEn: "The ten principal avatars of Lord Vishnu: 1. Matsya, 2. Kurma, 3. Varaha, 4. Narasimha, 5. Vamana, 6. Parashurama, 7. Rama, 8. Krishna, 9. Buddha, 10. Kalki.",
                   metadata: {
                     yugas: "Satya Yuga (4) -> Treta Yuga (3) -> Dvapara Yuga (1) -> Kali Yuga (2)",
-                    purpose: "Paritranaya Sadhunam Vinashaya Cha Dushkritam (To protect righteousness and restore cosmic balance)",
+                    purpose: "Paritranaya Sadhunam Vinashaya Cha Dushkritam (To protect Dharma and elevate consciousness)",
                     source: "Agni Purana / Garuda Purana / Gita Govinda",
                   },
+                },
+              },
+              {
+                id: "avatar-1-matsya",
+                parentId: "dashavatara-tattva",
+                type: "leaf",
+                levelLabel: { en: "Avatar 1", hi: "प्रथम अवतार" },
+                title: { en: "01. Matsya Avatara: The Divine Fish (Rescue of Vedas & Manu)", hi: "०१. मत्स्य अवतार: वेदोद्धार एवं सत्यव्रत मनु रक्षा" },
+                shortTitle: { en: "01. Matsya", hi: "०१. मत्स्य" },
+                sanskrit: "प्रलयपयोधिजले धृतवानसि वेदम्",
+                badge: "Satya Yuga",
+                content: {
+                  sanskrit: "प्रलयपयोधिजले धृतवानसि वेदं विहितवहित्रचरित्रमखेदम्।\nकेशव धृतमीनशरीर जय जगदीश हरे॥",
+                  transliteration: "pralayapayodhijale dhṛtavānasi vedaṃ vihitavahitracaritramakhedam |\nkeśava dhṛtamīnaśarīra jaya jagadīśa hare ||",
+                  meaningHi: "महाप्रलय के जल में जब समस्त सृष्टि डूब रही थी, तब आपने मत्स्य रूप धारण कर वेदों की रक्षा की और सत्यव्रत मनु की नौका को पार लगाया। हे मीन रूपधारी श्रीहरि, आपकी जय हो!",
+                  meaningEn: "During the cosmic deluge when the worlds were submerged, You took the form of a golden horned fish to safeguard the eternal Vedas and guide King Satyavrata's ark of life to safety.",
+                  metadata: { yuga: "Satya Yuga", antagonist: "Hayagriva (Demon who stole Vedas)", source: "Jayadeva Dashavatara Stotram 1 / Bhagavata 8.24" },
+                },
+              },
+              {
+                id: "avatar-2-kurma",
+                parentId: "dashavatara-tattva",
+                type: "leaf",
+                levelLabel: { en: "Avatar 2", hi: "द्वितीय अवतार" },
+                title: { en: "02. Kurma Avatara: The Divine Tortoise (Samudra Manthan)", hi: "०२. कूर्म अवतार: समुद्र मन्थन एवं मन्दराचल धारण" },
+                shortTitle: { en: "02. Kurma", hi: "०२. कूर्म" },
+                sanskrit: "क्षितिरतिविपुलतरे तव तिष्ठति पृष्ठे",
+                badge: "Satya Yuga",
+                content: {
+                  sanskrit: "क्षितिरतिविपुलतरे तव तिष्ठति पृष्ठे धरणिधरणकिणचक्रगरिष्ठे।\nकेशव धृतकच्छपरूप जय जगदीश हरे॥",
+                  transliteration: "kṣitirativipulatare tava tiṣṭhati pṛṣṭhe dharaṇidharaṇakiṇacakragariṣṭhe |\nkeśava dhṛtakacchaparūpa jaya jagadīśa hare ||",
+                  meaningHi: "देवों और असुरों द्वारा अमृत प्राप्ति हेतु समुद्र मंथन के समय आपने अपनी विशाल पीठ पर मन्दराचल पर्वत को धारण किया। हे कच्छप रूपधारी श्रीहरि, आपकी जय हो!",
+                  meaningEn: "During the churning of the cosmic ocean for the nectar of immortality, You manifested as the great Tortoise, bearing Mount Mandara steadily upon Your vast back.",
+                  metadata: { yuga: "Satya Yuga", event: "Samudra Manthan (Manifestation of Amrita & Lakshmi)", source: "Bhagavata Purana 8.7" },
+                },
+              },
+              {
+                id: "avatar-3-varaha",
+                parentId: "dashavatara-tattva",
+                type: "leaf",
+                levelLabel: { en: "Avatar 3", hi: "तृतीय अवतार" },
+                title: { en: "03. Varaha Avatara: The Divine Boar (Rescue of Mother Earth)", hi: "०३. वराह अवतार: हिरण्याक्ष वध एवं भू-उद्धार" },
+                shortTitle: { en: "03. Varaha", hi: "०३. वराह" },
+                sanskrit: "वसति दशनशिखरे धरणी तव लग्ना",
+                badge: "Satya Yuga",
+                content: {
+                  sanskrit: "वसति दशनशिखरे धरणी तव लग्ना शशिनि कलङ्ककलेव निमग्ना।\nकेशव धृतशूकररूप जय जगदीश हरे॥",
+                  transliteration: "vasati daśanaśikhare dharaṇī tava lagnā śaśini kalaṅkakaleva nimagnā |\nkeśava dhṛtaśūkararūpa jaya jagadīśa hare ||",
+                  meaningHi: "रसातल में जलमग्न हुई पृथ्वी को आपने अपनी श्वेत दाढ़ के अग्रभाग पर वैसे ही धारण किया जैसे चन्द्रमा पर कलंक सुशोभित होता है। आपने अत्याचारी हिरण्याक्ष का संहार किया।",
+                  meaningEn: "When Mother Earth was submerged in the cosmic abyssal waters by demon Hiranyaksha, You took the form of the Divine Boar, lifting Her upon Your radiant tusks and vanquishing evil.",
+                  metadata: { yuga: "Satya Yuga", antagonist: "Hiranyaksha", source: "Taittiriya Brahmana / Bhagavata Purana 3.13" },
+                },
+              },
+              {
+                id: "avatar-4-narasimha",
+                parentId: "dashavatara-tattva",
+                type: "leaf",
+                levelLabel: { en: "Avatar 4", hi: "चतुर्थ अवतार" },
+                title: { en: "04. Narasimha Avatara: The Divine Man-Lion (Protection of Prahlada)", hi: "०४. नृसिंह अवतार: हिरण्यकशिपु वध एवं भक्त प्रह्लाद रक्षा" },
+                shortTitle: { en: "04. Narasimha", hi: "०४. नृसिंह" },
+                sanskrit: "तव करकमलवरे नखमद्भुतशृङ्गम्",
+                badge: "Satya Yuga",
+                content: {
+                  sanskrit: "तव करकमलवरे नखमद्भुतशृङ्गं दलितदितिसुतभृङ्गम्।\nकेशव धृतानरहरिरूप जय जगदीश हरे॥",
+                  transliteration: "tava karakamalavare nakhamadbhutaśṛṅgaṃ dalitaditisutabhṛṅgam |\nkeśava dhṛtanaraharirūpa jaya jagadīśa hare ||",
+                  meaningHi: "स्तंभ से प्रकट होकर अपने अद्भुत तीक्ष्ण नखों से आपने अत्याचारी दैत्य हिरण्यकशिपु का वध किया और अपने अनन्य बाल-भक्त प्रह्लाद के प्राणों की रक्षा की।",
+                  meaningEn: "Bursting forth from the stone pillar to vindicate the faith of Your child-devotee Prahlada, You took the form of the half-man, half-lion Narasimha, vanquishing tyrant Hiranyakashipu.",
+                  metadata: { yuga: "Satya Yuga", devotee: "Bhakta Prahlada", antagonist: "Hiranyakashipu", source: "Bhagavata Purana 7.8" },
+                },
+              },
+              {
+                id: "avatar-5-vamana",
+                parentId: "dashavatara-tattva",
+                type: "leaf",
+                levelLabel: { en: "Avatar 5", hi: "पञ्चम अवतार" },
+                title: { en: "05. Vamana Avatara: The Divine Dwarf / Trivikrama (Restoring Cosmic Order)", hi: "०५. वामन अवतार: त्रिविक्रम स्वरूप एवं राजा बलि उद्धार" },
+                shortTitle: { en: "05. Vamana", hi: "०५. वामन" },
+                sanskrit: "छलयसि विक्रमण बलमद्भुतवामन",
+                badge: "Treta Yuga",
+                content: {
+                  sanskrit: "छलयसि विक्रपणे बलिमद्भुतवामन पदनखनीरजनितजनपावन।\nकेशव धृतवामनरूप जय जगदीश हरे॥",
+                  transliteration: "chalayasi vikramaṇe balimadbhutavāmana padanakhanīrajanitajanapāvana |\nkeśava dhṛtavāmanarūpa jaya jagadīśa hare ||",
+                  meaningHi: "वामन बटुक बनकर आपने राजा बलि से तीन पग भूमि माँगी और त्रिविक्रम विराट् रूप धरकर दो पगों में त्रिलोकी को नाप लिया। तीसरे पग में बलि को पाताल का निष्कंटक राज्य और मोक्ष प्रदान किया।",
+                  meaningEn: "Appearing as a radiant young dwarf sage, You asked King Bali for three paces of land, then expanded into the cosmic Trivikrama form, measuring earth and heaven in two strides and blessing Bali with devotion.",
+                  metadata: { yuga: "Treta Yuga", character: "King Mahabali & Sage Shukracharya", source: "Rigveda 1.154 (Vishnu Sukta) / Bhagavata 8.18" },
+                },
+              },
+              {
+                id: "avatar-6-parashurama",
+                parentId: "dashavatara-tattva",
+                type: "leaf",
+                levelLabel: { en: "Avatar 6", hi: "षष्ठ अवतार" },
+                title: { en: "06. Parashurama Avatara: The Warrior Sage (Chastiser of Tyrants)", hi: "०६. परशुराम अवतार: क्षत्रिय दर्प दलन एवं धर्म प्रतिष्ठा" },
+                shortTitle: { en: "06. Parashurama", hi: "०६. परशुराम" },
+                sanskrit: "क्षत्रियरुधिरमये जगदपगतपापम्",
+                badge: "Treta Yuga",
+                content: {
+                  sanskrit: "क्षत्रियरुधिरमये जगदपगतपापं स्नपयसि पयसि शमितभवतापम्।\nकेशव धृतभृगुपतिरूप जय जगदीश हरे॥",
+                  transliteration: "kṣatriyarudhiramaye jagadapagatapāpaṃ snapayasi payasi śamitabhavatāpam |\nkeśava dhṛtabhṛgupatirūpa jaya jagadīśa hare ||",
+                  meaningHi: "महर्षि जमदग्नि के सुपुत्र भार्गव परशुराम बनकर आपने परशु (कुल्हाड़ी) धारण किया और धर्म से विमुख होकर प्रजा पर अत्याचार करने वाले सहस्त्रार्जुन आदि निरंकुश राजाओं का दमन कर पृथ्वी को पापरहित किया।",
+                  meaningEn: "Born as the warrior-sage son of Jamadagni, You wielded the battle-axe to vanquish Kartavirya Arjuna and 21 generations of corrupt despots, restoring righteousness and donating the earth to Sage Kashyapa.",
+                  metadata: { yuga: "Treta Yuga", weapon: "Parashu (Divine Axe)", source: "Mahabharata Vana Parva / Bhagavata Purana 9.15" },
+                },
+              },
+              {
+                id: "avatar-7-rama",
+                parentId: "dashavatara-tattva",
+                type: "leaf",
+                levelLabel: { en: "Avatar 7", hi: "सप्तम अवतार" },
+                title: { en: "07. Sri Rama: Maryada Purushottama (The Ideal King & Slaying of Ravana)", hi: "०७. मर्यादा पुरुषोत्तम श्रीराम: रावण वध एवं रामराज्य" },
+                shortTitle: { en: "07. Rama", hi: "०७. श्रीराम" },
+                sanskrit: "वितरसि दिक्षु रणे दिकपतिकमनीयम्",
+                badge: "Treta Yuga",
+                content: {
+                  sanskrit: "वितरसि दिक्षु रणे दिक्पतिकमनीयं दशमुखमौलिबलिं रमणीयम्।\nकेशव धृतरामशरीर जय जगदीश हरे॥",
+                  transliteration: "vitarasi dikṣu raṇe dikpatikamanīyaṃ daśamukhamaulibaliṃ ramaṇīyam |\nkeśava dhṛtarāmaśarīra jaya jagadīśa hare ||",
+                  meaningHi: "अयोध्या के सूर्यवंशी महाराज दशरथ के पुत्र के रूप में अवतरित होकर आपने मर्यादा, सत्य और पितृभक्ति का आदर्श स्थापित किया। लंकापति रावण का संहार कर समस्त लोकों में धर्म का राज्य स्थापित किया।",
+                  meaningEn: "Embodying perfect virtue, filial duty, and cosmic righteousness as Maryada Purushottama, You built the ocean bridge, vanquished the ten-headed demon king Ravana, and established Ramarajya.",
+                  metadata: { yuga: "Treta Yuga", scripture: "Valmiki Ramayana", consort: "Mata Sita", adversary: "Ravana" },
+                },
+              },
+              {
+                id: "avatar-8-krishna",
+                parentId: "dashavatara-tattva",
+                type: "leaf",
+                levelLabel: { en: "Avatar 8", hi: "अष्टम अवतार" },
+                title: { en: "08. Sri Krishna: Leela Purushottama (Cosmic Philosopher of Bhagavad Gita)", hi: "०८. लीला पुरुषोत्तम श्रीकृष्ण: गीता ज्ञान एवं धर्म संस्थापना" },
+                shortTitle: { en: "08. Krishna", hi: "०८. श्रीकृष्ण" },
+                sanskrit: "वहसि वपुषि विशदे वसनं जलदाभम्",
+                badge: "Dvapara Yuga",
+                content: {
+                  sanskrit: "वहसि वपुषि विशदे वसनं जलदाभं हलहतिभीतिमिलितयमुनाभम्।\nकेशव धृतहलधररूप / कृष्णरूप जय जगदीश हरे॥",
+                  transliteration: "vahasi vapuṣi viśade vasanaṃ jaladābhaṃ halahatibhītimilitayamunābham |\nkeśava dhṛtakṛṣṇarūpa jaya jagadīśa hare ||",
+                  meaningHi: "सम्पूर्ण कलाओं से परिपूर्ण भगवान श्रीकृष्ण ने द्वापर युग में दुष्ट कंस और कौरवों का संहार कराया तथा कुरुक्षेत्र के रणक्षेत्र में संपूर्ण मानव जाति के कल्याण हेतु श्रीमद्भगवद्गीता का अमर संदेश दिया।",
+                  meaningEn: "The Purna Avatara (Complete Incarnation) who captivated hearts with divine love in Vrindavan, liberated the virtuous, and expounded the eternal philosophy of life—the Bhagavad Gita—to Arjuna on Kurukshetra.",
+                  metadata: { yuga: "Dvapara Yuga", teachings: "Srimad Bhagavad Gita (18 Chapters)", abode: "Dvaraka / Goloka" },
+                },
+              },
+              {
+                id: "avatar-9-buddha",
+                parentId: "dashavatara-tattva",
+                type: "leaf",
+                levelLabel: { en: "Avatar 9", hi: "नवम अवतार" },
+                title: { en: "09. Gautama Buddha: The Awakened Master (Compassion & Ahimsa)", hi: "०९. गौतम बुद्ध: करुणा, अहिंसा एवं अष्टांगिक मार्ग" },
+                shortTitle: { en: "09. Buddha", hi: "०९. बुद्ध" },
+                sanskrit: "निन्दसि यज्ञविधेरहह श्रुतिजातम्",
+                badge: "Kali Yuga",
+                content: {
+                  sanskrit: "निन्दसि यज्ञविधेरहह श्रुतिजातं सदयहृदय दर्शितपशुघातम्।\nकेशव धृतबुद्धशरीर जय जगदीश हरे॥",
+                  transliteration: "nindasi yajñavidherahaha śrutijātaṃ sadayahṛdaya darśitapaśughātam |\nkeśava dhṛtabuddhaśarīra jaya jagadīśa hare ||",
+                  meaningHi: "हृदय में अपार करुणा धारण कर आपने निरपराध पशुओं की हिंसा पर रोक लगाने हेतु अहिंसा, करुणा और अष्टांगिक मार्ग का उपदेश देकर समस्त जीवों के प्रति दया का संचार किया।",
+                  meaningEn: "Moved by supreme compassion for living beings, You descended as the Enlightened Buddha to preach absolute Ahimsa (non-violence), ethical self-restraint, and the cessation of suffering through the Eightfold Noble Path.",
+                  metadata: { yuga: "Kali Yuga", message: "Ahimsa Paramo Dharmah & Karuna", source: "Jayadeva Gita Govinda 9 / Agni Purana" },
+                },
+              },
+              {
+                id: "avatar-10-kalki",
+                parentId: "dashavatara-tattva",
+                type: "leaf",
+                levelLabel: { en: "Avatar 10", hi: "दशम अवतार" },
+                title: { en: "10. Kalki Avatara: The Prophesied Restorer of Satya Yuga", hi: "१०. कल्कि अवतार: कलियुग अंत में अधर्म संहारक भावी अवतार" },
+                shortTitle: { en: "10. Kalki", hi: "१०. कल्कि" },
+                sanskrit: "म्लेच्छनिवहनिधने कलयसि करवालम्",
+                badge: "Kali Yuga End",
+                content: {
+                  sanskrit: "म्लेच्छनिवहनिधने कलयसि करवालं धूमकेतुमिव किमपि करालम्।\nकेशव धृतकल्किशरीर जय जगदीश हरे॥",
+                  transliteration: "mlecchanivahanidhane kalayasi karavālaṃ dhūmaketumiva kimapi karālam |\nkeśava dhṛtakalkiśarīra jaya jagadīśa hare ||",
+                  meaningHi: "कलियुग के चरम पर जब अधर्म अपनी पराकाष्ठा पर होगा, तब शम्भल ग्राम में विष्णुयशा के घर अवतरित होकर आप देवदत्त नामक श्वेत अश्व पर हाथ में चमकती खड्ग लेकर अधर्म का पूर्ण संहार करेंगे और पुनः सत्ययुग की स्थापना करेंगे।",
+                  meaningEn: "Prophesied to appear at the twilight of Kali Yuga in the village of Shambhala, Lord Kalki will mount the white steed Devadatta, wielding a blazing sword like a comet to vanquish corruption and inaugurate the Golden Age (Satya Yuga).",
+                  metadata: { yuga: "End of Kali Yuga -> Inception of Satya Yuga", steed: "Devadatta (White Horse)", sword: "Ratnamaru", source: "Kalki Purana / Bhagavata 12.2" },
                 },
               },
             ],
@@ -5592,13 +6843,14 @@ export const VEDA_HIERARCHY_TREE = [
             id: "samskara-1-garbhadhana",
             parentId: "shodasha-samskara",
             type: "leaf",
-            levelLabel: { en: "Samskara 1", hi: "संस्कार १" },
-            title: { en: "01. Garbhadhana (Conception)", hi: "०१. गर्भाधान संस्कार" },
-            shortTitle: { en: "Garbhadhana", hi: "गर्भाधान" },
+            levelLabel: { en: "Samskara 01", hi: "संस्कार ०१" },
+            title: { en: "01. Garbhadhana (Conception & Invocation of Soul)", hi: "०१. गर्भाधान संस्कार: पवित्र आत्मा का आह्वान" },
+            shortTitle: { en: "01. Garbhadhana", hi: "०१. गर्भाधान" },
             sanskrit: "गर्भाधान संस्कारः",
+            badge: "Samskara 01",
             content: {
               overview: "The primary Vedic ritual performed by husband and wife with sacred prayers to invite a noble, spiritually elevated soul into the mother's womb.",
-              significance: "Transforms the biological act into a sacred spiritual undertaking aligned with universal cosmic laws.",
+              significance: "Transforms biological procreation into a sacred spiritual undertaking aligned with cosmic Dharma and divine evolution.",
               procedure: [
                 "Purification & Sankalpa by both partners",
                 "Invocation of Prajapati, Vishnu, and Savitr for divine protection",
@@ -5607,7 +6859,210 @@ export const VEDA_HIERARCHY_TREE = [
               ],
               materials: ["Cow Ghee", "Sacred Kumkum & Akshat", "Ganga Jal", "Kusha Grass", "Havan Samagri"],
               mantra: "ॐ विष्णुर्योनिं कल्पयतु त्वष्टा रूपाणि पिंशतु। आ सिञ्चतु प्रजापतिर्धाता गर्भं दधातु ते॥",
-              source: "Rigveda 10.184.1 / Ashvalayana Grihya Sutra",
+              source: "Rigveda 10.184.1 / Ashvalayana Grihya Sutra 1.13",
+            },
+          },
+          {
+            id: "samskara-2-pumsavana",
+            parentId: "shodasha-samskara",
+            type: "leaf",
+            levelLabel: { en: "Samskara 02", hi: "संस्कार ०२" },
+            title: { en: "02. Pumsavana (Fetus Health & Divine Vitality)", hi: "०२. पुंसवन संस्कार: गर्भ-स्थिरता एवं प्राण-पुष्टि" },
+            shortTitle: { en: "02. Pumsavana", hi: "०२. पुंसवन" },
+            sanskrit: "पुंसवन संस्कारः",
+            badge: "Samskara 02",
+            content: {
+              overview: "Performed in the third month of pregnancy to strengthen the developing fetus, invoke divine physical vigor, and protect the expectant mother.",
+              significance: "Ensures the child receives noble vitality, strong sensory faculties, and wholesome biological constitution through consecrated herbal oblations.",
+              procedure: [
+                "Morning ritual when the moon is in a masculine constellation (Pushya)",
+                "Administration of sacred banyan sprout essence (Vata-ankura) through the right nostril",
+                "Prayers to Agni and Soma for healthy gestation",
+              ],
+              materials: ["Fresh Vata Shringa (Banyan shoot)", "Curd", "Kusha Grass", "Pure Ghee"],
+              mantra: "ॐ पुमानग्निः पुमानिन्द्रः पुमान् देवो बृहस्पतिः। पुमांसं पुत्रं विन्दस्व तं पुमाननु जायताम्॥",
+              source: "Samaveda Mantra Brahmana 1.4 / Paraskara Grihya Sutra 1.14",
+            },
+          },
+          {
+            id: "samskara-3-simantonnayana",
+            parentId: "shodasha-samskara",
+            type: "leaf",
+            levelLabel: { en: "Samskara 03", hi: "संस्कार ०३" },
+            title: { en: "03. Simantonnayana (Parting of Hair & Maternal Serenity)", hi: "०३. सीमन्तोन्नयन संस्कार: मातृ-चित्त प्रसन्नता एवं शुद्धि" },
+            shortTitle: { en: "03. Simantonnayana", hi: "०३. सीमन्तोन्नयन" },
+            sanskrit: "सीमन्तोन्नयन संस्कारः",
+            badge: "Samskara 03",
+            content: {
+              overview: "Conducted in the fourth, sixth, or eighth month of pregnancy, where the husband gently parts the wife's hair upward with sacred quills and barley grains to bestow mental joy.",
+              significance: "Protects the mother from psychological distress, ensuring an uplifting, aesthetic, and tranquil environment that directly shapes the unborn baby's mind.",
+              procedure: [
+                "Husband gently parts the pregnant wife's hair upwards three times",
+                "Use of a porcupine quill (Shalali) and three clusters of Udumbara fruit",
+                "Singing of auspicious Veena melodies and joyful hymns by matrons",
+              ],
+              materials: ["Porcupine quill", "Udumbara fruit", "Barley sprouts", "Silk garment", "Veena music"],
+              mantra: "ॐ येनादितेः सीमानं नयति प्रजापतिर्महते सौभगाय। तेनाहं सीमानं नयामि प्रजामस्यै जरां नयतु॥",
+              source: "Ashvalayana Grihya Sutra 1.14 / Paraskara Grihya Sutra 1.15",
+            },
+          },
+          {
+            id: "samskara-4-jatakarma",
+            parentId: "shodasha-samskara",
+            type: "leaf",
+            levelLabel: { en: "Samskara 04", hi: "संस्कार ०४" },
+            title: { en: "04. Jatakarma (Childbirth Consecration & Medha Blessing)", hi: "०४. जातकर्म संस्कार: जन्मोत्सव, मेधा एवं दीर्घायु आशीष" },
+            shortTitle: { en: "04. Jatakarma", hi: "०४. जातकर्म" },
+            sanskrit: "जातकर्म संस्कारः",
+            badge: "Samskara 04",
+            content: {
+              overview: "Celebrated immediately upon the birth of the child before the umbilical cord is severed, welcoming the new soul with prayers for intellectual brilliance (Medha) and longevity.",
+              significance: "Awakens the child's digestive and nervous systems while bestowing spiritual wisdom (Ayushya and Medha Janana).",
+              procedure: [
+                "Father whispers the sacred Om into the newborn's right ear",
+                "Touching the child's tongue with a gold rod dipped in pure ghee and honey",
+                "Prayers to Savitr, Saraswati, and the Ashvins for supreme intellect",
+              ],
+              materials: ["Pure Cow Ghee", "Wild Honey", "Clean Gold Probe / Coin", "Kusha water"],
+              mantra: "ॐ मेधां ते देवः सविता मेधां देवी सरस्वती। मेधां ते अश्विनौ देवावाधत्तां पुष्करस्रजौ॥",
+              source: "Ashvalayana Grihya Sutra 1.15 / Brihadaranyaka Upanishad 6.4.24",
+            },
+          },
+          {
+            id: "samskara-5-namakarana",
+            parentId: "shodasha-samskara",
+            type: "leaf",
+            levelLabel: { en: "Samskara 05", hi: "संस्कार ०५" },
+            title: { en: "05. Namakarana (Sacred Naming Ceremony)", hi: "०५. नामकरण संस्कार: नक्षत्र, कुल एवं वैदिक नामकरण" },
+            shortTitle: { en: "05. Namakarana", hi: "०५. नामकरण" },
+            sanskrit: "नामकरण संस्कारः",
+            badge: "Samskara 05",
+            content: {
+              overview: "Performed on the tenth, eleventh, or twelfth day after birth, giving the infant their formal Vedic, Nakshatra, and family names.",
+              significance: "A person's name carries vibrational power (Sabda Brahman) that shapes their self-identity, destiny, and spiritual resonance throughout life.",
+              procedure: [
+                "Purifying Punyahavachana and Matrika Puja after the postpartum period",
+                "Calculating the birth star (Nakshatra) and selecting the four canonical names",
+                "Father gently whispers the chosen name into the child's right ear",
+                "Grandparents and assembled elders bless the child by calling the new name",
+              ],
+              materials: ["Bronze plate filled with uncooked rice", "Honey", "New silk baby garments", "Betel nuts"],
+              mantra: "ॐ अङ्गादङ्गात्संभवसि हृदयादभिजायसे। आत्मा वै पुत्रनामासि स जीव शरदः शतम्॥",
+              source: "Paraskara Grihya Sutra 1.17 / Manusmriti 2.30",
+            },
+          },
+          {
+            id: "samskara-6-nishkramana",
+            parentId: "shodasha-samskara",
+            type: "leaf",
+            levelLabel: { en: "Samskara 06", hi: "संस्कार ०६" },
+            title: { en: "06. Nishkramana (First Outing to Sun & Cosmos)", hi: "०६. निष्क्रमण संस्कार: सूर्य एवं चन्द्रमा का प्रथम दर्शन" },
+            shortTitle: { en: "06. Nishkramana", hi: "०६. निष्क्रमण" },
+            sanskrit: "निष्क्रमण संस्कारः",
+            badge: "Samskara 06",
+            content: {
+              overview: "Conducted in the fourth month of life, marking the child's very first conscious venture outside the home into the vast universe of nature.",
+              significance: "Connects the child to the cosmic elements—Surya (Vital Energy), Chandra (Mind/Coolness), and the open sky—fostering curiosity and cosmic reverence.",
+              procedure: [
+                "Child is bathed and adorned in clean fresh clothes",
+                "Carried outside into the morning sunlight facing the rising Sun",
+                "Prayers offered to Surya Devata for sharp sight and immune vitality",
+                "At night, the infant is gently shown the peaceful crescent Moon",
+              ],
+              materials: ["Conch water", "Fresh flowers", "Sunlight / Moonlight"],
+              mantra: "ॐ तच्चक्षुर्देवहितं पुरस्ताच्छुक्रमुच्चरत्। पश्येम शरदः शतं जीवेम शरदः शतम्॥",
+              source: "Rigveda 7.66.16 / Paraskara Grihya Sutra 1.17.5",
+            },
+          },
+          {
+            id: "samskara-7-annaprashana",
+            parentId: "shodasha-samskara",
+            type: "leaf",
+            levelLabel: { en: "Samskara 07", hi: "संस्कार ०७" },
+            title: { en: "07. Annaprashana (First Sacred Solid Food & Grains)", hi: "०७. अन्नप्राशन संस्कार: प्रथम अन्न-सेवन एवं देह-पोषण" },
+            shortTitle: { en: "07. Annaprashana", hi: "०७. अन्नप्राशन" },
+            sanskrit: "अन्नप्राशन संस्कारः",
+            badge: "Samskara 07",
+            content: {
+              overview: "Celebrated in the sixth month when the child's first teeth emerge, marking the transition from mother's milk to consecrated solid grains.",
+              significance: "Honors Anna (Food as Brahman—'Annam Brahma'). Consecrates the digestive fire (Jatharagni) so nutrition translates into intellect, strength, and longevity.",
+              procedure: [
+                "Cooking of sacred Payasam / Kheer (sweet rice cooked in cow milk and ghee)",
+                "Offering oblations to Agni Devata and Annapurna Devi",
+                "Father or maternal uncle feeds the baby three golden spoonfuls of Kheer",
+                "Testing the child's inclinations by presenting books, tools, gold, and cloth",
+              ],
+              materials: ["Silver / Bronze spoon", "Pure rice payasam", "Ghee & Honey", "Turmeric & Akshat"],
+              mantra: "ॐ अन्नपतेऽन्नस्य नो देह्यनमीवस्य शुष्मिणः। प्र प्र दातारं तारिष ऊर्जं नो धेहि द्विपदे चतुष्पदे॥",
+              source: "Shukla Yajurveda 11.83 / Paraskara Grihya Sutra 1.19",
+            },
+          },
+          {
+            id: "samskara-8-chudakarana",
+            parentId: "shodasha-samskara",
+            type: "leaf",
+            levelLabel: { en: "Samskara 08", hi: "संस्कार ०८" },
+            title: { en: "08. Chudakarana / Mundan (First Head Tonsure)", hi: "०८. चूड़ाकरण / मुण्डन संस्कार: शिखा स्थापन एवं मेधा वृद्धि" },
+            shortTitle: { en: "08. Chudakarana", hi: "०८. चूड़ाकरण" },
+            sanskrit: "चूड़ाकरण संस्कारः (मुण्डनम्)",
+            badge: "Samskara 08",
+            content: {
+              overview: "Performed at the end of the first or third year, shaving the child's birth hair while keeping a sacred tuft (Shikha) at the crown (Brahmarandhra).",
+              significance: "Sheds residual impurities from intrauterine life, cools and stimulates cranial nerves, and establishes the Shikha to protect spiritual energy.",
+              procedure: [
+                "Moistening the child's head with warm water and fresh butter/curd",
+                "Prayers to Varuna and Agni for sharp intellect and protection",
+                "Barber shaves the head leaving the sacred topknot (Shikha)",
+                "Cooling sandalwood paste (Chandan) applied immediately to the scalp",
+              ],
+              materials: ["Silver razor / Clean blade", "Sandalwood paste", "Kusha grass", "Curd & Ghee"],
+              mantra: "ॐ येनावपद्बृहस्पतिः सोमस्य वपुषे शिरः। तेन ते चूडां वपामि दीर्घायुत्वाय वर्चसे॥",
+              source: "Ashvalayana Grihya Sutra 1.17 / Paraskara Grihya Sutra 2.1",
+            },
+          },
+          {
+            id: "samskara-9-karnavedha",
+            parentId: "shodasha-samskara",
+            type: "leaf",
+            levelLabel: { en: "Samskara 09", hi: "संस्कार ०९" },
+            title: { en: "09. Karnavedha (Ear Piercing for Acupressure & Health)", hi: "०९. कर्णवेध संस्कार: श्रवण शक्ति, मेधा एवं स्वास्थ्य रक्षण" },
+            shortTitle: { en: "09. Karnavedha", hi: "०९. कर्णवेध" },
+            sanskrit: "कर्णवेध संस्कारः",
+            badge: "Samskara 09",
+            content: {
+              overview: "Conducted between the sixth month and fifth year, piercing the earlobes with gold or silver needles accompanied by Vedic prayers.",
+              significance: "An ancient Ayurvedic neuro-acupuncture therapy that enhances auditory clarity, stimulates brain meridians, prevents hernias, and improves memory.",
+              procedure: [
+                "Child sits facing the auspicious East on the lap of maternal uncle or father",
+                "Right ear pierced first for male children, left ear first for female children",
+                "Application of soothing oil and insertion of smooth gold/silver wire",
+              ],
+              materials: ["Gold or silver needle", "Mustard / Sesame oil", "Turmeric antiseptic", "Akshat"],
+              mantra: "ॐ भद्रं कर्णेभिः शृणुयाम देवा भद्रं पश्येमाक्षभिर्यजत्राः। स्थिरैरङ्गैस्तुष्टुवांसस्तनूभिर्व्यशेम देवहितं यदायूः॥",
+              source: "Rigveda 1.89.8 / Sushruta Samhita Sharira Sthana 16.1",
+            },
+          },
+          {
+            id: "samskara-10-vidyarambha",
+            parentId: "shodasha-samskara",
+            type: "leaf",
+            levelLabel: { en: "Samskara 10", hi: "संस्कार १०" },
+            title: { en: "10. Vidyarambha / Aksharabhyasa (Learning the Alphabets)", hi: "१०. विद्यारम्भ संस्कार: ॐकार एवं वर्णमाला का प्रथम लेखन" },
+            shortTitle: { en: "10. Vidyarambha", hi: "१०. विद्यारम्भ" },
+            sanskrit: "विद्यारम्भ संस्कारः (अक्षराभ्यासः)",
+            badge: "Samskara 10",
+            content: {
+              overview: "Celebrated around the fifth year on an auspicious day like Vijaya Dashami or Vasant Panchami, formally initiating the child into literacy, reading, and writing.",
+              significance: "Honors Goddess Saraswati and Lord Ganesha; establishes deep reverence for the sacred Sanskrit alphabet (Matrikas) and the eternal cosmic syllable Om.",
+              procedure: [
+                "Invocation of Lord Ganesha, Devi Saraswati, and Guru",
+                "Spreading yellow rice grains on a silver tray",
+                "Guiding the child's index finger with a golden probe to write 'Harih Om' or 'Om Gam Ganapataye Namah'",
+                "Presenting slate, books, and writing tools to the child",
+              ],
+              materials: ["Silver tray with raw rice grains", "Gold ring/probe", "Slate/Pustaka", "Yellow sweets"],
+              mantra: "ॐ सरस्वत्यै नमो नित्यं भद्रकाल्यै नमो नमः। वेदवेदाङ्गवेदान्तविद्यास्थानेभ्य एव च॥",
+              source: "Brihaspati Smriti / Samskara Mayukha",
             },
           },
           {
@@ -5615,12 +7070,13 @@ export const VEDA_HIERARCHY_TREE = [
             parentId: "shodasha-samskara",
             type: "leaf",
             levelLabel: { en: "Samskara 11", hi: "संस्कार ११" },
-            title: { en: "11. Upanayana (Sacred Thread & Vedic Initiation)", hi: "११. उपनयन / यज्ञोपवीत संस्कार" },
-            shortTitle: { en: "Upanayana", hi: "उपनयन" },
+            title: { en: "11. Upanayana (Sacred Thread & Spiritual Initiation)", hi: "११. उपनयन / यज्ञोपवीत संस्कार: द्विजत्व एवं गायत्री दीक्षा" },
+            shortTitle: { en: "11. Upanayana", hi: "११. उपनयन" },
             sanskrit: "उपनयन / यज्ञोपवीत संस्कारः",
+            badge: "Samskara 11",
             content: {
-              overview: "The initiation into studentship and spiritual rebirth (Dvija), where the child is invested with the sacred triple thread (Yajnopavita) and initiated into the Gayatri Mantra by the Guru.",
-              significance: "Awakens the inner intellect, marks the formal commencement of Vedic studies, and instills discipline, vows of truth, and contemplation.",
+              overview: "The second spiritual birth (Dvija), investing the student with the sacred triple thread (Yajnopavita) and initiating them into the Gayatri Mantra under the Guru's guidance.",
+              significance: "Marks entry into Brahmacharya Ashrama (dedicated studenthood), awakening inner discriminative intellect and conferring duties to Devas, Rishis, and Pitrus.",
               procedure: [
                 "Nandi Shraddha and Matrika Puja",
                 "Head tonsure (Chuda) and purifying bath",
@@ -5634,16 +7090,84 @@ export const VEDA_HIERARCHY_TREE = [
             },
           },
           {
+            id: "samskara-12-vedarambha",
+            parentId: "shodasha-samskara",
+            type: "leaf",
+            levelLabel: { en: "Samskara 12", hi: "संस्कार १२" },
+            title: { en: "12. Vedarambha (Commencement of Formal Vedic Study)", hi: "१२. वेदारम्भ संस्कार: चारों वेदों एवं वेदांगों का विधिवत् अध्ययन" },
+            shortTitle: { en: "12. Vedarambha", hi: "१२. वेदारम्भ" },
+            sanskrit: "वेदारम्भ संस्कारः",
+            badge: "Samskara 12",
+            content: {
+              overview: "Following Upanayana, this rite marks the student's formal recitation and memorization of the Samhitas and Vedangas in the Gurukula.",
+              significance: "Instills the solemn discipline of preserving the unwritten shruti tradition with precise phonetics, meters, and philosophical contemplation.",
+              procedure: [
+                "Performance of the Brahmayajna and invocation of the Rishis of each Veda",
+                "Recitation of the first Suktas of Rigveda, Yajurveda, Samaveda, and Atharvaveda",
+                "Student takes the sacred vow of celibacy, truthfulness, and unwavering dedication to the Guru",
+              ],
+              materials: ["Samidha (sacred twigs)", "Ghee", "Kusha seats", "Vedic manuscripts"],
+              mantra: "ॐ ऋतं वदिष्यामि। सत्यं वदिष्यामि। तन्मामवतु। तद्वक्तारमवतु। अवतु माम्। अवतु वक्तारम्॥",
+              source: "Taittiriya Upanishad 1.1 / Shankhayana Grihya Sutra 2.7",
+            },
+          },
+          {
+            id: "samskara-13-keshanta",
+            parentId: "shodasha-samskara",
+            type: "leaf",
+            levelLabel: { en: "Samskara 13", hi: "संस्कार १३" },
+            title: { en: "13. Keshanta / Godana (First Shaving of Beard at Age 16)", hi: "१३. केशान्त / गोदान संस्कार: युवावस्था पदार्पण एवं गोदान" },
+            shortTitle: { en: "13. Keshanta", hi: "१३. केशान्त" },
+            sanskrit: "केशान्त / गोदान संस्कारः",
+            badge: "Samskara 13",
+            content: {
+              overview: "Performed at age 16 when adolescence matures into adulthood, shaving the young man's first beard and offering a dairy cow (Godana) to the Acharya.",
+              significance: "Renews vows of self-control, chastity, and righteous focus as physical maturation reaches adulthood.",
+              procedure: [
+                "Shaving of facial hair and cutting of hair with Vedic mantras identical to Chudakarana",
+                "Student takes a vow of rigorous austerity for one year (Godana-vrata)",
+                "Formal donation of a milch cow to the preceptor",
+              ],
+              materials: ["Razor", "Butter", "Cow for charity", "Guru Dakshina"],
+              mantra: "ॐ यत्क्षुरेण मज्जयता सुपेशसा वप्ता वपसि केशान्। शुद्धेन ते शिरसा वर्चसे नः॥",
+              source: "Paraskara Grihya Sutra 2.1 / Manusmriti 2.65",
+            },
+          },
+          {
+            id: "samskara-14-samavartana",
+            parentId: "shodasha-samskara",
+            type: "leaf",
+            levelLabel: { en: "Samskara 14", hi: "संस्कार १४" },
+            title: { en: "14. Samavartana (Graduation & Return from Gurukula)", hi: "१४. समावर्तन संस्कार: दीक्षांत, स्नातकोत्सव एवं गुरु की अंतिम सीख" },
+            shortTitle: { en: "14. Samavartana", hi: "१४. समावर्तन" },
+            sanskrit: "समावर्तन संस्कारः (स्नानम्)",
+            badge: "Samskara 14",
+            content: {
+              overview: "The sacred convocation and graduation rite when the student completes their education, receives the preceptor's final ethical counsel, and returns home as a Snataka.",
+              significance: "Equips the graduate to live as an upright, cultured citizen in society, enshrining the timeless moral principles of 'Satyam Vada, Dharmam Chara'.",
+              procedure: [
+                "Ceremonial bath with eight consecrated jars of fragrant water (Snana)",
+                "Discarding student robes and donning fine clothes, garland, and shoes",
+                "Guru's historic valedictory address: 'Speak the Truth, Walk in Righteousness, Revere Mother, Father, and Teacher as Divine'",
+                "Offering final Guru Dakshina",
+              ],
+              materials: ["Fragrant waters", "Chandan", "Fine two-piece garment", "Umbrella and staff"],
+              mantra: "ॐ सत्यं वद। धर्मं चर। स्वाध्यायान्मा प्रमदः। मातृदेवो भव। पितृदेवो भव। आचार्यदेवो भव॥",
+              source: "Taittiriya Upanishad (Shiksha Valli 1.11) / Paraskara Grihya Sutra 2.6",
+            },
+          },
+          {
             id: "samskara-15-vivaha",
-            parentId: "dharma-jeevan",
+            parentId: "shodasha-samskara",
             type: "leaf",
             levelLabel: { en: "Samskara 15", hi: "संस्कार १५" },
-            title: { en: "15. Vivaha (Sacred Marriage Samskara)", hi: "१५. विवाह संस्कार (सप्तपदी)" },
-            shortTitle: { en: "Vivaha", hi: "विवाह" },
+            title: { en: "15. Vivaha (Sacred Matrimony & Saptapadi)", hi: "१५. विवाह संस्कार: सप्तपदी एवं गृहस्थाश्रम प्रवेश" },
+            shortTitle: { en: "15. Vivaha", hi: "१५. विवाह" },
             sanskrit: "विवाह संस्कारः (सप्तपदी)",
+            badge: "Samskara 15",
             content: {
-              overview: "The sacred union of two souls entering Grihastha Ashrama before Agni (Sacred Fire), binding them in joint pursuit of Dharma, Artha, Kama, and Moksha.",
-              significance: "The foundation of family, society, and sacrificial duties; marriage in Sanatana Dharma is an indissoluble spiritual covenant.",
+              overview: "The holy union of bride and groom before Agni Devata, embarking together on the noble path of Grihastha Ashrama to fulfill Dharma, Artha, Kama, and Moksha.",
+              significance: "An indissoluble spiritual partnership where two lives merge into one sacred flame for mutual spiritual elevation, family welfare, and universal sacrifice.",
               procedure: [
                 "Kanyadana (giving of the bride's hand with pure devotion)",
                 "Panigrahana (holding of hands signifying eternal companionship)",
@@ -5654,7 +7178,31 @@ export const VEDA_HIERARCHY_TREE = [
               ],
               materials: ["Sacred Fire Kund", "Ghee", "Puffed Rice (Laja)", "Turmeric, Akshat, Kumkum", "Silk Vastra", "Coconuts"],
               mantra: "ॐ सखा सप्तपदा भव सख्यं ते गमेयम्। सख्यं ते मा योषाः सख्यं ते मा योष्ठ्याः॥",
-              source: "Rigveda 10.85 (Surya Vivaha Sukta) / Paraskara Grihya Sutra",
+              source: "Rigveda 10.85 (Surya Vivaha Sukta) / Paraskara Grihya Sutra 1.4-8",
+            },
+          },
+          {
+            id: "samskara-16-antyeshti",
+            parentId: "shodasha-samskara",
+            type: "leaf",
+            levelLabel: { en: "Samskara 16", hi: "संस्कार १६" },
+            title: { en: "16. Antyeshti (Final Sacrificial Transition & Cremation)", hi: "१६. अन्त्येष्टि संस्कार: अन्तिम यज्ञ, पंचतत्त्व विलीनीकरण एवं सद्गति" },
+            shortTitle: { en: "16. Antyeshti", hi: "१६. अन्त्येष्टि" },
+            sanskrit: "अन्त्येष्टि संस्कारः (अन्तिम यज्ञः)",
+            badge: "Samskara 16",
+            content: {
+              overview: "The sixteenth and final Vedic sacrifice where the mortal body is surrendered to consecrated Agni, dissolving into the five cosmic elements (Panchamahabhuta) while the immortal Atman journeys onward.",
+              significance: "Concludes the soul's earthly journey with ultimate detachment, praying for peace in the ancestral realms (Pitru Loka) and ultimate Moksha.",
+              procedure: [
+                "Bathing the departed body with holy Ganga water and chanting Vedic hymns",
+                "Placement on the pyre with sacred Kusha grass facing North",
+                "Kapala Kriya and lighting of the sacred flame with Vedic oblations to Kravyada Agni",
+                "Recitation of the Rigvedic burial/cremation hymns praying for the soul's ascent to light",
+                "Subsequent Shraddha and Tarpana offerings of water and sesame for 10-13 days",
+              ],
+              materials: ["Ganga Jal", "Tulasi leaves", "Kusha grass", "Sesame seeds (Tila)", "Sandalwood & Camphor"],
+              mantra: "ॐ सूर्याच्चक्षुर्गच्छतु वातमात्मा द्यां च गच्छ पृथिवीं च धर्मणा। अपो वा गच्छ यदि तत्र ते हितमोषधीषु प्रति तिष्ठा शरीरैः॥",
+              source: "Rigveda 10.16.3 (Antyeshti Sukta) / Paraskara Grihya Sutra 3.10",
             },
           },
         ],

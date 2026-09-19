@@ -67,7 +67,8 @@ const LibraryPage = () => {
   useEffect(() => {
     const handleOpenTree = () => navigate("/library/tree");
     window.addEventListener("open-library-tree-modal", handleOpenTree);
-    return () => window.removeEventListener("open-library-tree-modal", handleOpenTree);
+    return () =>
+      window.removeEventListener("open-library-tree-modal", handleOpenTree);
   }, [navigate]);
 
   // Backward compatibility: map category query to node
@@ -131,10 +132,18 @@ const LibraryPage = () => {
               type="button"
               onClick={() => handleSelectNode(null)}
               className="cursor-pointer inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-[13px] font-bold text-[#8b5e15] hover:bg-[#faf4e6] hover:text-[#c88918] transition"
-              title={isHindi ? "मुख्य ज्ञान श्रेणियों पर वापस जाएँ" : "Return to all knowledge categories"}
+              title={
+                isHindi
+                  ? "मुख्य ज्ञान श्रेणियों पर वापस जाएँ"
+                  : "Return to all knowledge categories"
+              }
             >
               <BookOpen size={16} className="text-[#c88918]" />
-              <span>{isHindi ? "सनातन ज्ञानकोष (मुख्य सूची)" : "Veda Library (Main)"}</span>
+              <span>
+                {isHindi
+                  ? "सनातन ज्ञानकोष (मुख्य सूची)"
+                  : "Veda Library (Main)"}
+              </span>
             </button>
 
             <div className="flex items-center gap-2">
@@ -154,7 +163,9 @@ const LibraryPage = () => {
         </div>
       )}
 
-      <div className={`mx-auto max-w-[1280px] px-4 sm:px-8 ${currentNode ? "mt-5" : "mt-8"}`}>
+      <div
+        className={`mx-auto max-w-[1280px] px-4 sm:px-8 ${currentNode ? "mt-5" : "mt-8"}`}
+      >
         {/* HIERARCHICAL TREE BANNER (Rendered on root overview) */}
         {!currentNode && (
           <section className="mb-8 rounded-3xl border-2 border-[#ebd8b8] bg-gradient-to-r from-[#fbf4e5] via-[#fffdf9] to-[#faf2df] p-6 sm:p-8 shadow-[0_8px_30px_rgba(90,65,25,0.06)]">
@@ -170,7 +181,9 @@ const LibraryPage = () => {
                     <span className="font-serif">सम्पूर्ण वैदिक शाखाएँ</span>
                   </div>
                   <h2 className="font-serif text-[22px] sm:text-[26px] font-bold text-[#2b241d] mt-0.5">
-                    {isHindi ? "वैदिक ज्ञान-वृक्ष अन्वेषण" : "Explore Interactive Tree"}
+                    {isHindi
+                      ? "वैदिक ज्ञान-वृक्ष अन्वेषण"
+                      : "Explore Interactive Tree"}
                   </h2>
                   <p className="text-[13px] sm:text-[14px] text-[#6d5b48] mt-1 max-w-[620px]">
                     {isHindi
@@ -186,7 +199,11 @@ const LibraryPage = () => {
                 className="cursor-pointer inline-flex items-center justify-center gap-2 self-start md:self-auto rounded-full bg-[#c88918] px-6 py-3 font-serif text-[14px] font-bold text-white shadow-md hover:bg-[#b07817] hover:shadow-lg transition-all"
               >
                 <Network size={16} />
-                <span>{isHindi ? "ज्ञान-वृक्ष खोलें (Open Tree View)" : "Open Tree View"}</span>
+                <span>
+                  {isHindi
+                    ? "ज्ञान-वृक्ष खोलें (Open Tree View)"
+                    : "Open Tree View"}
+                </span>
                 <ArrowRight size={14} />
               </button>
             </div>
@@ -225,7 +242,9 @@ const LibraryPage = () => {
               >
                 <span
                   className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
-                    isSelected ? "bg-white/25 text-white" : "bg-[#f4e6ca] text-[#8e651e]"
+                    isSelected
+                      ? "bg-white/25 text-white"
+                      : "bg-[#f4e6ca] text-[#8e651e]"
                   }`}
                 >
                   {cat.number}
@@ -274,7 +293,9 @@ const LibraryPage = () => {
                 {isHindi ? "सनातन ज्ञानकोष" : "Authentic Vedic Architecture"}
               </span>
               <h2 className="font-serif text-[28px] sm:text-[36px] font-bold text-[#2b241d] mt-3">
-                {isHindi ? "ज्ञान क्षेत्र चुनें और विस्तार देखें" : "Explore Sacred Knowledge Areas"}
+                {isHindi
+                  ? "ज्ञान क्षेत्र चुनें और विस्तार देखें"
+                  : "Explore Sacred Knowledge Areas"}
               </h2>
               <p className="text-[14px] sm:text-[15px] text-[#6d5b48] mt-2">
                 {isHindi
@@ -296,8 +317,8 @@ const LibraryPage = () => {
                   >
                     <div>
                       {/* Card Image Banner with Sacred Overlay (Square-Type Proportional Height) */}
-                      <div className="relative aspect-square max-h-[240px] sm:max-h-[265px] w-full overflow-hidden bg-[#faf2e3] border-b border-[#ebdcc4]">
-                        {(category.cardImage || category.image) ? (
+                      <div className="relative aspect-square max-h-[190px] sm:max-h-[215px] w-full overflow-hidden bg-[#faf2e3] border-b border-[#ebdcc4]">
+                        {category.cardImage || category.image ? (
                           <img
                             src={category.cardImage || category.image}
                             alt={category.title?.en}
@@ -344,12 +365,15 @@ const LibraryPage = () => {
                                 key={sub.id}
                                 className="rounded-md border border-[#ebd2a0] bg-[#fbf5e7] px-1.5 py-0.5 text-[9.5px] font-medium text-[#7d4808]"
                               >
-                                {isHindi ? sub.shortTitle?.hi : sub.shortTitle?.en}
+                                {isHindi
+                                  ? sub.shortTitle?.hi
+                                  : sub.shortTitle?.en}
                               </span>
                             ))}
                             {category.children.length > 4 && (
                               <span className="rounded-md border border-[#ebd2a0] bg-[#fbf5e7] px-1.5 py-0.5 text-[9px] font-bold text-[#986411]">
-                                +{category.children.length - 4} {isHindi ? "अन्य" : "more"}
+                                +{category.children.length - 4}{" "}
+                                {isHindi ? "अन्य" : "more"}
                               </span>
                             )}
                           </div>
@@ -361,7 +385,9 @@ const LibraryPage = () => {
                     <div className="p-3 sm:p-3.5 pt-0">
                       <div className="flex items-center justify-between border-t border-[#ebdcc4]/60 pt-2">
                         <span className="text-[11px] font-bold text-[#867563] group-hover:text-[#c88918] transition-colors">
-                          {isHindi ? "ग्रंथ एवं अध्याय देखें" : "Explore Scriptures & Chapters"}
+                          {isHindi
+                            ? "ग्रंथ एवं अध्याय देखें"
+                            : "Explore Scriptures & Chapters"}
                         </span>
                         <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#fbf5e7] text-[#986411] transition-all group-hover:translate-x-1 group-hover:bg-[#c88918] group-hover:text-white">
                           <ArrowRight size={11} />
