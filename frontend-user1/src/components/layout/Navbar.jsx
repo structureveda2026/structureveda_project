@@ -1,10 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Search, Heart, Menu, X, ChevronDown, ArrowRight, User } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Search, Heart, Menu, X, ChevronDown, ArrowRight, User, Network } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { logoutUser } from "../../features/auth/authSlice";
 import { useToast } from "../ui/toastContext";
-import { LibraryMegaMenu } from "../../library";
 
 // Featured astrologers for navbar dropdown
 const NAVBAR_ASTROLOGERS = [
@@ -24,12 +23,13 @@ const YAGYA_PUJA_NAV_ITEMS = [
 
 // Veda Library nav items
 const VEDA_LIBRARY_NAV_ITEMS = [
-  { label: "01. Vedic Knowledge", path: "/library?category=vedic-knowledge" },
-  { label: "02. Shastra & Darshana", path: "/library?category=shastra-darshana" },
-  { label: "03. Itihasa & Purana", path: "/library?category=itihasa-purana" },
-  { label: "04. Dharma & Jeevan", path: "/library?category=dharma-jeevan" },
-  { label: "05. Puja & Anushthana", path: "/library?category=puja-anushthana" },
+  { label: "01. Vedic Knowledge (Vedas & Vedanga)", path: "/library?node=vedic-knowledge" },
+  { label: "02. Shastra & Darshana (Six Systems)", path: "/library?node=shastra-darshana" },
+  { label: "03. Itihasa & Purana (Ramayana & Mahabharata)", path: "/library?node=itihasa-purana" },
+  { label: "04. Dharma & Jeevan (16 Samskaras)", path: "/library?node=dharma-jeevan" },
+  { label: "05. Puja & Anushthana (Sacred Rites)", path: "/library?node=puja-anushthana" },
 ];
+
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -45,9 +45,21 @@ const Navbar = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { showToast } = useToast();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const displayName = user?.fullName || user?.name || user?.email || "Account";
+
+  const handleOpenTreeView = () => {
+    setIsLibraryDropdownOpen(false);
+    setIsMenuOpen(false);
+    setIsMobileLibraryOpen(false);
+    if (location.pathname === "/library") {
+      window.dispatchEvent(new CustomEvent("open-library-tree-modal"));
+    } else {
+      navigate("/library?view=tree");
+    }
+  };
 
   // Close dropdowns on click outside
   useEffect(() => {
@@ -241,7 +253,7 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Veda Library Mega Dropdown */}
+          {/* Veda Library Dropdown — Matches Yagya & Puja styling while keeping Open Tree View */}
           <div
             className="relative"
             onMouseEnter={() => setIsLibraryDropdownOpen(true)}
@@ -261,7 +273,68 @@ const Navbar = () => {
             </Link>
 
             {isLibraryDropdownOpen && (
-              <LibraryMegaMenu onClose={() => setIsLibraryDropdownOpen(false)} />
+              <div className="absolute left-0 top-full z-50 pt-2 w-[285px]">
+                <div className="overflow-hidden rounded-xl border border-[#e3ca97] bg-[#fffdf9] shadow-[0_12px_32px_rgba(80,60,30,0.12)] animate-in fade-in slide-in-from-top-2 duration-200">
+                  {/* Header */}
+                  <div className="flex items-center justify-between border-b border-[#eee1ca] bg-[#faf6ed] px-4 py-2.5">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#c88918]">
+                      VEDA LIBRARY
+                    </p>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleOpenTreeView();
+                      }}
+                      className="inline-flex items-center gap-1 rounded-md border border-[#e2cca4] bg-[#fffcf5] px-2 py-0.5 text-[10px] font-bold text-[#986411] transition hover:bg-[#c88918] hover:text-white cursor-pointer shadow-2xs"
+                      title="सम्पूर्ण वैदिक ज्ञान-वृक्ष खोलें"
+                    >
+                      <Network size={11} />
+                      <span>वृक्ष व्यू</span>
+                    </button>
+                  </div>
+
+                  {/* Links List */}
+                  <div className="py-1">
+                    {VEDA_LIBRARY_NAV_ITEMS.map((item) => (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        onClick={() => setIsLibraryDropdownOpen(false)}
+                        className="group flex w-full items-center justify-between px-4 py-2.5 text-left transition-colors hover:bg-[#faf6ed]"
+                      >
+                        <span className="text-[13px] font-medium text-[#2b241d] transition-colors group-hover:text-[#c88918]">
+                          {item.label}
+                        </span>
+                        <ArrowRight
+                          size={14}
+                          className="text-[#8a7c6b] opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100 group-hover:text-[#c88918]"
+                        />
+                      </Link>
+                    ))}
+                  </div>
+
+                  {/* Bottom Actions: Open Tree Modal & Explore All */}
+                  <div className="border-t border-[#eee1ca] bg-[#fbf7ee] p-2 space-y-1.5">
+                    <button
+                      type="button"
+                      onClick={handleOpenTreeView}
+                      className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-[#ebd2a0] bg-white py-1.5 text-[11.5px] font-bold text-[#986411] transition hover:bg-[#faf1e0] cursor-pointer shadow-2xs"
+                    >
+                      <Network size={13} />
+                      <span>Open Interactive Tree View (वृक्ष व्यू)</span>
+                    </button>
+                    <Link
+                      to="/library"
+                      onClick={() => setIsLibraryDropdownOpen(false)}
+                      className="flex w-full items-center justify-center rounded-lg bg-[#c88918] py-1.5 text-[11.5px] font-bold text-white transition hover:bg-[#b57a15] shadow-2xs"
+                    >
+                      Explore Entire Veda Library
+                    </Link>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </nav>
@@ -498,13 +571,21 @@ const Navbar = () => {
                       <ArrowRight size={14} className="text-[#8a7c6b]" />
                     </Link>
                   ))}
+                  <button
+                    type="button"
+                    onClick={handleOpenTreeView}
+                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#ebd2a0] bg-[#fffbf4] py-2 text-[12px] font-bold text-[#986411] shadow-2xs hover:bg-[#faebd1] transition cursor-pointer"
+                  >
+                    <Network size={14} />
+                    <span>Open Interactive Tree View (वृक्ष व्यू)</span>
+                  </button>
                   <Link
                     to="/library"
                     onClick={() => {
                       setIsMobileLibraryOpen(false);
                       setIsMenuOpen(false);
                     }}
-                    className="flex w-full items-center justify-center rounded-lg bg-[#c88918] py-2 text-[12px] font-bold text-white shadow-xs"
+                    className="flex w-full items-center justify-center rounded-lg bg-[#c88918] py-2 text-[12px] font-bold text-white shadow-xs hover:bg-[#b57a15] transition"
                   >
                     Explore Entire Veda Library
                   </Link>
