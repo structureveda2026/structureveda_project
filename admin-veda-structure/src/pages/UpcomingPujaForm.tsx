@@ -259,7 +259,7 @@ export default function UpcomingPujaForm() {
     };
 
     loadData();
-  }, [id, isEdit, toast]);
+  }, [id, isEdit]);
 
   // Auto-slug when name changes unless manually edited
   const handleNameChange = (newName: string) => {
@@ -1158,7 +1158,7 @@ export default function UpcomingPujaForm() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                   {form.galleryImages.map((imgUrl, idx) => (
                     <div
-                      key={idx}
+                      key={`${imgUrl}-${idx}`}
                       className="relative aspect-square rounded-xl overflow-hidden border border-cream-200 bg-charcoal-900 group shadow-sm"
                     >
                       <img
@@ -1169,7 +1169,7 @@ export default function UpcomingPujaForm() {
                       <div className="absolute inset-0 bg-charcoal-950/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-1.5 p-2">
                         <button
                           type="button"
-                          onClick={() => handleRemoveGalleryImage(idx)}
+                          onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleRemoveGalleryImage(idx); }}
                           className="w-8 h-8 rounded-full bg-red-600/90 text-white flex items-center justify-center hover:bg-red-700 transition shadow"
                           title="Remove image"
                         >

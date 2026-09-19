@@ -151,7 +151,7 @@ export default function UpcomingPujas() {
     } finally {
       setLoading(false);
     }
-  }, [search, status, category, occasion, featured, sortIndex, toast]);
+  }, [search, status, category, occasion, featured, sortIndex]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
