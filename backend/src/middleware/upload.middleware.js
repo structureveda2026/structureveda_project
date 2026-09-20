@@ -1,7 +1,7 @@
 import multer from "multer";
 import path from "path";
 
-export const MAX_IMAGE_SIZE_MB = 5;
+export const MAX_IMAGE_SIZE_MB = 10;
 export const MAX_FILE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
 
 const ALLOWED_MIME_TYPES = new Set([
@@ -11,12 +11,7 @@ const ALLOWED_MIME_TYPES = new Set([
   "image/webp",
 ]);
 
-const ALLOWED_EXTENSIONS = new Set([
-  ".jpg",
-  ".jpeg",
-  ".png",
-  ".webp",
-]);
+const ALLOWED_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 
 const storage = multer.memoryStorage();
 
@@ -25,10 +20,7 @@ const fileFilter = (req, file, cb) => {
   const mime = (file.mimetype || "").toLowerCase();
 
   if (!ALLOWED_EXTENSIONS.has(ext) || !ALLOWED_MIME_TYPES.has(mime)) {
-    return cb(
-      new Error("Only JPG, PNG and WEBP images are supported."),
-      false
-    );
+    return cb(new Error("Only JPG, PNG and WEBP images are supported."), false);
   }
 
   cb(null, true);
