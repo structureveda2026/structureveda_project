@@ -1,5 +1,6 @@
 import { MapPin, Sparkles, ArrowRight, Clock, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
+import defaultPujaImg from "../../../assets/images/puja-kashi.jpg";
 
 const PujaServiceCard = ({ service }) => {
   if (!service) return null;
@@ -12,8 +13,12 @@ const PujaServiceCard = ({ service }) => {
       {/* ── Image ── */}
       <div className="relative w-full overflow-hidden bg-[#1f1510]" style={{ aspectRatio: "4/3" }}>
         <img
-          src={service.image}
+          src={service.image || service.bannerImage || defaultPujaImg}
           alt={service.name}
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = defaultPujaImg;
+          }}
           className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.03]"
           loading="lazy"
         />

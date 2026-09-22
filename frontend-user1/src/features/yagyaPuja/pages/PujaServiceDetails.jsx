@@ -15,15 +15,14 @@ import {
   UserCheck,
   Video,
   Sun,
-  Heart,
   ScrollText,
   BookOpen,
   Flame,
 } from "lucide-react";
 import {
-  getPujaCatalogueBySlug,
-  PUJA_CATALOGUE_LIST,
-} from "../data/pujaCatalogueData";
+  getServiceFallbackImage,
+} from "../../../services/pujaCatalogueService";
+import pujaCatalogueService from "../../../services/pujaCatalogueService";
 import PujaServiceCard from "../components/PujaServiceCard";
 import defaultAboutImage from "../../../assets/images/puja_about.png";
 
@@ -31,23 +30,58 @@ const INSIGHT_ICONS = [ScrollText, Sparkles, BookOpen, Flame, Sun, ShieldCheck];
 
 const PujaServiceDetails = () => {
   const { slug } = useParams();
-  const service =
-    getPujaCatalogueBySlug(slug) ||
-    PUJA_CATALOGUE_LIST.find((p) => p.slug === slug) ||
-    PUJA_CATALOGUE_LIST[0];
+  const [service, setService] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [relatedServices, setRelatedServices] = useState([]);
 
-  // Gallery slider
+  const fallbackImg = getServiceFallbackImage(slug);
   const images =
     Array.isArray(service?.images) && service.images.length > 0
       ? service.images
-      : [service?.image].filter(Boolean);
+      : (Array.isArray(service?.galleryImages) && service.galleryImages.length > 0
+          ? [service.bannerImage || service.image || fallbackImg, ...service.galleryImages]
+          : [service?.bannerImage || service?.image || fallbackImg].filter(Boolean));
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
 
   useEffect(() => {
+    let isMounted = true;
     window.scrollTo({ top: 0, behavior: "smooth" });
-    setCurrentSlide(0);
+
+    pujaCatalogueService
+      .getPujaServiceBySlug(slug)
+      .then((data) => {
+        if (isMounted) {
+          setService(data);
+          setCurrentSlide(0);
+          setLoading(false);
+          setError(null);
+        }
+      })
+      .catch((err) => {
+        if (isMounted) {
+          console.error("Error loading puja details:", err);
+          setError("Failed to load service details. Please try again.");
+          setLoading(false);
+        }
+      });
+
+    pujaCatalogueService
+      .getPujaServices({ limit: 4 })
+      .then((res) => {
+        if (isMounted && res.services) {
+          setRelatedServices(res.services.filter((p) => p.slug !== slug).slice(0, 3));
+        }
+      })
+      .catch((err) => {
+        console.warn("Could not load related services:", err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, [slug]);
 
   const handlePrevSlide = (e) => {
@@ -67,9 +101,49 @@ const PujaServiceDetails = () => {
     }
   };
 
-  const relatedServices = PUJA_CATALOGUE_LIST.filter(
-    (p) => p.slug !== service?.slug
-  ).slice(0, 3);
+  if (loading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center p-6 text-center bg-[#fffaf0]">
+        <div className="space-y-4">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#f8edd8] text-[#c77722] animate-spin">
+            <Sparkles size={22} />
+          </div>
+          <h3 className="font-serif text-[20px] font-semibold text-[#2b241d]">
+            Loading Sacred Puja Ceremony...
+          </h3>
+          <p className="text-[13.5px] text-[#75695c]">Retrieving verified Vedic ritual details.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center p-6 text-center bg-[#fffaf0]">
+        <div className="max-w-[450px]">
+          <h2 className="font-serif text-[24px] font-bold text-[#2b241d]">
+            Unable to Load Service Details
+          </h2>
+          <p className="mt-2 text-[14px] text-[#685c4f]">{error}</p>
+          <div className="mt-5 flex items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="rounded-full bg-[#eab12c] px-6 py-2.5 text-[13px] font-bold text-[#1c1308] hover:bg-[#dda018] cursor-pointer"
+            >
+              Retry
+            </button>
+            <Link
+              to="/yagya-puja/puja"
+              className="rounded-full border border-[#ebdcc4] bg-white px-6 py-2.5 text-[13px] font-bold text-[#5c4e3f] hover:bg-[#faf4e8]"
+            >
+              Browse Catalogue
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!service) {
     return (
@@ -127,8 +201,12 @@ const PujaServiceDetails = () => {
               <div className="group relative overflow-hidden rounded-[26px] sm:rounded-[30px] border-2 border-[#e6caa0] bg-[#fffdfa] p-2 shadow-[0_16px_45px_rgba(80,60,30,0.08)] transition-all duration-500 hover:border-[#d4872b]/70">
                 <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[20px] sm:rounded-[24px] bg-[#241a12]">
                   <img
-                    src={images[currentSlide] || service.image}
+                    src={images[currentSlide] || service.image || fallbackImg}
                     alt={`${service.name} - slide ${currentSlide + 1}`}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = fallbackImg;
+                    }}
                     className="h-full w-full object-cover object-center transition-all duration-500"
                     loading="eager"
                   />
@@ -500,7 +578,7 @@ const PujaServiceDetails = () => {
                   <div>
                     <div className="flex items-center justify-between">
                       <span className="font-serif text-[26px] font-bold text-[#d4872b]">
-                        {step.step}
+                        {step.step || (step.stepNumber ? String(step.stepNumber).padStart(2, "0") : `0${idx + 1}`)}
                       </span>
                       <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#f8edd8] text-[#b36c1e]">
                         <CheckCircle2 size={16} />
@@ -514,7 +592,7 @@ const PujaServiceDetails = () => {
                     </p>
                   </div>
                   <div className="mt-6 border-t border-[#ead8b8] pt-3 text-[11px] font-bold uppercase tracking-wider text-[#b36c1e]">
-                    Phase 0{idx + 1} of 04
+                    Phase {String(idx + 1).padStart(2, "0")} of {String(service.procedureSteps.length).padStart(2, "0")}
                   </div>
                 </div>
               ))}

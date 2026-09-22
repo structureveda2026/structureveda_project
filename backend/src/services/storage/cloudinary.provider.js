@@ -1,3 +1,4 @@
+import { Readable } from "stream";
 import { StorageProvider } from "./storage.interface.js";
 import { getCloudinaryClient, isCloudinaryConfigured } from "../../config/cloudinary.config.js";
 
@@ -24,31 +25,48 @@ export class CloudinaryStorageProvider extends StorageProvider {
 
     const cloudinary = getCloudinaryClient();
     const folder = options.folder || "veda-structure/uploads";
-    const mime = file.mimetype || "image/jpeg";
-    const dataUri = `data:${mime};base64,${file.buffer.toString("base64")}`;
 
-    try {
-      const result = await cloudinary.uploader.upload(dataUri, {
-        folder,
-        resource_type: "image",
-        use_filename: true,
-        unique_filename: true,
-        overwrite: false,
-        timeout: 60000,
+    return new Promise((resolve, reject) => {
+      let settled = false;
+
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder,
+          resource_type: "image",
+          use_filename: true,
+          unique_filename: true,
+          overwrite: false,
+          timeout: 120000,
+        },
+        (error, result) => {
+          if (settled) return;
+          settled = true;
+
+          if (error) {
+            console.error("Cloudinary upload error:", error.message || error);
+            return reject(new Error("Image upload failed. Please try again."));
+          }
+
+          resolve({
+            url: result.secure_url,
+            publicId: result.public_id,
+            width: result.width,
+            height: result.height,
+            format: result.format,
+            bytes: result.bytes,
+          });
+        }
+      );
+
+      uploadStream.on("error", (streamErr) => {
+        if (settled) return;
+        settled = true;
+        console.error("Cloudinary stream error:", streamErr.message || streamErr);
+        reject(new Error("Image upload failed. Please try again."));
       });
 
-      return {
-        url: result.secure_url,
-        publicId: result.public_id,
-        width: result.width,
-        height: result.height,
-        format: result.format,
-        bytes: result.bytes,
-      };
-    } catch (error) {
-      console.error("Cloudinary upload error:", error.message || error);
-      throw new Error("Image upload failed. Please try again.");
-    }
+      Readable.from(file.buffer).pipe(uploadStream);
+    });
   }
 
   /**

@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   ShieldCheck,
   Heart,
@@ -42,10 +43,23 @@ const ICON_MAP = {
   Compass: Compass,
 };
 
-const PujaPurposeDiscovery = ({ selectedPurpose, onSelectPurpose }) => {
-  const handlePurposeClick = (categoryName) => {
+const PujaPurposeDiscovery = ({ selectedPurpose, onSelectPurpose, purposes = [] }) => {
+  const purposeCategories = useMemo(() => {
+    if (Array.isArray(purposes) && purposes.length > 0) {
+      return purposes.map((p) => ({
+        id: p.id || p.slug,
+        slug: p.slug,
+        categoryName: p.name,
+        description: p.description || "Sacred Pujas dedicated to this auspicious devotional intention.",
+        iconName: p.iconName || "Sparkles",
+      }));
+    }
+    return PUJA_PURPOSE_CATEGORIES;
+  }, [purposes]);
+
+  const handlePurposeClick = (category) => {
     if (onSelectPurpose) {
-      onSelectPurpose(categoryName);
+      onSelectPurpose(category.slug || category.categoryName);
     }
     const el = document.getElementById("puja-catalogue");
     if (el) {
@@ -96,9 +110,9 @@ const PujaPurposeDiscovery = ({ selectedPurpose, onSelectPurpose }) => {
 
         {/* ── 3-Column Purpose Grid ── */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-5">
-          {PUJA_PURPOSE_CATEGORIES.map((category, idx) => {
+          {purposeCategories.map((category, idx) => {
             const Icon = ICON_MAP[category.iconName] || Sparkles;
-            const isSelected = selectedPurpose === category.categoryName;
+            const isSelected = selectedPurpose === category.categoryName || selectedPurpose === category.slug;
             const num = String(idx + 1).padStart(2, "0");
             const thumb = PURPOSE_IMAGE_MAP[category.categoryName] ?? {
               src: pujaSacredDetailsImg,
@@ -109,7 +123,7 @@ const PujaPurposeDiscovery = ({ selectedPurpose, onSelectPurpose }) => {
               <button
                 type="button"
                 key={category.id}
-                onClick={() => handlePurposeClick(category.categoryName)}
+                onClick={() => handlePurposeClick(category)}
                 aria-pressed={isSelected}
                 aria-label={`Select purpose: ${category.categoryName}`}
                 className={`group flex h-full w-full cursor-pointer flex-col rounded-[16px] border p-5 text-left shadow-[0_3px_14px_rgba(60,40,15,0.06)] transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c77722] sm:p-6 ${
