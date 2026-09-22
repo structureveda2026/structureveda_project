@@ -7,6 +7,7 @@ import PujaPackage from "./pujaPackageModel.js";
 import PujaBooking from "./pujaBookingModel.js";
 import PujaPurpose from "./pujaPurposeModel.js";
 import PujaService from "./pujaServiceModel.js";
+import BlogPost from "./blogPostModel.js";
 
 // Existing Associations (Astrologer Consultations)
 User.hasMany(Booking, {
@@ -81,6 +82,7 @@ const db = {
   PujaBooking,
   PujaPurpose,
   PujaService,
+  BlogPost,
 };
 
 export {
@@ -92,5 +94,6 @@ export {
   PujaBooking,
   PujaPurpose,
   PujaService,
+  BlogPost,
 };
 export default db;
