@@ -27,6 +27,9 @@ import Consultations from "@/pages/Consultations";
 import UpcomingPujas from "@/pages/UpcomingPujas";
 import UpcomingPujaForm from "@/pages/UpcomingPujaForm";
 import UpcomingPujaDetail from "@/pages/UpcomingPujaDetail";
+import PujaServices from "@/pages/PujaServices";
+import PujaServiceForm from "@/pages/PujaServiceForm";
+import PujaServiceDetail from "@/pages/PujaServiceDetail";
 import ConsultationDetail from "@/pages/ConsultationDetail";
 
 export default function App() {
@@ -50,7 +53,7 @@ export default function App() {
               {/* <Route path="courses" element={<Courses />} />
               <Route path="courses/new" element={<ProductForm />} />
               <Route path="courses/:id/edit" element={<ProductForm />} /> */}
-              <Route path="upcoming-pujas" element={<UpcomingPujas />} />
+                            <Route path="upcoming-pujas" element={<UpcomingPujas />} />
               <Route path="upcoming-pujas/new" element={<UpcomingPujaForm />} />
               <Route
                 path="upcoming-pujas/:id"
@@ -60,6 +63,10 @@ export default function App() {
                 path="upcoming-pujas/:id/edit"
                 element={<UpcomingPujaForm />}
               />
+              <Route path="puja-services" element={<PujaServices />} />
+              <Route path="puja-services/new" element={<PujaServiceForm />} />
+              <Route path="puja-services/:id" element={<PujaServiceDetail />} />
+              <Route path="puja-services/:id/edit" element={<PujaServiceForm />} />
               {/* <Route path="bookings" element={<Bookings />} />
               <Route path="bookings/:id" element={<BookingDetail />} />
               <Route path="consultations" element={<Consultations />} />
