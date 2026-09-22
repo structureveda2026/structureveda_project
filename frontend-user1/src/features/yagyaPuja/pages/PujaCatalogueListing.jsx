@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { PUJA_CATALOGUE_LIST } from "../data/pujaCatalogueData";
+import { useState, useMemo, useEffect } from "react";
+import pujaCatalogueService from "../../../services/pujaCatalogueService";
 import PujaServiceListingHero from "../components/PujaServiceListingHero";
 import PujaSankalpaProcess from "../components/PujaSankalpaProcess";
 import PujaPurposeDiscovery from "../components/PujaPurposeDiscovery";
@@ -16,15 +16,59 @@ import PujaWhyVedaStructure from "../components/PujaWhyVedaStructure";
 import PujaBeforeYouBook from "../components/PujaBeforeYouBook";
 import PujaFaqSection from "../components/PujaFaqSection";
 import PujaFinalCta from "../components/PujaFinalCta";
-import { Sparkles } from "lucide-react";
+import { Sparkles, RefreshCw } from "lucide-react";
 
 const PujaCatalogueListing = () => {
+  const [services, setServices] = useState([]);
+  const [purposes, setPurposes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [totalCount, setTotalCount] = useState(0);
+
   const [selectedPurpose, setSelectedPurpose] = useState("All Purposes");
   const [selectedDuration, setSelectedDuration] = useState("All Durations");
   const [selectedMode, setSelectedMode] = useState("All Modes");
   const [isFeaturedOnly, setIsFeaturedOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedSort, setSelectedSort] = useState("featured");
+
+  // Debounce search input for responsive server-side querying
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery.trim());
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Load active Puja purpose categories on mount
+  useEffect(() => {
+    let isMounted = true;
+    pujaCatalogueService
+      .getPujaPurposes()
+      .then((data) => {
+        if (isMounted && Array.isArray(data)) {
+          setPurposes(data);
+        }
+      })
+      .catch((err) => {
+        console.error("Could not load Puja purposes:", err);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Resolve purpose slug (supports either slug or display name)
+  const resolvedPurposeSlug = useMemo(() => {
+    if (!selectedPurpose || selectedPurpose === "All Purposes") return undefined;
+    const found = (purposes || []).find(
+      (p) =>
+        p.slug === selectedPurpose ||
+        p.name.toLowerCase() === selectedPurpose.toLowerCase()
+    );
+    return found ? found.slug : selectedPurpose;
+  }, [selectedPurpose, purposes]);
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
@@ -36,6 +80,8 @@ const PujaCatalogueListing = () => {
     return count;
   }, [selectedPurpose, selectedDuration, selectedMode, isFeaturedOnly, searchQuery]);
 
+  const [reloadTrigger, setReloadTrigger] = useState(0);
+
   const handleResetFilters = () => {
     setSelectedPurpose("All Purposes");
     setSelectedDuration("All Durations");
@@ -43,84 +89,42 @@ const PujaCatalogueListing = () => {
     setIsFeaturedOnly(false);
     setSearchQuery("");
     setSelectedSort("featured");
+    setLoading(true);
   };
 
-  const filteredServices = useMemo(() => {
-    return PUJA_CATALOGUE_LIST.filter((service) => {
-      // Purpose filter
-      if (selectedPurpose !== "All Purposes") {
-        const matchesCategory = service.purposeCategory === selectedPurpose;
-        const matchesPurposeText = (service.purpose || "").toLowerCase().includes(selectedPurpose.toLowerCase());
-        if (!matchesCategory && !matchesPurposeText) {
-          return false;
+  // Fetch services dynamically from public API on filter / search / sort changes
+  useEffect(() => {
+    let isMounted = true;
+
+    pujaCatalogueService
+      .getPujaServices({
+        search: debouncedSearch,
+        purpose: resolvedPurposeSlug,
+        duration: selectedDuration,
+        mode: selectedMode,
+        isFeatured: isFeaturedOnly,
+        sortBy: selectedSort,
+      })
+      .then((res) => {
+        if (isMounted) {
+          setServices(res.services || []);
+          setTotalCount(res.total ?? (res.services ? res.services.length : 0));
+          setLoading(false);
+          setError(null);
         }
-      }
-
-      // Duration filter
-      if (selectedDuration !== "All Durations") {
-        const durNum = parseInt(selectedDuration, 10);
-        const hasMatchingHour = (service.durationHours || []).includes(durNum);
-        const hasMatchingString = (service.availableDurations || []).some((d) =>
-          d.toLowerCase().includes(selectedDuration.toLowerCase())
-        ) || (service.duration || "").toLowerCase().includes(selectedDuration.toLowerCase());
-
-        if (!hasMatchingHour && !hasMatchingString) {
-          return false;
+      })
+      .catch((err) => {
+        if (isMounted) {
+          console.error("Error fetching puja services:", err);
+          setError("Unable to load Vedic Puja services. Please check your connection and try again.");
+          setLoading(false);
         }
-      }
+      });
 
-      // Mode filter (Remote, Family, Individual)
-      if (selectedMode !== "All Modes") {
-        if (selectedMode === "remote") {
-          const isRemoteCapable = (service.availableMode || "").toLowerCase().includes("remote");
-          if (!isRemoteCapable) return false;
-        } else if (selectedMode === "family") {
-          const isFamilyCapable =
-            service.purposeCategory === "Family & Home" ||
-            (service.purpose || "").toLowerCase().includes("family") ||
-            (service.shortDescription || "").toLowerCase().includes("family");
-          if (!isFamilyCapable) return false;
-        } else if (selectedMode === "individual") {
-          const isIndividualCapable =
-            (service.availableMode || "").toLowerCase().includes("in-person") ||
-            (service.purpose || "").toLowerCase().includes("peace") ||
-            (service.purpose || "").toLowerCase().includes("spiritual");
-          if (!isIndividualCapable) return false;
-        }
-      }
-
-      // Featured filter
-      if (isFeaturedOnly && !service.isFeatured) {
-        return false;
-      }
-
-      // Search query
-      if (searchQuery.trim() !== "") {
-        const q = searchQuery.toLowerCase();
-        const matchName = (service.name || "").toLowerCase().includes(q);
-        const matchDeity = (service.deity || "").toLowerCase().includes(q);
-        const matchPurpose = (service.purpose || "").toLowerCase().includes(q);
-        const matchDesc = (service.shortDescription || "").toLowerCase().includes(q);
-        if (!matchName && !matchDeity && !matchPurpose && !matchDesc) {
-          return false;
-        }
-      }
-
-      return true;
-    }).sort((a, b) => {
-      if (selectedSort === "price-asc") {
-        return a.startingPrice - b.startingPrice;
-      }
-      if (selectedSort === "price-desc") {
-        return b.startingPrice - a.startingPrice;
-      }
-      if (selectedSort === "name-asc") {
-        return a.name.localeCompare(b.name);
-      }
-      // "featured" default
-      return (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0);
-    });
-  }, [selectedPurpose, selectedDuration, selectedMode, isFeaturedOnly, searchQuery, selectedSort]);
+    return () => {
+      isMounted = false;
+    };
+  }, [debouncedSearch, resolvedPurposeSlug, selectedDuration, selectedMode, isFeaturedOnly, selectedSort, reloadTrigger]);
 
   return (
     <div className="min-h-screen bg-[#fffaf0]">
@@ -179,6 +183,8 @@ const PujaCatalogueListing = () => {
               setSelectedPurpose={setSelectedPurpose}
               selectedDuration={selectedDuration}
               setSelectedDuration={setSelectedDuration}
+              selectedMode={selectedMode}
+              setSelectedMode={setSelectedMode}
               isFeaturedOnly={isFeaturedOnly}
               setIsFeaturedOnly={setIsFeaturedOnly}
               searchQuery={searchQuery}
@@ -187,6 +193,7 @@ const PujaCatalogueListing = () => {
               setSelectedSort={setSelectedSort}
               activeFilterCount={activeFilterCount}
               onResetFilters={handleResetFilters}
+              purposes={purposes}
             />
           </div>
 
@@ -195,7 +202,7 @@ const PujaCatalogueListing = () => {
             <span>
               Showing{" "}
               <strong className="font-bold text-[#2b241d] text-[15px]">
-                {filteredServices.length}
+                {loading ? "..." : totalCount}
               </strong>{" "}
               Sacred Vedic Puja Services
             </span>
@@ -210,11 +217,67 @@ const PujaCatalogueListing = () => {
             )}
           </div>
 
-          {/* ── Service Cards Grid ── */}
-          {filteredServices.length > 0 ? (
+          {/* ── Service Cards Grid / States ── */}
+          {loading ? (
+            /* Loading Skeleton Grid */
             <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3 xl:gap-8">
-              {filteredServices.map((service) => (
-                <PujaServiceCard key={service.id} service={service} />
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <div
+                  key={n}
+                  className="flex flex-col overflow-hidden rounded-[20px] border border-[#e8d9bc] bg-[#fffdfa] animate-pulse shadow-xs"
+                >
+                  <div className="w-full bg-[#ebdcc4]/60" style={{ aspectRatio: "4/3" }} />
+                  <div className="flex flex-1 flex-col justify-between p-5 space-y-4">
+                    <div className="space-y-2.5">
+                      <div className="flex items-center gap-2">
+                        <div className="h-4 w-20 rounded-full bg-[#ebdcc4]/70" />
+                        <div className="h-4 w-24 rounded-full bg-[#ebdcc4]/50" />
+                      </div>
+                      <div className="h-6 w-3/4 rounded-md bg-[#ebdcc4]/70" />
+                      <div className="h-3.5 w-full rounded bg-[#ebdcc4]/40" />
+                      <div className="h-3.5 w-4/5 rounded bg-[#ebdcc4]/40" />
+                    </div>
+                    <div className="pt-4 border-t border-[#f0e2cd] flex items-end justify-between">
+                      <div className="space-y-1">
+                        <div className="h-3 w-16 rounded bg-[#ebdcc4]/50" />
+                        <div className="h-5 w-20 rounded bg-[#ebdcc4]/70" />
+                      </div>
+                      <div className="h-8 w-24 rounded-full bg-[#ebdcc4]/70" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : error ? (
+            /* Error State */
+            <div className="rounded-[28px] border border-[#f0c8a8] bg-[#fffbf7] p-12 text-center shadow-xs">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#fce8dc] text-[#c74422]">
+                <RefreshCw size={24} />
+              </div>
+              <h3 className="mt-4 font-serif text-[22px] font-bold text-[#2b241d]">
+                Failed to load Puja services
+              </h3>
+              <p className="mx-auto mt-2 max-w-[480px] text-[14px] leading-relaxed text-[#75695c]">
+                {error}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setLoading(true);
+                  setError(null);
+                  setReloadTrigger((prev) => prev + 1);
+                }}
+                className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#eab12c] px-7 py-3 text-[13px] font-bold text-[#1c1308] shadow-[0_4px_14px_rgba(234,177,44,0.25)] transition hover:bg-[#dda018] cursor-pointer"
+              >
+                <RefreshCw size={14} />
+                <span>Try Again</span>
+              </button>
+            </div>
+          ) : services.length > 0 ? (
+            /* Active Service Cards Grid */
+            <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3 xl:gap-8">
+              {services.map((service) => (
+                <PujaServiceCard key={service.id || service.slug} service={service} />
               ))}
             </div>
           ) : (
@@ -244,9 +307,10 @@ const PujaCatalogueListing = () => {
       {/* 4. PUJA BY PURPOSE (7 CLIENT-SPECIFIED CATEGORIES) */}
       <PujaPurposeDiscovery
         selectedPurpose={selectedPurpose}
-        onSelectPurpose={(purposeName) => {
-          setSelectedPurpose(purposeName);
+        onSelectPurpose={(purposeIdentifier) => {
+          setSelectedPurpose(purposeIdentifier);
         }}
+        purposes={purposes}
       />
 
       {/* 5. PUJA DURATION */}
@@ -264,7 +328,10 @@ const PujaCatalogueListing = () => {
       {/* 8. PERSONAL / FAMILY / REMOTE */}
       <PujaArrangementModes
         onFilterMode={(modeType) => {
-          setSelectedMode(modeType);
+          if (modeType === "remote") setSelectedMode("remote");
+          else if (modeType === "individual" || modeType === "in_person") setSelectedMode("in_person");
+          else if (modeType === "family" || modeType === "hybrid") setSelectedMode("hybrid");
+          else setSelectedMode(modeType);
         }}
       />
 
@@ -275,11 +342,11 @@ const PujaCatalogueListing = () => {
         }}
       />
 
-      {/* 10. POPULAR PUJAS (featured = true AND active = true) */}
-      <PujaPopularSection />
+      {/* 10. POPULAR PUJAS (Derived from active API services) */}
+      <PujaPopularSection services={services} />
 
       {/* 11. YOUR PUJA — LIVE CONFIGURATION PREVIEW */}
-      <PujaConfigurationPreview />
+      <PujaConfigurationPreview services={services} />
 
       {/* 12. WHY VEDA STRUCTURE? */}
       <PujaWhyVedaStructure />

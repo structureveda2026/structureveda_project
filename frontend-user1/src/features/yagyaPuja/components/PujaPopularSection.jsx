@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Sparkles, ArrowRight, MapPin, Clock, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getFeaturedPujaServices } from "../data/pujaCatalogueData";
+import defaultPujaImg from "../../../assets/images/puja-kashi.jpg";
 
 const PopularPujaCard = ({ service }) => {
   if (!service) return null;
@@ -15,8 +16,12 @@ const PopularPujaCard = ({ service }) => {
         {/* ── Image Area (Reduced Height 200–210px) ── */}
         <div className="relative h-[200px] w-full overflow-hidden bg-[#1f1510] sm:h-[210px]">
           <img
-            src={service.image}
+            src={service.image || service.bannerImage || defaultPujaImg}
             alt={service.name}
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = defaultPujaImg;
+            }}
             className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.03]"
             loading="lazy"
           />
@@ -108,10 +113,14 @@ const PopularPujaCard = ({ service }) => {
   );
 };
 
-const PujaPopularSection = () => {
+const PujaPopularSection = ({ services = [] }) => {
   const featuredServices = useMemo(() => {
-    return getFeaturedPujaServices();
-  }, []);
+    if (Array.isArray(services) && services.length > 0) {
+      const feat = services.filter((s) => s.isFeatured);
+      return feat.length > 0 ? feat.slice(0, 3) : services.slice(0, 3);
+    }
+    return getFeaturedPujaServices().slice(0, 3);
+  }, [services]);
 
   if (featuredServices.length === 0) return null;
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { SlidersHorizontal, ArrowUpDown, X, Search, Check, Filter } from "lucide-react";
 
-export const PURPOSES = [
+const PURPOSES = [
   "All Purposes",
   "Health & Wellbeing",
   "Marriage & Relationships",
@@ -12,26 +12,34 @@ export const PURPOSES = [
   "ग्रह / ज्योतिष आधारित",
 ];
 
-export const DURATIONS = [
+const DURATIONS = [
   "All Durations",
   "2 Hours",
   "3 Hours",
   "5 Hours",
 ];
 
-export const SORT_OPTIONS = [
+const SORT_OPTIONS = [
   { label: "Featured First", value: "featured" },
   { label: "Price: Low to High", value: "price-asc" },
   { label: "Price: High to Low", value: "price-desc" },
   { label: "Name: A to Z", value: "name-asc" },
 ];
 
+const MODES = [
+  { label: "All Modes", value: "All Modes" },
+  { label: "In Person", value: "in_person" },
+  { label: "Remote", value: "remote" },
+  { label: "Hybrid", value: "hybrid" },
+];
 
 const PujaServiceFilters = ({
   selectedPurpose,
   setSelectedPurpose,
   selectedDuration,
   setSelectedDuration,
+  selectedMode = "All Modes",
+  setSelectedMode,
   isFeaturedOnly,
   setIsFeaturedOnly,
   searchQuery,
@@ -40,8 +48,14 @@ const PujaServiceFilters = ({
   setSelectedSort,
   activeFilterCount,
   onResetFilters,
+  purposes = [],
 }) => {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
+  // Normalize purpose options: accept API purposes array [{ name, slug }] or fallback to static array
+  const purposeOptions = purposes && purposes.length > 0
+    ? [{ slug: "All Purposes", name: "All Purposes" }, ...purposes.map((p) => ({ slug: p.slug, name: p.name }))]
+    : PURPOSES.map((p) => ({ slug: p === "All Purposes" ? "All Purposes" : p.toLowerCase().replace(/[^a-z0-9]+/g, "-"), name: p }));
 
   return (
     <div className="space-y-3">
@@ -137,9 +151,9 @@ const PujaServiceFilters = ({
           aria-label="Filter by purpose"
           className="rounded-full border border-[#e0ceaf] bg-[#fffaf5] px-3.5 py-1.5 text-[12.5px] font-medium text-[#2b241d] outline-none transition focus:border-[#c77722] cursor-pointer"
         >
-          {PURPOSES.map((pur) => (
-            <option key={pur} value={pur}>
-              {pur}
+          {purposeOptions.map((opt) => (
+            <option key={opt.slug} value={opt.slug}>
+              {opt.name}
             </option>
           ))}
         </select>
@@ -157,6 +171,22 @@ const PujaServiceFilters = ({
             </option>
           ))}
         </select>
+
+        {/* Mode Select */}
+        {setSelectedMode && (
+          <select
+            value={selectedMode}
+            onChange={(e) => setSelectedMode(e.target.value)}
+            aria-label="Filter by arrangement mode"
+            className="rounded-full border border-[#e0ceaf] bg-[#fffaf5] px-3.5 py-1.5 text-[12.5px] font-medium text-[#2b241d] outline-none transition focus:border-[#c77722] cursor-pointer"
+          >
+            {MODES.map((m) => (
+              <option key={m.value} value={m.value}>
+                {m.label}
+              </option>
+            ))}
+          </select>
+        )}
 
         {/* Reset link */}
         {activeFilterCount > 0 && (
@@ -198,9 +228,9 @@ const PujaServiceFilters = ({
                   onChange={(e) => setSelectedPurpose(e.target.value)}
                   className="w-full rounded-xl border border-[#d6b8a0] bg-white p-3 text-[13.5px] text-[#2b241d] outline-none"
                 >
-                  {PURPOSES.map((pur) => (
-                    <option key={pur} value={pur}>
-                      {pur}
+                  {purposeOptions.map((opt) => (
+                    <option key={opt.slug} value={opt.slug}>
+                      {opt.name}
                     </option>
                   ))}
                 </select>
@@ -222,6 +252,25 @@ const PujaServiceFilters = ({
                   ))}
                 </select>
               </div>
+
+              {setSelectedMode && (
+                <div>
+                  <label className="mb-1.5 block text-[12px] font-bold uppercase text-[#b36c1e]">
+                    Arrangement Mode
+                  </label>
+                  <select
+                    value={selectedMode}
+                    onChange={(e) => setSelectedMode(e.target.value)}
+                    className="w-full rounded-xl border border-[#d6b8a0] bg-white p-3 text-[13.5px] text-[#2b241d] outline-none"
+                  >
+                    {MODES.map((m) => (
+                      <option key={m.value} value={m.value}>
+                        {m.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="pt-2">
                 <label className="flex items-center gap-3 rounded-xl border border-[#ebdcc4] bg-white p-3.5 cursor-pointer">

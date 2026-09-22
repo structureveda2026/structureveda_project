@@ -3,12 +3,13 @@ import { Sparkles, Calendar, Clock, MapPin, Users, Package, Gift, ArrowRight, In
 import { Link } from "react-router-dom";
 import { PUJA_CATALOGUE_LIST } from "../data/pujaCatalogueData";
 
-const PujaConfigurationPreview = () => {
-  // Demo configuration preview model (architecture ready for future backend values)
-  const defaultService = PUJA_CATALOGUE_LIST[1] || PUJA_CATALOGUE_LIST[0]; // Maha Mrityunjaya Puja
-  const [selectedSlug, setSelectedSlug] = useState(defaultService.slug);
+const PujaConfigurationPreview = ({ services = [] }) => {
+  // Configuration preview model (accepts dynamic services from API with fallback)
+  const serviceList = Array.isArray(services) && services.length > 0 ? services : PUJA_CATALOGUE_LIST;
+  const defaultService = serviceList[1] || serviceList[0];
+  const [selectedSlug, setSelectedSlug] = useState(defaultService?.slug || "maha-mrityunjaya-puja");
 
-  const activeService = PUJA_CATALOGUE_LIST.find((s) => s.slug === selectedSlug) || defaultService;
+  const activeService = serviceList.find((s) => s.slug === selectedSlug) || defaultService;
 
   const parameterTiles = [
     {

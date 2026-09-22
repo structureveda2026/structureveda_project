@@ -6,6 +6,7 @@ import {
   GraduationCap,
   CalendarCheck,
   Sparkles,
+  Flame,
   ShoppingBag,
   Users,
   UserCog,
@@ -38,6 +39,14 @@ const navItems: NavItem[] = [
     icon: Sparkles,
     children: [
       { label: "All Upcoming Pujas", path: "/admin/upcoming-pujas" },
+    ],
+  },
+  {
+    label: "Puja Catalogue",
+    path: "/admin/puja-services",
+    icon: Flame,
+    children: [
+      { label: "All Puja Services", path: "/admin/puja-services" },
     ],
   },
   // {
