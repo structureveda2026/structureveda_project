@@ -9,6 +9,9 @@ import upcomingPujaAdminRoutes from "./routes/upcomingPujaAdmin.routes.js";
 import upcomingPujaRoutes from "./routes/upcomingPuja.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 
+// Library Module routes
+import { blogAdminRoutes, blogPublicRoutes } from "./modules/library/index.js";
+
 const app = express();
 
 app.use(
@@ -40,5 +43,11 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/admin/upcoming-pujas", upcomingPujaAdminRoutes);
 app.use("/api/upcoming-pujas", upcomingPujaRoutes);
 app.use("/api/admin/uploads", uploadRoutes);
+
+// Library Module Endpoints (Standard & Aliases)
+app.use("/api/admin/library/blogs", blogAdminRoutes);
+app.use("/api/admin/blogs", blogAdminRoutes);
+app.use("/api/library/blogs", blogPublicRoutes);
+app.use("/api/blogs", blogPublicRoutes);
 
 export default app;
