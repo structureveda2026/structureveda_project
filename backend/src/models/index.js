@@ -7,6 +7,7 @@ import PujaPackage from "./pujaPackageModel.js";
 import PujaBooking from "./pujaBookingModel.js";
 import PujaPurpose from "./pujaPurposeModel.js";
 import PujaService from "./pujaServiceModel.js";
+import RitualBooking from "./ritualBookingModel.js";
 
 // Existing Associations (Astrologer Consultations)
 User.hasMany(Booking, {
@@ -71,6 +72,17 @@ PujaService.belongsTo(PujaPurpose, {
   as: "purposeDetails",
 });
 
+// Generic Ritual Booking Associations
+User.hasMany(RitualBooking, {
+  foreignKey: "userId",
+  as: "ritualBookings",
+});
+
+RitualBooking.belongsTo(User, {
+  foreignKey: "userId",
+  as: "user",
+});
+
 const db = {
   sequelize,
   User,
@@ -81,6 +93,7 @@ const db = {
   PujaBooking,
   PujaPurpose,
   PujaService,
+  RitualBooking,
 };
 
 export {
@@ -92,5 +105,6 @@ export {
   PujaBooking,
   PujaPurpose,
   PujaService,
+  RitualBooking,
 };
 export default db;
