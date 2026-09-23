@@ -7,6 +7,7 @@ import {
   CalendarCheck,
   Sparkles,
   Flame,
+  BookOpen,
   ShoppingBag,
   Users,
   UserCog,
@@ -47,6 +48,14 @@ const navItems: NavItem[] = [
     icon: Flame,
     children: [
       { label: "All Puja Services", path: "/admin/puja-services" },
+    ],
+  },
+  {
+    label: "Library",
+    path: "/admin/library/blogs",
+    icon: BookOpen,
+    children: [
+      { label: "Blog Posts", path: "/admin/library/blogs" },
     ],
   },
   // {
@@ -135,14 +144,25 @@ export default function Sidebar({
 
   const isActive = (path: string) => {
     const basePath = path.split("?")[0];
-    return location.pathname === basePath;
+    return (
+      location.pathname === basePath ||
+      location.pathname.startsWith(basePath + "/")
+    );
   };
 
   const isParentActive = (item: NavItem) => {
-    if (location.pathname === item.path) return true;
+    const basePath = item.path.split("?")[0];
+    if (location.pathname === basePath || location.pathname.startsWith(basePath + "/")) {
+      return true;
+    }
     return (
-      item.children?.some((c) => location.pathname === c.path.split("?")[0]) ??
-      false
+      item.children?.some((c) => {
+        const childPath = c.path.split("?")[0];
+        return (
+          location.pathname === childPath ||
+          location.pathname.startsWith(childPath + "/")
+        );
+      }) ?? false
     );
   };
 

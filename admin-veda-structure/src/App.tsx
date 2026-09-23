@@ -1,29 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ToastProvider } from "@/context/ToastContext";
-import { AuthProvider } from "@/context/AuthContext";
 import AdminLayout from "@/components/AdminLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
-import Products from "@/pages/Products";
-import ProductForm from "@/pages/ProductForm";
-import ProductDetail from "@/pages/ProductDetail";
-import Categories from "@/pages/Categories";
-import Courses from "@/pages/Courses";
-import Bookings from "@/pages/Bookings";
-import BookingDetail from "@/pages/BookingDetail";
-import Orders from "@/pages/Orders";
-import OrderDetail from "@/pages/OrderDetail";
-import Customers from "@/pages/Customers";
-import CustomerDetail from "@/pages/CustomerDetail";
-import Experts from "@/pages/Experts";
-import Payments from "@/pages/Payments";
-import Reviews from "@/pages/Reviews";
-import Coupons from "@/pages/Coupons";
-import Notifications from "@/pages/Notifications";
-import Reports from "@/pages/Reports";
 import Settings from "@/pages/Settings";
-import Consultations from "@/pages/Consultations";
 import UpcomingPujas from "@/pages/UpcomingPujas";
 import UpcomingPujaForm from "@/pages/UpcomingPujaForm";
 import UpcomingPujaDetail from "@/pages/UpcomingPujaDetail";
@@ -31,6 +12,13 @@ import PujaServices from "@/pages/PujaServices";
 import PujaServiceForm from "@/pages/PujaServiceForm";
 import PujaServiceDetail from "@/pages/PujaServiceDetail";
 import ConsultationDetail from "@/pages/ConsultationDetail";
+
+// Veda Library Module (Modular Architecture)
+import {
+  BlogListPage,
+  BlogFormPage,
+  BlogDetailPage,
+} from "@/modules/library";
 
 export default function App() {
   return (
@@ -45,15 +33,9 @@ export default function App() {
                 element={<Navigate to="/admin/dashboard" replace />}
               />
               <Route path="dashboard" element={<Dashboard />} />
-              {/* <Route path="products" element={<Products />} />
-            <Route path="products/new" element={<ProductForm />} />
-            <Route path="products/:id" element={<ProductDetail />} />
-            <Route path="products/:id/edit" element={<ProductForm />} /> */}
-              {/* <Route path="categories" element={<Categories />} /> */}
-              {/* <Route path="courses" element={<Courses />} />
-              <Route path="courses/new" element={<ProductForm />} />
-              <Route path="courses/:id/edit" element={<ProductForm />} /> */}
-                            <Route path="upcoming-pujas" element={<UpcomingPujas />} />
+
+              {/* Upcoming Pujas */}
+              <Route path="upcoming-pujas" element={<UpcomingPujas />} />
               <Route path="upcoming-pujas/new" element={<UpcomingPujaForm />} />
               <Route
                 path="upcoming-pujas/:id"
@@ -63,26 +45,26 @@ export default function App() {
                 path="upcoming-pujas/:id/edit"
                 element={<UpcomingPujaForm />}
               />
+
+              {/* Puja Services Catalogue */}
               <Route path="puja-services" element={<PujaServices />} />
               <Route path="puja-services/new" element={<PujaServiceForm />} />
               <Route path="puja-services/:id" element={<PujaServiceDetail />} />
               <Route path="puja-services/:id/edit" element={<PujaServiceForm />} />
-              {/* <Route path="bookings" element={<Bookings />} />
-              <Route path="bookings/:id" element={<BookingDetail />} />
-              <Route path="consultations" element={<Consultations />} />
-              <Route path="consultations/:id" element={<ConsultationDetail />} />
-              <Route path="orders" element={<Orders />} />
-              <Route path="orders/:id" element={<OrderDetail />} />
-              <Route path="customers" element={<Customers />} />
-              <Route path="customers/:id" element={<CustomerDetail />} />
-              <Route path="experts" element={<Experts />} />
-              <Route path="experts/new" element={<ProductForm />} />
-              <Route path="experts/:id/edit" element={<ProductForm />} />
-              <Route path="payments" element={<Payments />} />
-              <Route path="reviews" element={<Reviews />} />
-              <Route path="coupons" element={<Coupons />} />
-              <Route path="notifications" element={<Notifications />} />
-              <Route path="reports" element={<Reports />} /> */}
+
+              {/* Veda Library Module - Blog Routes */}
+              <Route path="library/blogs" element={<BlogListPage />} />
+              <Route path="library/blogs/new" element={<BlogFormPage />} />
+              <Route path="library/blogs/:id" element={<BlogDetailPage />} />
+              <Route path="library/blogs/:id/edit" element={<BlogFormPage />} />
+
+              {/* Direct Blog Aliases */}
+              <Route path="blogs" element={<BlogListPage />} />
+              <Route path="blogs/new" element={<BlogFormPage />} />
+              <Route path="blogs/:id" element={<BlogDetailPage />} />
+              <Route path="blogs/:id/edit" element={<BlogFormPage />} />
+
+              {/* Settings */}
               <Route path="settings" element={<Settings />} />
             </Route>
           </Route>
