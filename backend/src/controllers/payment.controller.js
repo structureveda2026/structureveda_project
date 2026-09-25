@@ -1,4 +1,8 @@
-import Booking from "../models/bookingModel.js";
+import {
+  resolveBookingEntity,
+  BookingResolverError,
+  BOOKING_TYPES,
+} from "../services/bookingResolver.service.js";
 import {
   createCashfreeOrder,
   fetchCashfreeOrder,
@@ -11,21 +15,26 @@ import {
 //
 // POST /api/payments/create-order
 //
-// Receives:  { bookingReference } from the frontend
-// Returns:   { cfOrderId, paymentSessionId, orderAmount, bookingReference }
+// Creates or recovers a Cashfree Sandbox order for an existing Pending booking.
+// Polymorphically supports both Consultation bookings and Generic Ritual bookings.
 //
-// Security:
-//   - Amount is ALWAYS read from the DB. Never trusted from the client.
-//   - Booking must exist, be in Pending status, and not already paid.
-//   - bookingStatus and paymentStatus remain "Pending" throughout this phase.
-//   - Phase 2D: Reuses existing active Cashfree order or recreates if expired,
-//     preventing duplicate bookings during recovery/retry.
+// Request body:
+//   { bookingReference: string }
+//
+// Authorization:
+//   - If booking has a userId, only the authenticated owner or admin can initiate payment.
+//   - If booking is a guest booking (userId is null), anyone with the unguessable
+//     cryptographic reference can initiate payment.
+//
+// Authoritative Pricing:
+//   - The order amount is read strictly from the resolved database record.
+//   - Client-supplied amounts are never accepted.
 // ---------------------------------------------------------------------------
 export const createPaymentOrder = async (req, res) => {
   try {
     const { bookingReference } = req.body;
 
-    // 1. bookingReference is the only thing we trust from the client.
+    // 1. bookingReference is the only parameter accepted from the client
     if (!bookingReference || typeof bookingReference !== "string" || !bookingReference.trim()) {
       return res.status(400).json({
         success: false,
@@ -33,62 +42,64 @@ export const createPaymentOrder = async (req, res) => {
       });
     }
 
-    const ref = bookingReference.trim();
+    const rawRef = bookingReference.trim();
 
-    // 2. Find the booking in the database.
-    const booking = await Booking.findOne({
-      where: { bookingReference: ref },
-    });
+    // 2. Resolve booking entity via polymorphic Booking Resolver
+    let adapter;
+    try {
+      adapter = await resolveBookingEntity(rawRef);
+    } catch (err) {
+      if (err instanceof BookingResolverError && err.code === "NOT_FOUND") {
+        return res.status(404).json({
+          success: false,
+          message: "Booking not found. Please check your booking reference.",
+        });
+      }
+      throw err;
+    }
 
-    if (!booking) {
-      return res.status(404).json({
+    const ref = adapter.reference;
+
+    // 3. Authorization check
+    if (!adapter.canAccess(req.user)) {
+      return res.status(403).json({
         success: false,
-        message: "Booking not found. Please check your booking reference.",
+        message: "You are not authorized to initiate payment for this booking.",
       });
     }
 
-    // 3. Authorization check
-    if (booking.userId) {
-      if (req.user && req.user.id !== booking.userId && req.user.role !== "admin") {
-        return res.status(403).json({
-          success: false,
-          message: "You are not authorized to initiate payment for this booking.",
-        });
-      }
-    }
-
-    // 4. Validate booking is eligible for payment initiation.
-    if (booking.paymentStatus === "Paid" && booking.bookingStatus === "Confirmed") {
+    // 4. Validate booking is eligible for payment initiation
+    if (adapter.paymentStatus === "Paid" && adapter.bookingStatus === "Confirmed") {
       return res.status(200).json({
         success: true,
         alreadyPaid: true,
         message: "This booking has already been paid and confirmed. No further payment is required.",
         data: {
           bookingReference: ref,
-          bookingStatus: booking.bookingStatus,
-          paymentStatus: booking.paymentStatus,
-          transactionId: booking.transactionId,
-          orderAmount: Number(booking.amount),
+          bookingStatus: adapter.bookingStatus,
+          paymentStatus: adapter.paymentStatus,
+          transactionId: adapter.transactionId,
+          orderAmount: adapter.authoritativeAmount,
         },
       });
     }
 
-    if (booking.bookingStatus === "Cancelled") {
+    if (adapter.bookingStatus === "Cancelled") {
       return res.status(409).json({
         success: false,
         message: "This booking has been cancelled and cannot be paid.",
       });
     }
 
-    if (booking.bookingStatus === "Confirmed" && booking.paymentStatus !== "Paid") {
+    if (adapter.bookingStatus === "Confirmed" && adapter.paymentStatus !== "Paid") {
       return res.status(409).json({
         success: false,
         message: "Booking status conflict. Please contact support.",
       });
     }
 
-    // 5. Read the authoritative amount from the database — never from the client.
-    const orderAmount = Number(booking.amount);
+    // 5. Read the authoritative amount from the database - never from the client
+    const orderAmount = adapter.authoritativeAmount;
 
     if (!orderAmount || orderAmount <= 0) {
       return res.status(422).json({
@@ -97,11 +108,11 @@ export const createPaymentOrder = async (req, res) => {
       });
     }
 
-    // 6. Check if an existing Cashfree order can be recovered or reused (Phase 2D)
+    // 6. Check if an existing Cashfree order can be recovered or reused
     let existingOrder = null;
     const existingOrderCandidate =
-      booking.transactionId && booking.transactionId.startsWith(ref)
-        ? booking.transactionId
+      adapter.transactionId && adapter.transactionId.startsWith(ref)
+        ? adapter.transactionId
         : ref;
 
     try {
@@ -122,29 +133,24 @@ export const createPaymentOrder = async (req, res) => {
 
       // Case A: Existing order was already PAID on Cashfree
       if (orderStatusUpper === "PAID") {
-        const trustedAmount = Number(booking.amount);
+        const trustedAmount = adapter.authoritativeAmount;
         const cfAmount = Number(existingOrder.order_amount);
 
         if (Math.abs(trustedAmount - cfAmount) <= 0.01) {
           let cfPaymentId = existingOrder.cf_order_id;
-          let paymentMethod = "Cashfree Online";
+          let paymentGroup = null;
 
           try {
             const payments = await fetchCashfreeOrderPayments(existingOrder.order_id);
             const successPayment =
               payments.find((p) => p.payment_status?.toUpperCase() === "SUCCESS") || payments[0];
             if (successPayment?.cf_payment_id) cfPaymentId = successPayment.cf_payment_id;
-            if (successPayment?.payment_group) paymentMethod = `Cashfree ${successPayment.payment_group.toUpperCase()}`;
+            if (successPayment?.payment_group) paymentGroup = successPayment.payment_group;
           } catch {
             // fallback to cf_order_id
           }
 
-          await booking.update({
-            bookingStatus: "Confirmed",
-            paymentStatus: "Paid",
-            transactionId: String(cfPaymentId),
-            paymentMethod,
-          });
+          await adapter.markConfirmed(cfPaymentId, paymentGroup);
 
           return res.status(200).json({
             success: true,
@@ -152,10 +158,10 @@ export const createPaymentOrder = async (req, res) => {
             message: "Payment for this booking was already completed and verified.",
             data: {
               bookingReference: ref,
-              bookingStatus: "Confirmed",
-              paymentStatus: "Paid",
+              bookingStatus: adapter.bookingStatus,
+              paymentStatus: adapter.paymentStatus,
               transactionId: String(cfPaymentId),
-              orderAmount: Number(booking.amount),
+              orderAmount: adapter.authoritativeAmount,
             },
           });
         }
@@ -178,14 +184,9 @@ export const createPaymentOrder = async (req, res) => {
       }
     }
 
-    // 7. Prepare customer details from the booking record.
-    const customerPhone = booking.phone.replace(/\D/g, "").slice(-10);
-    const customerName = booking.fullName;
-    const customerEmail = booking.email || null;
-
-    // 8. Create Cashfree Sandbox order:
+    // 7. Create Cashfree Sandbox order:
     // If an existing order was expired/cancelled, generate a unique retry suffix (e.g. VB-123456_829102)
-    // so Cashfree accepts the new order for the SAME booking.
+    // so Cashfree accepts the new order for the SAME underlying booking.
     const orderIdToCreate = existingOrder
       ? `${ref}_${Date.now().toString().slice(-6)}`
       : ref;
@@ -195,10 +196,10 @@ export const createPaymentOrder = async (req, res) => {
       cashfreeResult = await createCashfreeOrder({
         orderId: orderIdToCreate,
         customerId: ref,
-        orderAmount,
-        customerPhone,
-        customerName,
-        customerEmail,
+        amount: orderAmount,
+        customerDetails: adapter.customerDetails,
+        returnUrl: adapter.returnUrl,
+        orderNote: adapter.orderNote,
       });
     } catch (cashfreeError) {
       console.error("Cashfree order creation error:", cashfreeError?.response?.data || cashfreeError.message);
@@ -215,13 +216,10 @@ export const createPaymentOrder = async (req, res) => {
       });
     }
 
-    // 9. Store the active Cashfree order ID in transactionId for Pending tracking.
-    // For Pending bookings, transactionId holds the active order reference until verified.
-    await booking.update({
-      transactionId: orderIdToCreate,
-    });
+    // 8. Persist the pending Cashfree order / session ID in DB via normalized adapter
+    await adapter.setPendingSession(orderIdToCreate, cashfreeResult.paymentSessionId);
 
-    // 10. Return the payment session information to the frontend.
+    // 9. Return the payment session information to the frontend
     return res.status(200).json({
       success: true,
       recreated: Boolean(existingOrder),
@@ -247,12 +245,12 @@ export const createPaymentOrder = async (req, res) => {
 };
 
 // ---------------------------------------------------------------------------
-// getPaymentBookingStatus (Phase 2D)
+// getPaymentBookingStatus
 //
 // GET /api/payments/booking-status/:bookingReference
 //
 // Provides safe, minimal booking state for frontend recovery after page reload.
-// Avoids the pre-existing Sequelize association bug in the general booking endpoint.
+// Polymorphically resolves both Consultation and Ritual bookings.
 // ---------------------------------------------------------------------------
 export const getPaymentBookingStatus = async (req, res) => {
   try {
@@ -265,52 +263,54 @@ export const getPaymentBookingStatus = async (req, res) => {
       });
     }
 
-    const ref = bookingReference.trim();
+    const rawRef = bookingReference.trim();
 
-    const booking = await Booking.findOne({
-      where: { bookingReference: ref },
-    });
-
-    if (!booking) {
-      return res.status(404).json({
-        success: false,
-        message: "Booking not found.",
-      });
+    let adapter;
+    try {
+      adapter = await resolveBookingEntity(rawRef);
+    } catch (err) {
+      if (err instanceof BookingResolverError && err.code === "NOT_FOUND") {
+        return res.status(404).json({
+          success: false,
+          message: "Booking not found.",
+        });
+      }
+      throw err;
     }
 
-    // Ownership check for authenticated users
-    if (booking.userId && req.user && req.user.id !== booking.userId && req.user.role !== "admin") {
+    // Ownership check
+    if (!adapter.canAccess(req.user)) {
       return res.status(403).json({
         success: false,
         message: "You are not authorized to view this booking.",
       });
     }
 
+    const ref = adapter.reference;
+
     // Proactive check: if booking is pending, check if Cashfree was already paid
-    if (booking.bookingStatus === "Pending") {
+    if (adapter.bookingStatus === "Pending") {
       const orderRefToCheck =
-        booking.transactionId && booking.transactionId.startsWith(ref)
-          ? booking.transactionId
+        adapter.transactionId && adapter.transactionId.startsWith(ref)
+          ? adapter.transactionId
           : ref;
       try {
         const cfOrder = await fetchCashfreeOrder(orderRefToCheck);
         if (cfOrder?.order_status?.toUpperCase() === "PAID") {
-          const trustedAmount = Number(booking.amount);
+          const trustedAmount = adapter.authoritativeAmount;
           const cfAmount = Number(cfOrder.order_amount);
           if (Math.abs(trustedAmount - cfAmount) <= 0.01) {
             let cfPaymentId = cfOrder.cf_order_id;
+            let paymentGroup = null;
             try {
               const payments = await fetchCashfreeOrderPayments(cfOrder.order_id);
               const successPay = payments.find((p) => p.payment_status?.toUpperCase() === "SUCCESS");
               if (successPay?.cf_payment_id) cfPaymentId = successPay.cf_payment_id;
+              if (successPay?.payment_group) paymentGroup = successPay.payment_group;
             } catch {
               // fallback to cf_order_id
             }
-            await booking.update({
-              bookingStatus: "Confirmed",
-              paymentStatus: "Paid",
-              transactionId: String(cfPaymentId),
-            });
+            await adapter.markConfirmed(cfPaymentId, paymentGroup);
           }
         }
       } catch {
@@ -318,29 +318,57 @@ export const getPaymentBookingStatus = async (req, res) => {
       }
     }
 
+    // Format safe response according to booking type
+    if (adapter.type === BOOKING_TYPES.CONSULTATION) {
+      const booking = adapter.entity;
+      return res.status(200).json({
+        success: true,
+        data: {
+          bookingReference: adapter.reference,
+          bookingStatus: adapter.bookingStatus,
+          paymentStatus: adapter.paymentStatus,
+          amount: adapter.authoritativeAmount,
+          packageId: booking.packageId,
+          packageName: booking.packageName,
+          duration: booking.duration,
+          consultationDate: booking.consultationDate,
+          consultationTime: booking.consultationTime,
+          consultationMode: booking.consultationMode,
+          fullName: booking.fullName,
+          phone: booking.phone,
+          email: booking.email,
+          gender: booking.gender,
+          dateOfBirth: booking.dateOfBirth,
+          timeOfBirth: booking.timeOfBirth,
+          placeOfBirth: booking.placeOfBirth,
+          reportLanguage: booking.reportLanguage,
+          selectedTopics: booking.selectedTopics,
+          transactionId: adapter.transactionId,
+        },
+      });
+    }
+
+    // Generic Ritual Booking safe status response (never exposes private JSONB: sankalp, family, venue)
+    const ritual = adapter.entity;
     return res.status(200).json({
       success: true,
       data: {
-        bookingReference: booking.bookingReference,
-        bookingStatus: booking.bookingStatus,
-        paymentStatus: booking.paymentStatus,
-        amount: Number(booking.amount),
-        packageId: booking.packageId,
-        packageName: booking.packageName,
-        duration: booking.duration,
-        consultationDate: booking.consultationDate,
-        consultationTime: booking.consultationTime,
-        consultationMode: booking.consultationMode,
-        fullName: booking.fullName,
-        phone: booking.phone,
-        email: booking.email,
-        gender: booking.gender,
-        dateOfBirth: booking.dateOfBirth,
-        timeOfBirth: booking.timeOfBirth,
-        placeOfBirth: booking.placeOfBirth,
-        reportLanguage: booking.reportLanguage,
-        selectedTopics: booking.selectedTopics,
-        transactionId: booking.transactionId,
+        bookingReference: adapter.reference,
+        bookingStatus: adapter.bookingStatus,
+        paymentStatus: adapter.paymentStatus,
+        amount: adapter.authoritativeAmount,
+        serviceType: ritual.serviceType,
+        serviceSlug: ritual.serviceSlug,
+        serviceName: ritual.serviceName,
+        bookingDate: ritual.bookingDate,
+        bookingTime: ritual.bookingTime,
+        durationSelected: ritual.durationSelected,
+        customerName: adapter.customerDetails.name,
+        phone: adapter.customerDetails.phone,
+        email: adapter.customerDetails.email,
+        transactionId: adapter.transactionId,
+        paymentSessionId: adapter.paymentSessionId,
+        paymentGateway: adapter.paymentGateway,
       },
     });
   } catch (error) {
@@ -359,17 +387,13 @@ export const getPaymentBookingStatus = async (req, res) => {
 //
 // Receives:  { bookingReference } from frontend after checkout
 // Validates:
-//   - Booking exists and belongs to the requester (if authenticated)
+//   - Booking exists and belongs to the requester (if registered)
 //   - Real-time payment state directly from Cashfree Sandbox (fetch order + payments)
-//   - Exact amount match between Database and Cashfree
-//   - Supports original bookingReference and retry order IDs (Phase 2D)
+//   - Exact amount match between Database and Cashfree (<= 0.01 tolerance)
+//   - Supports original bookingReference and retry order IDs
 //
 // Idempotency:
-//   - If already Paid & Confirmed (e.g. webhook arrived first or double-clicked),
-//     returns the existing confirmed status safely.
-//
-// Only updates bookingStatus = "Confirmed" and paymentStatus = "Paid"
-// when Cashfree confirms genuine payment success.
+//   - If already Paid & Confirmed, returns the existing confirmed status safely.
 // ---------------------------------------------------------------------------
 export const verifyPayment = async (req, res) => {
   try {
@@ -384,35 +408,35 @@ export const verifyPayment = async (req, res) => {
     }
 
     const trimmedRaw = rawRef.trim();
-    // In Phase 2D retry orders may be named VB-XXXXXX_123456
-    const ref = trimmedRaw.includes("_") ? trimmedRaw.split("_")[0] : trimmedRaw;
 
-    // 1. Find the booking record
-    const booking = await Booking.findOne({
-      where: { bookingReference: ref },
-    });
+    // 1. Resolve booking entity via polymorphic Booking Resolver
+    let adapter;
+    try {
+      adapter = await resolveBookingEntity(trimmedRaw);
+    } catch (err) {
+      if (err instanceof BookingResolverError && err.code === "NOT_FOUND") {
+        return res.status(404).json({
+          success: false,
+          confirmed: false,
+          message: "Booking not found. Please verify your reference.",
+        });
+      }
+      throw err;
+    }
 
-    if (!booking) {
-      return res.status(404).json({
+    const ref = adapter.reference;
+
+    // 2. Authorization check
+    if (!adapter.canAccess(req.user)) {
+      return res.status(403).json({
         success: false,
         confirmed: false,
-        message: "Booking not found. Please verify your reference.",
+        message: "You are not authorized to verify this booking.",
       });
     }
 
-    // 2. Authorization check: if booking is tied to a user, enforce ownership
-    if (booking.userId) {
-      if (req.user && req.user.id !== booking.userId && req.user.role !== "admin") {
-        return res.status(403).json({
-          success: false,
-          confirmed: false,
-          message: "You are not authorized to verify this booking.",
-        });
-      }
-    }
-
     // 3. Cancelled booking guard
-    if (booking.bookingStatus === "Cancelled") {
+    if (adapter.bookingStatus === "Cancelled") {
       return res.status(409).json({
         success: false,
         confirmed: false,
@@ -422,17 +446,17 @@ export const verifyPayment = async (req, res) => {
 
     // 4. IDEMPOTENCY CHECK:
     // If webhook or previous verification already confirmed the payment
-    if (booking.paymentStatus === "Paid" && booking.bookingStatus === "Confirmed") {
+    if (adapter.paymentStatus === "Paid" && adapter.bookingStatus === "Confirmed") {
       return res.status(200).json({
         success: true,
         confirmed: true,
         message: "Payment already verified. Booking is confirmed.",
         data: {
-          bookingReference: booking.bookingReference,
-          bookingStatus: booking.bookingStatus,
-          paymentStatus: booking.paymentStatus,
-          transactionId: booking.transactionId,
-          amount: booking.amount,
+          bookingReference: ref,
+          bookingStatus: adapter.bookingStatus,
+          paymentStatus: adapter.paymentStatus,
+          transactionId: adapter.transactionId,
+          amount: adapter.authoritativeAmount,
         },
       });
     }
@@ -441,8 +465,8 @@ export const verifyPayment = async (req, res) => {
     // Check candidate order IDs: retry order stored in transactionId, or trimmedRaw, or base ref
     let orderData;
     const candidateOrder =
-      booking.transactionId && booking.transactionId.startsWith(ref)
-        ? booking.transactionId
+      adapter.transactionId && adapter.transactionId.startsWith(ref)
+        ? adapter.transactionId
         : trimmedRaw;
 
     try {
@@ -473,7 +497,7 @@ export const verifyPayment = async (req, res) => {
     // 6. Handle Cashfree order statuses
     if (cashfreeStatus === "PAID") {
       // 6a. CRITICAL AMOUNT VALIDATION: compare DB amount with Cashfree order amount
-      const trustedAmount = Number(booking.amount);
+      const trustedAmount = adapter.authoritativeAmount;
       const cashfreeAmount = Number(orderData.order_amount);
 
       if (Math.abs(trustedAmount - cashfreeAmount) > 0.01) {
@@ -489,7 +513,7 @@ export const verifyPayment = async (req, res) => {
 
       // 6b. Retrieve payments to get the final cf_payment_id if available
       let cfPaymentId = orderData.cf_order_id;
-      let paymentMethod = "Cashfree Online";
+      let paymentGroup = null;
 
       try {
         const payments = await fetchCashfreeOrderPayments(ref);
@@ -499,31 +523,30 @@ export const verifyPayment = async (req, res) => {
             cfPaymentId = successPayment.cf_payment_id;
           }
           if (successPayment.payment_group) {
-            paymentMethod = `Cashfree ${successPayment.payment_group.toUpperCase()}`;
+            paymentGroup = successPayment.payment_group;
           }
         }
       } catch (payFetchErr) {
         console.warn("Could not fetch specific payment item list; using cf_order_id fallback:", payFetchErr.message);
       }
 
-      // 6c. Transition booking to Confirmed / Paid
-      await booking.update({
-        bookingStatus: "Confirmed",
-        paymentStatus: "Paid",
-        transactionId: String(cfPaymentId),
-        paymentMethod,
-      });
+      // 6c. Transition booking to Confirmed / Paid via normalized adapter
+      await adapter.markConfirmed(cfPaymentId, paymentGroup);
+
+      const confirmationMsg = adapter.type === BOOKING_TYPES.CONSULTATION
+        ? "Payment verified successfully. Your consultation is confirmed."
+        : "Payment verified successfully. Your Puja booking is confirmed.";
 
       return res.status(200).json({
         success: true,
         confirmed: true,
-        message: "Payment verified successfully. Your consultation is confirmed.",
+        message: confirmationMsg,
         data: {
-          bookingReference: booking.bookingReference,
+          bookingReference: ref,
           bookingStatus: "Confirmed",
           paymentStatus: "Paid",
           transactionId: String(cfPaymentId),
-          amount: booking.amount,
+          amount: adapter.authoritativeAmount,
         },
       });
     }
@@ -536,23 +559,24 @@ export const verifyPayment = async (req, res) => {
         orderStatus: "ACTIVE",
         message: "Payment is pending or not yet completed with the payment gateway.",
         data: {
-          bookingReference: booking.bookingReference,
-          bookingStatus: booking.bookingStatus,
-          paymentStatus: booking.paymentStatus,
+          bookingReference: ref,
+          bookingStatus: adapter.bookingStatus,
+          paymentStatus: adapter.paymentStatus,
         },
       });
     }
 
     // Handled for EXPIRED, CANCELLED, or other non-success states
+    const serviceName = adapter.type === BOOKING_TYPES.CONSULTATION ? "Consultation" : "Puja booking";
     return res.status(200).json({
       success: false,
       confirmed: false,
       orderStatus: cashfreeStatus,
-      message: `Payment order status is ${cashfreeStatus.toLowerCase()}. Consultation is not confirmed.`,
+      message: `Payment order status is ${cashfreeStatus.toLowerCase()}. ${serviceName} is not confirmed.`,
       data: {
-        bookingReference: booking.bookingReference,
-        bookingStatus: booking.bookingStatus,
-        paymentStatus: booking.paymentStatus,
+        bookingReference: ref,
+        bookingStatus: adapter.bookingStatus,
+        paymentStatus: adapter.paymentStatus,
       },
     });
   } catch (error) {
@@ -574,6 +598,7 @@ export const verifyPayment = async (req, res) => {
 //
 // Security & Verification:
 //   - Validates Cashfree HMAC-SHA256 signature using raw request body
+//   - Polymorphically resolves booking via Booking Resolver
 //   - Validates trusted amount from DB against webhook order/payment amount
 //   - Idempotent: repeated events do not alter already-confirmed bookings
 //   - Only genuine success transitions bookingStatus to Confirmed / Paid
@@ -621,24 +646,25 @@ export const handleCashfreeWebhook = async (req, res) => {
       });
     }
 
-    // 2. Find associated booking (supports retry suffixes like VB-XXXXXX_123456)
-    const bookingRef = orderId?.includes("_") ? orderId.split("_")[0] : orderId;
-    const booking = await Booking.findOne({
-      where: { bookingReference: bookingRef },
-    });
-
-    if (!booking) {
-      console.warn(`Cashfree Webhook: No booking found for order_id: ${orderId} (ref: ${bookingRef})`);
-      // Return 200 so Cashfree does not repeatedly retry an unknown booking
-      return res.status(200).json({
-        success: true,
-        message: `Booking ${orderId} not found. Acknowledged.`,
-      });
+    // 2. Find associated booking via polymorphic Booking Resolver
+    let adapter;
+    try {
+      adapter = await resolveBookingEntity(orderId);
+    } catch (resolveErr) {
+      if (resolveErr instanceof BookingResolverError && resolveErr.code === "NOT_FOUND") {
+        console.warn(`Cashfree Webhook: No booking found for order_id: ${orderId}`);
+        // Return 200 so Cashfree does not repeatedly retry an unknown booking
+        return res.status(200).json({
+          success: true,
+          message: `Booking ${orderId} not found. Acknowledged.`,
+        });
+      }
+      throw resolveErr;
     }
 
     // 3. IDEMPOTENCY CHECK
     // If webhook or client verification already completed, acknowledge safely
-    if (booking.paymentStatus === "Paid" && booking.bookingStatus === "Confirmed") {
+    if (adapter.paymentStatus === "Paid" && adapter.bookingStatus === "Confirmed") {
       return res.status(200).json({
         success: true,
         message: "Booking already confirmed. Webhook acknowledged.",
@@ -654,7 +680,7 @@ export const handleCashfreeWebhook = async (req, res) => {
 
     if (isSuccess) {
       // 4a. Amount verification
-      const trustedAmount = Number(booking.amount);
+      const trustedAmount = adapter.authoritativeAmount;
       const webhookAmount = Number(
         event?.data?.order?.order_amount ?? event?.data?.payment?.payment_amount,
       );
@@ -673,19 +699,12 @@ export const handleCashfreeWebhook = async (req, res) => {
       const cfPaymentId =
         event?.data?.payment?.cf_payment_id ||
         event?.data?.order?.cf_order_id ||
-        booking.transactionId;
+        adapter.transactionId;
 
-      const paymentMethod = event?.data?.payment?.payment_group
-        ? `Cashfree ${event.data.payment.payment_group.toUpperCase()}`
-        : "Cashfree Online";
+      const paymentGroup = event?.data?.payment?.payment_group || null;
 
-      // 4c. Update booking state to Confirmed & Paid
-      await booking.update({
-        bookingStatus: "Confirmed",
-        paymentStatus: "Paid",
-        transactionId: String(cfPaymentId),
-        paymentMethod,
-      });
+      // 4c. Update booking state to Confirmed & Paid via normalized adapter
+      await adapter.markConfirmed(cfPaymentId, paymentGroup);
 
       console.log(`Cashfree Webhook: Successfully confirmed booking ${orderId} (Payment ID: ${cfPaymentId})`);
 
@@ -711,4 +730,3 @@ export const handleCashfreeWebhook = async (req, res) => {
     });
   }
 };
-

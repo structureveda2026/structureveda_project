@@ -23,7 +23,7 @@ if (!appId || !secretKey) {
 //   new Cashfree(CFEnvironment.SANDBOX, apiVersion)
 //
 // Credentials are set as instance properties after construction.
-// The API version is pinned here — bump only after testing against the new spec.
+// Single centralized gateway instance used for all booking types (Consultations and Rituals).
 // ---------------------------------------------------------------------------
 const CASHFREE_API_VERSION = "2023-08-01";
 
@@ -35,30 +35,41 @@ cashfree.XClientSecret = secretKey;
 // createCashfreeOrder
 //
 // Creates a Cashfree Sandbox payment order.
-// Called ONLY from payment.controller.js after booking validation.
+// Accepts normalized booking details, maintaining backward compatibility with
+// legacy consultation parameters while supporting generalized ritual payments.
 //
 // Parameters:
-//   orderId       {string}  Unique order identifier (= bookingReference, e.g. "VB-123456")
-//   orderAmount   {number}  Final INR amount — read from DB, NEVER from the client
-//   customerPhone {string}  10-digit phone number (Cashfree requirement)
-//   customerName  {string}  Customer full name
-//   customerEmail {string|null}  Customer email (optional)
+//   orderId         {string}       Unique order identifier (e.g. "VB-123456" or "VEDA-PUJA-XXXXXXXX")
+//   amount          {number}       Authoritative amount (takes precedence if provided)
+//   orderAmount     {number}       Legacy authoritative amount parameter
+//   customerDetails {object}       Normalized customer details { name, phone, normalizedPhone, email }
+//   customerPhone   {string}       Legacy customer phone string
+//   customerName    {string}       Legacy customer full name string
+//   customerEmail   {string|null}  Legacy customer email string
+//   customerId      {string}       Optional customer ID (defaults to orderId)
+//   returnUrl       {string}       Dynamic redirect URL post-payment
+//   orderNote       {string}       Dynamic note describing order contents
 //
 // Returns:
 //   { cfOrderId, paymentSessionId, orderStatus, orderAmount }
 //
 // Throws on:
 //   - Missing credentials
+//   - Invalid orderId or amount
 //   - Cashfree API error (network or non-2xx)
 //   - Missing paymentSessionId in response
 // ---------------------------------------------------------------------------
 export const createCashfreeOrder = async ({
   orderId,
   orderAmount,
+  amount,
+  customerDetails,
   customerPhone,
   customerName,
   customerEmail,
   customerId,
+  returnUrl,
+  orderNote,
 }) => {
   if (!appId || !secretKey) {
     throw new Error(
@@ -66,28 +77,74 @@ export const createCashfreeOrder = async ({
     );
   }
 
+  if (!orderId || typeof orderId !== "string" || !orderId.trim()) {
+    throw new Error("Order ID is required to create a Cashfree payment order.");
+  }
+
+  const effectiveOrderId = orderId.trim();
+
+  // 1. Authoritative Amount (prefer 'amount', fallback to legacy 'orderAmount')
+  const rawAmount = amount !== undefined ? amount : orderAmount;
+  const finalAmount = Number(Number(rawAmount).toFixed(2));
+
+  if (isNaN(finalAmount) || finalAmount <= 0) {
+    throw new Error(
+      `Invalid payment amount: ${rawAmount}. Amount must be a positive number.`,
+    );
+  }
+
+  // 2. Normalized Customer Details
+  const resolvedName =
+    customerDetails?.name?.trim() || customerName?.trim() || "Valued Devotee";
+
+  const rawPhone =
+    customerDetails?.normalizedPhone ||
+    customerDetails?.phone ||
+    customerPhone ||
+    "";
+  const sanitizedPhone = String(rawPhone).replace(/\D/g, "").slice(-10);
+
+  if (!sanitizedPhone || sanitizedPhone.length < 10) {
+    throw new Error(
+      "A valid 10-digit customer phone number is required by Cashfree.",
+    );
+  }
+
+  const resolvedEmail =
+    customerDetails?.email?.trim() ||
+    customerEmail?.trim() ||
+    "noreply@vedastructure.com";
+
+  const resolvedCustomerId =
+    customerId || customerDetails?.id || effectiveOrderId;
+
+  // 3. Dynamic Return URL & Order Note with safe consultation fallbacks
+  const defaultReturnUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/astrologers/vishal-bhardwaj/booking-status?order_id={order_id}`;
+  const effectiveReturnUrl = returnUrl || defaultReturnUrl;
+
+  const defaultOrderNote = `Astrologer consultation booking - ${effectiveOrderId}`;
+  const effectiveOrderNote = orderNote || defaultOrderNote;
+
+  const notifyUrl = `${process.env.BACKEND_URL || "http://localhost:5000"}/api/payments/webhook`;
+
   const orderRequest = {
-    order_id: orderId,
-    order_amount: Number(orderAmount),
+    order_id: effectiveOrderId,
+    order_amount: finalAmount,
     order_currency: "INR",
     customer_details: {
-      // customer_id must be non-empty; use customerId or orderId as a stable fallback.
-      customer_id: customerId || orderId,
-      customer_name: customerName,
-      customer_email: customerEmail || "noreply@vedastructure.com",
-      customer_phone: customerPhone,
+      customer_id: resolvedCustomerId,
+      customer_name: resolvedName,
+      customer_email: resolvedEmail,
+      customer_phone: sanitizedPhone,
     },
     order_meta: {
-      // return_url: Cashfree redirects here after payment (Phase 2B will handle this route).
-      return_url: `${process.env.FRONTEND_URL || "http://localhost:5173"}/astrologers/vishal-bhardwaj/booking-status?order_id={order_id}`,
-      // notify_url: Cashfree POSTs payment status updates here (Phase 2B webhook).
-      notify_url: `${process.env.BACKEND_URL || "http://localhost:5000"}/api/payments/webhook`,
+      return_url: effectiveReturnUrl,
+      notify_url: notifyUrl,
     },
-    order_note: `Astrologer consultation booking - ${orderId}`,
+    order_note: effectiveOrderNote,
   };
 
-  // cashfree-pg v6: PGCreateOrder takes only the order request object.
-  // The API version was already baked into the SDK instance at construction.
+  // cashfree-pg v6: PGCreateOrder takes the order request object.
   const response = await cashfree.PGCreateOrder(orderRequest);
 
   if (!response?.data) {
@@ -105,7 +162,7 @@ export const createCashfreeOrder = async ({
 
   return {
     cfOrderId: cf_order_id,               // Cashfree's internal order reference
-    paymentSessionId: payment_session_id,  // Required by Cashfree.js frontend SDK (Phase 2B)
+    paymentSessionId: payment_session_id,  // Required by Cashfree.js frontend SDK
     orderStatus: order_status,             // Expected: "ACTIVE" for a fresh sandbox order
     orderAmount: order_amount,             // Echoed back for frontend display
   };
@@ -177,3 +234,15 @@ export const verifyCashfreeWebhookSignature = ({ signature, rawBody, timestamp }
   return cashfree.PGVerifyWebhookSignature(signature, rawBody, timestamp);
 };
 
+// ---------------------------------------------------------------------------
+// Expose underlying Cashfree instance for testing and health verification
+// ---------------------------------------------------------------------------
+export const getCashfreeInstance = () => cashfree;
+
+export default {
+  createCashfreeOrder,
+  fetchCashfreeOrder,
+  fetchCashfreeOrderPayments,
+  verifyCashfreeWebhookSignature,
+  getCashfreeInstance,
+};
