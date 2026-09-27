@@ -94,6 +94,10 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    console.log("email", email);
+    console.log("password", password);
+
+
 
     // 1. Validate input
     if (!email || !password) {
@@ -105,6 +109,8 @@ export const login = async (req, res) => {
 
     // 2. Normalize email
     const normalizedEmail = email.trim().toLowerCase();
+    console.log("normalizedEmail", normalizedEmail);
+
 
     // 3. Find user
     const user = await User.findOne({

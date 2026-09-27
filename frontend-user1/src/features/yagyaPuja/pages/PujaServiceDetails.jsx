@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   CheckCircle2,
   Sparkles,
@@ -30,6 +30,7 @@ const INSIGHT_ICONS = [ScrollText, Sparkles, BookOpen, Flame, Sun, ShieldCheck];
 
 const PujaServiceDetails = () => {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -94,11 +95,10 @@ const PujaServiceDetails = () => {
     setCurrentSlide((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
 
-  const handleScrollToInfo = () => {
-    const el = document.getElementById("service-when-where") || document.getElementById("about-service");
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+  const handleBookNow = () => {
+    navigate(`/yagya-puja/puja/${slug}/book`, {
+      state: { service },
+    });
   };
 
   if (loading) {
@@ -320,7 +320,7 @@ const PujaServiceDetails = () => {
 
                 <button
                   type="button"
-                  onClick={handleScrollToInfo}
+                  onClick={handleBookNow}
                   className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#eab12c] via-[#f0bb3b] to-[#dca522] px-8 py-3.5 text-[14px] font-bold text-[#1c1308] shadow-[0_8px_24px_rgba(234,177,44,0.3)] transition-all duration-300 hover:brightness-105"
                 >
                   <span>Book This Puja</span>
@@ -779,7 +779,7 @@ const PujaServiceDetails = () => {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <button
               type="button"
-              onClick={handleScrollToInfo}
+              onClick={handleBookNow}
               className="group inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#eab12c] via-[#f0bb3b] to-[#dca522] px-9 py-4 text-[14.5px] font-bold text-[#1c1308] shadow-[0_10px_28px_rgba(234,177,44,0.3)] transition-all duration-300 hover:brightness-105"
             >
               <span>Book This Puja</span>
