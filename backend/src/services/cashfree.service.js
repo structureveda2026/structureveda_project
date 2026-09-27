@@ -30,6 +30,7 @@ const CASHFREE_API_VERSION = "2023-08-01";
 const cashfree = new Cashfree(CFEnvironment.SANDBOX, CASHFREE_API_VERSION);
 cashfree.XClientId = appId;
 cashfree.XClientSecret = secretKey;
+cashfree.XApiVersion = CASHFREE_API_VERSION;
 
 // ---------------------------------------------------------------------------
 // createCashfreeOrder

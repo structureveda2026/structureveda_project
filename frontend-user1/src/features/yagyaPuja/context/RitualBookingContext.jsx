@@ -125,10 +125,26 @@ export const AVAILABLE_ADDONS = [
 export const RITUAL_STORAGE_KEY = "veda_active_ritual_booking";
 
 /**
- * Resolves safe default configuration from actual service properties.
- * Only uses values present in service data; never invents options.
+ * Calculates Yagya completion date (start date + days - 1)
  */
-const getDefaultConfiguration = (service) => {
+export const calculateYagyaCompletionDate = (startDateStr, days) => {
+  if (!startDateStr || !days || Number(days) < 1) return "";
+  try {
+    const start = new Date(startDateStr);
+    if (isNaN(start.getTime())) return "";
+    const end = new Date(start);
+    end.setDate(start.getDate() + (Number(days) - 1));
+    return end.toISOString().split("T")[0];
+  } catch {
+    return "";
+  }
+};
+
+/**
+ * Resolves safe default configuration from actual service properties.
+ * Supports both PUJA and YAGYA services without inventing missing values.
+ */
+const getDefaultConfiguration = (service, serviceType = "PUJA") => {
   if (!service) {
     return {
       bookingDate: "",
@@ -138,10 +154,63 @@ const getDefaultConfiguration = (service) => {
       panditCount: 1,
       arrangementMode: "",
       locationType: "",
+      days: null,
+      dailyHours: null,
+      completionDate: "",
+      selectedPricingTier: null,
     };
   }
 
-  // 1. Duration defaults
+  const isYagya =
+    serviceType === "YAGYA" ||
+    service?.ritualType === "YAGYA" ||
+    service?.dailyRitualHours != null;
+
+  if (isYagya) {
+    const availableDurations =
+      Array.isArray(service.availableDurations) && service.availableDurations.length > 0
+        ? service.availableDurations.map((d) => Number(d)).filter((d) => !isNaN(d) && d > 0)
+        : [3];
+    const defaultDays = Number(service.defaultDurationDays) || availableDurations[0] || 3;
+    const daily = Number(service.dailyRitualHours) || 4;
+    const minPandits =
+      service.panditRequirement?.minPandits != null
+        ? Number(service.panditRequirement.minPandits)
+        : 3;
+
+    // Matching pricing tier
+    const matchedTier = Array.isArray(service.pricingTiers)
+      ? service.pricingTiers.find((t) => Number(t.days) === defaultDays) || null
+      : null;
+    const pandits = matchedTier?.panditCount ? Number(matchedTier.panditCount) : minPandits;
+
+    let arrangementMode = "kashi";
+    if (Array.isArray(service.locationModes) && service.locationModes.length > 0) {
+      const first = String(service.locationModes[0]).toLowerCase();
+      if (first.includes("kashi")) arrangementMode = "kashi";
+      else if (first.includes("home")) arrangementMode = "customer_home";
+      else if (first.includes("remote")) arrangementMode = "remote";
+      else arrangementMode = "kashi";
+    } else if (service.isKashiAvailable === false) {
+      arrangementMode = "remote";
+    }
+
+    return {
+      bookingDate: "",
+      bookingTime: "",
+      durationSelected: `${defaultDays} Days`,
+      durationHours: defaultDays * daily,
+      panditCount: Math.max(1, pandits),
+      arrangementMode,
+      locationType: arrangementMode,
+      days: defaultDays,
+      dailyHours: daily,
+      completionDate: "",
+      selectedPricingTier: matchedTier,
+    };
+  }
+
+  // 1. Duration defaults (Puja)
   let durationSelected = "";
   let durationHours = null;
 
@@ -158,7 +227,7 @@ const getDefaultConfiguration = (service) => {
     durationHours = !isNaN(parsed) && parsed > 0 ? parsed : null;
   }
 
-  // 2. Canonical arrangement mode & location type defaults
+  // 2. Canonical arrangement mode & location type defaults (Puja)
   let arrangementMode = "";
   let locationType = "";
 
@@ -183,6 +252,10 @@ const getDefaultConfiguration = (service) => {
     panditCount: 1,
     arrangementMode,
     locationType,
+    days: null,
+    dailyHours: null,
+    completionDate: "",
+    selectedPricingTier: null,
   };
 };
 
@@ -199,6 +272,10 @@ const INITIAL_STATE = {
     panditCount: 1,
     arrangementMode: "",
     locationType: "",
+    days: null,
+    dailyHours: null,
+    completionDate: "",
+    selectedPricingTier: null,
   },
 
   yajmanDetails: {
@@ -255,12 +332,24 @@ const INITIAL_STATE = {
   paymentError: null,
 };
 
-export const RitualBookingProvider = ({ children, initialService = null }) => {
+export const RitualBookingProvider = ({
+  children,
+  initialService = null,
+  serviceType = null,
+}) => {
   const { user } = useSelector((state) => state.auth || {});
+
+  const resolvedServiceType =
+    serviceType ||
+    (initialService?.dailyRitualHours != null || initialService?.ritualType === "YAGYA"
+      ? "YAGYA"
+      : "PUJA");
 
   const [currentStep, setCurrentStep] = useState(INITIAL_STATE.currentStep);
   const [service, setServiceState] = useState(initialService);
-  const [configuration, setConfiguration] = useState(() => getDefaultConfiguration(initialService));
+  const [configuration, setConfiguration] = useState(() =>
+    getDefaultConfiguration(initialService, resolvedServiceType)
+  );
   const [yajmanDetails, setYajmanDetails] = useState(() => ({
     ...INITIAL_STATE.yajmanDetails,
     name: user?.fullName || "",
@@ -312,7 +401,7 @@ export const RitualBookingProvider = ({ children, initialService = null }) => {
       if (!storedRef || typeof storedRef !== "string") return;
 
       const trimmedRef = storedRef.trim();
-      if (!trimmedRef.startsWith("VEDA-PUJA-")) {
+      if (!trimmedRef.startsWith("VEDA-PUJA-") && !trimmedRef.startsWith("VEDA-YAGYA-")) {
         localStorage.removeItem(RITUAL_STORAGE_KEY);
         return;
       }
@@ -379,26 +468,33 @@ export const RitualBookingProvider = ({ children, initialService = null }) => {
   /**
    * Sets or updates service data and re-initializes configuration if appropriate
    */
-  const setService = useCallback((newService) => {
-    setServiceState(newService);
-    if (newService) {
-      setConfiguration((prev) => {
-        const defaults = getDefaultConfiguration(newService);
-        return {
-          ...defaults,
+  const setService = useCallback(
+    (newService) => {
+      setServiceState(newService);
+      if (newService) {
+        setConfiguration((prev) => {
+          const defaults = getDefaultConfiguration(newService, resolvedServiceType);
+          return {
+            ...defaults,
+            ...prev,
+            durationSelected: prev.durationSelected || defaults.durationSelected,
+            durationHours: prev.durationHours || defaults.durationHours,
+            arrangementMode: prev.arrangementMode || defaults.arrangementMode,
+            locationType: prev.locationType || defaults.locationType,
+            days: prev.days || defaults.days,
+            dailyHours: prev.dailyHours || defaults.dailyHours,
+            completionDate: prev.completionDate || defaults.completionDate,
+            selectedPricingTier: prev.selectedPricingTier || defaults.selectedPricingTier,
+          };
+        });
+        setSankalpDetails((prev) => ({
           ...prev,
-          durationSelected: prev.durationSelected || defaults.durationSelected,
-          durationHours: prev.durationHours || defaults.durationHours,
-          arrangementMode: prev.arrangementMode || defaults.arrangementMode,
-          locationType: prev.locationType || defaults.locationType,
-        };
-      });
-      setSankalpDetails((prev) => ({
-        ...prev,
-        purpose: prev.purpose || newService.purposeSummary || newService.purpose || "",
-      }));
-    }
-  }, []);
+          purpose: prev.purpose || newService.purposeSummary || newService.purpose || "",
+        }));
+      }
+    },
+    [resolvedServiceType],
+  );
 
   /**
    * Action helpers for state slices
@@ -521,35 +617,82 @@ export const RitualBookingProvider = ({ children, initialService = null }) => {
       const stepErrors = {};
 
       if (stepIndex === 0) {
-        // Step 1: Configuration Validation
-        if (!configuration.durationSelected) {
-          stepErrors.durationSelected = "Please select a ceremony duration.";
-        }
-        if (!configuration.bookingDate) {
-          stepErrors.bookingDate = "Please select a ceremony date.";
-        } else {
-          const today = new Date().toISOString().split("T")[0];
-          if (configuration.bookingDate < today) {
-            stepErrors.bookingDate = "Ceremony date cannot be in the past.";
+        if (resolvedServiceType === "YAGYA") {
+          // Step 1: Yagya Configuration Validation
+          if (!service) {
+            stepErrors.service = "Yagya ceremony details are missing.";
           }
-        }
-        if (!configuration.bookingTime || !configuration.bookingTime.trim()) {
-          stepErrors.bookingTime = "Please enter or select a ceremony time.";
-        }
-        if (!configuration.panditCount || configuration.panditCount < 1) {
-          stepErrors.panditCount = "At least 1 officiating purohit is required.";
-        }
-        if (!configuration.arrangementMode) {
-          stepErrors.arrangementMode = "Please select an arrangement mode.";
-        }
-        if (!configuration.locationType) {
-          stepErrors.locationType = "Please select a location type.";
-        }
-        if (isCalculatingPrice) {
-          stepErrors.pricing = "Please wait while authoritative Dakshina is being calculated.";
-        }
-        if (priceError) {
-          stepErrors.pricing = "Please resolve the price calculation error before continuing.";
+          if (!configuration.days || Number(configuration.days) < 1) {
+            stepErrors.days = "Please select the Yagya duration in days.";
+          }
+          if (
+            Array.isArray(service?.availableDurations) &&
+            service.availableDurations.length > 0 &&
+            !service.availableDurations.map(Number).includes(Number(configuration.days))
+          ) {
+            stepErrors.days = "Selected duration is not supported for this Yagya.";
+          }
+          if (!configuration.dailyHours || Number(configuration.dailyHours) <= 0) {
+            stepErrors.dailyHours = "Daily ritual hours specification is missing.";
+          }
+          const minP = Number(service?.panditRequirement?.minPandits) || 1;
+          if (!configuration.panditCount || Number(configuration.panditCount) < minP) {
+            stepErrors.panditCount = `This Yagya requires a minimum of ${minP} officiating Vedic scholars.`;
+          }
+          if (!configuration.bookingDate) {
+            stepErrors.bookingDate = "Please select a Yagya commencement date.";
+          } else {
+            const today = new Date().toISOString().split("T")[0];
+            if (configuration.bookingDate < today) {
+              stepErrors.bookingDate = "Yagya commencement date cannot be in the past.";
+            }
+          }
+          if (!configuration.bookingTime || !configuration.bookingTime.trim()) {
+            stepErrors.bookingTime = "Please enter or select a daily commencement time.";
+          }
+          if (!configuration.arrangementMode) {
+            stepErrors.arrangementMode = "Please select an arrangement mode.";
+          }
+          if (!configuration.locationType) {
+            stepErrors.locationType = "Please select a location classification.";
+          }
+          if (isCalculatingPrice) {
+            stepErrors.pricing = "Please wait while authoritative Dakshina is being calculated.";
+          }
+          if (priceError) {
+            stepErrors.pricing = "Please resolve the price calculation error before continuing.";
+          }
+        } else {
+          // Step 1: Puja Configuration Validation
+          if (!configuration.durationSelected) {
+            stepErrors.durationSelected = "Please select a ceremony duration.";
+          }
+          if (!configuration.bookingDate) {
+            stepErrors.bookingDate = "Please select a ceremony date.";
+          } else {
+            const today = new Date().toISOString().split("T")[0];
+            if (configuration.bookingDate < today) {
+              stepErrors.bookingDate = "Ceremony date cannot be in the past.";
+            }
+          }
+          if (!configuration.bookingTime || !configuration.bookingTime.trim()) {
+            stepErrors.bookingTime = "Please enter or select a ceremony time.";
+          }
+          if (!configuration.panditCount || configuration.panditCount < 1) {
+            stepErrors.panditCount = "At least 1 officiating purohit is required.";
+          }
+          if (!configuration.arrangementMode) {
+            stepErrors.arrangementMode = "Please select an arrangement mode.";
+          }
+          if (!configuration.locationType) {
+            stepErrors.locationType = "Please select a location type.";
+          }
+          if (isCalculatingPrice) {
+            stepErrors.pricing = "Please wait while authoritative Dakshina is being calculated.";
+          }
+          if (priceError) {
+            stepErrors.pricing = "Please resolve the price calculation error before continuing.";
+          }
         }
       } else if (stepIndex === 1) {
         // Step 2: Yajman Details Validation
@@ -626,6 +769,8 @@ export const RitualBookingProvider = ({ children, initialService = null }) => {
       return Object.keys(stepErrors).length === 0;
     },
     [
+      resolvedServiceType,
+      service,
       configuration,
       yajmanDetails,
       sankalpDetails,
@@ -748,6 +893,55 @@ export const RitualBookingProvider = ({ children, initialService = null }) => {
       name: a.name,
     }));
 
+    if (resolvedServiceType === "YAGYA") {
+      return {
+        serviceType: "YAGYA",
+        serviceId: service.id,
+        serviceSlug: service.slug,
+        bookingDate: configuration.bookingDate,
+        bookingTime: configuration.bookingTime,
+        durationSelected: configuration.durationSelected || `${configuration.days} Days`,
+        days: configuration.days,
+        dailyHours: configuration.dailyHours,
+        durationHours: configuration.durationHours,
+        completionDate: configuration.completionDate,
+        panditCount: Math.max(
+          Number(service?.panditRequirement?.minPandits) || 1,
+          Number(configuration.panditCount) || 1,
+        ),
+        arrangementMode: configuration.arrangementMode || "kashi",
+        locationType: locType,
+        selectedPricingTier: configuration.selectedPricingTier || null,
+        venueDetails,
+        yajmanDetails: cleanYajman,
+        sankalpDetails: cleanSankalp,
+        familyMembers: cleanFamily,
+        addons: cleanAddons,
+
+        configuration: {
+          date: configuration.bookingDate,
+          timeSlot: configuration.bookingTime,
+          durationSelected: configuration.durationSelected || `${configuration.days} Days`,
+          days: configuration.days,
+          dailyHours: configuration.dailyHours,
+          durationHours: configuration.durationHours,
+          completionDate: configuration.completionDate,
+          panditCount: Math.max(
+            Number(service?.panditRequirement?.minPandits) || 1,
+            Number(configuration.panditCount) || 1,
+          ),
+          arrangementMode: configuration.arrangementMode || "kashi",
+          selectedPricingTier: configuration.selectedPricingTier || null,
+        },
+        location: {
+          locationType: locType,
+          venueDetails,
+        },
+        yajman: cleanYajman,
+        sankalp: cleanSankalp,
+      };
+    }
+
     return {
       serviceType: "PUJA",
       serviceId: service.id,
@@ -782,6 +976,7 @@ export const RitualBookingProvider = ({ children, initialService = null }) => {
       sankalp: cleanSankalp,
     };
   }, [
+    resolvedServiceType,
     service,
     configuration,
     locationDetails,
@@ -975,6 +1170,7 @@ export const RitualBookingProvider = ({ children, initialService = null }) => {
       setIsVerifyingPayment(false);
     }
   }, [
+    resolvedServiceType,
     isSubmitting,
     isOpeningPayment,
     validateAllSteps,
@@ -1050,17 +1246,37 @@ export const RitualBookingProvider = ({ children, initialService = null }) => {
       setIsCalculatingPrice(true);
       setPriceError(null);
 
-      const payload = {
-        serviceType: "PUJA",
-        serviceId: service.id,
-        serviceSlug: service.slug,
-        durationHours: activeConfig.durationHours || null,
-        durationSelected: activeConfig.durationSelected || "",
-        panditCount: Math.max(1, Number(activeConfig.panditCount) || 1),
-        arrangementMode: activeConfig.arrangementMode || "kashi",
-        locationType: activeConfig.locationType || activeConfig.arrangementMode || "kashi",
-        addons: addons || [],
-      };
+      let payload;
+      if (resolvedServiceType === "YAGYA") {
+        payload = {
+          serviceType: "YAGYA",
+          serviceId: service.id,
+          serviceSlug: service.slug,
+          durationSelected: activeConfig.durationSelected || `${activeConfig.days} Days`,
+          days: activeConfig.days,
+          dailyHours: activeConfig.dailyHours,
+          durationHours: activeConfig.durationHours,
+          panditCount: Math.max(
+            Number(service?.panditRequirement?.minPandits) || 1,
+            Number(activeConfig.panditCount) || 1
+          ),
+          arrangementMode: activeConfig.arrangementMode || "kashi",
+          locationType: activeConfig.locationType || activeConfig.arrangementMode || "kashi",
+          addons: addons || [],
+        };
+      } else {
+        payload = {
+          serviceType: "PUJA",
+          serviceId: service.id,
+          serviceSlug: service.slug,
+          durationHours: activeConfig.durationHours || null,
+          durationSelected: activeConfig.durationSelected || "",
+          panditCount: Math.max(1, Number(activeConfig.panditCount) || 1),
+          arrangementMode: activeConfig.arrangementMode || "kashi",
+          locationType: activeConfig.locationType || activeConfig.arrangementMode || "kashi",
+          addons: addons || [],
+        };
+      }
 
       try {
         const response = await ritualBookingService.calculatePrice(payload, controller.signal);
@@ -1078,7 +1294,7 @@ export const RitualBookingProvider = ({ children, initialService = null }) => {
         setIsCalculatingPrice(false);
       }
     },
-    [service, configuration, addons],
+    [resolvedServiceType, service, configuration, addons],
   );
 
   // Automatically trigger price calculation when service and key parameters change
@@ -1098,17 +1314,37 @@ export const RitualBookingProvider = ({ children, initialService = null }) => {
       setIsCalculatingPrice(true);
       setPriceError(null);
 
-      const payload = {
-        serviceType: "PUJA",
-        serviceId: service.id,
-        serviceSlug: service.slug,
-        durationHours: configuration.durationHours || null,
-        durationSelected: configuration.durationSelected || "",
-        panditCount: Math.max(1, Number(configuration.panditCount) || 1),
-        arrangementMode: configuration.arrangementMode || "kashi",
-        locationType: configuration.locationType || configuration.arrangementMode || "kashi",
-        addons: addons || [],
-      };
+      let payload;
+      if (resolvedServiceType === "YAGYA") {
+        payload = {
+          serviceType: "YAGYA",
+          serviceId: service.id,
+          serviceSlug: service.slug,
+          durationSelected: configuration.durationSelected || `${configuration.days} Days`,
+          days: configuration.days,
+          dailyHours: configuration.dailyHours,
+          durationHours: configuration.durationHours,
+          panditCount: Math.max(
+            Number(service?.panditRequirement?.minPandits) || 1,
+            Number(configuration.panditCount) || 1
+          ),
+          arrangementMode: configuration.arrangementMode || "kashi",
+          locationType: configuration.locationType || configuration.arrangementMode || "kashi",
+          addons: addons || [],
+        };
+      } else {
+        payload = {
+          serviceType: "PUJA",
+          serviceId: service.id,
+          serviceSlug: service.slug,
+          durationHours: configuration.durationHours || null,
+          durationSelected: configuration.durationSelected || "",
+          panditCount: Math.max(1, Number(configuration.panditCount) || 1),
+          arrangementMode: configuration.arrangementMode || "kashi",
+          locationType: configuration.locationType || configuration.arrangementMode || "kashi",
+          addons: addons || [],
+        };
+      }
 
       try {
         const response = await ritualBookingService.calculatePrice(payload, controller.signal);
@@ -1140,6 +1376,7 @@ export const RitualBookingProvider = ({ children, initialService = null }) => {
       controller.abort();
     };
   }, [
+    resolvedServiceType,
     service?.id,
     service?.slug,
     configuration.durationHours,
@@ -1147,10 +1384,14 @@ export const RitualBookingProvider = ({ children, initialService = null }) => {
     configuration.panditCount,
     configuration.arrangementMode,
     configuration.locationType,
+    configuration.days,
+    configuration.dailyHours,
+    service?.panditRequirement?.minPandits,
     addons,
   ]);
 
   const value = {
+    serviceType: resolvedServiceType,
     currentStep,
     setCurrentStep,
     nextStep,

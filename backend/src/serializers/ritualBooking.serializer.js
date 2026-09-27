@@ -9,11 +9,25 @@ export const serializeRitualPriceCalculation = (priceData) => {
     addonsTotal: Number(priceData.addonsTotal),
     totalAmount: Number(priceData.totalAmount),
     formattedTotal: priceData.formattedTotal,
+    currency: priceData.currency || "INR",
     breakdown: Array.isArray(priceData.breakdown) ? priceData.breakdown : [],
+    ...(priceData.serviceType && { serviceType: priceData.serviceType }),
+    ...(priceData.serviceId && { serviceId: priceData.serviceId }),
+    ...(priceData.serviceSlug && { serviceSlug: priceData.serviceSlug }),
+    ...(priceData.serviceName && { serviceName: priceData.serviceName }),
+    ...(priceData.durationSelected && { durationSelected: priceData.durationSelected }),
+    ...(priceData.days != null && { days: priceData.days }),
+    ...(priceData.dailyHours != null && { dailyHours: priceData.dailyHours }),
+    ...(priceData.durationHours != null && { durationHours: priceData.durationHours }),
+    ...(priceData.panditCount != null && { panditCount: priceData.panditCount }),
+    ...(priceData.pricingSource && { pricingSource: priceData.pricingSource }),
+    ...(priceData.pricingTier && { pricingTier: priceData.pricingTier }),
   };
 };
 
 export const serializeRitualBookingCreation = (booking, formattedTotal) => {
+  const yagyaMeta = booking.sankalpDetails?.yagyaMetadata;
+
   return {
     id: booking.id,
     bookingReference: booking.bookingReference,
@@ -29,6 +43,12 @@ export const serializeRitualBookingCreation = (booking, formattedTotal) => {
       durationHours: booking.durationHours,
       panditCount: booking.panditCount,
       arrangementMode: booking.arrangementMode,
+      ...(yagyaMeta && {
+        days: yagyaMeta.days,
+        dailyHours: yagyaMeta.dailyHours,
+        completionDate: yagyaMeta.completionDate,
+        selectedPricingTier: yagyaMeta.selectedPricingTier,
+      }),
     },
     location: {
       locationType: booking.locationType,
@@ -54,6 +74,8 @@ export const serializeRitualBookingCreation = (booking, formattedTotal) => {
 };
 
 export const serializeRitualBookingDetail = (booking) => {
+  const yagyaMeta = booking.sankalpDetails?.yagyaMetadata;
+
   return {
     bookingReference: booking.bookingReference,
     service: {
@@ -69,6 +91,12 @@ export const serializeRitualBookingDetail = (booking) => {
       durationHours: booking.durationHours,
       panditCount: booking.panditCount,
       arrangementMode: booking.arrangementMode,
+      ...(yagyaMeta && {
+        days: yagyaMeta.days,
+        dailyHours: yagyaMeta.dailyHours,
+        completionDate: yagyaMeta.completionDate,
+        selectedPricingTier: yagyaMeta.selectedPricingTier,
+      }),
     },
     location: {
       locationType: booking.locationType,

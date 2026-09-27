@@ -7,7 +7,7 @@ const YagyaServiceCard = ({ service }) => {
   return (
     <Link
       to={`/yagya-puja/yagya/${service.slug}`}
-      className="group relative flex flex-col justify-between overflow-hidden rounded-[24px] border border-[#e6caa0] bg-[#fffdf9] shadow-[0_8px_25px_rgba(80,60,30,0.06)] transition-all duration-500 hover:-translate-y-1.5 hover:border-[#d4872b] hover:shadow-[0_18px_40px_rgba(212,135,43,0.14)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d4872b] cursor-pointer"
+      className="group relative flex flex-col justify-between h-full overflow-hidden rounded-[24px] border border-[#e6caa0] bg-[#fffdf9] shadow-[0_8px_25px_rgba(80,60,30,0.06)] transition-all duration-500 hover:-translate-y-1.5 hover:border-[#d4872b] hover:shadow-[0_18px_40px_rgba(212,135,43,0.14)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d4872b] cursor-pointer"
     >
       {/* Top Image Frame */}
       <div className="relative h-[230px] w-full overflow-hidden bg-[#241a12]">

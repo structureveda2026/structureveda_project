@@ -10,6 +10,7 @@ import { useRitualBooking } from "../../context/RitualBookingContext";
 
 const StepReview = () => {
   const {
+    serviceType,
     service,
     configuration,
     yajmanDetails,
@@ -33,10 +34,21 @@ const StepReview = () => {
     initiateBookingAndPayment,
   } = useRitualBooking();
 
+  const isYagya = serviceType === "YAGYA";
+
   // Helper to jump to step
   const handleEdit = (stepIdx) => {
     setCurrentStep(stepIdx);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const LOCATION_TYPE_LABELS = {
+    kashi: "Kashi (Varanasi) Ghats & Shrines",
+    customer_home: "Devotee Residence / Private Premises",
+    temple: "Consecrated Mandir Premises",
+    veda_structure: "Veda Structure Consecrated Centre",
+    remote: "Remote Virtual Sanctuary",
+    other: "Custom Sacred Location",
   };
 
   // Convert canonical modes to human-readable strings
@@ -89,6 +101,7 @@ const StepReview = () => {
     service?.startingPrice ??
     null;
   const panditAmount =
+    priceBreakdown?.panditAddonPrice ??
     priceBreakdown?.additionalPanditAmount ??
     priceBreakdown?.panditDakshina ??
     null;
@@ -127,7 +140,7 @@ const StepReview = () => {
               1
             </span>
             <h3 className="font-serif text-[16px] font-semibold text-[#2b241d]">
-              Puja / Sacred Service
+              {isYagya ? "Yagya / Sacred Maha Anushthan" : "Puja / Sacred Service"}
             </h3>
           </div>
           <button
@@ -140,20 +153,43 @@ const StepReview = () => {
           </button>
         </div>
 
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Ceremony Name</span>
-            <p className="mt-0.5 font-serif text-[15px] font-bold text-[#2b241d]">
-              {service?.name || "Ceremony"}
-            </p>
+        {isYagya ? (
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Yagya Service</span>
+              <p className="mt-0.5 font-serif text-[15px] font-bold text-[#2b241d]">
+                {service?.name || "Vedic Yagya"}
+              </p>
+            </div>
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Presiding Deity</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#b36c1e]">
+                {service?.deity || "Supreme Divine"}
+              </p>
+            </div>
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Classification</span>
+              <p className="mt-0.5 text-[13px] text-[#685c4f]">
+                {service?.eyebrow || "Vedic Maha Anushthan"}
+              </p>
+            </div>
           </div>
-          <div>
-            <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Ceremony Slug</span>
-            <p className="mt-0.5 text-[13px] text-[#685c4f]">
-              {service?.slug || "puja-service"}
-            </p>
+        ) : (
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Ceremony Name</span>
+              <p className="mt-0.5 font-serif text-[15px] font-bold text-[#2b241d]">
+                {service?.name || "Ceremony"}
+              </p>
+            </div>
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Ceremony Slug</span>
+              <p className="mt-0.5 text-[13px] text-[#685c4f]">
+                {service?.slug || "puja-service"}
+              </p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* SECTION 2: CONFIGURATION */}
@@ -164,7 +200,9 @@ const StepReview = () => {
               2
             </span>
             <h3 className="font-serif text-[16px] font-semibold text-[#2b241d]">
-              Ceremony Configuration & Schedule
+              {isYagya
+                ? "Yagya Anushthan Schedule & Mandapam Configuration"
+                : "Ceremony Configuration & Schedule"}
             </h3>
           </div>
           <button
@@ -177,42 +215,105 @@ const StepReview = () => {
           </button>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
-          <div>
-            <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Auspicious Date</span>
-            <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
-              {formatDate(configuration.bookingDate)}
-            </p>
-          </div>
+        {isYagya ? (
+          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Commencement Date</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {formatDate(configuration.bookingDate)}
+              </p>
+            </div>
 
-          <div>
-            <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Muhurat / Time</span>
-            <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
-              {configuration.bookingTime || "Not selected"}
-            </p>
-          </div>
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Maha Purnahuti (End Date)</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2e7d32]">
+                {formatDate(configuration.completionDate) || "Derived from duration"}
+              </p>
+            </div>
 
-          <div>
-            <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Ceremony Duration</span>
-            <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
-              {configuration.durationSelected || `${configuration.durationHours || 1} Hours`}
-            </p>
-          </div>
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Daily Commencement Time</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.bookingTime || "Not selected"}
+              </p>
+            </div>
 
-          <div>
-            <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Officiating Purohits</span>
-            <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
-              {configuration.panditCount || 1} Vedic Scholar{Number(configuration.panditCount) > 1 ? "s" : ""}
-            </p>
-          </div>
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Anushthan Duration</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.days || 3} Days (
+                {configuration.durationHours ||
+                  (configuration.days || 3) * (configuration.dailyHours || 4)}{" "}
+                Total Hrs)
+              </p>
+            </div>
 
-          <div className="col-span-2">
-            <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Arrangement & Venue Mode</span>
-            <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
-              {getArrangementLabel(configuration.arrangementMode)}
-            </p>
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Daily Ritual Hours</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.dailyHours || 4} Hours / Day
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Officiating Scholars</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.panditCount || service?.panditRequirement?.minPandits || 3} Vedic Acharyas
+              </p>
+            </div>
+
+            <div className="col-span-2">
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Arrangement & Venue Mode</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {getArrangementLabel(configuration.arrangementMode)}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Location Classification</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {LOCATION_TYPE_LABELS[configuration.locationType] || configuration.locationType || "Standard"}
+              </p>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Auspicious Date</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {formatDate(configuration.bookingDate)}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Muhurat / Time</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.bookingTime || "Not selected"}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Ceremony Duration</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.durationSelected || `${configuration.durationHours || 1} Hours`}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Officiating Purohits</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.panditCount || 1} Vedic Scholar{Number(configuration.panditCount) > 1 ? "s" : ""}
+              </p>
+            </div>
+
+            <div className="col-span-2">
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Arrangement & Venue Mode</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {getArrangementLabel(configuration.arrangementMode)}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* SECTION 3: YAJMAN DETAILS */}
@@ -639,7 +740,7 @@ const StepReview = () => {
         </div>
       </div>
 
-      {/* SECTION 8: PRICING SUMMARY (AUTHORITATIVE BACKEND DAKSHINA ONLY) */}
+      {/* SECTION 8: DAKSHINA SUMMARY / PRICING */}
       <div className="overflow-hidden rounded-2xl border-2 border-[#d4872b]/40 bg-gradient-to-b from-[#fffdfa] to-[#fbf4e8] p-5 sm:p-7 shadow-xs space-y-4">
         <div className="flex items-center justify-between border-b border-[#ebd7be] pb-3.5">
           <div className="flex items-center gap-2">
@@ -655,173 +756,201 @@ const StepReview = () => {
           </span>
         </div>
 
-        <div className="space-y-2.5 text-[13.5px]">
-          {/* Base Ceremony Dakshina */}
-          {baseAmount != null && (
-            <div className="flex items-center justify-between text-[#685c4f]">
-              <span>Base Ceremony Dakshina</span>
-              <span className="font-semibold text-[#2b241d]">
-                ₹{Number(baseAmount).toLocaleString("en-IN")}
-              </span>
-            </div>
-          )}
-
-          {/* Additional Purohit Dakshina if applicable */}
-          {panditAmount != null && Number(panditAmount) > 0 && (
-            <div className="flex items-center justify-between text-[#685c4f]">
-              <span>Additional Officiating Purohits</span>
-              <span className="font-semibold text-[#2b241d]">
-                ₹{Number(panditAmount).toLocaleString("en-IN")}
-              </span>
-            </div>
-          )}
-
-          {/* Add-ons Total if returned by backend */}
-          {addonsTotal != null && (
-            <div className="flex items-center justify-between text-[#685c4f]">
-              <span>Add-ons Total</span>
-              <span className="font-semibold text-[#2b241d]">
-                ₹{Number(addonsTotal).toLocaleString("en-IN")}
-              </span>
-            </div>
-          )}
-
-          {/* Total Dakshina */}
-          <div className="border-t border-[#ead8b8] pt-3 flex items-baseline justify-between text-[#2b241d]">
-            <div>
-              <p className="font-serif text-[16px] font-bold">Total Sacred Dakshina</p>
-              <p className="text-[11.5px] text-[#7a6f62]">Inclusive of all Vedic rites & samagri</p>
-            </div>
-            <div className="text-right">
-              <span className="font-serif text-[26px] font-bold text-[#b36c1e]">
-                ₹{Number(totalDakshina).toLocaleString("en-IN")}
-              </span>
-            </div>
+        {isCalculatingPrice ? (
+          <div className="py-6 text-center space-y-2">
+            <RefreshCw size={22} className="animate-spin text-[#d4872b] mx-auto" />
+            <p className="text-[13px] text-[#7a6f62]">Calculating authoritative Vedic Dakshina...</p>
           </div>
-        </div>
-      </div>
-
-      {/* FINAL REVIEW CTA - PHASE 4B.4A ACTIVE PAYMENT CHECKOUT */}
-      <div className="rounded-2xl border border-[#ead8b8] bg-[#fffaf0] p-6 text-center space-y-4">
-        {bookingReference ? (
-          <div className="inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-emerald-300 bg-emerald-50 px-4 py-1.5 text-[12px] font-semibold text-emerald-800">
-            <ShieldCheck size={14} className="text-emerald-600" />
-            <span>Reserved Booking Ref: <strong>{bookingReference}</strong> ({bookingStatus})</span>
-            {paymentVerificationStatus === "pending" && (
-              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10.5px] font-bold text-amber-800">
-                Payment Pending
-              </span>
-            )}
-            {paymentVerificationStatus === "failed" && (
-              <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10.5px] font-bold text-red-800">
-                Payment Not Completed
-              </span>
-            )}
-          </div>
-        ) : (
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#d4872b]/30 bg-[#f8edd8] px-3.5 py-1 text-[11.5px] font-semibold text-[#b36c1e]">
-            <ShieldCheck size={13} className="text-[#b36c1e]" />
-            <span>Vedic Ritual & Ceremony Reservation</span>
-          </div>
-        )}
-
-        <h4 className="font-serif text-[19px] font-bold text-[#2b241d]">
-          {bookingReference
-            ? "Complete Payment to Finalize Ceremony"
-            : "Confirm & Proceed to Payment"}
-        </h4>
-
-        <p className="mx-auto max-w-[520px] text-[13px] leading-relaxed text-[#685c4f]">
-          {bookingReference
-            ? "Your ritual booking details are saved in the system. Click below to open the secure Cashfree checkout modal and complete your ceremony Dakshina."
-            : "Review your ceremony parameters above. When you proceed, your sacred booking reference will be generated and the Cashfree payment gateway will open."}
-        </p>
-
-        {/* Submission Error Banner */}
-        {submissionError && (
-          <div className="mx-auto max-w-[560px] rounded-xl border border-red-200 bg-red-50 p-3.5 text-left text-[12.5px] text-red-700 flex items-start gap-2.5">
+        ) : priceError ? (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-[13px] text-red-700 flex items-start gap-2.5">
             <AlertCircle size={16} className="mt-0.5 shrink-0 text-red-600" />
             <div>
-              <p className="font-semibold text-red-800">Booking Creation Notice</p>
-              <p className="mt-0.5">{submissionError}</p>
+              <p className="font-semibold text-red-800">Dakshina Calculation Notice</p>
+              <p className="mt-0.5">{priceError}</p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2.5 text-[13.5px]">
+            {isYagya && (
+              <div className="flex items-center justify-between text-[#685c4f]">
+                <span>Selected Anushthan Tier:</span>
+                <span className="font-semibold text-[#2b241d]">
+                  {priceBreakdown?.pricingTier?.label ||
+                    configuration.selectedPricingTier?.label ||
+                    `${configuration.days || 3}-Day Sacred Cycle`}
+                </span>
+              </div>
+            )}
+
+            {/* Base Ceremony Dakshina */}
+            {baseAmount != null && (
+              <div className="flex items-center justify-between text-[#685c4f]">
+                <span>{isYagya ? "Package Base Dakshina" : "Base Ceremony Dakshina"}</span>
+                <span className="font-semibold text-[#2b241d]">
+                  ₹{Number(baseAmount).toLocaleString("en-IN")}
+                </span>
+              </div>
+            )}
+
+            {/* Additional Purohit Dakshina if applicable */}
+            {panditAmount != null && Number(panditAmount) > 0 && (
+              <div className="flex items-center justify-between text-[#685c4f]">
+                <span>Additional Officiating Purohits</span>
+                <span className="font-semibold text-[#2b241d]">
+                  ₹{Number(panditAmount).toLocaleString("en-IN")}
+                </span>
+              </div>
+            )}
+
+            {/* Add-ons Total if returned by backend */}
+            {addonsTotal != null && Number(addonsTotal) > 0 && (
+              <div className="flex items-center justify-between text-[#685c4f]">
+                <span>Add-ons Total</span>
+                <span className="font-semibold text-[#2b241d]">
+                  ₹{Number(addonsTotal).toLocaleString("en-IN")}
+                </span>
+              </div>
+            )}
+
+            {/* Total Dakshina */}
+            <div className="border-t border-[#ead8b8] pt-3 flex items-baseline justify-between text-[#2b241d]">
+              <div>
+                <p className="font-serif text-[16px] font-bold">Total Sacred Dakshina</p>
+                <p className="text-[11.5px] text-[#7a6f62]">Inclusive of all Vedic rites & samagri</p>
+              </div>
+              <div className="text-right">
+                <span className="font-serif text-[26px] font-bold text-[#b36c1e]">
+                  ₹{Number(totalDakshina).toLocaleString("en-IN")}
+                </span>
+              </div>
             </div>
           </div>
         )}
+      </div>
 
-        {/* Payment Error Banner */}
-        {paymentError && (
-          <div className="mx-auto max-w-[560px] rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-left text-[12.5px] text-amber-800 flex items-start gap-2.5">
-            <AlertCircle size={16} className="mt-0.5 shrink-0 text-amber-600" />
-            <div>
-              <p className="font-semibold text-amber-900">Payment Gateway Notice</p>
-              <p className="mt-0.5">{paymentError}</p>
-              <p className="mt-1 text-[11.5px] text-amber-700">
-                Your booking is safely recorded. You can retry opening checkout below without losing your configuration.
-              </p>
+      {/* FINAL REVIEW CTA & PAYMENT INITIATION */}
+      <div className="rounded-2xl border border-[#ead8b8] bg-[#fffaf0] p-6 text-center space-y-4">
+          {bookingReference ? (
+            <div className="inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-emerald-300 bg-emerald-50 px-4 py-1.5 text-[12px] font-semibold text-emerald-800">
+              <ShieldCheck size={14} className="text-emerald-600" />
+              <span>
+                Reserved Booking Ref: <strong>{bookingReference}</strong> ({bookingStatus})
+              </span>
+              {paymentVerificationStatus === "pending" && (
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10.5px] font-bold text-amber-800">
+                  Payment Pending
+                </span>
+              )}
+              {paymentVerificationStatus === "failed" && (
+                <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10.5px] font-bold text-red-800">
+                  Payment Not Completed
+                </span>
+              )}
             </div>
-          </div>
-        )}
-
-        {/* Action Button Area */}
-        <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
-          {/* If verifying payment */}
-          {isVerifyingPayment ? (
-            <button
-              type="button"
-              disabled
-              className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#eab12c] via-[#f0bb3b] to-[#dca522] px-9 py-3.5 text-[14px] font-bold text-[#1c1308] opacity-75 cursor-wait shadow-sm"
-            >
-              <RefreshCw size={16} className="animate-spin text-[#1c1308]" />
-              <span>Verifying Payment...</span>
-            </button>
           ) : (
-            <>
-              {/* Primary Action Button: Proceed or Retry Payment */}
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#d4872b]/30 bg-[#f8edd8] px-3.5 py-1 text-[11.5px] font-semibold text-[#b36c1e]">
+              <ShieldCheck size={13} className="text-[#b36c1e]" />
+              <span>Vedic Ritual & Ceremony Reservation</span>
+            </div>
+          )}
+
+          <h4 className="font-serif text-[19px] font-bold text-[#2b241d]">
+            {bookingReference
+              ? "Complete Payment to Finalize Ceremony"
+              : "Confirm & Proceed to Payment"}
+          </h4>
+
+          <p className="mx-auto max-w-[520px] text-[13px] leading-relaxed text-[#685c4f]">
+            {bookingReference
+              ? "Your ritual booking details are saved in the system. Click below to open the secure Cashfree checkout modal and complete your ceremony Dakshina."
+              : "Review your ceremony parameters above. When you proceed, your sacred booking reference will be generated and the Cashfree payment gateway will open."}
+          </p>
+
+          {/* Submission Error Banner */}
+          {submissionError && (
+            <div className="mx-auto max-w-[560px] rounded-xl border border-red-200 bg-red-50 p-3.5 text-left text-[12.5px] text-red-700 flex items-start gap-2.5">
+              <AlertCircle size={16} className="mt-0.5 shrink-0 text-red-600" />
+              <div>
+                <p className="font-semibold text-red-800">Booking Creation Notice</p>
+                <p className="mt-0.5">{submissionError}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Payment Error Banner */}
+          {paymentError && (
+            <div className="mx-auto max-w-[560px] rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-left text-[12.5px] text-amber-800 flex items-start gap-2.5">
+              <AlertCircle size={16} className="mt-0.5 shrink-0 text-amber-600" />
+              <div>
+                <p className="font-semibold text-amber-900">Payment Gateway Notice</p>
+                <p className="mt-0.5">{paymentError}</p>
+                <p className="mt-1 text-[11.5px] text-amber-700">
+                  Your booking is safely recorded. You can retry opening checkout below without losing your configuration.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Action Button Area */}
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+            {/* If verifying payment */}
+            {isVerifyingPayment ? (
               <button
                 type="button"
-                onClick={initiateBookingAndPayment}
-                disabled={isSubmitting || isOpeningPayment || isCalculatingPrice || !!priceError}
-                className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#eab12c] via-[#f0bb3b] to-[#dca522] px-9 py-3.5 text-[14px] font-bold text-[#1c1308] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_6px_20px_rgba(234,177,44,0.35)] hover:brightness-105 transition cursor-pointer"
+                disabled
+                className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#eab12c] via-[#f0bb3b] to-[#dca522] px-9 py-3.5 text-[14px] font-bold text-[#1c1308] opacity-75 cursor-wait shadow-sm"
               >
-                {isSubmitting ? (
-                  <>
-                    <RefreshCw size={16} className="animate-spin" />
-                    <span>Creating your sacred booking...</span>
-                  </>
-                ) : isOpeningPayment ? (
-                  <>
-                    <RefreshCw size={16} className="animate-spin" />
-                    <span>Connecting to Secure Payment Gateway...</span>
-                  </>
-                ) : (
-                  <>
-                    <Lock size={16} />
-                    <span>
-                      {bookingReference ? "Retry Secure Payment" : "Proceed to Secure Payment"}
-                    </span>
-                  </>
-                )}
+                <RefreshCw size={16} className="animate-spin text-[#1c1308]" />
+                <span>Verifying Payment...</span>
               </button>
-
-              {/* Secondary Status Check Button if booking exists */}
-              {bookingReference && !isSubmitting && !isOpeningPayment && (
+            ) : (
+              <>
+                {/* Primary Action Button: Proceed or Retry Payment */}
                 <button
                   type="button"
-                  onClick={checkPaymentStatus}
-                  className="inline-flex items-center gap-2 rounded-full border border-[#ead8b8] bg-white px-6 py-3.5 text-[13.5px] font-semibold text-[#5c4e3f] shadow-2xs hover:bg-[#faf4e8] transition cursor-pointer"
+                  onClick={initiateBookingAndPayment}
+                  disabled={isSubmitting || isOpeningPayment || isCalculatingPrice || !!priceError}
+                  className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#eab12c] via-[#f0bb3b] to-[#dca522] px-9 py-3.5 text-[14px] font-bold text-[#1c1308] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_6px_20px_rgba(234,177,44,0.35)] hover:brightness-105 transition cursor-pointer"
                 >
-                  <RefreshCw size={14} className="text-[#b36c1e]" />
-                  <span>Check Payment Status</span>
+                  {isSubmitting ? (
+                    <>
+                      <RefreshCw size={16} className="animate-spin" />
+                      <span>Creating your sacred booking...</span>
+                    </>
+                  ) : isOpeningPayment ? (
+                    <>
+                      <RefreshCw size={16} className="animate-spin" />
+                      <span>Connecting to Secure Payment Gateway...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Lock size={16} />
+                      <span>
+                        {bookingReference ? "Retry Secure Payment" : "Proceed to Secure Payment"}
+                      </span>
+                    </>
+                  )}
                 </button>
-              )}
-            </>
-          )}
-        </div>
 
-        <p className="text-[11.5px] text-[#8a7c6b]">
-          256-Bit SSL Encrypted • Powered by Cashfree Payment Gateway • Verified Vedic Acharyas
-        </p>
-      </div>
+                {/* Secondary Status Check Button if booking exists */}
+                {bookingReference && !isSubmitting && !isOpeningPayment && (
+                  <button
+                    type="button"
+                    onClick={checkPaymentStatus}
+                    className="inline-flex items-center gap-2 rounded-full border border-[#ead8b8] bg-white px-6 py-3.5 text-[13.5px] font-semibold text-[#5c4e3f] shadow-2xs hover:bg-[#faf4e8] transition cursor-pointer"
+                  >
+                    <RefreshCw size={14} className="text-[#b36c1e]" />
+                    <span>Check Payment Status</span>
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+
+          <p className="text-[11.5px] text-[#8a7c6b]">
+            256-Bit SSL Encrypted • Powered by Cashfree Payment Gateway • Verified Vedic Acharyas
+          </p>
+        </div>
     </div>
   );
 };

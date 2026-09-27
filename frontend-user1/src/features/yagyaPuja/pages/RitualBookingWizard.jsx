@@ -16,11 +16,13 @@ import {
 import pujaCatalogueService, {
   getServiceFallbackImage,
 } from "../../../services/pujaCatalogueService";
+import yagyaCatalogueService from "../../../services/yagyaCatalogueService";
 import {
   RitualBookingProvider,
   useRitualBooking,
 } from "../context/RitualBookingContext";
 import StepConfiguration from "../components/booking/StepConfiguration";
+import StepConfigurationYagya from "../components/booking/StepConfigurationYagya";
 import StepYajman from "../components/booking/StepYajman";
 import StepSankalp from "../components/booking/StepSankalp";
 import StepFamilyMembers from "../components/booking/StepFamilyMembers";
@@ -45,6 +47,7 @@ const STEP_TITLES = [
 const RitualBookingWizardContent = () => {
   const navigate = useNavigate();
   const {
+    serviceType,
     currentStep,
     setCurrentStep,
     nextStep,
@@ -85,7 +88,10 @@ const RitualBookingWizardContent = () => {
     return <RitualBookingConfirmation />;
   }
 
-  const fallbackImg = getServiceFallbackImage(service?.slug);
+  const isYagya = serviceType === "YAGYA";
+  const fallbackImg = isYagya
+    ? service?.bannerImage || "/assets/card-yagya-fire-CIHyRsVH.jpg"
+    : getServiceFallbackImage(service?.slug);
   const primaryImg = service?.image || service?.bannerImage || fallbackImg;
 
   // Format canonical mode for display in summary
@@ -152,12 +158,19 @@ const RitualBookingWizardContent = () => {
               Home
             </Link>
             <span>/</span>
-            <Link to="/yagya-puja/puja" className="hover:text-[#2b241d]">
-              Puja Catalogue
+            <Link
+              to={isYagya ? "/yagya-puja/yagya" : "/yagya-puja/puja"}
+              className="hover:text-[#2b241d]"
+            >
+              {isYagya ? "Yagya Catalogue" : "Puja Catalogue"}
             </Link>
             <span>/</span>
             <Link
-              to={`/yagya-puja/puja/${service.slug}`}
+              to={
+                isYagya
+                  ? `/yagya-puja/yagya/${service.slug}`
+                  : `/yagya-puja/puja/${service.slug}`
+              }
               className="hover:text-[#2b241d]"
             >
               {service.name}
@@ -170,11 +183,19 @@ const RitualBookingWizardContent = () => {
 
           <button
             type="button"
-            onClick={() => navigate(`/yagya-puja/puja/${service.slug}`)}
+            onClick={() =>
+              navigate(
+                isYagya
+                  ? `/yagya-puja/yagya/${service.slug}`
+                  : `/yagya-puja/puja/${service.slug}`
+              )
+            }
             className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[#685c4f] hover:text-[#2b241d] cursor-pointer"
           >
             <ArrowLeft size={14} />
-            <span>Return to Ceremony Overview</span>
+            <span>
+              {isYagya ? "Return to Yagya Overview" : "Return to Ceremony Overview"}
+            </span>
           </button>
         </div>
 
@@ -182,13 +203,19 @@ const RitualBookingWizardContent = () => {
         <div className="mb-8">
           <div className="inline-flex items-center gap-2 rounded-full border border-[#d4872b]/30 bg-[#f8edd8] px-3.5 py-1 text-[11px] font-bold uppercase tracking-[0.24em] text-[#b36c1e]">
             <Sparkles size={12} className="text-[#c77722]" />
-            <span>SACRED CEREMONY WIZARD • PHASE 4B.4A ACTIVE</span>
+            <span>
+              {isYagya
+                ? "SACRED YAGYA WIZARD • PHASE 5C CONFIGURATION ACTIVE"
+                : "SACRED CEREMONY WIZARD • PHASE 4B.4A ACTIVE"}
+            </span>
           </div>
           <h1 className="mt-3 font-serif text-[28px] font-bold text-[#2b241d] sm:text-[36px]">
             Arrange {service.name}
           </h1>
           <p className="mt-1 text-[14.5px] text-[#685c4f]">
-            Configure your personalized Vedic ceremony parameters, Gotra recitations, and venue details.
+            {isYagya
+              ? "Configure your multi-day Vedic Yagya parameters, daily Ahuti hours, Gotra recitations, and sacred mandapam."
+              : "Configure your personalized Vedic ceremony parameters, Gotra recitations, and venue details."}
           </p>
         </div>
 
@@ -292,7 +319,8 @@ const RitualBookingWizardContent = () => {
 
               {/* ACTIVE STEP CONTENT */}
               <div className="mt-6">
-                {currentStep === 0 && <StepConfiguration />}
+                {currentStep === 0 &&
+                  (isYagya ? <StepConfigurationYagya /> : <StepConfiguration />)}
                 {currentStep === 1 && <StepYajman />}
                 {currentStep === 2 && <StepSankalp />}
                 {currentStep === 3 && <StepFamilyMembers />}
@@ -361,7 +389,7 @@ const RitualBookingWizardContent = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1c1308]/90 via-[#1c1308]/30 to-transparent" />
                 <div className="absolute bottom-3 left-4 right-4 text-white">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[#eab12c]">
-                    VEDIC CEREMONY
+                    {isYagya ? "VEDIC MAHA YAGYA" : "VEDIC CEREMONY"}
                   </span>
                   <h3 className="font-serif text-[17px] font-bold leading-tight line-clamp-1">
                     {service.name}
@@ -378,7 +406,13 @@ const RitualBookingWizardContent = () => {
                       Duration:
                     </span>
                     <strong className="text-[#2b241d]">
-                      {configuration.durationSelected || `${configuration.durationHours || 2} Hours`}
+                      {isYagya
+                        ? `${configuration.days || 3} Days (${
+                            configuration.durationHours ||
+                            (configuration.days || 3) * (configuration.dailyHours || 4)
+                          } Hours)`
+                        : configuration.durationSelected ||
+                          `${configuration.durationHours || 2} Hours`}
                     </strong>
                   </div>
 
@@ -388,7 +422,13 @@ const RitualBookingWizardContent = () => {
                       Pandit Team:
                     </span>
                     <strong className="text-[#2b241d]">
-                      {configuration.panditCount || 1} Officiating Purohit
+                      {isYagya
+                        ? `${
+                            configuration.panditCount ||
+                            service?.panditRequirement?.minPandits ||
+                            3
+                          } Officiating Priests`
+                        : `${configuration.panditCount || 1} Officiating Purohit`}
                     </strong>
                   </div>
 
@@ -405,86 +445,145 @@ const RitualBookingWizardContent = () => {
 
                 {/* Authoritative Dakshina Breakdown */}
                 <div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a7c6b]">
-                      Authoritative Dakshina
-                    </span>
-                    {isCalculatingPrice && (
-                      <span className="inline-flex items-center gap-1 text-[11px] text-[#c77722] animate-pulse">
-                        <RefreshCw size={11} className="animate-spin" />
-                        Calculating...
-                      </span>
-                    )}
-                  </div>
+                  {isYagya ? (
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a7c6b]">
+                          Catalogue Dakshina Reference
+                        </span>
+                        <span className="rounded-full bg-[#f8edd8] px-2 py-0.5 text-[10px] font-bold text-[#b36c1e]">
+                          Phase 5C Preview
+                        </span>
+                      </div>
 
-                  {priceError ? (
-                    <div className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-[12px] text-red-700">
-                      <div className="flex items-start gap-1.5">
-                        <AlertCircle size={14} className="mt-0.5 shrink-0 text-red-600" />
-                        <div>
-                          <p>{priceError}</p>
-                          <button
-                            type="button"
-                            onClick={() => calculatePrice()}
-                            className="mt-1.5 text-[11px] font-bold underline cursor-pointer hover:text-red-900"
-                          >
-                            Retry Calculation
-                          </button>
+                      <div className="mt-3 space-y-2 text-[13px]">
+                        <div className="flex items-center justify-between text-[#685c4f]">
+                          <span>Selected Duration:</span>
+                          <span className="font-medium text-[#2b241d]">
+                            {configuration.days || 3} Days Anushthan
+                          </span>
+                        </div>
+
+                        {configuration.selectedPricingTier?.price ? (
+                          <div className="flex items-center justify-between text-[#685c4f]">
+                            <span>Package Base Dakshina:</span>
+                            <span className="font-medium text-[#2b241d]">
+                              ₹{Number(configuration.selectedPricingTier.price).toLocaleString("en-IN")}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between text-[#685c4f]">
+                            <span>Starting Dakshina:</span>
+                            <span className="font-medium text-[#2b241d]">
+                              {service.formattedPrice ||
+                                `₹${Number(service.startingPrice || 0).toLocaleString("en-IN")}`}
+                            </span>
+                          </div>
+                        )}
+
+                        <div className="border-t border-[#ebdcc4] pt-3 flex items-baseline justify-between">
+                          <div>
+                            <span className="block text-[11px] font-bold uppercase tracking-wider text-[#8a7c6b]">
+                              Catalogue Total
+                            </span>
+                            <span className="text-[10px] text-[#8a7c6b]">
+                              (Package Reference)
+                            </span>
+                          </div>
+                          <span className="font-serif text-[24px] font-bold text-[#c77722]">
+                            ₹{Number(
+                              configuration.selectedPricingTier?.price ||
+                                service.startingPrice ||
+                                0,
+                            ).toLocaleString("en-IN")}
+                          </span>
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="mt-3 space-y-2 text-[13px]">
-                      {priceBreakdown ? (
-                        <>
-                          <div className="flex items-center justify-between text-[#685c4f]">
-                            <span>Ceremony Base Dakshina:</span>
-                            <span className="font-medium text-[#2b241d]">
-                              ₹{Number(priceBreakdown.basePrice || service.startingPrice || 0).toLocaleString("en-IN")}
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a7c6b]">
+                          Authoritative Dakshina
+                        </span>
+                        {isCalculatingPrice && (
+                          <span className="inline-flex items-center gap-1 text-[11px] text-[#c77722] animate-pulse">
+                            <RefreshCw size={11} className="animate-spin" />
+                            Calculating...
+                          </span>
+                        )}
+                      </div>
+
+                      {priceError ? (
+                        <div className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-[12px] text-red-700">
+                          <div className="flex items-start gap-1.5">
+                            <AlertCircle size={14} className="mt-0.5 shrink-0 text-red-600" />
+                            <div>
+                              <p>{priceError}</p>
+                              <button
+                                type="button"
+                                onClick={() => calculatePrice()}
+                                className="mt-1.5 text-[11px] font-bold underline cursor-pointer hover:text-red-900"
+                              >
+                                Retry Calculation
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="mt-3 space-y-2 text-[13px]">
+                          {priceBreakdown ? (
+                            <>
+                              <div className="flex items-center justify-between text-[#685c4f]">
+                                <span>Ceremony Base Dakshina:</span>
+                                <span className="font-medium text-[#2b241d]">
+                                  ₹{Number(priceBreakdown.basePrice || service.startingPrice || 0).toLocaleString("en-IN")}
+                                </span>
+                              </div>
+
+                              {(priceBreakdown.additionalPanditsCharge > 0 ||
+                                priceBreakdown.additionalPanditCharge > 0) && (
+                                <div className="flex items-center justify-between text-[#685c4f]">
+                                  <span>Additional Purohit Charge:</span>
+                                  <span className="font-medium text-[#2b241d]">
+                                    +₹{Number(priceBreakdown.additionalPanditsCharge || priceBreakdown.additionalPanditCharge).toLocaleString("en-IN")}
+                                  </span>
+                                </div>
+                              )}
+
+                              {priceBreakdown.addonsTotal > 0 && (
+                                <div className="flex items-center justify-between text-[#685c4f]">
+                                  <span>Sacred Add-ons Total:</span>
+                                  <span className="font-medium text-[#2b241d]">
+                                    +₹{Number(priceBreakdown.addonsTotal).toLocaleString("en-IN")}
+                                  </span>
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <div className="flex items-center justify-between text-[#685c4f]">
+                              <span>Starting Dakshina:</span>
+                              <span className="font-medium text-[#2b241d]">
+                                {service.formattedPrice}
+                              </span>
+                            </div>
+                          )}
+
+                          <div className="border-t border-[#ebdcc4] pt-3 flex items-baseline justify-between">
+                            <div>
+                              <span className="block text-[11px] font-bold uppercase tracking-wider text-[#8a7c6b]">
+                                Total Dakshina
+                              </span>
+                              <span className="text-[10px] text-[#8a7c6b]">
+                                (Backend Authoritative)
+                              </span>
+                            </div>
+                            <span className="font-serif text-[24px] font-bold text-[#c77722]">
+                              ₹{Number(displayTotal).toLocaleString("en-IN")}
                             </span>
                           </div>
-
-                          {(priceBreakdown.additionalPanditsCharge > 0 ||
-                            priceBreakdown.additionalPanditCharge > 0) && (
-                            <div className="flex items-center justify-between text-[#685c4f]">
-                              <span>Additional Purohit Charge:</span>
-                              <span className="font-medium text-[#2b241d]">
-                                +₹{Number(priceBreakdown.additionalPanditsCharge || priceBreakdown.additionalPanditCharge).toLocaleString("en-IN")}
-                              </span>
-                            </div>
-                          )}
-
-                          {priceBreakdown.addonsTotal > 0 && (
-                            <div className="flex items-center justify-between text-[#685c4f]">
-                              <span>Sacred Add-ons Total:</span>
-                              <span className="font-medium text-[#2b241d]">
-                                +₹{Number(priceBreakdown.addonsTotal).toLocaleString("en-IN")}
-                              </span>
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <div className="flex items-center justify-between text-[#685c4f]">
-                          <span>Starting Dakshina:</span>
-                          <span className="font-medium text-[#2b241d]">
-                            {service.formattedPrice}
-                          </span>
                         </div>
                       )}
-
-                      <div className="border-t border-[#ebdcc4] pt-3 flex items-baseline justify-between">
-                        <div>
-                          <span className="block text-[11px] font-bold uppercase tracking-wider text-[#8a7c6b]">
-                            Total Dakshina
-                          </span>
-                          <span className="text-[10px] text-[#8a7c6b]">
-                            (Backend Authoritative)
-                          </span>
-                        </div>
-                        <span className="font-serif text-[24px] font-bold text-[#c77722]">
-                          ₹{Number(displayTotal).toLocaleString("en-IN")}
-                        </span>
-                      </div>
                     </div>
                   )}
                 </div>
@@ -512,9 +611,17 @@ const RitualBookingWizardContent = () => {
  * Main Ritual Booking Wizard Page
  * Loads service by slug and wraps in RitualBookingProvider
  */
-const RitualBookingWizard = () => {
+const RitualBookingWizard = ({ serviceType = null }) => {
   const { slug } = useParams();
   const location = useLocation();
+
+  const resolvedServiceType =
+    serviceType ||
+    (location.pathname.startsWith("/yagya-puja/yagya") ||
+    location.state?.service?.dailyRitualHours != null ||
+    location.state?.service?.ritualType === "YAGYA"
+      ? "YAGYA"
+      : "PUJA");
 
   // Optimistic initial service from router state (if matching slug)
   const initialFromState =
@@ -538,15 +645,23 @@ const RitualBookingWizard = () => {
     }
 
     let isMounted = true;
-    pujaCatalogueService
-      .getPujaServiceBySlug(slug)
+    const fetchService =
+      resolvedServiceType === "YAGYA"
+        ? yagyaCatalogueService.getYagyaServiceBySlug(slug)
+        : pujaCatalogueService.getPujaServiceBySlug(slug);
+
+    fetchService
       .then((data) => {
         if (isMounted) {
           if (data) {
             setService(data);
             setError(null);
           } else {
-            setError("The requested Vedic ceremony is not available in our catalogue.");
+            setError(
+              resolvedServiceType === "YAGYA"
+                ? "The requested Vedic Yagya is not available in our catalogue."
+                : "The requested Vedic ceremony is not available in our catalogue.",
+            );
           }
           setLoading(false);
         }
@@ -562,7 +677,7 @@ const RitualBookingWizard = () => {
     return () => {
       isMounted = false;
     };
-  }, [slug, initialFromState]);
+  }, [slug, initialFromState, resolvedServiceType]);
 
   // Loading State
   if (loading) {
@@ -606,7 +721,7 @@ const RitualBookingWizard = () => {
               Retry
             </button>
             <Link
-              to="/yagya-puja/puja"
+              to={resolvedServiceType === "YAGYA" ? "/yagya-puja/yagya" : "/yagya-puja/puja"}
               className="rounded-full border border-[#ebdcc4] bg-white px-6 py-2.5 text-[13px] font-bold text-[#5c4e3f] hover:bg-[#faf4e8]"
             >
               Browse Catalogue
@@ -618,7 +733,7 @@ const RitualBookingWizard = () => {
   }
 
   return (
-    <RitualBookingProvider initialService={service}>
+    <RitualBookingProvider initialService={service} serviceType={resolvedServiceType}>
       <RitualBookingWizardContent />
     </RitualBookingProvider>
   );

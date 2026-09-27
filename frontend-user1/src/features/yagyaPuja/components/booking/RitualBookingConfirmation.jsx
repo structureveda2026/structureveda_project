@@ -22,6 +22,7 @@ import { useRitualBooking } from "../../context/RitualBookingContext";
 const RitualBookingConfirmation = () => {
   const navigate = useNavigate();
   const {
+    serviceType,
     service,
     configuration,
     yajmanDetails,
@@ -36,14 +37,24 @@ const RitualBookingConfirmation = () => {
   // Authoritative reference and data from backend response
   const activeRef =
     confirmedBooking?.bookingReference || bookingReference || "VEDA-PUJA-CONFIRMED";
+  const isYagya =
+    serviceType === "YAGYA" ||
+    activeRef.startsWith("VEDA-YAGYA-") ||
+    confirmedBooking?.serviceType === "YAGYA";
   const serviceName =
-    confirmedBooking?.serviceName || service?.name || "Sacred Vedic Ceremony";
+    confirmedBooking?.serviceName || service?.name || (isYagya ? "Sacred Vedic Yagya" : "Sacred Vedic Ceremony");
   const bookingDate =
-    confirmedBooking?.bookingDate || configuration?.bookingDate || "";
+    confirmedBooking?.bookingDate || confirmedBooking?.configuration?.date || configuration?.bookingDate || "";
   const bookingTime =
-    confirmedBooking?.bookingTime || configuration?.bookingTime || "";
+    confirmedBooking?.bookingTime || confirmedBooking?.configuration?.timeSlot || configuration?.bookingTime || "";
+  const completionDate =
+    confirmedBooking?.configuration?.completionDate ||
+    confirmedBooking?.sankalpDetails?.yagyaMetadata?.completionDate ||
+    configuration?.completionDate ||
+    null;
   const customerName =
     confirmedBooking?.customerName ||
+    confirmedBooking?.yajman?.name ||
     yajmanDetails?.name ||
     "Devotee";
 
@@ -117,9 +128,9 @@ const RitualBookingConfirmation = () => {
   const handleBookAnother = () => {
     resetBooking();
     if (service?.slug) {
-      navigate(`/yagya-puja/puja/${service.slug}`);
+      navigate(`/yagya-puja/${isYagya ? "yagya" : "puja"}/${service.slug}`);
     } else {
-      navigate("/yagya-puja/puja");
+      navigate(isYagya ? "/yagya-puja/yagya" : "/yagya-puja/puja");
     }
   };
 
@@ -258,18 +269,31 @@ const RitualBookingConfirmation = () => {
                 <div>
                   <span className="block text-[11.5px] font-medium text-[#8a7c6b] flex items-center gap-1">
                     <Calendar size={12} className="text-[#b36c1e]" />
-                    <span>Sanctified Date</span>
+                    <span>{isYagya ? "Commencement Date" : "Sanctified Date"}</span>
                   </span>
                   <p className="mt-0.5 font-semibold text-[#2b241d]">
                     {formatDate(bookingDate)}
                   </p>
                 </div>
 
+                {/* Completion Date (if multi-day Yagya) */}
+                {completionDate && (
+                  <div>
+                    <span className="block text-[11.5px] font-medium text-[#8a7c6b] flex items-center gap-1">
+                      <Calendar size={12} className="text-[#2e7d32]" />
+                      <span>Completion (Purnahuti)</span>
+                    </span>
+                    <p className="mt-0.5 font-semibold text-[#2b241d]">
+                      {formatDate(completionDate)}
+                    </p>
+                  </div>
+                )}
+
                 {/* Time */}
                 <div>
                   <span className="block text-[11.5px] font-medium text-[#8a7c6b] flex items-center gap-1">
                     <Clock size={12} className="text-[#b36c1e]" />
-                    <span>Auspicious Muhurat / Time</span>
+                    <span>{isYagya ? "Daily Commencement Time" : "Auspicious Muhurat / Time"}</span>
                   </span>
                   <p className="mt-0.5 font-semibold text-[#2b241d]">
                     {bookingTime || "To be finalized by Acharya"}

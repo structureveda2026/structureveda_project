@@ -51,6 +51,14 @@ const navItems: NavItem[] = [
     ],
   },
   {
+    label: "Yagya Catalogue",
+    path: "/admin/yagya-services",
+    icon: Flame,
+    children: [
+      { label: "All Yagya Services", path: "/admin/yagya-services" },
+    ],
+  },
+  {
     label: "Library",
     path: "/admin/library/blogs",
     icon: BookOpen,

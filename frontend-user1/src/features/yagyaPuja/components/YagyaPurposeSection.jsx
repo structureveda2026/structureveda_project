@@ -47,7 +47,7 @@ const YagyaPurposeSection = ({ selectedPurpose, onSelectPurpose }) => {
               <button
                 type="button"
                 key={cat.id}
-                onClick={() => handlePurposeClick(cat.title)}
+                onClick={() => handlePurposeClick(isSelected ? "All Purposes" : cat.title)}
                 className={`group flex flex-col justify-between rounded-[22px] border p-7 text-left transition-all duration-300 cursor-pointer ${
                   isSelected
                     ? "border-[#c77722] bg-[#fffdfa] shadow-[0_10px_28px_rgba(199,119,34,0.12)] ring-2 ring-[#c77722]/20"
