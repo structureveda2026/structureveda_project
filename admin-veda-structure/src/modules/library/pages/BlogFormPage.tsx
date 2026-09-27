@@ -36,6 +36,9 @@ export default function BlogFormPage() {
   const [activeLang, setActiveLang] = useState<"en" | "hi">("en");
   const [previewLang, setPreviewLang] = useState<"en" | "hi">("en");
 
+  // Form Validation Errors
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   // English Content States
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
@@ -88,6 +91,9 @@ export default function BlogFormPage() {
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setTitle(val);
+    if (errors.title) {
+      setErrors((prev) => ({ ...prev, title: "" }));
+    }
     if (!isCustomSlug && !isEditMode) {
       setSlug(generateSlug(val));
     }
@@ -150,6 +156,10 @@ export default function BlogFormPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (errors.featuredImage) {
+      setErrors((prev) => ({ ...prev, featuredImage: "" }));
+    }
+
     setIsUploadingImage(true);
     try {
       const uploaded = await uploadImage(file, { folder: "library-blogs" });
@@ -184,15 +194,66 @@ export default function BlogFormPage() {
     }
   };
 
-  const handleSubmit = async (targetStatus?: BlogStatus) => {
+  /**
+   * Comprehensive Client-side Form Validation
+   */
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    // 1. English Title Validation
     if (!title.trim()) {
-      showError("Please enter English blog post title");
-      setActiveLang("en");
-      return;
+      newErrors.title = "Blog title (English) is required.";
+    } else if (title.trim().length < 3) {
+      newErrors.title = "Blog title must be at least 3 characters long.";
+    } else if (title.trim().length > 300) {
+      newErrors.title = "Blog title cannot exceed 300 characters.";
     }
-    if (!content.trim()) {
-      showError("Please write English blog content");
-      setActiveLang("en");
+
+    // 2. English Content Validation
+    const plainContent = content.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").trim();
+    if (!plainContent) {
+      newErrors.content = "Blog article content (English) is required.";
+    }
+
+    // 3. Slug Validation
+    if (slug.trim()) {
+      const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+      if (!slugRegex.test(slug.trim())) {
+        newErrors.slug = "URL slug must contain only lowercase letters, numbers, and hyphens (e.g. sacred-rudrabhishek-guide).";
+      }
+    }
+
+    // 4. Category Validation
+    if (isAddingCustomCategory && !customCategory.trim()) {
+      newErrors.category = "Please enter a custom category name or select a standard category.";
+    }
+
+    // 5. Author Validation
+    if (!author.trim()) {
+      newErrors.author = "Author name is required.";
+    }
+
+    // 6. Featured Image URL Validation
+    if (featuredImage.trim() && !featuredImage.startsWith("data:") && !/^https?:\/\//i.test(featuredImage.trim()) && !featuredImage.startsWith("/")) {
+      newErrors.featuredImage = "Featured image must be a valid URL starting with http:// or https://";
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      if (newErrors.title || newErrors.content) {
+        setActiveLang("en");
+      }
+      const firstError = Object.values(newErrors)[0];
+      showError(firstError);
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (targetStatus?: BlogStatus) => {
+    if (!validateForm()) {
       return;
     }
 
@@ -234,7 +295,7 @@ export default function BlogFormPage() {
 
       if (isEditMode && id) {
         await blogService.updateBlog(id, payload);
-        showSuccess("Blog post updated successfully (English & Hindi)!");
+        showSuccess("Blog post updated successfully!");
       } else {
         await blogService.createBlog(payload);
         showSuccess(
@@ -246,7 +307,21 @@ export default function BlogFormPage() {
 
       navigate("/admin/library/blogs");
     } catch (err: any) {
-      showError(err?.message || "Failed to save blog post");
+      const errorMsg = err?.message || err?.data?.message || err?.data?.error || "Failed to save blog post. Please check backend connection.";
+      showError(errorMsg);
+
+      // Map backend validation errors to form fields
+      if (errorMsg.toLowerCase().includes("slug")) {
+        setErrors((prev) => ({ ...prev, slug: errorMsg }));
+      } else if (errorMsg.toLowerCase().includes("title")) {
+        setErrors((prev) => ({ ...prev, title: errorMsg }));
+        setActiveLang("en");
+      } else if (errorMsg.toLowerCase().includes("content")) {
+        setErrors((prev) => ({ ...prev, content: errorMsg }));
+        setActiveLang("en");
+      } else if (errorMsg.toLowerCase().includes("category")) {
+        setErrors((prev) => ({ ...prev, category: errorMsg }));
+      }
     } finally {
       setIsSaving(false);
     }
@@ -288,7 +363,7 @@ export default function BlogFormPage() {
               <span className="text-xs text-charcoal-400">•</span>
               <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
                 <Languages className="w-3.5 h-3.5" />
-                <span>Bilingual Upload (EN + HI)</span>
+                <span>Bilingual (EN + HI)</span>
               </span>
             </div>
             <h1 className="text-2xl font-bold text-charcoal-900 mt-0.5">
@@ -333,7 +408,24 @@ export default function BlogFormPage() {
         </div>
       </div>
 
-      {/* COMPACT SLEEK LANGUAGE SWITCHER */}
+      {/* Validation Error Banner */}
+      {Object.keys(errors).length > 0 && (
+        <div className="p-4 rounded-2xl bg-red-50 border border-red-200 flex items-start gap-3 text-red-800 animate-fade-in shadow-xs">
+          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-red-900">
+              Please resolve the required fields before submitting:
+            </h4>
+            <ul className="mt-1 list-disc list-inside text-xs space-y-0.5 text-red-700">
+              {Object.entries(errors).map(([key, msg]) => (
+                <li key={key}>{msg}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {/* Language Switcher Bar */}
       <div className="bg-white border border-cream-200 rounded-xl p-2 sm:px-4 sm:py-2.5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-saffron-50 border border-saffron-200 text-saffron-600 flex items-center justify-center font-bold">
@@ -344,12 +436,12 @@ export default function BlogFormPage() {
               Editing Language:
             </span>
             <span className="text-xs text-charcoal-500 ml-1.5 hidden md:inline">
-              (Same blog has both English & Hindi versions)
+              (Single blog contains both English & Hindi versions)
             </span>
           </div>
         </div>
 
-        {/* Compact Switcher Pills */}
+        {/* Switcher Pills */}
         <div className="flex items-center bg-cream-100/80 p-1 rounded-lg border border-cream-200 gap-1 self-stretch sm:self-auto">
           {/* English Tab */}
           <button
@@ -393,7 +485,7 @@ export default function BlogFormPage() {
 
       {/* Main Form Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left 2 Columns: Title, Excerpt & Rich Text Editor for Current Language */}
+        {/* Left 2 Columns: Title, Excerpt & Rich Text Editor */}
         <div className="lg:col-span-2 space-y-6">
           {/* ===================== 🇬🇧 ENGLISH CONTENT SECTION ===================== */}
           {activeLang === "en" && (
@@ -415,8 +507,18 @@ export default function BlogFormPage() {
                     value={title}
                     onChange={handleTitleChange}
                     placeholder="E.g. The Divine Power of Rudrabhishek Puja: Complete Guide and Benefits"
-                    className="w-full px-4 py-2.5 text-base sm:text-lg font-semibold border border-cream-200 rounded-xl focus:ring-2 focus:ring-saffron-500 focus:outline-hidden placeholder:font-normal placeholder:text-charcoal-400"
+                    className={`w-full px-4 py-2.5 text-base sm:text-lg font-semibold border rounded-xl focus:ring-2 focus:outline-hidden placeholder:font-normal placeholder:text-charcoal-400 transition ${
+                      errors.title
+                        ? "border-red-500 focus:ring-red-500 bg-red-50/20"
+                        : "border-cream-200 focus:ring-saffron-500"
+                    }`}
                   />
+                  {errors.title && (
+                    <p className="text-xs text-red-600 font-medium mt-1.5 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>{errors.title}</span>
+                    </p>
+                  )}
                 </div>
 
                 {/* Custom Slug & URL preview */}
@@ -441,14 +543,27 @@ export default function BlogFormPage() {
                       <input
                         type="text"
                         value={slug}
-                        onChange={(e) => setSlug(generateSlug(e.target.value))}
+                        onChange={(e) => {
+                          setSlug(generateSlug(e.target.value));
+                          if (errors.slug) setErrors((prev) => ({ ...prev, slug: "" }));
+                        }}
                         placeholder="custom-article-slug"
-                        className="flex-1 px-3 py-1.5 text-xs font-mono border border-cream-300 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:outline-hidden"
+                        className={`flex-1 px-3 py-1.5 text-xs font-mono border rounded-lg focus:ring-2 focus:outline-hidden ${
+                          errors.slug
+                            ? "border-red-500 focus:ring-red-500 bg-red-50/20"
+                            : "border-cream-300 focus:ring-saffron-500"
+                        }`}
                       />
                     </div>
                   ) : (
                     <p className="text-xs font-mono text-charcoal-600 truncate">
                       https://vedastructure.com/library/blogs/<strong className="text-saffron-700">{slug || "article-slug"}</strong>
+                    </p>
+                  )}
+                  {errors.slug && (
+                    <p className="text-xs text-red-600 font-medium mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>{errors.slug}</span>
                     </p>
                   )}
                 </div>
@@ -500,12 +615,23 @@ export default function BlogFormPage() {
                     </p>
                   </div>
                 </div>
-                <RichTextEditor
-                  value={content}
-                  onChange={setContent}
-                  minHeight="420px"
-                  placeholder="Write sacred wisdom, mantra explanations, and procedure steps in English..."
-                />
+                <div className={errors.content ? "ring-2 ring-red-400 rounded-2xl" : ""}>
+                  <RichTextEditor
+                    value={content}
+                    onChange={(val) => {
+                      setContent(val);
+                      if (errors.content) setErrors((prev) => ({ ...prev, content: "" }));
+                    }}
+                    minHeight="420px"
+                    placeholder="Write sacred wisdom, mantra explanations, and procedure steps in English..."
+                  />
+                </div>
+                {errors.content && (
+                  <p className="text-xs text-red-600 font-medium mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span>{errors.content}</span>
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -668,10 +794,23 @@ export default function BlogFormPage() {
                   <input
                     type="url"
                     value={featuredImage}
-                    onChange={(e) => setFeaturedImage(e.target.value)}
+                    onChange={(e) => {
+                      setFeaturedImage(e.target.value);
+                      if (errors.featuredImage) setErrors((prev) => ({ ...prev, featuredImage: "" }));
+                    }}
                     placeholder="Or paste direct image URL (https://...)"
-                    className="w-full px-3 py-1.5 text-xs border border-cream-300 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:outline-hidden"
+                    className={`w-full px-3 py-1.5 text-xs border rounded-lg focus:ring-2 focus:outline-hidden ${
+                      errors.featuredImage
+                        ? "border-red-500 focus:ring-red-500 bg-red-50/20"
+                        : "border-cream-300 focus:ring-saffron-500"
+                    }`}
                   />
+                  {errors.featuredImage && (
+                    <p className="text-xs text-red-600 font-medium mt-1 flex items-center gap-1 text-left">
+                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>{errors.featuredImage}</span>
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -830,10 +969,15 @@ export default function BlogFormPage() {
 
           <div className="bg-white p-5 rounded-2xl border border-cream-200 shadow-xs space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-charcoal-800">Category</h3>
+              <h3 className="text-sm font-bold text-charcoal-800">
+                Category <span className="text-red-500">*</span>
+              </h3>
               <button
                 type="button"
-                onClick={() => setIsAddingCustomCategory(!isAddingCustomCategory)}
+                onClick={() => {
+                  setIsAddingCustomCategory(!isAddingCustomCategory);
+                  if (errors.category) setErrors((prev) => ({ ...prev, category: "" }));
+                }}
                 className="text-xs text-saffron-600 hover:text-saffron-700 font-medium"
               >
                 {isAddingCustomCategory ? "Choose standard" : "+ Custom"}
@@ -841,17 +985,35 @@ export default function BlogFormPage() {
             </div>
 
             {isAddingCustomCategory ? (
-              <input
-                type="text"
-                value={customCategory}
-                onChange={(e) => setCustomCategory(e.target.value)}
-                placeholder="Enter custom category name"
-                className="w-full px-3.5 py-2 text-sm border border-cream-200 rounded-xl focus:ring-2 focus:ring-saffron-500 focus:outline-hidden"
-              />
+              <div>
+                <input
+                  type="text"
+                  value={customCategory}
+                  onChange={(e) => {
+                    setCustomCategory(e.target.value);
+                    if (errors.category) setErrors((prev) => ({ ...prev, category: "" }));
+                  }}
+                  placeholder="Enter custom category name"
+                  className={`w-full px-3.5 py-2 text-sm border rounded-xl focus:ring-2 focus:outline-hidden ${
+                    errors.category
+                      ? "border-red-500 focus:ring-red-500 bg-red-50/20"
+                      : "border-cream-200 focus:ring-saffron-500"
+                  }`}
+                />
+                {errors.category && (
+                  <p className="text-xs text-red-600 font-medium mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span>{errors.category}</span>
+                  </p>
+                )}
+              </div>
             ) : (
               <select
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
+                onChange={(e) => {
+                  setCategory(e.target.value);
+                  if (errors.category) setErrors((prev) => ({ ...prev, category: "" }));
+                }}
                 className="w-full px-3.5 py-2 text-sm border border-cream-200 rounded-xl bg-white focus:ring-2 focus:ring-saffron-500 focus:outline-hidden text-charcoal-800"
               >
                 {BLOG_CATEGORIES.map((cat) => (
@@ -926,19 +1088,34 @@ export default function BlogFormPage() {
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-cream-200 shadow-xs space-y-4">
-            <h3 className="text-sm font-bold text-charcoal-800">Author & Meta Info</h3>
+            <h3 className="text-sm font-bold text-charcoal-800">
+              Author & Meta Info
+            </h3>
 
             <div>
               <label className="block text-xs font-semibold text-charcoal-700 mb-1">
-                Author Name
+                Author Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 value={author}
-                onChange={(e) => setAuthor(e.target.value)}
+                onChange={(e) => {
+                  setAuthor(e.target.value);
+                  if (errors.author) setErrors((prev) => ({ ...prev, author: "" }));
+                }}
                 placeholder="Veda Structure Team"
-                className="w-full px-3 py-2 text-sm border border-cream-200 rounded-lg focus:ring-2 focus:ring-saffron-500 focus:outline-hidden"
+                className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:outline-hidden ${
+                  errors.author
+                    ? "border-red-500 focus:ring-red-500 bg-red-50/20"
+                    : "border-cream-200 focus:ring-saffron-500"
+                }`}
               />
+              {errors.author && (
+                <p className="text-xs text-red-600 font-medium mt-1 flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span>{errors.author}</span>
+                </p>
+              )}
             </div>
 
             <div>
@@ -957,7 +1134,7 @@ export default function BlogFormPage() {
         </div>
       </div>
 
-      {/* Live Preview Modal (With Language Toggle) */}
+      {/* Live Preview Modal */}
       {showPreviewModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-charcoal-900/60 backdrop-blur-xs p-4 overflow-y-auto animate-fade-in">
           <div className="bg-white rounded-3xl shadow-2xl border border-cream-200 w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
