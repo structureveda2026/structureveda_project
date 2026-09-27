@@ -168,7 +168,8 @@ export const createPaymentOrder = async (req, res) => {
       }
 
       // Case B: Existing order is still ACTIVE and has a valid payment_session_id
-      if (orderStatusUpper === "ACTIVE" && existingOrder.payment_session_id) {
+      const activeSessionId = existingOrder.payment_session_id || adapter.paymentSessionId;
+      if (orderStatusUpper === "ACTIVE" && activeSessionId) {
         return res.status(200).json({
           success: true,
           reused: true,
@@ -176,7 +177,7 @@ export const createPaymentOrder = async (req, res) => {
           data: {
             bookingReference: ref,
             cfOrderId: existingOrder.cf_order_id,
-            paymentSessionId: existingOrder.payment_session_id,
+            paymentSessionId: activeSessionId,
             orderAmount: existingOrder.order_amount,
             orderStatus: existingOrder.order_status,
           },

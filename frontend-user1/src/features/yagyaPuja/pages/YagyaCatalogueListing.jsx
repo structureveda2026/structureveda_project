@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import yagyaCatalogueService from "../../../services/yagyaCatalogueService";
 import { YAGYA_CATALOGUE_LIST, YAGYA_PURPOSE_CATEGORIES } from "../data/yagyaCatalogueData";
 import YagyaServiceListingHero from "../components/YagyaServiceListingHero";
 import YagyaConceptSection from "../components/YagyaConceptSection";
@@ -19,7 +20,7 @@ import YagyaFaqSection from "../components/YagyaFaqSection";
 import YagyaFinalCta from "../components/YagyaFinalCta";
 import { Sparkles, Search, SlidersHorizontal, X } from "lucide-react";
 
-export const DURATION_FILTER_OPTIONS = [
+const DURATION_FILTER_OPTIONS = [
   { label: "All Durations", value: "All" },
   { label: "3 Days", value: 3 },
   { label: "5 Days", value: 5 },
@@ -28,7 +29,7 @@ export const DURATION_FILTER_OPTIONS = [
   { label: "11 Days", value: 11 },
 ];
 
-export const SORT_FILTER_OPTIONS = [
+const SORT_FILTER_OPTIONS = [
   { label: "Featured First", value: "featured" },
   { label: "Price: Low to High", value: "price-asc" },
   { label: "Price: High to Low", value: "price-desc" },
@@ -41,12 +42,47 @@ const YagyaCatalogueListing = () => {
     document.title = "Vedic Yagya Services in Kashi | Multi-Day Yagya | Veda Structure";
   }, []);
 
+  const [backendServices, setBackendServices] = useState(null);
+  const [backendPurposes, setBackendPurposes] = useState([]);
+
   const [selectedPurpose, setSelectedPurpose] = useState("All Purposes");
   const [selectedDuration, setSelectedDuration] = useState("All");
   const [selectedMode, setSelectedMode] = useState("All");
   const [isFeaturedOnly, setIsFeaturedOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSort, setSelectedSort] = useState("featured");
+
+  // Fetch active Yagya services and purposes from backend API on mount
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchCatalogue() {
+      try {
+        const [servicesRes, purposesRes] = await Promise.allSettled([
+          yagyaCatalogueService.getYagyaServices({ limit: 50 }),
+          yagyaCatalogueService.getYagyaPurposes(),
+        ]);
+
+        if (!isMounted) return;
+
+        if (servicesRes.status === "fulfilled" && servicesRes.value?.services?.length > 0) {
+          setBackendServices(servicesRes.value.services);
+        }
+
+        if (purposesRes.status === "fulfilled" && Array.isArray(purposesRes.value) && purposesRes.value.length > 0) {
+          setBackendPurposes(purposesRes.value);
+        }
+      } catch (err) {
+        console.error("Yagya API loading fallback:", err);
+      }
+    }
+
+    fetchCatalogue();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
@@ -67,42 +103,68 @@ const YagyaCatalogueListing = () => {
     setSelectedSort("featured");
   };
 
-  const filteredYagyas = useMemo(() => {
-    return YAGYA_CATALOGUE_LIST.filter((yagya) => {
-      // Must be active
-      if (!yagya.isActive) return false;
+  const currentSourceList = backendServices && backendServices.length > 0 ? backendServices : YAGYA_CATALOGUE_LIST;
 
-      // Purpose filter
-      if (selectedPurpose !== "All Purposes") {
-        const matchCategory = yagya.purposeCategory === selectedPurpose;
-        const matchPurposeText = (yagya.purpose || "").toLowerCase().includes(selectedPurpose.toLowerCase());
-        if (!matchCategory && !matchPurposeText) {
+  const filteredYagyas = useMemo(() => {
+    return currentSourceList.filter((yagya) => {
+      // Must be active (treat true or undefined as active; only drop if explicitly false)
+      if (yagya.isActive === false) return false;
+
+      // Purpose filter (All Purposes / all / empty means NO filtering)
+      if (selectedPurpose && selectedPurpose !== "All Purposes" && selectedPurpose !== "all") {
+        const selNorm = selectedPurpose.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+        const catNorm = (yagya.purposeCategory || "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+        const keyNorm = (yagya.purposeKey || yagya.purposeCategoryId || "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+        const detailNameNorm = (yagya.purposeDetails?.name || "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+        const detailSlugNorm = (yagya.purposeDetails?.slug || "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+        const textNorm = (yagya.purpose || yagya.purposeSummary || "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+
+        const matches =
+          (catNorm && (catNorm === selNorm || catNorm.includes(selNorm) || selNorm.includes(catNorm))) ||
+          (keyNorm && (keyNorm === selNorm || keyNorm.includes(selNorm) || selNorm.includes(keyNorm))) ||
+          (detailNameNorm && (detailNameNorm === selNorm || detailNameNorm.includes(selNorm) || selNorm.includes(detailNameNorm))) ||
+          (detailSlugNorm && (detailSlugNorm === selNorm || detailSlugNorm.includes(selNorm) || selNorm.includes(detailSlugNorm))) ||
+          (textNorm && (textNorm.includes(selNorm) || selNorm.includes(textNorm)));
+
+        if (!matches) {
           return false;
         }
       }
 
-      // Duration filter (3, 5, 7, 9, 11)
-      if (selectedDuration !== "All") {
-        const daysNum = Number(selectedDuration);
-        const supportsDuration = (yagya.availableDurations || []).includes(daysNum);
-        if (!supportsDuration) return false;
+      // Duration filter (3, 5, 7, 9, 11) - "All" / "all" / "" means NO filtering
+      if (selectedDuration && selectedDuration !== "All" && selectedDuration !== "all") {
+        const daysNum = parseInt(selectedDuration, 10);
+        if (!isNaN(daysNum)) {
+          const serviceDurs = Array.isArray(yagya.availableDurations)
+            ? yagya.availableDurations.map(Number)
+            : [];
+          if (!serviceDurs.includes(daysNum)) {
+            return false;
+          }
+        }
       }
 
       // Mode filter (remote, individual, couple, family)
-      if (selectedMode !== "All") {
-        if (selectedMode === "remote") {
-          if (!yagya.isRemoteAvailable) return false;
-        } else if (selectedMode === "family") {
+      if (selectedMode && selectedMode !== "All" && selectedMode !== "all") {
+        const modeNorm = selectedMode.trim().toLowerCase();
+        if (modeNorm === "remote") {
+          if (!yagya.isRemoteAvailable && yagya.rawAvailableMode !== "remote" && yagya.rawAvailableMode !== "hybrid") {
+            return false;
+          }
+        } else if (modeNorm === "family") {
           const matchFamily =
+            yagya.purposeKey === "family-sankalpa" ||
             yagya.purposeCategoryId === "family-sankalpa" ||
-            (yagya.purpose || "").toLowerCase().includes("family") ||
-            (yagya.description || "").toLowerCase().includes("family");
+            (yagya.purpose || yagya.purposeSummary || "").toLowerCase().includes("family") ||
+            (yagya.description || yagya.shortDescription || "").toLowerCase().includes("family");
           if (!matchFamily) return false;
-        } else if (selectedMode === "individual") {
+        } else if (modeNorm === "individual") {
           const matchInd =
+            yagya.purposeKey === "spiritual-sankalpa" ||
             yagya.purposeCategoryId === "spiritual-sankalpa" ||
-            (yagya.purpose || "").toLowerCase().includes("vitality") ||
-            (yagya.purpose || "").toLowerCase().includes("courage");
+            (yagya.purpose || yagya.purposeSummary || "").toLowerCase().includes("vitality") ||
+            (yagya.purpose || yagya.purposeSummary || "").toLowerCase().includes("courage") ||
+            (yagya.purpose || yagya.purposeSummary || "").toLowerCase().includes("spiritual");
           if (!matchInd) return false;
         }
       }
@@ -116,28 +178,31 @@ const YagyaCatalogueListing = () => {
       if (searchQuery.trim() !== "") {
         const q = searchQuery.toLowerCase();
         const matchName = (yagya.name || "").toLowerCase().includes(q);
-        const matchDesc = (yagya.shortDescription || "").toLowerCase().includes(q);
-        const matchPurpose = (yagya.purpose || "").toLowerCase().includes(q);
-        if (!matchName && !matchDesc && !matchPurpose) {
+        const matchDesc = (yagya.shortDescription || yagya.description || "").toLowerCase().includes(q);
+        const matchPurpose = (yagya.purpose || yagya.purposeSummary || "").toLowerCase().includes(q);
+        const matchDeity = (yagya.deity || "").toLowerCase().includes(q);
+        if (!matchName && !matchDesc && !matchPurpose && !matchDeity) {
           return false;
         }
       }
 
       return true;
     }).sort((a, b) => {
+      const priceA = Number(a.startingPrice) || 0;
+      const priceB = Number(b.startingPrice) || 0;
       if (selectedSort === "price-asc") {
-        return a.startingPrice - b.startingPrice;
+        return priceA - priceB;
       }
       if (selectedSort === "price-desc") {
-        return b.startingPrice - a.startingPrice;
+        return priceB - priceA;
       }
       if (selectedSort === "name-asc") {
-        return a.name.localeCompare(b.name);
+        return (a.name || "").localeCompare(b.name || "");
       }
       // "featured" default
       return (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0);
     });
-  }, [selectedPurpose, selectedDuration, selectedMode, isFeaturedOnly, searchQuery, selectedSort]);
+  }, [currentSourceList, selectedPurpose, selectedDuration, selectedMode, isFeaturedOnly, searchQuery, selectedSort]);
 
   return (
     <div className="min-h-screen bg-[#fffaf0]">
@@ -208,20 +273,23 @@ const YagyaCatalogueListing = () => {
                 >
                   All Purposes
                 </button>
-                {YAGYA_PURPOSE_CATEGORIES.slice(0, 3).map((cat) => (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => setSelectedPurpose(cat.title)}
-                    className={`rounded-full px-4 py-2 text-[12.5px] font-semibold transition cursor-pointer whitespace-nowrap ${
-                      selectedPurpose === cat.title
-                        ? "bg-[#eab12c] text-[#1c1308] shadow-xs"
-                        : "border border-[#e5d8c0] bg-white text-[#5c4f42] hover:border-[#c77722]"
-                    }`}
-                  >
-                    {cat.title}
-                  </button>
-                ))}
+                {(backendPurposes.length > 0 ? backendPurposes : YAGYA_PURPOSE_CATEGORIES).slice(0, 3).map((cat) => {
+                  const title = cat.title || cat.name;
+                  return (
+                    <button
+                      key={cat.id || cat.slug}
+                      type="button"
+                      onClick={() => setSelectedPurpose(title)}
+                      className={`rounded-full px-4 py-2 text-[12.5px] font-semibold transition cursor-pointer whitespace-nowrap ${
+                        selectedPurpose === title
+                          ? "bg-[#eab12c] text-[#1c1308] shadow-xs"
+                          : "border border-[#e5d8c0] bg-white text-[#5c4f42] hover:border-[#c77722]"
+                      }`}
+                    >
+                      {title}
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Sort Selector */}
@@ -282,9 +350,9 @@ const YagyaCatalogueListing = () => {
 
           {/* Cards Grid */}
           {filteredYagyas.length > 0 ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-7">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-7 items-stretch">
               {filteredYagyas.map((yagya) => (
-                <YagyaServiceCard key={yagya.id} service={yagya} />
+                <YagyaServiceCard key={yagya.id || yagya.slug} service={yagya} />
               ))}
             </div>
           ) : (

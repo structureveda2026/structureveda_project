@@ -148,7 +148,7 @@ export const createRitualBookingAdapter = (ritualBooking) => {
   }
 
   const yajman = ritualBooking.yajmanDetails || {};
-  const rawPhone = yajman.phone ? String(yajman.phone).trim() : "";
+  const rawPhone = (yajman.phone || yajman.mobile) ? String(yajman.phone || yajman.mobile).trim() : "";
   const normalizedPhone = rawPhone.replace(/\D/g, "").slice(-10);
   const authoritativeAmount = Number(ritualBooking.totalAmount);
   const serviceSlug = ritualBooking.serviceSlug || "puja";
