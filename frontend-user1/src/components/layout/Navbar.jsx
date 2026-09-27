@@ -149,9 +149,8 @@ const Navbar = () => {
               Talk to an Astrologer
               <ChevronDown
                 size={16}
-                className={`transition-transform duration-200 ${
-                  isAstrologerDropdownOpen ? "rotate-180" : ""
-                }`}
+                className={`transition-transform duration-200 ${isAstrologerDropdownOpen ? "rotate-180" : ""
+                  }`}
               />
             </Link>
 
@@ -213,9 +212,8 @@ const Navbar = () => {
               <span>Yagya & Puja</span>
               <ChevronDown
                 size={16}
-                className={`transition-transform duration-200 ${
-                  isYagyaPujaDropdownOpen ? "rotate-180" : ""
-                }`}
+                className={`transition-transform duration-200 ${isYagyaPujaDropdownOpen ? "rotate-180" : ""
+                  }`}
               />
             </Link>
 
@@ -253,90 +251,17 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Veda Library Dropdown — Matches Yagya & Puja styling while keeping Open Tree View */}
-          <div
-            className="relative"
-            onMouseEnter={() => setIsLibraryDropdownOpen(true)}
-            onMouseLeave={() => setIsLibraryDropdownOpen(false)}
+
+
+          {/* Veda Library */}
+          <a
+            href="https://veda-library-five.vercel.app/library"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="whitespace-nowrap text-[14px] font-medium text-[#5f554a] transition-colors hover:text-[#c88918]"
           >
-            <Link
-              to="/library"
-              className="flex items-center gap-1.5 whitespace-nowrap text-[14px] font-medium text-[#5f554a] transition-colors hover:text-[#c88918]"
-            >
-              <span>Library</span>
-              <ChevronDown
-                size={16}
-                className={`transition-transform duration-200 ${
-                  isLibraryDropdownOpen ? "rotate-180" : ""
-                }`}
-              />
-            </Link>
-
-            {isLibraryDropdownOpen && (
-              <div className="absolute left-0 top-full z-50 pt-2 w-[285px]">
-                <div className="overflow-hidden rounded-xl border border-[#e3ca97] bg-[#fffdf9] shadow-[0_12px_32px_rgba(80,60,30,0.12)] animate-in fade-in slide-in-from-top-2 duration-200">
-                  {/* Header */}
-                  <div className="flex items-center justify-between border-b border-[#eee1ca] bg-[#faf6ed] px-4 py-2.5">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#c88918]">
-                      VEDA LIBRARY
-                    </p>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleOpenTreeView();
-                      }}
-                      className="inline-flex items-center gap-1 rounded-md border border-[#e2cca4] bg-[#fffcf5] px-2 py-0.5 text-[10px] font-bold text-[#986411] transition hover:bg-[#c88918] hover:text-white cursor-pointer shadow-2xs"
-                      title="सम्पूर्ण वैदिक ज्ञान-वृक्ष खोलें"
-                    >
-                      <Network size={11} />
-                      <span>वृक्ष व्यू</span>
-                    </button>
-                  </div>
-
-                  {/* Links List */}
-                  <div className="py-1">
-                    {VEDA_LIBRARY_NAV_ITEMS.map((item) => (
-                      <Link
-                        key={item.path}
-                        to={item.path}
-                        onClick={() => setIsLibraryDropdownOpen(false)}
-                        className="group flex w-full items-center justify-between px-4 py-2.5 text-left transition-colors hover:bg-[#faf6ed]"
-                      >
-                        <span className="text-[13px] font-medium text-[#2b241d] transition-colors group-hover:text-[#c88918]">
-                          {item.label}
-                        </span>
-                        <ArrowRight
-                          size={14}
-                          className="text-[#8a7c6b] opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100 group-hover:text-[#c88918]"
-                        />
-                      </Link>
-                    ))}
-                  </div>
-
-                  {/* Bottom Actions: Open Tree Modal & Explore All */}
-                  <div className="border-t border-[#eee1ca] bg-[#fbf7ee] p-2 space-y-1.5">
-                    <button
-                      type="button"
-                      onClick={handleOpenTreeView}
-                      className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-[#ebd2a0] bg-white py-1.5 text-[11.5px] font-bold text-[#986411] transition hover:bg-[#faf1e0] cursor-pointer shadow-2xs"
-                    >
-                      <Network size={13} />
-                      <span>Open Interactive Tree View (वृक्ष व्यू)</span>
-                    </button>
-                    <Link
-                      to="/library"
-                      onClick={() => setIsLibraryDropdownOpen(false)}
-                      className="flex w-full items-center justify-center rounded-lg bg-[#c88918] py-1.5 text-[11.5px] font-bold text-white transition hover:bg-[#b57a15] shadow-2xs"
-                    >
-                      Explore Entire Veda Library
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+            Library
+          </a>
         </nav>
 
         {/* =====================================================
@@ -376,9 +301,8 @@ const Navbar = () => {
                 <span className="max-w-[120px] truncate">{displayName}</span>
                 <ChevronDown
                   size={14}
-                  className={`transition-transform duration-200 ${
-                    isAccountDropdownOpen ? "rotate-180" : ""
-                  }`}
+                  className={`transition-transform duration-200 ${isAccountDropdownOpen ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
@@ -542,56 +466,15 @@ const Navbar = () => {
               )}
             </div>
 
-            {/* Veda Library Mobile Dropdown */}
-            <div className="border-b border-[#eee1ca]">
-              <button
-                type="button"
-                onClick={() => setIsMobileLibraryOpen(!isMobileLibraryOpen)}
-                className="flex w-full items-center justify-between py-3 text-left text-[14px] font-medium text-[#5f554a]"
-              >
-                <span>Veda Library</span>
-                <ChevronDown
-                  size={16}
-                  className={`transition-transform ${isMobileLibraryOpen ? "rotate-180" : ""}`}
-                />
-              </button>
-              {isMobileLibraryOpen && (
-                <div className="space-y-1 pb-3">
-                  {VEDA_LIBRARY_NAV_ITEMS.map((item) => (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      onClick={() => {
-                        setIsMobileLibraryOpen(false);
-                        setIsMenuOpen(false);
-                      }}
-                      className="flex w-full items-center justify-between rounded-lg border border-[#e3ca97] bg-[#fffdf9] px-4 py-2.5 text-left text-[13px] font-medium text-[#2b241d] transition-colors hover:bg-[#faf6ed]"
-                    >
-                      <span>{item.label}</span>
-                      <ArrowRight size={14} className="text-[#8a7c6b]" />
-                    </Link>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={handleOpenTreeView}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#ebd2a0] bg-[#fffbf4] py-2 text-[12px] font-bold text-[#986411] shadow-2xs hover:bg-[#faebd1] transition cursor-pointer"
-                  >
-                    <Network size={14} />
-                    <span>Open Interactive Tree View (वृक्ष व्यू)</span>
-                  </button>
-                  <Link
-                    to="/library"
-                    onClick={() => {
-                      setIsMobileLibraryOpen(false);
-                      setIsMenuOpen(false);
-                    }}
-                    className="flex w-full items-center justify-center rounded-lg bg-[#c88918] py-2 text-[12px] font-bold text-white shadow-xs hover:bg-[#b57a15] transition"
-                  >
-                    Explore Entire Veda Library
-                  </Link>
-                </div>
-              )}
-            </div>
+            <a
+              href="https://veda-library-five.vercel.app/library"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setIsMenuOpen(false)}
+              className="border-b border-[#eee1ca] py-3 text-[14px] font-medium text-[#5f554a]"
+            >
+              Veda Library
+            </a>
 
             {/* Book Consultation */}
             <Link

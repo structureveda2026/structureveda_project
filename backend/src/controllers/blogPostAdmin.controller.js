@@ -110,8 +110,8 @@ export const getBlogStats = async (req, res) => {
     const publishedBlogs = await BlogPost.count({ where: { status: "Published" } });
     const draftBlogs = await BlogPost.count({ where: { status: "Draft" } });
     const archivedBlogs = await BlogPost.count({ where: { status: "Archived" } });
-    const totalViewsResult = await BlogPost.sum("views_count");
-    const totalViews = totalViewsResult || 0;
+    const totalViewsResult = await BlogPost.sum("viewsCount");
+    const totalViews = isNaN(totalViewsResult) || !totalViewsResult ? 0 : Number(totalViewsResult);
 
     // Categories aggregate
     const categoriesCount = await BlogPost.findAll({

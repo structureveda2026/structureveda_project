@@ -15,6 +15,7 @@ import pujaServiceAdminRoutes from "./routes/pujaServiceAdmin.routes.js";
 import ritualBookingRoutes from "./routes/ritualBooking.routes.js";
 import yagyaServiceRoutes from "./routes/yagyaService.routes.js";
 import yagyaServiceAdminRoutes from "./routes/yagyaServiceAdmin.routes.js";
+import { blogAdminRoutes, blogPublicRoutes } from "./modules/library/index.js";
 
 dotenv.config();
 
@@ -53,6 +54,12 @@ app.use("/api/admin/puja-services", pujaServiceAdminRoutes);
 app.use("/api/ritual-bookings", ritualBookingRoutes);
 app.use("/api/yagya-services", yagyaServiceRoutes);
 app.use("/api/admin/yagya-services", yagyaServiceAdminRoutes);
+
+// Library Module Endpoints (Standard & Aliases)
+app.use("/api/admin/library/blogs", blogAdminRoutes);
+app.use("/api/admin/blogs", blogAdminRoutes);
+app.use("/api/library/blogs", blogPublicRoutes);
+app.use("/api/blogs", blogPublicRoutes);
 
 const startServer = async () => {
   try {

@@ -1,6 +1,38 @@
 import BlogService from "../services/blog.service.js";
 
 /**
+ * Formats errors for consistent API responses
+ */
+const handleControllerError = (res, error, defaultMessage) => {
+  console.error(defaultMessage, error);
+
+  if (error.name === "SequelizeUniqueConstraintError") {
+    const field = error.errors?.[0]?.path || "field";
+    return res.status(409).json({
+      success: false,
+      message: `A blog post with this ${field} already exists. Please choose a different ${field}.`,
+      error: error.message,
+    });
+  }
+
+  if (error.name === "SequelizeValidationError") {
+    const details = error.errors?.map((e) => e.message).join(", ") || error.message;
+    return res.status(400).json({
+      success: false,
+      message: `Validation failed: ${details}`,
+      error: error.message,
+    });
+  }
+
+  const statusCode = error.statusCode || 500;
+  return res.status(statusCode).json({
+    success: false,
+    message: error.message || defaultMessage,
+    error: error.message,
+  });
+};
+
+/**
  * GET /api/admin/library/blogs or /api/admin/blogs
  */
 export const getAdminBlogPosts = async (req, res) => {
@@ -16,11 +48,7 @@ export const getAdminBlogPosts = async (req, res) => {
       data: result,
     });
   } catch (error) {
-    console.error("Error in getAdminBlogPosts:", error);
-    return res.status(error.statusCode || 500).json({
-      success: false,
-      message: error.message || "Failed to fetch blog posts",
-    });
+    return handleControllerError(res, error, "Failed to fetch blog posts");
   }
 };
 
@@ -35,11 +63,7 @@ export const getBlogStats = async (req, res) => {
       data: stats,
     });
   } catch (error) {
-    console.error("Error in getBlogStats:", error);
-    return res.status(error.statusCode || 500).json({
-      success: false,
-      message: error.message || "Failed to fetch blog statistics",
-    });
+    return handleControllerError(res, error, "Failed to fetch blog statistics");
   }
 };
 
@@ -54,11 +78,7 @@ export const getAdminBlogPostById = async (req, res) => {
       data: blog,
     });
   } catch (error) {
-    console.error("Error in getAdminBlogPostById:", error);
-    return res.status(error.statusCode || 500).json({
-      success: false,
-      message: error.message || "Failed to fetch blog post",
-    });
+    return handleControllerError(res, error, "Failed to fetch blog post");
   }
 };
 
@@ -74,11 +94,7 @@ export const createBlogPost = async (req, res) => {
       data: blog,
     });
   } catch (error) {
-    console.error("Error in createBlogPost:", error);
-    return res.status(error.statusCode || 500).json({
-      success: false,
-      message: error.message || "Failed to create blog post",
-    });
+    return handleControllerError(res, error, "Failed to create blog post");
   }
 };
 
@@ -94,11 +110,7 @@ export const updateBlogPost = async (req, res) => {
       data: blog,
     });
   } catch (error) {
-    console.error("Error in updateBlogPost:", error);
-    return res.status(error.statusCode || 500).json({
-      success: false,
-      message: error.message || "Failed to update blog post",
-    });
+    return handleControllerError(res, error, "Failed to update blog post");
   }
 };
 
@@ -113,11 +125,7 @@ export const deleteBlogPost = async (req, res) => {
       message: "Blog post deleted successfully",
     });
   } catch (error) {
-    console.error("Error in deleteBlogPost:", error);
-    return res.status(error.statusCode || 500).json({
-      success: false,
-      message: error.message || "Failed to delete blog post",
-    });
+    return handleControllerError(res, error, "Failed to delete blog post");
   }
 };
 
@@ -134,11 +142,7 @@ export const toggleBlogStatus = async (req, res) => {
       data: blog,
     });
   } catch (error) {
-    console.error("Error in toggleBlogStatus:", error);
-    return res.status(error.statusCode || 500).json({
-      success: false,
-      message: error.message || "Failed to update blog status",
-    });
+    return handleControllerError(res, error, "Failed to update blog status");
   }
 };
 
@@ -155,11 +159,7 @@ export const toggleBlogFeatured = async (req, res) => {
       data: blog,
     });
   } catch (error) {
-    console.error("Error in toggleBlogFeatured:", error);
-    return res.status(error.statusCode || 500).json({
-      success: false,
-      message: error.message || "Failed to toggle featured status",
-    });
+    return handleControllerError(res, error, "Failed to toggle featured status");
   }
 };
 

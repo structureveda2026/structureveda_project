@@ -32,7 +32,7 @@ class BlogService {
 
     if (!isAdmin) {
       where.status = "Published";
-    } else if (status && VALID_STATUSES.includes(status)) {
+    } else if (status && status !== "All" && VALID_STATUSES.includes(status)) {
       where.status = status;
     }
 
@@ -44,12 +44,12 @@ class BlogService {
       where.isFeatured = isFeatured === "true" || isFeatured === true;
     }
 
-    if (tag && tag.trim()) {
-      where.tags = { [Op.contains]: [tag.trim().replace(/^#/, "")] };
+    if (tag && String(tag).trim()) {
+      where.tags = { [Op.contains]: [String(tag).trim().replace(/^#/, "")] };
     }
 
-    if (search && search.trim()) {
-      const searchTerm = `%${search.trim()}%`;
+    if (search && String(search).trim()) {
+      const searchTerm = `%${String(search).trim()}%`;
       where[Op.or] = [
         { title: { [Op.iLike]: searchTerm } },
         { titleHi: { [Op.iLike]: searchTerm } },
@@ -65,16 +65,20 @@ class BlogService {
     const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 10));
     const offset = (pageNum - 1) * limitNum;
 
-    const validSortFields = [
-      "createdAt",
-      "updatedAt",
-      "publishedAt",
-      "title",
-      "viewsCount",
-      "category",
-      "status",
-    ];
-    const sortField = validSortFields.includes(sort) ? sort : "createdAt";
+    const sortFieldMap = {
+      createdAt: "createdAt",
+      created_at: "createdAt",
+      updatedAt: "updatedAt",
+      updated_at: "updatedAt",
+      publishedAt: "publishedAt",
+      published_at: "publishedAt",
+      title: "title",
+      viewsCount: "viewsCount",
+      views_count: "viewsCount",
+      category: "category",
+      status: "status",
+    };
+    const sortField = sortFieldMap[sort] || "createdAt";
     const sortOrder = String(order).toUpperCase() === "ASC" ? "ASC" : "DESC";
 
     const { count, rows: blogs } = await BlogPost.findAndCountAll({
@@ -99,6 +103,11 @@ class BlogService {
    * Get single blog by ID
    */
   async getBlogById(id) {
+    if (!id) {
+      const err = new Error("Blog ID is required");
+      err.statusCode = 400;
+      throw err;
+    }
     const blog = await BlogPost.findByPk(id);
     if (!blog) {
       const err = new Error("Blog post not found");
@@ -112,6 +121,12 @@ class BlogService {
    * Get single public blog by slug and optionally increment views
    */
   async getBlogBySlug(slug, incrementViews = true) {
+    if (!slug) {
+      const err = new Error("Slug is required");
+      err.statusCode = 400;
+      throw err;
+    }
+
     const blog = await BlogPost.findOne({
       where: { slug, status: "Published" },
     });
@@ -187,14 +202,27 @@ class BlogService {
       publishedAt,
     } = data;
 
-    if (!title || !title.trim()) {
+    if (!title || !String(title).trim()) {
       const err = new Error("Blog title (English) is required");
       err.statusCode = 400;
       throw err;
     }
 
-    if (!content || !content.trim()) {
+    if (String(title).trim().length < 3) {
+      const err = new Error("Blog title must be at least 3 characters long");
+      err.statusCode = 400;
+      throw err;
+    }
+
+    if (!content || !String(content).trim()) {
       const err = new Error("Blog content is required");
+      err.statusCode = 400;
+      throw err;
+    }
+
+    const plainContent = String(content).replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").trim();
+    if (!plainContent) {
+      const err = new Error("Blog article content cannot be empty");
       err.statusCode = 400;
       throw err;
     }
@@ -207,6 +235,11 @@ class BlogService {
 
     const existingSlug = await BlogPost.findOne({ where: { slug: finalSlug } });
     if (existingSlug) {
+      if (customSlug && String(customSlug).trim()) {
+        const err = new Error(`Slug '${finalSlug}' is already taken. Please choose a different URL slug.`);
+        err.statusCode = 409;
+        throw err;
+      }
       finalSlug = `${finalSlug}-${Math.floor(1000 + Math.random() * 9000)}`;
     }
 
@@ -233,19 +266,19 @@ class BlogService {
     }
 
     return await BlogPost.create({
-      title: title.trim(),
+      title: String(title).trim(),
       slug: finalSlug,
-      subtitle: subtitle ? subtitle.trim() : null,
+      subtitle: subtitle ? String(subtitle).trim() : null,
       excerpt: finalExcerpt,
       content,
-      titleHi: titleHi ? titleHi.trim() : null,
-      subtitleHi: subtitleHi ? subtitleHi.trim() : null,
+      titleHi: titleHi ? String(titleHi).trim() : null,
+      subtitleHi: subtitleHi ? String(subtitleHi).trim() : null,
       excerptHi: finalExcerptHi,
       contentHi: contentHi || null,
-      featuredImage: featuredImage || null,
-      author: author ? author.trim() : "Veda Structure Team",
-      authorAvatar: authorAvatar || null,
-      category: category ? category.trim() : "Vedic Wisdom",
+      featuredImage: featuredImage ? String(featuredImage).trim() : null,
+      author: author ? String(author).trim() : "Veda Structure Team",
+      authorAvatar: authorAvatar ? String(authorAvatar).trim() : null,
+      category: category ? String(category).trim() : "Vedic Wisdom",
       tags: finalTags,
       status: VALID_STATUSES.includes(status) ? status : "Draft",
       isFeatured: Boolean(isFeatured),
@@ -253,8 +286,8 @@ class BlogService {
       viewsCount: 0,
       metaTitle: seo.metaTitle || null,
       metaDescription: seo.metaDescription || null,
-      metaTitleHi: metaTitleHi ? metaTitleHi.trim() : null,
-      metaDescriptionHi: metaDescriptionHi ? metaDescriptionHi.trim() : null,
+      metaTitleHi: metaTitleHi ? String(metaTitleHi).trim() : null,
+      metaDescriptionHi: metaDescriptionHi ? String(metaDescriptionHi).trim() : null,
       metaKeywords: seo.metaKeywords,
       publishedAt: finalPublishedAt,
     });
@@ -292,16 +325,31 @@ class BlogService {
       publishedAt,
     } = data;
 
+    if (typeof title !== "undefined" && (!title || !String(title).trim())) {
+      const err = new Error("Blog title (English) cannot be empty");
+      err.statusCode = 400;
+      throw err;
+    }
+
+    if (typeof content !== "undefined") {
+      const plain = String(content).replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").trim();
+      if (!plain) {
+        const err = new Error("Blog content cannot be empty");
+        err.statusCode = 400;
+        throw err;
+      }
+    }
+
     let finalSlug = blog.slug;
-    if (customSlug && customSlug.trim()) {
+    if (customSlug && String(customSlug).trim()) {
       const sanitized = sanitizeSlug(customSlug);
       if (sanitized !== blog.slug) {
         const slugExists = await BlogPost.findOne({
           where: { slug: sanitized, id: { [Op.ne]: id } },
         });
         if (slugExists) {
-          const err = new Error("Slug already in use. Please select a unique slug.");
-          err.statusCode = 400;
+          const err = new Error(`Slug '${sanitized}' is already in use by another article. Please enter a unique slug.`);
+          err.statusCode = 409;
           throw err;
         }
         finalSlug = sanitized;
@@ -318,13 +366,13 @@ class BlogService {
     const updatedContent = typeof content !== "undefined" ? content : blog.content;
     const finalExcerpt =
       typeof excerpt !== "undefined"
-        ? excerpt?.trim() || null
+        ? (excerpt ? String(excerpt).trim() : null)
         : blog.excerpt || extractExcerpt(updatedContent);
 
     const updatedContentHi = typeof contentHi !== "undefined" ? contentHi : blog.contentHi;
     const finalExcerptHi =
       typeof excerptHi !== "undefined"
-        ? excerptHi?.trim() || null
+        ? (excerptHi ? String(excerptHi).trim() : null)
         : blog.excerptHi || (updatedContentHi ? extractExcerpt(updatedContentHi) : null);
 
     const finalReadTime =
@@ -333,27 +381,27 @@ class BlogService {
         : calculateReadTime(updatedContent);
 
     await blog.update({
-      title: typeof title !== "undefined" ? title.trim() : blog.title,
+      title: typeof title !== "undefined" ? String(title).trim() : blog.title,
       slug: finalSlug,
-      subtitle: typeof subtitle !== "undefined" ? (subtitle ? subtitle.trim() : null) : blog.subtitle,
+      subtitle: typeof subtitle !== "undefined" ? (subtitle ? String(subtitle).trim() : null) : blog.subtitle,
       excerpt: finalExcerpt,
       content: updatedContent,
-      titleHi: typeof titleHi !== "undefined" ? (titleHi ? titleHi.trim() : null) : blog.titleHi,
-      subtitleHi: typeof subtitleHi !== "undefined" ? (subtitleHi ? subtitleHi.trim() : null) : blog.subtitleHi,
+      titleHi: typeof titleHi !== "undefined" ? (titleHi ? String(titleHi).trim() : null) : blog.titleHi,
+      subtitleHi: typeof subtitleHi !== "undefined" ? (subtitleHi ? String(subtitleHi).trim() : null) : blog.subtitleHi,
       excerptHi: finalExcerptHi,
       contentHi: updatedContentHi,
-      featuredImage: typeof featuredImage !== "undefined" ? featuredImage : blog.featuredImage,
-      author: typeof author !== "undefined" ? author.trim() : blog.author,
-      authorAvatar: typeof authorAvatar !== "undefined" ? authorAvatar : blog.authorAvatar,
-      category: typeof category !== "undefined" ? category.trim() : blog.category,
+      featuredImage: typeof featuredImage !== "undefined" ? (featuredImage ? String(featuredImage).trim() : null) : blog.featuredImage,
+      author: typeof author !== "undefined" ? String(author).trim() : blog.author,
+      authorAvatar: typeof authorAvatar !== "undefined" ? (authorAvatar ? String(authorAvatar).trim() : null) : blog.authorAvatar,
+      category: typeof category !== "undefined" ? String(category).trim() : blog.category,
       tags: typeof tags !== "undefined" ? normalizeTags(tags) : blog.tags,
       status: status && VALID_STATUSES.includes(status) ? status : blog.status,
       isFeatured: typeof isFeatured !== "undefined" ? Boolean(isFeatured) : blog.isFeatured,
       readTime: finalReadTime,
-      metaTitle: typeof metaTitle !== "undefined" ? (metaTitle ? metaTitle.trim() : null) : blog.metaTitle,
-      metaDescription: typeof metaDescription !== "undefined" ? (metaDescription ? metaDescription.trim() : null) : blog.metaDescription,
-      metaTitleHi: typeof metaTitleHi !== "undefined" ? (metaTitleHi ? metaTitleHi.trim() : null) : blog.metaTitleHi,
-      metaDescriptionHi: typeof metaDescriptionHi !== "undefined" ? (metaDescriptionHi ? metaDescriptionHi.trim() : null) : blog.metaDescriptionHi,
+      metaTitle: typeof metaTitle !== "undefined" ? (metaTitle ? String(metaTitle).trim() : null) : blog.metaTitle,
+      metaDescription: typeof metaDescription !== "undefined" ? (metaDescription ? String(metaDescription).trim() : null) : blog.metaDescription,
+      metaTitleHi: typeof metaTitleHi !== "undefined" ? (metaTitleHi ? String(metaTitleHi).trim() : null) : blog.metaTitleHi,
+      metaDescriptionHi: typeof metaDescriptionHi !== "undefined" ? (metaDescriptionHi ? String(metaDescriptionHi).trim() : null) : blog.metaDescriptionHi,
       metaKeywords: typeof metaKeywords !== "undefined" ? normalizeTags(metaKeywords) : blog.metaKeywords,
       publishedAt: finalPublishedAt,
     });
@@ -407,8 +455,8 @@ class BlogService {
     const publishedBlogs = await BlogPost.count({ where: { status: "Published" } });
     const draftBlogs = await BlogPost.count({ where: { status: "Draft" } });
     const archivedBlogs = await BlogPost.count({ where: { status: "Archived" } });
-    const totalViewsResult = await BlogPost.sum("views_count");
-    const totalViews = totalViewsResult || 0;
+    const totalViewsResult = await BlogPost.sum("viewsCount");
+    const totalViews = isNaN(totalViewsResult) || !totalViewsResult ? 0 : Number(totalViewsResult);
 
     const categories = await BlogPost.findAll({
       attributes: [
@@ -426,7 +474,7 @@ class BlogService {
       draftBlogs,
       archivedBlogs,
       totalViews,
-      categories,
+      categories: categories || [],
     };
   }
 
