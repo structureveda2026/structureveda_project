@@ -16,6 +16,10 @@ interface ToastContextValue {
   error: (message: string, duration?: number) => void;
   info: (message: string, duration?: number) => void;
   warning: (message: string, duration?: number) => void;
+  showSuccess: (message: string, duration?: number) => void;
+  showError: (message: string, duration?: number) => void;
+  showInfo: (message: string, duration?: number) => void;
+  showWarning: (message: string, duration?: number) => void;
 }
 
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
@@ -47,7 +51,17 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const warning = useCallback((msg: string, dur?: number) => showToast(msg, 'warning', dur), [showToast]);
 
   const value = useMemo(
-    () => ({ showToast, success, error, info, warning }),
+    () => ({
+      showToast,
+      success,
+      error,
+      info,
+      warning,
+      showSuccess: success,
+      showError: error,
+      showInfo: info,
+      showWarning: warning,
+    }),
     [showToast, success, error, info, warning]
   );
 
@@ -103,13 +117,18 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 export const useToast = (): ToastContextValue => {
   const ctx = useContext(ToastContext);
   if (!ctx) {
-    return {
+    const fallbackLogger = {
       showToast: (msg: string) => console.log('[Toast fallback]:', msg),
       success: (msg: string) => console.log('[Toast success]:', msg),
       error: (msg: string) => console.error('[Toast error]:', msg),
       info: (msg: string) => console.log('[Toast info]:', msg),
       warning: (msg: string) => console.warn('[Toast warning]:', msg),
+      showSuccess: (msg: string) => console.log('[Toast success]:', msg),
+      showError: (msg: string) => console.error('[Toast error]:', msg),
+      showInfo: (msg: string) => console.log('[Toast info]:', msg),
+      showWarning: (msg: string) => console.warn('[Toast warning]:', msg),
     };
+    return fallbackLogger;
   }
   return ctx;
 };

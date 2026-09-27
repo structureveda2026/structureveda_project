@@ -8,6 +8,9 @@ import paymentRoutes from "./routes/payment.routes.js";
 import upcomingPujaAdminRoutes from "./routes/upcomingPujaAdmin.routes.js";
 import upcomingPujaRoutes from "./routes/upcomingPuja.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
+import pujaServiceRoutes from "./routes/pujaService.routes.js";
+import pujaServiceAdminRoutes from "./routes/pujaServiceAdmin.routes.js";
+import ritualBookingRoutes from "./routes/ritualBooking.routes.js";
 
 // Library Module routes
 import { blogAdminRoutes, blogPublicRoutes } from "./modules/library/index.js";
@@ -43,6 +46,9 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/admin/upcoming-pujas", upcomingPujaAdminRoutes);
 app.use("/api/upcoming-pujas", upcomingPujaRoutes);
 app.use("/api/admin/uploads", uploadRoutes);
+app.use("/api/puja-services", pujaServiceRoutes);
+app.use("/api/admin/puja-services", pujaServiceAdminRoutes);
+app.use("/api/ritual-bookings", ritualBookingRoutes);
 
 // Library Module Endpoints (Standard & Aliases)
 app.use("/api/admin/library/blogs", blogAdminRoutes);
