@@ -64,9 +64,9 @@ export default function BlogListPage() {
         order: sortOrder,
       });
 
-      setBlogs(res.blogs);
-      setTotalPages(res.pagination.totalPages);
-      setTotalCount(res.pagination.total);
+      setBlogs(res?.blogs || []);
+      setTotalPages(res?.pagination?.totalPages || 1);
+      setTotalCount(res?.pagination?.total || 0);
     } catch (err: any) {
       showError(err?.message || "Failed to load blog posts");
     } finally {
@@ -78,10 +78,10 @@ export default function BlogListPage() {
     try {
       const data = await blogService.getBlogStats();
       setStats({
-        totalBlogs: data.totalBlogs,
-        publishedBlogs: data.publishedBlogs,
-        draftBlogs: data.draftBlogs,
-        totalViews: data.totalViews,
+        totalBlogs: data?.totalBlogs || 0,
+        publishedBlogs: data?.publishedBlogs || 0,
+        draftBlogs: data?.draftBlogs || 0,
+        totalViews: data?.totalViews || 0,
       });
     } catch (err) {
       console.warn("Could not fetch blog stats:", err);
@@ -208,13 +208,19 @@ export default function BlogListPage() {
           </div>
         ) : blogs.length === 0 ? (
           <EmptyState
-            icon={BookOpen}
+            icon={<BookOpen className="w-8 h-8 text-charcoal-400" />}
             title="No blog posts found"
-            description="Start building your knowledge library by creating your first Vedic article."
-            action={{
-              label: "Create First Blog Post",
-              onClick: () => navigate("/admin/library/blogs/new"),
-            }}
+            message="Start building your knowledge library by creating your first Vedic article."
+            action={
+              <button
+                type="button"
+                onClick={() => navigate("/admin/library/blogs/new")}
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-saffron-600 hover:bg-saffron-700 rounded-xl transition shadow-xs hover:shadow-md"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Create First Blog Post</span>
+              </button>
+            }
           />
         ) : (
           <div className="overflow-x-auto">
