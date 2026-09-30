@@ -1,5 +1,8 @@
 import { useState, useMemo, useEffect } from "react";
 import { JAPA_CATALOGUE_LIST, JAPA_PURPOSE_CATEGORIES } from "../data/japaCatalogueData";
+import japaCatalogueService, {
+  mapApiJapaServiceToUi,
+} from "../../../services/japaCatalogueService";
 import JapaListingHero from "../components/JapaListingHero";
 import JapaConceptSection from "../components/JapaConceptSection";
 import JapaPurposeSection from "../components/JapaPurposeSection";
@@ -49,6 +52,123 @@ const JapaCatalogueListing = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSort, setSelectedSort] = useState("featured");
 
+  // Dynamic API state
+  const [services, setServices] = useState([]);
+  const [purposes, setPurposes] = useState(JAPA_PURPOSE_CATEGORIES);
+  const [loading, setLoading] = useState(true);
+  const [isFallback, setIsFallback] = useState(false);
+
+  // Load purpose categories on mount
+  useEffect(() => {
+    let isCancelled = false;
+    japaCatalogueService
+      .getJapaPurposes()
+      .then((data) => {
+        if (!isCancelled && Array.isArray(data) && data.length > 0) {
+          setPurposes(data);
+        }
+      })
+      .catch(() => {
+        // Keeps default JAPA_PURPOSE_CATEGORIES
+      });
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
+
+  // Fetch Japa services from authoritative API with query filters, with fallback on error
+  useEffect(() => {
+    let isCancelled = false;
+    setLoading(true);
+
+    const filterParams = {
+      search: searchQuery.trim(),
+      purpose: selectedPurpose,
+      count: selectedCount,
+      mode: selectedMode,
+      isFeatured: isFeaturedOnly,
+      sortBy: selectedSort,
+      limit: 50,
+    };
+
+    const timer = setTimeout(async () => {
+      try {
+        const response = await japaCatalogueService.getJapaServices(filterParams);
+        if (!isCancelled) {
+          if (response && response.success && Array.isArray(response.services)) {
+            setServices(response.services);
+            setIsFallback(false);
+          } else {
+            throw new Error("Invalid API response format");
+          }
+          setLoading(false);
+        }
+      } catch (err) {
+        if (!isCancelled) {
+          console.warn("Japa catalogue API failed, engaging static fallback:", err?.message || err);
+
+          // Apply faithful local filtering to static JAPA_CATALOGUE_LIST
+          const localFallback = JAPA_CATALOGUE_LIST.filter((japa) => {
+            if (!japa.active) return false;
+
+            if (selectedPurpose !== "All") {
+              const matchesCat = japa.purposeCategory === selectedPurpose;
+              const matchesList = (japa.purposeCategories || []).includes(selectedPurpose);
+              if (!matchesCat && !matchesList) return false;
+            }
+
+            if (selectedCount !== "All") {
+              const countNum = Number(selectedCount);
+              if (!(japa.availableCounts || []).includes(countNum)) return false;
+            }
+
+            if (selectedMode === "kashi" && !japa.kashiAvailable) return false;
+            if (selectedMode === "remote" && !japa.remoteAvailable) return false;
+
+            if (isFeaturedOnly && !japa.featured) return false;
+
+            if (searchQuery.trim() !== "") {
+              const q = searchQuery.toLowerCase().trim();
+              const matchesName = (japa.name || "").toLowerCase().includes(q);
+              const matchesDesc = (japa.description || "").toLowerCase().includes(q);
+              const matchesMantra = (japa.mantra || "").toLowerCase().includes(q);
+              const matchesPurpose = (japa.purpose || "").toLowerCase().includes(q);
+              if (!matchesName && !matchesDesc && !matchesMantra && !matchesPurpose) {
+                return false;
+              }
+            }
+
+            return true;
+          })
+            .sort((a, b) => {
+              if (selectedSort === "price-asc") {
+                return (a.startingPrice || 0) - (b.startingPrice || 0);
+              }
+              if (selectedSort === "price-desc") {
+                return (b.startingPrice || 0) - (a.startingPrice || 0);
+              }
+              if (selectedSort === "name-asc") {
+                return a.name.localeCompare(b.name);
+              }
+              if (a.featured && !b.featured) return -1;
+              if (!a.featured && b.featured) return 1;
+              return 0;
+            })
+            .map(mapApiJapaServiceToUi);
+
+          setServices(localFallback);
+          setIsFallback(true);
+          setLoading(false);
+        }
+      }
+    }, 150);
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(timer);
+    };
+  }, [selectedPurpose, selectedCount, selectedMode, isFeaturedOnly, searchQuery, selectedSort]);
+
   const activeFilterCount = useMemo(() => {
     let count = 0;
     if (selectedPurpose !== "All") count++;
@@ -81,63 +201,6 @@ const JapaCatalogueListing = () => {
       el.scrollIntoView({ behavior: "smooth" });
     }
   };
-
-  // Filtered and Sorted Japa Services
-  const filteredJapas = useMemo(() => {
-    return JAPA_CATALOGUE_LIST.filter((japa) => {
-      // Must be active
-      if (!japa.active) return false;
-
-      // Purpose Filter
-      if (selectedPurpose !== "All") {
-        const matchesCat = japa.purposeCategory === selectedPurpose;
-        const matchesList = (japa.purposeCategories || []).includes(selectedPurpose);
-        if (!matchesCat && !matchesList) return false;
-      }
-
-      // Count Filter (Check individual service availableCounts array!)
-      if (selectedCount !== "All") {
-        const countNum = Number(selectedCount);
-        const supportsCount = (japa.availableCounts || []).includes(countNum);
-        if (!supportsCount) return false;
-      }
-
-      // Mode / Location Filter
-      if (selectedMode === "kashi" && !japa.kashiAvailable) return false;
-      if (selectedMode === "remote" && !japa.remoteAvailable) return false;
-
-      // Featured Filter
-      if (isFeaturedOnly && !japa.featured) return false;
-
-      // Search Query
-      if (searchQuery.trim() !== "") {
-        const q = searchQuery.toLowerCase().trim();
-        const matchesName = (japa.name || "").toLowerCase().includes(q);
-        const matchesDesc = (japa.description || "").toLowerCase().includes(q);
-        const matchesMantra = (japa.mantra || "").toLowerCase().includes(q);
-        const matchesPurpose = (japa.purpose || "").toLowerCase().includes(q);
-        if (!matchesName && !matchesDesc && !matchesMantra && !matchesPurpose) {
-          return false;
-        }
-      }
-
-      return true;
-    }).sort((a, b) => {
-      if (selectedSort === "price-asc") {
-        return (a.startingPrice || 0) - (b.startingPrice || 0);
-      }
-      if (selectedSort === "price-desc") {
-        return (b.startingPrice || 0) - (a.startingPrice || 0);
-      }
-      if (selectedSort === "name-asc") {
-        return a.name.localeCompare(b.name);
-      }
-      // default: featured first
-      if (a.featured && !b.featured) return -1;
-      if (!a.featured && b.featured) return 1;
-      return 0;
-    });
-  }, [selectedPurpose, selectedCount, selectedMode, isFeaturedOnly, searchQuery, selectedSort]);
 
   return (
     <div className="min-h-screen bg-[#faf4e6] text-[#2b241d]">
@@ -211,9 +274,9 @@ const JapaCatalogueListing = () => {
                   className="w-full rounded-full border border-[#d6b8a0] bg-white px-4 py-2.5 text-[13px] font-medium text-[#2b241d] transition focus:border-[#c77722] focus:outline-none"
                 >
                   <option value="All">All Purposes</option>
-                  {JAPA_PURPOSE_CATEGORIES.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.title}
+                  {purposes.map((cat) => (
+                    <option key={cat.id || cat.slug} value={cat.id || cat.slug}>
+                      {cat.title || cat.name}
                     </option>
                   ))}
                 </select>
@@ -295,11 +358,30 @@ const JapaCatalogueListing = () => {
             </div>
           </div>
 
+          {/* Fallback Archive Notice (only if API failed) */}
+          {isFallback && !loading && (
+            <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-[12.5px] text-amber-800 flex items-center justify-between">
+              <span>Displaying offline Vedic Japa archive. Traditional recitation parameters remain fully verified.</span>
+            </div>
+          )}
+
           {/* Catalogue Services Grid */}
           <div className="mt-10">
-            {filteredJapas.length > 0 ? (
+            {loading ? (
+              <div className="rounded-[24px] border border-[#e6d3ba] bg-[#fffaf1] py-16 text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#f8edd8] text-[#c77722] animate-spin">
+                  <Sparkles size={24} />
+                </div>
+                <h3 className="mt-3 font-serif text-[18px] font-semibold text-[#2b241d]">
+                  Loading Vedic Mantra Japa Services...
+                </h3>
+                <p className="mt-1 text-[13px] text-[#78644e]">
+                  Retrieving authoritative recitation parameters from sacred catalogue.
+                </p>
+              </div>
+            ) : services.length > 0 ? (
               <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
-                {filteredJapas.map((japa) => (
+                {services.map((japa) => (
                   <JapaServiceCard key={japa.id} service={japa} />
                 ))}
               </div>

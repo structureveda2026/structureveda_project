@@ -10,6 +10,8 @@ import PujaService from "./pujaServiceModel.js";
 import RitualBooking from "./ritualBookingModel.js";
 import YagyaPurpose from "./yagyaPurposeModel.js";
 import YagyaService from "./yagyaServiceModel.js";
+import JapaPurpose from "./japaPurposeModel.js";
+import JapaService from "./japaServiceModel.js";
 import BlogPost from "./blogPostModel.js";
 
 // Existing Associations (Astrologer Consultations)
@@ -87,6 +89,18 @@ YagyaService.belongsTo(YagyaPurpose, {
   as: "purposeDetails",
 });
 
+
+// Japa Service Catalogue Associations
+JapaPurpose.hasMany(JapaService, {
+  foreignKey: "purposeId",
+  as: "services",
+});
+
+JapaService.belongsTo(JapaPurpose, {
+  foreignKey: "purposeId",
+  as: "purposeDetails",
+});
+
 // Generic Ritual Booking Associations
 User.hasMany(RitualBooking, {
   foreignKey: "userId",
@@ -111,6 +125,8 @@ const db = {
   RitualBooking,
   YagyaPurpose,
   YagyaService,
+  JapaPurpose,
+  JapaService,
   BlogPost,
 };
 
@@ -126,6 +142,8 @@ export {
   RitualBooking,
   YagyaPurpose,
   YagyaService,
+  JapaPurpose,
+  JapaService,
   BlogPost,
 };
 export default db;

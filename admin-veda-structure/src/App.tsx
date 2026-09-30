@@ -14,6 +14,9 @@ import PujaServiceDetail from "@/pages/PujaServiceDetail";
 import YagyaServices from "@/pages/YagyaServices";
 import YagyaServiceForm from "@/pages/YagyaServiceForm";
 import YagyaServiceDetail from "@/pages/YagyaServiceDetail";
+import JapaServices from "@/pages/JapaServices";
+import JapaServiceForm from "@/pages/JapaServiceForm";
+import JapaServiceDetail from "@/pages/JapaServiceDetail";
 import ConsultationDetail from "@/pages/ConsultationDetail";
 
 // Veda Library Module (Modular Architecture)
@@ -60,6 +63,12 @@ export default function App() {
               <Route path="yagya-services/new" element={<YagyaServiceForm />} />
               <Route path="yagya-services/:id" element={<YagyaServiceDetail />} />
               <Route path="yagya-services/:id/edit" element={<YagyaServiceForm />} />
+
+              {/* Japa Services Catalogue */}
+              <Route path="japa-services" element={<JapaServices />} />
+              <Route path="japa-services/new" element={<JapaServiceForm />} />
+              <Route path="japa-services/:id" element={<JapaServiceDetail />} />
+              <Route path="japa-services/:id/edit" element={<JapaServiceForm />} />
 
               {/* Veda Library Module - Blog Routes */}
               <Route path="library/blogs" element={<BlogListPage />} />

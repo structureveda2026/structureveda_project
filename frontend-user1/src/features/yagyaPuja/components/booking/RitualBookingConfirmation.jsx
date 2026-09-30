@@ -37,18 +37,32 @@ const RitualBookingConfirmation = () => {
   // Authoritative reference and data from backend response
   const activeRef =
     confirmedBooking?.bookingReference || bookingReference || "VEDA-PUJA-CONFIRMED";
+  const isJapa =
+    serviceType === "JAPA" ||
+    activeRef.startsWith("VEDA-JAPA-") ||
+    confirmedBooking?.serviceType === "JAPA";
   const isYagya =
     serviceType === "YAGYA" ||
     activeRef.startsWith("VEDA-YAGYA-") ||
     confirmedBooking?.serviceType === "YAGYA";
   const serviceName =
-    confirmedBooking?.serviceName || service?.name || (isYagya ? "Sacred Vedic Yagya" : "Sacred Vedic Ceremony");
+    confirmedBooking?.serviceName ||
+    service?.name ||
+    (isJapa ? "Sacred Vedic Japa" : isYagya ? "Sacred Vedic Yagya" : "Sacred Vedic Ceremony");
   const bookingDate =
-    confirmedBooking?.bookingDate || confirmedBooking?.configuration?.date || configuration?.bookingDate || "";
+    confirmedBooking?.bookingDate ||
+    confirmedBooking?.configuration?.commencementDate ||
+    confirmedBooking?.configuration?.date ||
+    configuration?.bookingDate ||
+    "";
   const bookingTime =
-    confirmedBooking?.bookingTime || confirmedBooking?.configuration?.timeSlot || configuration?.bookingTime || "";
+    confirmedBooking?.bookingTime ||
+    confirmedBooking?.configuration?.timeSlot ||
+    configuration?.bookingTime ||
+    "";
   const completionDate =
     confirmedBooking?.configuration?.completionDate ||
+    confirmedBooking?.sankalpDetails?.japaMetadata?.completionDate ||
     confirmedBooking?.sankalpDetails?.yagyaMetadata?.completionDate ||
     configuration?.completionDate ||
     null;
@@ -57,6 +71,29 @@ const RitualBookingConfirmation = () => {
     confirmedBooking?.yajman?.name ||
     yajmanDetails?.name ||
     "Devotee";
+
+  const mantra =
+    confirmedBooking?.configuration?.mantra ||
+    confirmedBooking?.sankalpDetails?.japaMetadata?.mantra ||
+    confirmedBooking?.sankalp?.japaMetadata?.mantra ||
+    confirmedBooking?.mantra ||
+    configuration?.mantra ||
+    service?.mantra ||
+    "";
+
+  const dailyCapacity =
+    confirmedBooking?.configuration?.totalDailyCapacity ||
+    confirmedBooking?.sankalpDetails?.japaMetadata?.totalDailyCapacity ||
+    confirmedBooking?.sankalp?.japaMetadata?.totalDailyCapacity ||
+    configuration?.totalDailyCapacity ||
+    0;
+
+  const requiredDays =
+    confirmedBooking?.configuration?.requiredDays ||
+    confirmedBooking?.sankalpDetails?.japaMetadata?.requiredDays ||
+    confirmedBooking?.sankalp?.japaMetadata?.requiredDays ||
+    configuration?.requiredDays ||
+    1;
 
   // Authoritative amount strictly from backend
   const authoritativeAmount =
@@ -128,9 +165,9 @@ const RitualBookingConfirmation = () => {
   const handleBookAnother = () => {
     resetBooking();
     if (service?.slug) {
-      navigate(`/yagya-puja/${isYagya ? "yagya" : "puja"}/${service.slug}`);
+      navigate(`/yagya-puja/${isJapa ? "japa" : isYagya ? "yagya" : "puja"}/${service.slug}`);
     } else {
-      navigate(isYagya ? "/yagya-puja/yagya" : "/yagya-puja/puja");
+      navigate(isJapa ? "/yagya-puja/japa" : isYagya ? "/yagya-puja/yagya" : "/yagya-puja/puja");
     }
   };
 
@@ -236,7 +273,7 @@ const RitualBookingConfirmation = () => {
                 {/* Service Name */}
                 <div className="sm:col-span-2">
                   <span className="block text-[11.5px] font-medium text-[#8a7c6b]">
-                    Sacred Puja / Ritual
+                    {isJapa ? "Sacred Japa Anushthan" : isYagya ? "Sacred Yagya Anushthan" : "Sacred Puja / Ritual"}
                   </span>
                   <p className="mt-0.5 font-serif text-[18px] font-bold text-[#2b241d]">
                     {serviceName}
@@ -265,23 +302,81 @@ const RitualBookingConfirmation = () => {
                   </p>
                 </div>
 
+                {/* Sacred Mantra if Japa */}
+                {isJapa && mantra && (
+                  <div className="sm:col-span-2 rounded-xl border border-[#ebdcc4] bg-[#faf3e8] p-3 text-center">
+                    <span className="block text-[11px] font-bold uppercase tracking-wider text-[#b36c1e]">
+                      Sacred Vedic Mantra
+                    </span>
+                    <p className="mt-1 font-serif text-[15.5px] font-bold text-[#2b241d]">
+                      {mantra}
+                    </p>
+                  </div>
+                )}
+
+                {/* Recitation Count if Japa */}
+                {isJapa && (
+                  <div>
+                    <span className="block text-[11.5px] font-medium text-[#8a7c6b] flex items-center gap-1">
+                      <Sparkles size={12} className="text-[#b36c1e]" />
+                      <span>Total Recitations</span>
+                    </span>
+                    <p className="mt-0.5 font-semibold text-[#2b241d]">
+                      {Number(
+                        confirmedBooking?.configuration?.japaCount ||
+                          confirmedBooking?.sankalpDetails?.japaMetadata?.japaCount ||
+                          confirmedBooking?.sankalp?.japaMetadata?.japaCount ||
+                          configuration?.japaCount ||
+                          0
+                      ).toLocaleString("en-IN")}{" "}
+                      Jaap
+                    </p>
+                  </div>
+                )}
+
+                {/* Daily Capacity if Japa */}
+                {isJapa && dailyCapacity > 0 && (
+                  <div>
+                    <span className="block text-[11.5px] font-medium text-[#8a7c6b] flex items-center gap-1">
+                      <Sparkles size={12} className="text-[#b36c1e]" />
+                      <span>Daily Chanting Capacity</span>
+                    </span>
+                    <p className="mt-0.5 font-semibold text-[#2b241d]">
+                      {Number(dailyCapacity).toLocaleString("en-IN")} Jaap / Day
+                    </p>
+                  </div>
+                )}
+
+                {/* Required Days if Japa */}
+                {isJapa && (
+                  <div>
+                    <span className="block text-[11.5px] font-medium text-[#8a7c6b] flex items-center gap-1">
+                      <Calendar size={12} className="text-[#b36c1e]" />
+                      <span>Required Anushthan Days</span>
+                    </span>
+                    <p className="mt-0.5 font-semibold text-[#2b241d]">
+                      {requiredDays} Day{Number(requiredDays) > 1 ? "s" : ""}
+                    </p>
+                  </div>
+                )}
+
                 {/* Date */}
                 <div>
                   <span className="block text-[11.5px] font-medium text-[#8a7c6b] flex items-center gap-1">
                     <Calendar size={12} className="text-[#b36c1e]" />
-                    <span>{isYagya ? "Commencement Date" : "Sanctified Date"}</span>
+                    <span>{isJapa || isYagya ? "Commencement Date" : "Sanctified Date"}</span>
                   </span>
                   <p className="mt-0.5 font-semibold text-[#2b241d]">
                     {formatDate(bookingDate)}
                   </p>
                 </div>
 
-                {/* Completion Date (if multi-day Yagya) */}
+                {/* Completion Date (if multi-day ritual) */}
                 {completionDate && (
                   <div>
                     <span className="block text-[11.5px] font-medium text-[#8a7c6b] flex items-center gap-1">
                       <Calendar size={12} className="text-[#2e7d32]" />
-                      <span>Completion (Purnahuti)</span>
+                      <span>{isJapa ? "Purnahuti / Completion Date" : "Completion (Purnahuti)"}</span>
                     </span>
                     <p className="mt-0.5 font-semibold text-[#2b241d]">
                       {formatDate(completionDate)}
@@ -293,7 +388,7 @@ const RitualBookingConfirmation = () => {
                 <div>
                   <span className="block text-[11.5px] font-medium text-[#8a7c6b] flex items-center gap-1">
                     <Clock size={12} className="text-[#b36c1e]" />
-                    <span>{isYagya ? "Daily Commencement Time" : "Auspicious Muhurat / Time"}</span>
+                    <span>{isJapa || isYagya ? "Daily Commencement Time" : "Auspicious Muhurat / Time"}</span>
                   </span>
                   <p className="mt-0.5 font-semibold text-[#2b241d]">
                     {bookingTime || "To be finalized by Acharya"}
@@ -354,11 +449,11 @@ const RitualBookingConfirmation = () => {
                 </button>
 
                 <Link
-                  to="/yagya-puja/puja"
+                  to={isJapa ? "/yagya-puja/japa" : isYagya ? "/yagya-puja/yagya" : "/yagya-puja/puja"}
                   className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#eab12c] via-[#f0bb3b] to-[#dca522] px-7 py-2.5 text-[13px] font-bold text-[#1c1308] shadow-[0_4px_16px_rgba(234,177,44,0.25)] hover:brightness-105 transition"
                 >
                   <BookOpen size={15} />
-                  <span>Puja Catalogue</span>
+                  <span>{isJapa ? "Back to Japa Catalogue" : isYagya ? "Yagya Catalogue" : "Puja Catalogue"}</span>
                 </Link>
 
                 <Link

@@ -141,6 +141,11 @@ export const calculateYagyaCompletionDate = (startDateStr, days) => {
 };
 
 /**
+ * Calculates Japa completion date (start date + days - 1)
+ */
+export const calculateJapaCompletionDate = calculateYagyaCompletionDate;
+
+/**
  * Resolves safe default configuration from actual service properties.
  * Supports both PUJA and YAGYA services without inventing missing values.
  */
@@ -157,6 +162,59 @@ const getDefaultConfiguration = (service, serviceType = "PUJA") => {
       days: null,
       dailyHours: null,
       completionDate: "",
+      selectedPricingTier: null,
+    };
+  }
+
+  const isJapa =
+    serviceType === "JAPA" ||
+    service?.serviceType === "JAPA" ||
+    service?.ritualType === "JAPA" ||
+    (Array.isArray(service?.availableCounts) && service.availableCounts.length > 0);
+
+  if (isJapa) {
+    const availableCounts =
+      Array.isArray(service.availableCounts) && service.availableCounts.length > 0
+        ? service.availableCounts.map(Number).filter((n) => !isNaN(n) && n > 0)
+        : Array.isArray(service.variants) && service.variants.length > 0
+        ? service.variants.map((v) => Number(v.count)).filter((n) => !isNaN(n) && n > 0)
+        : [11000];
+
+    const defaultCount = availableCounts[0] || 11000;
+    const matchedVariant = Array.isArray(service.variants)
+      ? service.variants.find((v) => Number(v.count) === defaultCount)
+      : null;
+
+    const minPandits = Number(matchedVariant?.minimumPandits || service.minimumPandits || 2);
+    const recPandits = Number(matchedVariant?.recommendedPandits || service.recommendedPandits || 3);
+    const maxPandits = Number(service.maximumPandits || 11);
+    const dailyCapacity = Number(matchedVariant?.dailyCapacity || service.dailyCapacityPerPandit || 2000);
+    const totalCap = recPandits * dailyCapacity;
+    const reqDays = Math.max(1, Math.ceil(defaultCount / Math.max(1, totalCap)));
+
+    let arrangementMode = "kashi";
+    if (service.isKashiAvailable === false && service.isRemoteAvailable !== false) {
+      arrangementMode = "remote";
+    }
+
+    return {
+      bookingDate: "",
+      bookingTime: "06:00 AM",
+      japaCount: defaultCount,
+      panditCount: Math.max(1, recPandits),
+      minimumPandits: minPandits,
+      recommendedPandits: recPandits,
+      maximumPandits: maxPandits,
+      dailyCapacityPerPandit: dailyCapacity,
+      totalDailyCapacity: totalCap,
+      requiredDays: reqDays,
+      days: reqDays,
+      dailyHours: service.dailyHours || "4 Hours / Day",
+      arrangementMode,
+      locationType: arrangementMode,
+      completionDate: "",
+      selectedVariant: matchedVariant,
+      durationSelected: `${defaultCount.toLocaleString("en-IN")} Japa`,
       selectedPricingTier: null,
     };
   }
@@ -276,6 +334,14 @@ const INITIAL_STATE = {
     dailyHours: null,
     completionDate: "",
     selectedPricingTier: null,
+    japaCount: null,
+    minimumPandits: null,
+    recommendedPandits: null,
+    maximumPandits: null,
+    dailyCapacityPerPandit: null,
+    totalDailyCapacity: null,
+    requiredDays: null,
+    selectedVariant: null,
   },
 
   yajmanDetails: {
@@ -343,6 +409,10 @@ export const RitualBookingProvider = ({
     serviceType ||
     (initialService?.dailyRitualHours != null || initialService?.ritualType === "YAGYA"
       ? "YAGYA"
+      : (Array.isArray(initialService?.availableCounts) && initialService.availableCounts.length > 0) ||
+        initialService?.serviceType === "JAPA" ||
+        initialService?.ritualType === "JAPA"
+      ? "JAPA"
       : "PUJA");
 
   const [currentStep, setCurrentStep] = useState(INITIAL_STATE.currentStep);
@@ -401,7 +471,11 @@ export const RitualBookingProvider = ({
       if (!storedRef || typeof storedRef !== "string") return;
 
       const trimmedRef = storedRef.trim();
-      if (!trimmedRef.startsWith("VEDA-PUJA-") && !trimmedRef.startsWith("VEDA-YAGYA-")) {
+      if (
+        !trimmedRef.startsWith("VEDA-PUJA-") &&
+        !trimmedRef.startsWith("VEDA-YAGYA-") &&
+        !trimmedRef.startsWith("VEDA-JAPA-")
+      ) {
         localStorage.removeItem(RITUAL_STORAGE_KEY);
         return;
       }
@@ -485,6 +559,15 @@ export const RitualBookingProvider = ({
             dailyHours: prev.dailyHours || defaults.dailyHours,
             completionDate: prev.completionDate || defaults.completionDate,
             selectedPricingTier: prev.selectedPricingTier || defaults.selectedPricingTier,
+            japaCount: prev.japaCount || defaults.japaCount,
+            panditCount: prev.panditCount || defaults.panditCount,
+            minimumPandits: prev.minimumPandits || defaults.minimumPandits,
+            recommendedPandits: prev.recommendedPandits || defaults.recommendedPandits,
+            maximumPandits: prev.maximumPandits || defaults.maximumPandits,
+            dailyCapacityPerPandit: prev.dailyCapacityPerPandit || defaults.dailyCapacityPerPandit,
+            totalDailyCapacity: prev.totalDailyCapacity || defaults.totalDailyCapacity,
+            requiredDays: prev.requiredDays || defaults.requiredDays,
+            selectedVariant: prev.selectedVariant || defaults.selectedVariant,
           };
         });
         setSankalpDetails((prev) => ({
@@ -649,6 +732,53 @@ export const RitualBookingProvider = ({
           }
           if (!configuration.bookingTime || !configuration.bookingTime.trim()) {
             stepErrors.bookingTime = "Please enter or select a daily commencement time.";
+          }
+          if (!configuration.arrangementMode) {
+            stepErrors.arrangementMode = "Please select an arrangement mode.";
+          }
+          if (!configuration.locationType) {
+            stepErrors.locationType = "Please select a location classification.";
+          }
+          if (isCalculatingPrice) {
+            stepErrors.pricing = "Please wait while authoritative Dakshina is being calculated.";
+          }
+          if (priceError) {
+            stepErrors.pricing = "Please resolve the price calculation error before continuing.";
+          }
+        } else if (resolvedServiceType === "JAPA") {
+          // Step 1: Japa Configuration Validation
+          if (!service) {
+            stepErrors.service = "Japa ceremony details are missing.";
+          }
+          if (!configuration.japaCount) {
+            stepErrors.japaCount = "Please select a Japa recitation count.";
+          } else {
+            const allowedCounts = Array.isArray(service?.availableCounts)
+              ? service.availableCounts.map(Number)
+              : Array.isArray(service?.variants)
+              ? service.variants.map((v) => Number(v.count))
+              : [];
+            if (allowedCounts.length > 0 && !allowedCounts.includes(Number(configuration.japaCount))) {
+              stepErrors.japaCount = "Selected recitation count is not offered for this Japa.";
+            }
+          }
+          const minP = Number(configuration.minimumPandits || service?.minimumPandits || 1);
+          const maxP = Number(configuration.maximumPandits || service?.maximumPandits || 21);
+          if (!configuration.panditCount || Number(configuration.panditCount) < minP) {
+            stepErrors.panditCount = `This Japa requires a minimum of ${minP} officiating Vedic scholars.`;
+          } else if (Number(configuration.panditCount) > maxP) {
+            stepErrors.panditCount = `Maximum permitted scholars for this service is ${maxP}.`;
+          }
+          if (!configuration.bookingDate) {
+            stepErrors.bookingDate = "Please select a Japa commencement date.";
+          } else {
+            const today = new Date().toISOString().split("T")[0];
+            if (configuration.bookingDate < today) {
+              stepErrors.bookingDate = "Japa commencement date cannot be in the past.";
+            }
+          }
+          if (!configuration.bookingTime || !configuration.bookingTime.trim()) {
+            stepErrors.bookingTime = "Please enter or select a daily chanting commencement time.";
           }
           if (!configuration.arrangementMode) {
             stepErrors.arrangementMode = "Please select an arrangement mode.";
@@ -932,6 +1062,63 @@ export const RitualBookingProvider = ({
           ),
           arrangementMode: configuration.arrangementMode || "kashi",
           selectedPricingTier: configuration.selectedPricingTier || null,
+        },
+        location: {
+          locationType: locType,
+          venueDetails,
+        },
+        yajman: cleanYajman,
+        sankalp: cleanSankalp,
+      };
+    }
+
+    if (resolvedServiceType === "JAPA") {
+      const requiredDays = priceBreakdown?.requiredDays || configuration.requiredDays || 3;
+      const completionDate = priceBreakdown?.completionDate || configuration.completionDate || "";
+
+      return {
+        serviceType: "JAPA",
+        serviceId: service.id,
+        serviceSlug: service.slug,
+        bookingDate: configuration.bookingDate,
+        commencementDate: configuration.bookingDate,
+        bookingTime: configuration.bookingTime,
+        timeSlot: configuration.bookingTime,
+        japaCount: Number(configuration.japaCount),
+        panditCount: Number(configuration.panditCount),
+        requiredDays,
+        completionDate,
+        dailyHours: configuration.dailyHours || service.dailyHours || null,
+        arrangementMode: configuration.arrangementMode || "kashi",
+        locationType: locType,
+        venueDetails,
+        yajmanDetails: cleanYajman,
+        sankalpDetails: {
+          ...cleanSankalp,
+          japaMetadata: {
+            japaCount: Number(configuration.japaCount),
+            panditCount: Number(configuration.panditCount),
+            dailyCapacityPerPandit: priceBreakdown?.dailyCapacityPerPandit || configuration.dailyCapacityPerPandit || 2000,
+            totalDailyCapacity: priceBreakdown?.totalDailyCapacity || configuration.totalDailyCapacity,
+            requiredDays,
+            commencementDate: configuration.bookingDate,
+            completionDate,
+            pricingSource: priceBreakdown?.pricingSource || "JAPA_VARIANT_PRICING",
+          },
+        },
+        familyMembers: cleanFamily,
+        addons: cleanAddons,
+
+        configuration: {
+          commencementDate: configuration.bookingDate,
+          date: configuration.bookingDate,
+          timeSlot: configuration.bookingTime,
+          japaCount: Number(configuration.japaCount),
+          panditCount: Number(configuration.panditCount),
+          requiredDays,
+          completionDate,
+          dailyHours: configuration.dailyHours || service.dailyHours || null,
+          arrangementMode: configuration.arrangementMode || "kashi",
         },
         location: {
           locationType: locType,
@@ -1264,6 +1451,19 @@ export const RitualBookingProvider = ({
           locationType: activeConfig.locationType || activeConfig.arrangementMode || "kashi",
           addons: addons || [],
         };
+      } else if (resolvedServiceType === "JAPA") {
+        payload = {
+          serviceType: "JAPA",
+          serviceId: service.id,
+          serviceSlug: service.slug,
+          japaCount: Number(activeConfig.japaCount),
+          panditCount: Number(activeConfig.panditCount),
+          commencementDate: activeConfig.bookingDate || activeConfig.commencementDate || null,
+          dailyHours: activeConfig.dailyHours || service.dailyHours || null,
+          arrangementMode: activeConfig.arrangementMode || "kashi",
+          locationType: activeConfig.locationType || activeConfig.arrangementMode || "kashi",
+          addons: addons || [],
+        };
       } else {
         payload = {
           serviceType: "PUJA",
@@ -1280,7 +1480,16 @@ export const RitualBookingProvider = ({
 
       try {
         const response = await ritualBookingService.calculatePrice(payload, controller.signal);
-        setPriceBreakdown(response?.data || response);
+        const breakdown = response?.data || response;
+        setPriceBreakdown(breakdown);
+        if (resolvedServiceType === "JAPA" && breakdown?.completionDate) {
+          setConfiguration((prev) => ({
+            ...prev,
+            completionDate: breakdown.completionDate,
+            requiredDays: breakdown.requiredDays || prev.requiredDays,
+            totalDailyCapacity: breakdown.totalDailyCapacity || prev.totalDailyCapacity,
+          }));
+        }
         setIsCalculatingPrice(false);
         setPriceError(null);
       } catch (err) {
@@ -1332,6 +1541,19 @@ export const RitualBookingProvider = ({
           locationType: configuration.locationType || configuration.arrangementMode || "kashi",
           addons: addons || [],
         };
+      } else if (resolvedServiceType === "JAPA") {
+        payload = {
+          serviceType: "JAPA",
+          serviceId: service.id,
+          serviceSlug: service.slug,
+          japaCount: Number(configuration.japaCount),
+          panditCount: Number(configuration.panditCount),
+          commencementDate: configuration.bookingDate || configuration.commencementDate || null,
+          dailyHours: configuration.dailyHours || service.dailyHours || null,
+          arrangementMode: configuration.arrangementMode || "kashi",
+          locationType: configuration.locationType || configuration.arrangementMode || "kashi",
+          addons: addons || [],
+        };
       } else {
         payload = {
           serviceType: "PUJA",
@@ -1349,7 +1571,16 @@ export const RitualBookingProvider = ({
       try {
         const response = await ritualBookingService.calculatePrice(payload, controller.signal);
         if (!isCancelled) {
-          setPriceBreakdown(response?.data || response);
+          const breakdown = response?.data || response;
+          setPriceBreakdown(breakdown);
+          if (resolvedServiceType === "JAPA" && breakdown?.completionDate) {
+            setConfiguration((prev) => ({
+              ...prev,
+              completionDate: breakdown.completionDate,
+              requiredDays: breakdown.requiredDays || prev.requiredDays,
+              totalDailyCapacity: breakdown.totalDailyCapacity || prev.totalDailyCapacity,
+            }));
+          }
           setIsCalculatingPrice(false);
           setPriceError(null);
         }
@@ -1386,6 +1617,9 @@ export const RitualBookingProvider = ({
     configuration.locationType,
     configuration.days,
     configuration.dailyHours,
+    configuration.japaCount,
+    configuration.bookingDate,
+    configuration.commencementDate,
     service?.panditRequirement?.minPandits,
     addons,
   ]);

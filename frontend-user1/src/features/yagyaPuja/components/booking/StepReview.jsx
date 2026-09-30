@@ -35,6 +35,7 @@ const StepReview = () => {
   } = useRitualBooking();
 
   const isYagya = serviceType === "YAGYA";
+  const isJapa = serviceType === "JAPA";
 
   // Helper to jump to step
   const handleEdit = (stepIdx) => {
@@ -140,7 +141,11 @@ const StepReview = () => {
               1
             </span>
             <h3 className="font-serif text-[16px] font-semibold text-[#2b241d]">
-              {isYagya ? "Yagya / Sacred Maha Anushthan" : "Puja / Sacred Service"}
+              {isJapa
+                ? "Japa / Sacred Anushthan"
+                : isYagya
+                ? "Yagya / Sacred Maha Anushthan"
+                : "Puja / Sacred Service"}
             </h3>
           </div>
           <button
@@ -153,7 +158,28 @@ const StepReview = () => {
           </button>
         </div>
 
-        {isYagya ? (
+        {isJapa ? (
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Japa Service</span>
+              <p className="mt-0.5 font-serif text-[15px] font-bold text-[#2b241d]">
+                {service?.name || "Vedic Japa Anushthan"}
+              </p>
+            </div>
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Presiding Deity</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#b36c1e]">
+                {service?.deity || "Supreme Divine"}
+              </p>
+            </div>
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Sacred Mantra</span>
+              <p className="mt-0.5 text-[13px] font-medium text-[#2b241d] italic">
+                {service?.mantra || configuration?.mantra || "Prescribed Vedic Mantra"}
+              </p>
+            </div>
+          </div>
+        ) : isYagya ? (
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
               <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Yagya Service</span>
@@ -200,7 +226,9 @@ const StepReview = () => {
               2
             </span>
             <h3 className="font-serif text-[16px] font-semibold text-[#2b241d]">
-              {isYagya
+              {isJapa
+                ? "Japa Anushthan Schedule & Team Configuration"
+                : isYagya
                 ? "Yagya Anushthan Schedule & Mandapam Configuration"
                 : "Ceremony Configuration & Schedule"}
             </h3>
@@ -215,7 +243,76 @@ const StepReview = () => {
           </button>
         </div>
 
-        {isYagya ? (
+        {isJapa ? (
+          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Total Recitations</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#b36c1e]">
+                {Number(configuration.japaCount || 0).toLocaleString("en-IN")} Jaap
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Officiating Purohits</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.panditCount || 1} Learned Brahmin{Number(configuration.panditCount) > 1 ? "s" : ""}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Daily Chanting Capacity</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {Number(
+                  configuration.totalDailyCapacity ||
+                    (configuration.panditCount || 1) * (configuration.dailyCapacityPerPandit || 1000)
+                ).toLocaleString("en-IN")}{" "}
+                Jaap / Day
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Required Anushthan Days</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.requiredDays || 1} Day{Number(configuration.requiredDays) > 1 ? "s" : ""}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Commencement Date</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {formatDate(configuration.commencementDate || configuration.bookingDate)}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Sacred Purnahuti (End Date)</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2e7d32]">
+                {formatDate(configuration.completionDate) || "Derived from daily capacity"}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Daily Ritual Hours</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.dailyHours || 4} Hours / Day
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Commencement Time</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.bookingTime || "07:00 AM"}
+              </p>
+            </div>
+
+            <div className="col-span-2 sm:col-span-1">
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Arrangement & Venue</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {getArrangementLabel(configuration.arrangementMode)}
+              </p>
+            </div>
+          </div>
+        ) : isYagya ? (
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
             <div>
               <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Commencement Date</span>
@@ -785,7 +882,13 @@ const StepReview = () => {
             {/* Base Ceremony Dakshina */}
             {baseAmount != null && (
               <div className="flex items-center justify-between text-[#685c4f]">
-                <span>{isYagya ? "Package Base Dakshina" : "Base Ceremony Dakshina"}</span>
+                <span>
+                  {isJapa
+                    ? "Japa Anushthan Base Dakshina"
+                    : isYagya
+                    ? "Package Base Dakshina"
+                    : "Base Ceremony Dakshina"}
+                </span>
                 <span className="font-semibold text-[#2b241d]">
                   ₹{Number(baseAmount).toLocaleString("en-IN")}
                 </span>

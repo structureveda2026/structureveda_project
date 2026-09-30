@@ -59,6 +59,14 @@ const navItems: NavItem[] = [
     ],
   },
   {
+    label: "Japa Catalogue",
+    path: "/admin/japa-services",
+    icon: Sparkles,
+    children: [
+      { label: "All Japa Services", path: "/admin/japa-services" },
+    ],
+  },
+  {
     label: "Library",
     path: "/admin/library/blogs",
     icon: BookOpen,

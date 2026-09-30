@@ -268,3 +268,169 @@ export const calculateYagyaPriceInternal = ({
     breakdown,
   };
 };
+
+/**
+ * Calculates authoritative pricing for a structured Mantra Japa service.
+ * Follows Phase J2 authoritative pricing rules:
+ * - Selected Japa count resolves the authoritative variant and starting price
+ * - Total daily capacity = panditCount * dailyCapacityPerPandit
+ * - Required days = CEILING(japaCount / totalDailyCapacity)
+ * - Completion date = commencementDate + (requiredDays - 1)
+ * - Pandit count validated against service min/max boundaries
+ * - Rejects unsupported counts or invalid pandit numbers
+ *
+ * @param {Object} params
+ * @param {Object} params.service - Sequelize JapaService instance
+ * @param {number|string} params.japaCount - Selected Japa recitation count
+ * @param {number|string} [params.panditCount] - Selected pandit count
+ * @param {string} [params.commencementDate] - Commencement date YYYY-MM-DD
+ * @param {number|string} [params.dailyHours] - Daily hours
+ * @param {string} [params.arrangementMode] - kashi | remote
+ * @param {string} [params.locationType] - location type
+ * @param {Array} [params.addons] - Untrusted client addons
+ * @returns {Object} authoritative Japa pricing details
+ */
+export const calculateJapaPriceInternal = ({
+  service,
+  japaCount,
+  panditCount,
+  commencementDate,
+  dailyHours,
+  arrangementMode,
+  locationType,
+  addons = [],
+}) => {
+  if (!service) {
+    throw new Error("Japa service is required for price calculation");
+  }
+
+  if (service.isActive === false) {
+    throw new Error("Japa service is currently inactive");
+  }
+
+  // 1. Validate and resolve selected Japa count
+  const numCount = parseInt(japaCount, 10);
+  if (isNaN(numCount) || numCount <= 0) {
+    throw new Error("Invalid japaCount parameter. Must be a positive integer.");
+  }
+
+  const availableCounts = Array.isArray(service.availableCounts)
+    ? service.availableCounts.map(Number)
+    : [];
+
+  const variants = Array.isArray(service.variants) ? service.variants : [];
+
+  const matchedVariant = variants.find((v) => Number(v.count) === numCount);
+
+  // If count is not in availableCounts and no matched variant, reject with 400
+  const isSupportedCount =
+    (availableCounts.length > 0 && availableCounts.includes(numCount)) ||
+    Boolean(matchedVariant);
+
+  if (!isSupportedCount) {
+    throw new Error(
+      `Unsupported Japa count: ${numCount}. Supported counts for this service: ${availableCounts.join(", ")}`
+    );
+  }
+
+  // 2. Authoritative Base Price from matched variant or service starting price
+  let basePrice = matchedVariant ? Number(matchedVariant.startingPrice) : Number(service.startingPrice);
+  if (isNaN(basePrice) || basePrice < 0) {
+    throw new Error(`Invalid pricing configuration for ${numCount} Japa.`);
+  }
+
+  // 3. Validate Pandit Count against service requirement and variant definition
+  const minPandits =
+    Number(matchedVariant?.minimumPandits) ||
+    Number(service.minimumPandits) ||
+    1;
+  const maxPandits =
+    Number(service.maximumPandits) ||
+    25;
+  const recPandits =
+    Number(matchedVariant?.recommendedPandits) ||
+    Number(service.recommendedPandits) ||
+    minPandits;
+
+  let requestedPandits = recPandits;
+  if (panditCount != null && !isNaN(parseInt(panditCount, 10))) {
+    requestedPandits = parseInt(panditCount, 10);
+  }
+
+  if (requestedPandits < minPandits) {
+    throw new Error(
+      `Selected pandit count (${requestedPandits}) is below the required minimum of ${minPandits} Vedic scholars for this Japa.`
+    );
+  }
+
+  if (requestedPandits > maxPandits) {
+    throw new Error(
+      `Selected pandit count (${requestedPandits}) exceeds the maximum allowed limit of ${maxPandits} for this Japa.`
+    );
+  }
+
+  // 4. Capacity and Required Days Calculation
+  const dailyCapacityPerPandit =
+    Number(matchedVariant?.dailyCapacity) ||
+    Number(service.dailyCapacityPerPandit) ||
+    2000;
+
+  const totalDailyCapacity = requestedPandits * dailyCapacityPerPandit;
+  if (totalDailyCapacity <= 0) {
+    throw new Error("Invalid daily chanting capacity configuration.");
+  }
+
+  const requiredDays = Math.ceil(numCount / totalDailyCapacity);
+
+  // 5. Completion Date Calculation
+  let completionDate = null;
+  if (commencementDate && String(commencementDate).trim()) {
+    completionDate = deriveCompletionDate(String(commencementDate).trim(), requiredDays);
+  }
+
+  // 6. Daily Hours
+  const expectedDailyHours = service.dailyHours || "4 Hours Daily";
+
+  // 7. Authoritative Total Amount
+  const panditAddonPrice = 0.00;
+  const addonsTotal = 0.00;
+  const totalAmount = Number((basePrice + panditAddonPrice + addonsTotal).toFixed(2));
+  const formattedTotal = formatIndianCurrency(totalAmount);
+
+  return {
+    serviceType: "JAPA",
+    serviceId: service.id,
+    serviceSlug: service.slug,
+    serviceName: service.name,
+    japaCount: numCount,
+    panditCount: requestedPandits,
+    dailyCapacityPerPandit,
+    totalDailyCapacity,
+    requiredDays,
+    durationSelected: `${requiredDays} Days (${numCount.toLocaleString("en-IN")} Japa)`,
+    days: requiredDays,
+    dailyHours: expectedDailyHours,
+    durationHours: requiredDays * 4,
+    commencementDate: commencementDate ? String(commencementDate).trim() : null,
+    completionDate,
+    basePrice: Number(basePrice.toFixed(2)),
+    panditAddonPrice,
+    addonsTotal,
+    totalAmount,
+    formattedTotal,
+    currency: "INR",
+    pricingSource: "JAPA_VARIANT_PRICING",
+    variant: matchedVariant
+      ? {
+          count: Number(matchedVariant.count),
+          label: matchedVariant.label || `${numCount.toLocaleString("en-IN")} Japa`,
+          startingPrice: Number(matchedVariant.startingPrice),
+          estimatedDuration: matchedVariant.estimatedDuration,
+          minimumPandits: Number(matchedVariant.minimumPandits),
+          recommendedPandits: Number(matchedVariant.recommendedPandits),
+          dailyCapacity: Number(matchedVariant.dailyCapacity),
+        }
+      : null,
+    breakdown: [],
+  };
+};
