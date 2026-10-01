@@ -1,5 +1,13 @@
 import { useState, useMemo, useEffect } from "react";
-import { PATH_CATALOGUE_LIST, PATH_PURPOSE_CATEGORIES, RECITATION_FORMATS } from "../data/pathCatalogueData";
+import {
+  PATH_CATALOGUE_LIST,
+  PATH_PURPOSE_CATEGORIES,
+  RECITATION_FORMATS,
+} from "../data/pathCatalogueData";
+import pathCatalogueService, {
+  mapApiPathServiceToUi,
+  normalizePathPurpose,
+} from "../services/pathCatalogueService";
 import PathListingHero from "../components/PathListingHero";
 import PathConceptSection from "../components/PathConceptSection";
 import PathPurposeSection from "../components/PathPurposeSection";
@@ -18,9 +26,9 @@ import PathWorkflowSection from "../components/PathWorkflowSection";
 import PathWhyVedaStructure from "../components/PathWhyVedaStructure";
 import PathFaqSection from "../components/PathFaqSection";
 import PathFinalCta from "../components/PathFinalCta";
-import { Sparkles, Search, X } from "lucide-react";
+import { Sparkles, Search, X, RefreshCw } from "lucide-react";
 
-export const PATH_SORT_OPTIONS = [
+const PATH_SORT_OPTIONS = [
   { label: "Featured First", value: "featured" },
   { label: "Price: Low to High", value: "price-asc" },
   { label: "Price: High to Low", value: "price-desc" },
@@ -40,6 +48,143 @@ const PathCatalogueListing = () => {
   const [isFeaturedOnly, setIsFeaturedOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSort, setSelectedSort] = useState("featured");
+
+  // Dynamic API state
+  const [services, setServices] = useState(() =>
+    PATH_CATALOGUE_LIST.map(mapApiPathServiceToUi)
+  );
+  const [purposes, setPurposes] = useState(() =>
+    PATH_PURPOSE_CATEGORIES.map(normalizePathPurpose)
+  );
+  const [loading, setLoading] = useState(false);
+  const [isFallback, setIsFallback] = useState(false);
+
+  // Load purpose categories from API on mount
+  useEffect(() => {
+    let isCancelled = false;
+    pathCatalogueService
+      .getPathPurposes()
+      .then((data) => {
+        if (!isCancelled && Array.isArray(data) && data.length > 0) {
+          setPurposes(data);
+        }
+      })
+      .catch((err) => {
+        console.warn(
+          "Failed to load dynamic Path purposes, using fallback:",
+          err?.message || err
+        );
+      });
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
+
+  // Fetch Path services with API-first pattern and static fallback on failure
+  useEffect(() => {
+    let isCancelled = false;
+
+    const filterParams = {
+      search: searchQuery.trim(),
+      purpose: selectedPurpose,
+      format: selectedFormat,
+      mode: selectedMode,
+      isFeatured: isFeaturedOnly ? "true" : undefined,
+      sortBy: selectedSort,
+      limit: 50,
+    };
+
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const response = await pathCatalogueService.getPathServices(filterParams);
+        if (!isCancelled) {
+          if (response && response.success && Array.isArray(response.services)) {
+            setServices(response.services);
+            setIsFallback(false);
+          } else {
+            throw new Error("Invalid API response format");
+          }
+          setLoading(false);
+        }
+      } catch (err) {
+        if (!isCancelled) {
+          console.warn(
+            "Path catalogue API failed, engaging static fallback:",
+            err?.message || err
+          );
+
+          // Apply faithful local filtering to static PATH_CATALOGUE_LIST
+          const localFallback = PATH_CATALOGUE_LIST.filter((path) => {
+            if (path.active === false) return false;
+
+            // Purpose Filter
+            if (selectedPurpose !== "All") {
+              const matchesCat = path.purposeCategory === selectedPurpose;
+              const matchesList = (path.purposeCategories || []).includes(selectedPurpose);
+              if (!matchesCat && !matchesList) return false;
+            }
+
+            // Format Filter
+            if (selectedFormat !== "All") {
+              const supportsFormat = (path.availableFormats || []).includes(selectedFormat);
+              if (!supportsFormat) return false;
+            }
+
+            // Mode / Location Filter
+            if (selectedMode === "kashi" && !path.kashiAvailable) return false;
+            if (selectedMode === "remote" && !path.remoteAvailable) return false;
+
+            // Featured Filter
+            if (isFeaturedOnly && !path.featured) return false;
+
+            // Search Query
+            if (searchQuery.trim() !== "") {
+              const q = searchQuery.toLowerCase().trim();
+              const matchesName = (path.name || "").toLowerCase().includes(q);
+              const matchesDesc = (path.description || "").toLowerCase().includes(q);
+              const matchesScripture = (path.scripture || "").toLowerCase().includes(q);
+              const matchesPurpose = (path.purpose || "").toLowerCase().includes(q);
+              if (!matchesName && !matchesDesc && !matchesScripture && !matchesPurpose) {
+                return false;
+              }
+            }
+
+            return true;
+          }).sort((a, b) => {
+            if (selectedSort === "price-asc") {
+              return (a.startingPrice || 0) - (b.startingPrice || 0);
+            }
+            if (selectedSort === "price-desc") {
+              return (b.startingPrice || 0) - (a.startingPrice || 0);
+            }
+            if (selectedSort === "name-asc") {
+              return (a.name || "").localeCompare(b.name || "");
+            }
+            if (a.featured && !b.featured) return -1;
+            if (!a.featured && b.featured) return 1;
+            return 0;
+          });
+
+          setServices(localFallback.map(mapApiPathServiceToUi));
+          setIsFallback(true);
+          setLoading(false);
+        }
+      }
+    }, 250);
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(timer);
+    };
+  }, [
+    searchQuery,
+    selectedPurpose,
+    selectedFormat,
+    selectedMode,
+    isFeaturedOnly,
+    selectedSort,
+  ]);
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
@@ -73,61 +218,6 @@ const PathCatalogueListing = () => {
       el.scrollIntoView({ behavior: "smooth" });
     }
   };
-
-  // Filtered and Sorted Path Services
-  const filteredPaths = useMemo(() => {
-    return PATH_CATALOGUE_LIST.filter((path) => {
-      if (!path.active) return false;
-
-      // Purpose Filter
-      if (selectedPurpose !== "All") {
-        const matchesCat = path.purposeCategory === selectedPurpose;
-        const matchesList = (path.purposeCategories || []).includes(selectedPurpose);
-        if (!matchesCat && !matchesList) return false;
-      }
-
-      // Format Filter (Strictly matches service availableFormats array!)
-      if (selectedFormat !== "All") {
-        const supportsFormat = (path.availableFormats || []).includes(selectedFormat);
-        if (!supportsFormat) return false;
-      }
-
-      // Mode / Location Filter
-      if (selectedMode === "kashi" && !path.kashiAvailable) return false;
-      if (selectedMode === "remote" && !path.remoteAvailable) return false;
-
-      // Featured Filter
-      if (isFeaturedOnly && !path.featured) return false;
-
-      // Search Query
-      if (searchQuery.trim() !== "") {
-        const q = searchQuery.toLowerCase().trim();
-        const matchesName = (path.name || "").toLowerCase().includes(q);
-        const matchesDesc = (path.description || "").toLowerCase().includes(q);
-        const matchesScripture = (path.scripture || "").toLowerCase().includes(q);
-        const matchesPurpose = (path.purpose || "").toLowerCase().includes(q);
-        if (!matchesName && !matchesDesc && !matchesScripture && !matchesPurpose) {
-          return false;
-        }
-      }
-
-      return true;
-    }).sort((a, b) => {
-      if (selectedSort === "price-asc") {
-        return (a.startingPrice || 0) - (b.startingPrice || 0);
-      }
-      if (selectedSort === "price-desc") {
-        return (b.startingPrice || 0) - (a.startingPrice || 0);
-      }
-      if (selectedSort === "name-asc") {
-        return a.name.localeCompare(b.name);
-      }
-      // default: featured first
-      if (a.featured && !b.featured) return -1;
-      if (!a.featured && b.featured) return 1;
-      return 0;
-    });
-  }, [selectedPurpose, selectedFormat, selectedMode, isFeaturedOnly, searchQuery, selectedSort]);
 
   return (
     <div className="min-h-screen bg-[#faf4e6] text-[#2b241d]">
@@ -195,9 +285,9 @@ const PathCatalogueListing = () => {
                   className="w-full rounded-full border border-[#d6b8a0] bg-white px-4 py-2.5 text-[13px] font-medium text-[#2b241d] transition focus:border-[#c77722] focus:outline-none"
                 >
                   <option value="All">All Purposes</option>
-                  {PATH_PURPOSE_CATEGORIES.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.title}
+                  {purposes.map((cat) => (
+                    <option key={cat.id || cat.slug} value={cat.slug || cat.id}>
+                      {cat.title || cat.name}
                     </option>
                   ))}
                 </select>
@@ -250,7 +340,11 @@ const PathCatalogueListing = () => {
                         : "bg-white text-[#5c4e3f] hover:bg-[#f2e2cb]"
                     }`}
                   >
-                    {m === "All" ? "All Modes" : m === "kashi" ? "Kashi Shrines" : "Remote Recitation"}
+                    {m === "All"
+                      ? "All Modes"
+                      : m === "kashi"
+                      ? "Kashi Shrines"
+                      : "Remote Recitation"}
                   </button>
                 ))}
 
@@ -282,11 +376,28 @@ const PathCatalogueListing = () => {
 
           {/* Catalogue Services Grid */}
           <div className="mt-10">
-            {filteredPaths.length > 0 ? (
-              <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
-                {filteredPaths.map((path) => (
-                  <PathServiceCard key={path.id} service={path} />
-                ))}
+            {loading ? (
+              <div className="flex min-h-[300px] flex-col items-center justify-center rounded-[24px] border border-[#e6d3ba] bg-[#fffaf1] py-16 text-center">
+                <RefreshCw size={28} className="animate-spin text-[#c77722]" />
+                <h3 className="mt-4 font-serif text-[18px] font-bold text-[#2b241d]">
+                  Loading Sacred Scripture Recitations...
+                </h3>
+                <p className="mt-1 text-[13px] text-[#78644e]">
+                  Fetching authoritative Vedic Path services from registry.
+                </p>
+              </div>
+            ) : services.length > 0 ? (
+              <div>
+                {isFallback && (
+                  <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50/80 px-4 py-2 text-xs text-amber-800">
+                    Offline catalogue view active
+                  </div>
+                )}
+                <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+                  {services.map((path) => (
+                    <PathServiceCard key={path.id || path.slug} service={path} />
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="rounded-[24px] border border-[#e6d3ba] bg-[#fffaf1] py-16 text-center">

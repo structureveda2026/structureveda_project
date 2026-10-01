@@ -146,6 +146,16 @@ export const calculateYagyaCompletionDate = (startDateStr, days) => {
 export const calculateJapaCompletionDate = calculateYagyaCompletionDate;
 
 /**
+ * Calculates Homa completion date (start date + days - 1)
+ */
+export const calculateHomaCompletionDate = calculateYagyaCompletionDate;
+
+/**
+ * Calculates Path completion date (start date + days - 1)
+ */
+export const calculatePathCompletionDate = calculateYagyaCompletionDate;
+
+/**
  * Resolves safe default configuration from actual service properties.
  * Supports both PUJA and YAGYA services without inventing missing values.
  */
@@ -161,6 +171,122 @@ const getDefaultConfiguration = (service, serviceType = "PUJA") => {
       locationType: "",
       days: null,
       dailyHours: null,
+      completionDate: "",
+      selectedPricingTier: null,
+      havanCount: null,
+      durationDays: null,
+      havanCapacityPerPandit: null,
+    };
+  }
+
+  const isPath =
+    serviceType === "PATH" ||
+    service?.serviceType === "PATH" ||
+    service?.ritualType === "PATH" ||
+    (Array.isArray(service?.availableFormats) &&
+      service.availableFormats.length > 0 &&
+      service?.scripture);
+
+  if (isPath) {
+    const availableFormats =
+      Array.isArray(service.availableFormats) && service.availableFormats.length > 0
+        ? service.availableFormats
+        : ["single_session", "same_day"];
+    const defaultFormat = availableFormats[0] || "single_session";
+
+    const availableDurations =
+      Array.isArray(service.availableDurations) && service.availableDurations.length > 0
+        ? service.availableDurations
+        : ["3 to 4 Hours"];
+    const defaultDuration = availableDurations[0] || "3 to 4 Hours";
+
+    const minDays = Number(service.minimumDays) || 1;
+    const maxDays = Number(service.maximumDays) || 9;
+    const recDays = Number(service.recommendedDays) || minDays;
+    const defaultDays =
+      defaultFormat === "single_session" || defaultFormat === "same_day" ? 1 : recDays;
+
+    const minPandits = Number(service.minimumPandits) || 1;
+    const recPandits = Number(service.recommendedPandits) || minPandits || 2;
+    const maxPandits = Number(service.maximumPandits) || 5;
+
+    let arrangementMode = "kashi";
+    if (service.isKashiAvailable === false && service.isRemoteAvailable !== false) {
+      arrangementMode = "remote";
+    }
+
+    return {
+      bookingDate: "",
+      bookingTime: "06:00 AM",
+      timeSlot: "06:00 AM",
+      format: defaultFormat,
+      selectedFormat: defaultFormat,
+      duration: defaultDuration,
+      durationSelected: defaultDuration,
+      days: defaultDays,
+      durationDays: defaultDays,
+      panditCount: recPandits,
+      minimumPandits: minPandits,
+      recommendedPandits: recPandits,
+      maximumPandits: maxPandits,
+      minimumDays: minDays,
+      recommendedDays: recDays,
+      maximumDays: maxDays,
+      chapterStructure: service.chapterStructure || "",
+      estimatedRecitationHours: service.estimatedRecitationHours || "",
+      arrangementMode,
+      locationType: arrangementMode,
+      completionDate: "",
+      selectedPricingTier: null,
+    };
+  }
+
+  const isHoma =
+    serviceType === "HOMA" ||
+    service?.serviceType === "HOMA" ||
+    service?.ritualType === "HOMA" ||
+    (Array.isArray(service?.availableHavanCounts) && service.availableHavanCounts.length > 0);
+
+  if (isHoma) {
+    const availableHavanCounts =
+      Array.isArray(service.availableHavanCounts) && service.availableHavanCounts.length > 0
+        ? service.availableHavanCounts
+            .map((v) => (v === "custom" || v === "Custom" ? "custom" : Number(v)))
+            .filter((n) => n === "custom" || (!isNaN(n) && n > 0))
+        : [1];
+    const defaultHavanCount = availableHavanCounts[0] || 1;
+
+    const availableDays =
+      Array.isArray(service.availableDays) && service.availableDays.length > 0
+        ? service.availableDays.map(Number).filter((n) => !isNaN(n) && n > 0)
+        : [1];
+    const defaultDays = Number(defaultHavanCount) === 1 ? 1 : (availableDays[0] || 1);
+
+    const minPandits = Number(service.minimumPandits || 2);
+    const recPandits = Number(service.recommendedPandits || minPandits || 3);
+    const maxPandits = Number(service.maximumPandits || 11);
+
+    let arrangementMode = "kashi";
+    if (service.isKashiAvailable === false && service.isRemoteAvailable !== false) {
+      arrangementMode = "remote";
+    }
+
+    return {
+      bookingDate: "",
+      bookingTime: "06:00 AM",
+      timeSlot: "06:00 AM",
+      havanCount: defaultHavanCount,
+      days: defaultDays,
+      durationDays: defaultDays,
+      durationSelected: `${defaultHavanCount} Havan, ${defaultDays} Day(s)`,
+      panditCount: recPandits,
+      minimumPandits: minPandits,
+      recommendedPandits: recPandits,
+      maximumPandits: maxPandits,
+      dailyHours: service.dailyHours || "3 – 4 Hours Daily",
+      havanCapacityPerPandit: service.havanCapacityPerPandit || "500 Ahutis per Pandit / Day",
+      arrangementMode,
+      locationType: arrangementMode,
       completionDate: "",
       selectedPricingTier: null,
     };
@@ -342,6 +468,12 @@ const INITIAL_STATE = {
     totalDailyCapacity: null,
     requiredDays: null,
     selectedVariant: null,
+    havanCount: null,
+    durationDays: null,
+    havanCapacityPerPandit: null,
+    format: null,
+    selectedFormat: null,
+    duration: null,
   },
 
   yajmanDetails: {
@@ -413,6 +545,10 @@ export const RitualBookingProvider = ({
         initialService?.serviceType === "JAPA" ||
         initialService?.ritualType === "JAPA"
       ? "JAPA"
+      : (Array.isArray(initialService?.availableHavanCounts) && initialService.availableHavanCounts.length > 0) ||
+        initialService?.serviceType === "HOMA" ||
+        initialService?.ritualType === "HOMA"
+      ? "HOMA"
       : "PUJA");
 
   const [currentStep, setCurrentStep] = useState(INITIAL_STATE.currentStep);
@@ -474,7 +610,8 @@ export const RitualBookingProvider = ({
       if (
         !trimmedRef.startsWith("VEDA-PUJA-") &&
         !trimmedRef.startsWith("VEDA-YAGYA-") &&
-        !trimmedRef.startsWith("VEDA-JAPA-")
+        !trimmedRef.startsWith("VEDA-JAPA-") &&
+        !trimmedRef.startsWith("VEDA-HOMA-")
       ) {
         localStorage.removeItem(RITUAL_STORAGE_KEY);
         return;
@@ -568,6 +705,12 @@ export const RitualBookingProvider = ({
             totalDailyCapacity: prev.totalDailyCapacity || defaults.totalDailyCapacity,
             requiredDays: prev.requiredDays || defaults.requiredDays,
             selectedVariant: prev.selectedVariant || defaults.selectedVariant,
+            havanCount: prev.havanCount || defaults.havanCount,
+            durationDays: prev.durationDays || defaults.durationDays,
+            havanCapacityPerPandit: prev.havanCapacityPerPandit || defaults.havanCapacityPerPandit,
+            format: prev.format || defaults.format,
+            selectedFormat: prev.selectedFormat || defaults.selectedFormat,
+            duration: prev.duration || defaults.duration,
           };
         });
         setSankalpDetails((prev) => ({
@@ -779,6 +922,145 @@ export const RitualBookingProvider = ({
           }
           if (!configuration.bookingTime || !configuration.bookingTime.trim()) {
             stepErrors.bookingTime = "Please enter or select a daily chanting commencement time.";
+          }
+          if (!configuration.arrangementMode) {
+            stepErrors.arrangementMode = "Please select an arrangement mode.";
+          }
+          if (!configuration.locationType) {
+            stepErrors.locationType = "Please select a location classification.";
+          }
+          if (isCalculatingPrice) {
+            stepErrors.pricing = "Please wait while authoritative Dakshina is being calculated.";
+          }
+          if (priceError) {
+            stepErrors.pricing = "Please resolve the price calculation error before continuing.";
+          }
+        } else if (resolvedServiceType === "HOMA") {
+          // Step 1: Homa Configuration Validation
+          if (!service) {
+            stepErrors.service = "Homa ceremony details are missing.";
+          }
+          if (!configuration.havanCount) {
+            stepErrors.havanCount = "Please select the number of Havans.";
+          } else {
+            const allowedHavans = Array.isArray(service?.availableHavanCounts)
+              ? service.availableHavanCounts.map((v) =>
+                  v === "custom" || v === "Custom" ? "custom" : Number(v)
+                )
+              : [];
+            if (allowedHavans.length > 0 && !allowedHavans.includes(configuration.havanCount)) {
+              stepErrors.havanCount = "Selected Havan count is not supported for this Homa.";
+            }
+          }
+          if (!configuration.days || Number(configuration.days) < 1) {
+            stepErrors.days = "Please select the ritual duration in days.";
+          } else {
+            const allowedDays = Array.isArray(service?.availableDays)
+              ? service.availableDays.map(Number)
+              : [];
+            if (allowedDays.length > 0 && !allowedDays.includes(Number(configuration.days))) {
+              stepErrors.days = "Selected duration days are not supported for this Homa.";
+            }
+            if (Number(configuration.havanCount) === 1 && Number(configuration.days) > 1) {
+              stepErrors.days = "1 Havan is performed in a 1-day session. Multi-day requires 3+ Havans.";
+            }
+          }
+          const minP = Number(configuration.minimumPandits || service?.minimumPandits || 1);
+          const maxP = Number(configuration.maximumPandits || service?.maximumPandits || 21);
+          if (!configuration.panditCount || Number(configuration.panditCount) < minP) {
+            stepErrors.panditCount = `This Homa requires a minimum of ${minP} officiating Vedic scholars.`;
+          } else if (Number(configuration.panditCount) > maxP) {
+            stepErrors.panditCount = `Maximum permitted scholars for this service is ${maxP}.`;
+          }
+          const commDate = configuration.bookingDate || configuration.commencementDate;
+          if (!commDate) {
+            stepErrors.bookingDate = "Please select a Homa commencement date.";
+          } else {
+            const today = new Date().toISOString().split("T")[0];
+            if (commDate < today) {
+              stepErrors.bookingDate = "Homa commencement date cannot be in the past.";
+            }
+          }
+          const bTime = configuration.bookingTime || configuration.timeSlot;
+          if (!bTime || !bTime.trim()) {
+            stepErrors.bookingTime = "Please enter or select a commencement time.";
+          }
+          if (!configuration.arrangementMode) {
+            stepErrors.arrangementMode = "Please select an arrangement mode.";
+          }
+          if (!configuration.locationType) {
+            stepErrors.locationType = "Please select a location classification.";
+          }
+          if (isCalculatingPrice) {
+            stepErrors.pricing = "Please wait while authoritative Dakshina is being calculated.";
+          }
+          if (priceError) {
+            stepErrors.pricing = "Please resolve the price calculation error before continuing.";
+          }
+        } else if (resolvedServiceType === "PATH") {
+          // Step 1: Path Configuration Validation
+          if (!service) {
+            stepErrors.service = "Path recitation ceremony details are missing.";
+          }
+          const selectedFormat = configuration.format || configuration.selectedFormat;
+          if (!selectedFormat) {
+            stepErrors.format = "Please select a recitation format.";
+          } else if (
+            Array.isArray(service?.availableFormats) &&
+            service.availableFormats.length > 0 &&
+            !service.availableFormats.includes(selectedFormat)
+          ) {
+            stepErrors.format = "Selected recitation format is not supported for this Path.";
+          }
+
+          const selectedDuration = configuration.duration || configuration.durationSelected;
+          if (!selectedDuration) {
+            stepErrors.duration = "Please select a recitation duration.";
+          } else if (
+            Array.isArray(service?.availableDurations) &&
+            service.availableDurations.length > 0 &&
+            !service.availableDurations.includes(selectedDuration)
+          ) {
+            stepErrors.duration = "Selected duration is not supported for this Path.";
+          }
+
+          const minD = Number(service?.minimumDays) || 1;
+          const maxD = Number(service?.maximumDays) || 9;
+          const isSingle = selectedFormat === "single_session" || selectedFormat === "same_day";
+
+          if (isSingle) {
+            if (configuration.days && Number(configuration.days) !== 1) {
+              stepErrors.days = "A single-session Path recitation must be completed in 1 day.";
+            }
+          } else {
+            if (!configuration.days || Number(configuration.days) < minD) {
+              stepErrors.days = `This Path requires a minimum of ${minD} day(s).`;
+            } else if (Number(configuration.days) > maxD) {
+              stepErrors.days = `Selected duration exceeds the maximum allowed ${maxD} day(s) for this Path.`;
+            }
+          }
+
+          const minP = Number(configuration.minimumPandits || service?.minimumPandits || 1);
+          const maxP = Number(configuration.maximumPandits || service?.maximumPandits || 5);
+          if (!configuration.panditCount || Number(configuration.panditCount) < minP) {
+            stepErrors.panditCount = `This Path requires a minimum of ${minP} officiating Vedic scholars.`;
+          } else if (Number(configuration.panditCount) > maxP) {
+            stepErrors.panditCount = `Maximum permitted scholars for this service is ${maxP}.`;
+          }
+
+          const commDate = configuration.bookingDate || configuration.commencementDate;
+          if (!commDate) {
+            stepErrors.bookingDate = "Please select a Path commencement date.";
+          } else {
+            const today = new Date().toISOString().split("T")[0];
+            if (commDate < today) {
+              stepErrors.bookingDate = "Path commencement date cannot be in the past.";
+            }
+          }
+
+          const bTime = configuration.bookingTime || configuration.timeSlot;
+          if (!bTime || !bTime.trim()) {
+            stepErrors.bookingTime = "Please enter or select a commencement time.";
           }
           if (!configuration.arrangementMode) {
             stepErrors.arrangementMode = "Please select an arrangement mode.";
@@ -1129,6 +1411,157 @@ export const RitualBookingProvider = ({
       };
     }
 
+    if (resolvedServiceType === "HOMA") {
+      const days = Number(configuration.days || configuration.durationDays || 1);
+      const completionDate = priceBreakdown?.completionDate || configuration.completionDate || "";
+      const commDate = configuration.bookingDate || configuration.commencementDate;
+      const timeSlot = configuration.bookingTime || configuration.timeSlot || "06:00 AM";
+
+      return {
+        serviceType: "HOMA",
+        serviceId: service.id,
+        serviceSlug: service.slug,
+        bookingDate: commDate,
+        commencementDate: commDate,
+        bookingTime: timeSlot,
+        timeSlot,
+        havanCount: configuration.havanCount === "custom" ? "custom" : Number(configuration.havanCount),
+        days,
+        durationDays: days,
+        panditCount: Number(configuration.panditCount),
+        dailyHours: configuration.dailyHours || service.dailyHours || null,
+        havanCapacityPerPandit:
+          configuration.havanCapacityPerPandit || service.havanCapacityPerPandit || null,
+        completionDate,
+        arrangementMode: configuration.arrangementMode || "kashi",
+        locationType: locType,
+        venueDetails,
+        yajmanDetails: cleanYajman,
+        sankalpDetails: {
+          ...cleanSankalp,
+          homaMetadata: {
+            havanCount:
+              configuration.havanCount === "custom" ? "custom" : Number(configuration.havanCount),
+            days,
+            durationDays: days,
+            panditCount: Number(configuration.panditCount),
+            dailyHours: configuration.dailyHours || service.dailyHours || null,
+            havanCapacityPerPandit:
+              configuration.havanCapacityPerPandit || service.havanCapacityPerPandit || null,
+            commencementDate: commDate,
+            completionDate,
+            pricingSource: priceBreakdown?.pricingSource || "HOMA_CONFIGURED_PRICING",
+          },
+        },
+        familyMembers: cleanFamily,
+        addons: cleanAddons,
+
+        configuration: {
+          commencementDate: commDate,
+          date: commDate,
+          timeSlot,
+          havanCount:
+            configuration.havanCount === "custom" ? "custom" : Number(configuration.havanCount),
+          days,
+          durationDays: days,
+          panditCount: Number(configuration.panditCount),
+          dailyHours: configuration.dailyHours || service.dailyHours || null,
+          havanCapacityPerPandit:
+            configuration.havanCapacityPerPandit || service.havanCapacityPerPandit || null,
+          completionDate,
+          arrangementMode: configuration.arrangementMode || "kashi",
+          locationType: locType,
+        },
+        location: {
+          locationType: locType,
+          venueDetails,
+        },
+        yajman: cleanYajman,
+        sankalp: cleanSankalp,
+      };
+    }
+
+    if (resolvedServiceType === "PATH") {
+      const days = Number(configuration.days || configuration.durationDays || 1);
+      const completionDate = priceBreakdown?.completionDate || configuration.completionDate || "";
+      const commDate = configuration.bookingDate || configuration.commencementDate;
+      const timeSlot = configuration.bookingTime || configuration.timeSlot || "06:00 AM";
+      const selectedFormat =
+        configuration.format ||
+        configuration.selectedFormat ||
+        (Array.isArray(service.availableFormats) ? service.availableFormats[0] : "single_session");
+      const selectedDuration =
+        configuration.duration ||
+        configuration.durationSelected ||
+        (Array.isArray(service.availableDurations) ? service.availableDurations[0] : "3 to 4 Hours");
+      const panditCount = Number(
+        configuration.panditCount || service.recommendedPandits || service.minimumPandits || 2
+      );
+
+      return {
+        serviceType: "PATH",
+        serviceId: service.id,
+        serviceSlug: service.slug,
+        bookingDate: commDate,
+        commencementDate: commDate,
+        bookingTime: timeSlot,
+        timeSlot,
+        format: selectedFormat,
+        selectedFormat,
+        duration: selectedDuration,
+        durationSelected: selectedDuration,
+        days,
+        durationDays: days,
+        panditCount,
+        completionDate,
+        arrangementMode: configuration.arrangementMode || "kashi",
+        locationType: locType,
+        venueDetails,
+        yajmanDetails: cleanYajman,
+        sankalpDetails: {
+          ...cleanSankalp,
+          pathMetadata: {
+            serviceId: service.id,
+            serviceSlug: service.slug,
+            serviceName: service.name,
+            pathType: service.pathType,
+            scripture: service.scripture,
+            selectedFormat,
+            selectedDuration,
+            selectedDays: days,
+            panditCount,
+            commencementDate: commDate,
+            completionDate,
+            pricingSource: priceBreakdown?.pricingSource || "PATH_CONFIGURED_PRICING",
+          },
+        },
+        familyMembers: cleanFamily,
+        addons: cleanAddons,
+
+        configuration: {
+          commencementDate: commDate,
+          date: commDate,
+          timeSlot,
+          format: selectedFormat,
+          selectedFormat,
+          duration: selectedDuration,
+          durationSelected: selectedDuration,
+          days,
+          durationDays: days,
+          panditCount,
+          completionDate,
+          arrangementMode: configuration.arrangementMode || "kashi",
+          locationType: locType,
+        },
+        location: {
+          locationType: locType,
+          venueDetails,
+        },
+        yajman: cleanYajman,
+        sankalp: cleanSankalp,
+      };
+    }
+
     return {
       serviceType: "PUJA",
       serviceId: service.id,
@@ -1464,6 +1897,49 @@ export const RitualBookingProvider = ({
           locationType: activeConfig.locationType || activeConfig.arrangementMode || "kashi",
           addons: addons || [],
         };
+      } else if (resolvedServiceType === "HOMA") {
+        const days = Number(activeConfig.days || activeConfig.durationDays || 1);
+        const commDate = activeConfig.bookingDate || activeConfig.commencementDate || null;
+        payload = {
+          serviceType: "HOMA",
+          serviceId: service.id,
+          serviceSlug: service.slug,
+          havanCount:
+            activeConfig.havanCount === "custom" ? "custom" : Number(activeConfig.havanCount),
+          days,
+          durationDays: days,
+          panditCount: Number(activeConfig.panditCount),
+          commencementDate: commDate,
+          dailyHours: activeConfig.dailyHours || service.dailyHours || null,
+          arrangementMode: activeConfig.arrangementMode || "kashi",
+          locationType: activeConfig.locationType || activeConfig.arrangementMode || "kashi",
+          addons: addons || [],
+        };
+      } else if (resolvedServiceType === "PATH") {
+        const days = Number(activeConfig.days || activeConfig.durationDays || 1);
+        const commDate = activeConfig.bookingDate || activeConfig.commencementDate || null;
+        const selectedFormat =
+          activeConfig.format ||
+          activeConfig.selectedFormat ||
+          (Array.isArray(service.availableFormats) ? service.availableFormats[0] : "single_session");
+        const selectedDuration =
+          activeConfig.duration ||
+          activeConfig.durationSelected ||
+          (Array.isArray(service.availableDurations) ? service.availableDurations[0] : "3 to 4 Hours");
+        payload = {
+          serviceType: "PATH",
+          serviceId: service.id,
+          serviceSlug: service.slug,
+          format: selectedFormat,
+          duration: selectedDuration,
+          days,
+          durationDays: days,
+          panditCount: Number(activeConfig.panditCount || service.recommendedPandits || 2),
+          commencementDate: commDate,
+          arrangementMode: activeConfig.arrangementMode || "kashi",
+          locationType: activeConfig.locationType || activeConfig.arrangementMode || "kashi",
+          addons: addons || [],
+        };
       } else {
         payload = {
           serviceType: "PUJA",
@@ -1488,6 +1964,11 @@ export const RitualBookingProvider = ({
             completionDate: breakdown.completionDate,
             requiredDays: breakdown.requiredDays || prev.requiredDays,
             totalDailyCapacity: breakdown.totalDailyCapacity || prev.totalDailyCapacity,
+          }));
+        } else if ((resolvedServiceType === "HOMA" || resolvedServiceType === "PATH") && breakdown?.completionDate) {
+          setConfiguration((prev) => ({
+            ...prev,
+            completionDate: breakdown.completionDate,
           }));
         }
         setIsCalculatingPrice(false);
@@ -1554,6 +2035,49 @@ export const RitualBookingProvider = ({
           locationType: configuration.locationType || configuration.arrangementMode || "kashi",
           addons: addons || [],
         };
+      } else if (resolvedServiceType === "HOMA") {
+        const days = Number(configuration.days || configuration.durationDays || 1);
+        const commDate = configuration.bookingDate || configuration.commencementDate || null;
+        payload = {
+          serviceType: "HOMA",
+          serviceId: service.id,
+          serviceSlug: service.slug,
+          havanCount:
+            configuration.havanCount === "custom" ? "custom" : Number(configuration.havanCount),
+          days,
+          durationDays: days,
+          panditCount: Number(configuration.panditCount),
+          commencementDate: commDate,
+          dailyHours: configuration.dailyHours || service.dailyHours || null,
+          arrangementMode: configuration.arrangementMode || "kashi",
+          locationType: configuration.locationType || configuration.arrangementMode || "kashi",
+          addons: addons || [],
+        };
+      } else if (resolvedServiceType === "PATH") {
+        const days = Number(configuration.days || configuration.durationDays || 1);
+        const commDate = configuration.bookingDate || configuration.commencementDate || null;
+        const selectedFormat =
+          configuration.format ||
+          configuration.selectedFormat ||
+          (Array.isArray(service.availableFormats) ? service.availableFormats[0] : "single_session");
+        const selectedDuration =
+          configuration.duration ||
+          configuration.durationSelected ||
+          (Array.isArray(service.availableDurations) ? service.availableDurations[0] : "3 to 4 Hours");
+        payload = {
+          serviceType: "PATH",
+          serviceId: service.id,
+          serviceSlug: service.slug,
+          format: selectedFormat,
+          duration: selectedDuration,
+          days,
+          durationDays: days,
+          panditCount: Number(configuration.panditCount || service.recommendedPandits || 2),
+          commencementDate: commDate,
+          arrangementMode: configuration.arrangementMode || "kashi",
+          locationType: configuration.locationType || configuration.arrangementMode || "kashi",
+          addons: addons || [],
+        };
       } else {
         payload = {
           serviceType: "PUJA",
@@ -1579,6 +2103,11 @@ export const RitualBookingProvider = ({
               completionDate: breakdown.completionDate,
               requiredDays: breakdown.requiredDays || prev.requiredDays,
               totalDailyCapacity: breakdown.totalDailyCapacity || prev.totalDailyCapacity,
+            }));
+          } else if ((resolvedServiceType === "HOMA" || resolvedServiceType === "PATH") && breakdown?.completionDate) {
+            setConfiguration((prev) => ({
+              ...prev,
+              completionDate: breakdown.completionDate,
             }));
           }
           setIsCalculatingPrice(false);
@@ -1616,11 +2145,17 @@ export const RitualBookingProvider = ({
     configuration.arrangementMode,
     configuration.locationType,
     configuration.days,
+    configuration.durationDays,
     configuration.dailyHours,
     configuration.japaCount,
+    configuration.havanCount,
     configuration.bookingDate,
     configuration.commencementDate,
+    configuration.format,
+    configuration.selectedFormat,
+    configuration.duration,
     service?.panditRequirement?.minPandits,
+    service?.dailyHours,
     addons,
   ]);
 

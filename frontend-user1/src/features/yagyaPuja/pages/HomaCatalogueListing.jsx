@@ -1,12 +1,17 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, SlidersHorizontal, Flame, Sparkles } from 'lucide-react';
+import { Search, Flame } from 'lucide-react';
 
-// Data
+// Data & Service
 import {
   HOMA_SERVICES,
   HOMA_PURPOSE_CATEGORIES,
+  HOMA_CATALOGUE_LIST,
 } from '../data/homaCatalogueData';
+import homaCatalogueService, {
+  mapApiHomaServiceToUi,
+  normalizeHomaPurpose,
+} from '../../../services/homaCatalogueService';
 
 // Section Components (in 18-section sequence)
 import HomaListingHero from '../components/HomaListingHero'; // 1. Hero
@@ -38,8 +43,151 @@ export default function HomaCatalogueListing() {
   const [selectedLocationFilter, setSelectedLocationFilter] = useState('all');
   const [sortBy, setSortBy] = useState('default');
 
+  // Dynamic API state
+  const [services, setServices] = useState(() => HOMA_SERVICES.map(mapApiHomaServiceToUi));
+  const [purposes, setPurposes] = useState(() =>
+    HOMA_PURPOSE_CATEGORIES.map(normalizeHomaPurpose)
+  );
+  const [loading, setLoading] = useState(false);
+  const [isFallback, setIsFallback] = useState(false);
+
   // Currently selected Homa for the Section 5 Demonstrator
-  const [demonstratorHoma, setDemonstratorHoma] = useState(HOMA_SERVICES[0]);
+  const [demonstratorHoma, setDemonstratorHoma] = useState(
+    () => HOMA_SERVICES.map(mapApiHomaServiceToUi)[0]
+  );
+
+  // Load purpose categories from API on mount
+  useEffect(() => {
+    let isCancelled = false;
+    homaCatalogueService
+      .getHomaPurposes()
+      .then((data) => {
+        if (!isCancelled && Array.isArray(data) && data.length > 0) {
+          setPurposes(data);
+        }
+      })
+      .catch((err) => {
+        console.warn('Failed to load dynamic Homa purposes, using fallback:', err?.message || err);
+      });
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
+
+  // Fetch Homa services with API-first pattern and static fallback on failure
+  useEffect(() => {
+    let isCancelled = false;
+
+    const filterParams = {
+      search: searchQuery.trim(),
+      category: selectedCategory,
+      havanCount: selectedHavanCountFilter,
+      location: selectedLocationFilter,
+      sortBy:
+        sortBy === 'price-low'
+          ? 'price-asc'
+          : sortBy === 'price-high'
+          ? 'price-desc'
+          : sortBy === 'name'
+          ? 'name-asc'
+          : 'featured',
+      limit: 50,
+    };
+
+    const timer = setTimeout(async () => {
+      try {
+        const response = await homaCatalogueService.getHomaServices(filterParams);
+        if (!isCancelled) {
+          if (response && response.success && Array.isArray(response.services)) {
+            setServices(response.services);
+            setIsFallback(false);
+            setDemonstratorHoma((prev) => {
+              if (!prev) return response.services[0];
+              const match = response.services.find((s) => s.slug === prev.slug);
+              return match || response.services[0];
+            });
+          } else {
+            throw new Error('Invalid API response format');
+          }
+          setLoading(false);
+        }
+      } catch (err) {
+        if (!isCancelled) {
+          console.warn('Homa catalogue API failed, engaging static fallback:', err?.message || err);
+
+          // Apply faithful local filtering to static HOMA_CATALOGUE_LIST
+          const localFallback = HOMA_CATALOGUE_LIST.filter((homa) => {
+            if (homa.active === false) return false;
+
+            // Search query
+            if (searchQuery.trim() !== '') {
+              const q = searchQuery.toLowerCase().trim();
+              const matchesName = (homa.name || '').toLowerCase().includes(q);
+              const matchesDesc = (homa.shortDescription || homa.description || '').toLowerCase().includes(q);
+              const matchesPurpose = (homa.purpose || '').toLowerCase().includes(q);
+              if (!matchesName && !matchesDesc && !matchesPurpose) return false;
+            }
+
+            // Purpose category
+            if (selectedCategory !== 'all') {
+              const matchesCat = homa.purposeCategory === selectedCategory;
+              const matchesList =
+                Array.isArray(homa.purposeCategories) && homa.purposeCategories.includes(selectedCategory);
+              if (!matchesCat && !matchesList) return false;
+            }
+
+            // Havan count
+            if (selectedHavanCountFilter !== 'all') {
+              if (selectedHavanCountFilter === 'custom') {
+                if (
+                  !(homa.availableHavanCounts || []).includes('Custom') &&
+                  !(homa.availableHavanCounts || []).includes('custom')
+                ) {
+                  return false;
+                }
+              } else {
+                const countNum = Number(selectedHavanCountFilter);
+                if (!(homa.availableHavanCounts || []).includes(countNum)) return false;
+              }
+            }
+
+            // Location
+            if (selectedLocationFilter === 'kashi' && !homa.kashiAvailable) return false;
+            if (selectedLocationFilter === 'remote' && !homa.remoteAvailable) return false;
+
+            return true;
+          })
+            .sort((a, b) => {
+              if (sortBy === 'price-low') {
+                return (a.startingPrice || 0) - (b.startingPrice || 0);
+              }
+              if (sortBy === 'price-high') {
+                return (b.startingPrice || 0) - (a.startingPrice || 0);
+              }
+              if (sortBy === 'name') {
+                return (a.name || '').localeCompare(b.name || '');
+              }
+              return 0; // default order
+            })
+            .map(mapApiHomaServiceToUi);
+
+          setServices(localFallback);
+          setIsFallback(true);
+          setDemonstratorHoma((prev) => {
+            if (!prev) return localFallback[0];
+            const match = localFallback.find((s) => s.slug === prev.slug);
+            return match || localFallback[0];
+          });
+          setLoading(false);
+        }
+      }
+    }, 250);
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(timer);
+    };
+  }, [searchQuery, selectedCategory, selectedHavanCountFilter, selectedLocationFilter, sortBy]);
 
   // Handler when user selects a category from Section 3
   const handleSelectPurposeCategory = (categoryKey) => {
@@ -59,49 +207,6 @@ export default function HomaCatalogueListing() {
     }
   };
 
-  // Filtered Homa Services for Section 4 Explore
-  const filteredServices = useMemo(() => {
-    return HOMA_SERVICES.filter((homa) => {
-      // Search
-      const matchesSearch =
-        searchQuery.trim() === '' ||
-        homa.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        homa.shortDescription.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        homa.purpose.toLowerCase().includes(searchQuery.toLowerCase());
-
-      // Purpose Category
-      const matchesCategory =
-        selectedCategory === 'all' ||
-        homa.purposeCategory === selectedCategory ||
-        (homa.purposeCategories && homa.purposeCategories.includes(selectedCategory));
-
-      // Havan count filter
-      const matchesHavan =
-        selectedHavanCountFilter === 'all' ||
-        homa.availableHavanCounts.includes(Number(selectedHavanCountFilter)) ||
-        (selectedHavanCountFilter === 'custom' && homa.availableHavanCounts.includes('Custom'));
-
-      // Location filter
-      const matchesLocation =
-        selectedLocationFilter === 'all' ||
-        (selectedLocationFilter === 'kashi' && homa.kashiAvailable) ||
-        (selectedLocationFilter === 'remote' && homa.remoteAvailable);
-
-      return matchesSearch && matchesCategory && matchesHavan && matchesLocation;
-    }).sort((a, b) => {
-      if (sortBy === 'price-low') {
-        return a.startingPrice - b.startingPrice;
-      }
-      if (sortBy === 'price-high') {
-        return b.startingPrice - a.startingPrice;
-      }
-      if (sortBy === 'name') {
-        return a.name.localeCompare(b.name);
-      }
-      return 0; // default order
-    });
-  }, [searchQuery, selectedCategory, selectedHavanCountFilter, selectedLocationFilter, sortBy]);
-
   const handleOpenCustomModal = () => {
     const customSection = document.getElementById('custom-homa');
     if (customSection) {
@@ -118,7 +223,11 @@ export default function HomaCatalogueListing() {
       <HomaConceptSection />
 
       {/* 3. HOMA BY PURPOSE */}
-      <HomaPurposeSection onSelectCategory={handleSelectPurposeCategory} />
+      <HomaPurposeSection
+        selectedPurpose={selectedCategory}
+        onSelectPurpose={handleSelectPurposeCategory}
+        onSelectCategory={handleSelectPurposeCategory}
+      />
 
       {/* 4. EXPLORE HOMA & HAVAN */}
       <section className="py-20 bg-[#fffdf9] border-b border-[#e8dfd1]" id="explore">
@@ -158,9 +267,9 @@ export default function HomaCatalogueListing() {
                   className="w-full px-3.5 py-2.5 bg-white rounded-xl border border-[#ebdcc4] text-xs sm:text-sm text-[#2a221b] focus:outline-none focus:border-[#b36c1e]"
                 >
                   <option value="all">All Purpose Categories</option>
-                  {HOMA_PURPOSE_CATEGORIES.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
+                  {purposes.map((cat) => (
+                    <option key={cat.id || cat.slug} value={cat.slug || cat.id}>
+                      {cat.name || cat.title}
                     </option>
                   ))}
                 </select>
@@ -213,9 +322,14 @@ export default function HomaCatalogueListing() {
             {/* Active Filters count summary */}
             <div className="flex items-center justify-between text-xs text-[#7d6854] mt-3 pt-3 border-t border-[#ebdcc4]">
               <span>
-                Showing <strong className="text-[#2a221b]">{filteredServices.length}</strong> Homa services
+                Showing <strong className="text-[#2a221b]">{services.length}</strong> Homa services
+                {isFallback && (
+                  <span className="ml-2 text-[11px] text-[#b36c1e] italic">
+                    (Standard Catalogue)
+                  </span>
+                )}
               </span>
-              {(selectedCategory !== 'all' || searchQuery !== '' || selectedHavanCountFilter !== 'all' || selectedLocationFilter !== 'all') && (
+              {(selectedCategory !== 'all' || searchQuery !== '' || selectedHavanCountFilter !== 'all' || selectedLocationFilter !== 'all' || sortBy !== 'default') && (
                 <button
                   onClick={() => {
                     setSelectedCategory('all');
@@ -224,7 +338,7 @@ export default function HomaCatalogueListing() {
                     setSelectedLocationFilter('all');
                     setSortBy('default');
                   }}
-                  className="text-[#b36c1e] hover:underline font-medium"
+                  className="text-[#b36c1e] hover:underline font-medium cursor-pointer"
                 >
                   Reset Filters
                 </button>
@@ -233,7 +347,23 @@ export default function HomaCatalogueListing() {
           </div>
 
           {/* Cards Grid */}
-          {filteredServices.length === 0 ? (
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div
+                  key={i}
+                  className="rounded-[24px] border border-[#ebdcc4] bg-[#fffaf1] p-6 animate-pulse"
+                >
+                  <div className="h-48 bg-[#f0e4d0] rounded-xl mb-4" />
+                  <div className="h-4 bg-[#f0e4d0] rounded w-1/3 mb-2" />
+                  <div className="h-6 bg-[#f0e4d0] rounded w-3/4 mb-3" />
+                  <div className="h-4 bg-[#f0e4d0] rounded w-full mb-2" />
+                  <div className="h-4 bg-[#f0e4d0] rounded w-2/3 mb-4" />
+                  <div className="h-8 bg-[#f0e4d0] rounded-lg w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : services.length === 0 ? (
             <div className="bg-[#faf6ee] rounded-2xl border border-[#ebdcc4] p-12 text-center max-w-md mx-auto">
               <Flame className="w-10 h-10 text-[#b36c1e] mx-auto mb-3" />
               <h3 className="font-serif text-lg text-[#2a221b] mb-1">
@@ -248,17 +378,19 @@ export default function HomaCatalogueListing() {
                   setSearchQuery('');
                   setSelectedHavanCountFilter('all');
                   setSelectedLocationFilter('all');
+                  setSortBy('default');
                 }}
-                className="px-4 py-2 bg-[#b36c1e] text-white text-xs font-semibold rounded-lg"
+                className="px-4 py-2 bg-[#b36c1e] text-white text-xs font-semibold rounded-lg cursor-pointer"
               >
                 Clear All Filters
               </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredServices.map((homa) => (
+              {services.map((homa) => (
                 <HomaServiceCard
-                  key={homa.id}
+                  key={homa.id || homa.slug}
+                  service={homa}
                   homa={homa}
                   onConfigure={handleConfigureHoma}
                 />

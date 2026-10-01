@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   Flame,
@@ -6,69 +6,150 @@ import {
   ChevronLeft,
   ChevronRight,
   MapPin,
-  Clock,
-  Calendar,
-  Users,
   Package,
   CheckCircle2,
   Info,
   Sparkles,
-  ShieldCheck,
-  Globe,
   AlertCircle,
 } from 'lucide-react';
-import { HOMA_SERVICES } from '../data/homaCatalogueData';
+import { HOMA_CATALOGUE_LIST } from '../data/homaCatalogueData';
+import homaCatalogueService, {
+  mapApiHomaServiceDetailToUi,
+} from '../../../services/homaCatalogueService';
 import HomaServiceCard from '../components/HomaServiceCard';
 
 export default function HomaServiceDetails() {
   const { slug } = useParams();
   const navigate = useNavigate();
 
-  // Find Homa by slug, or fallback to first
-  const service =
-    HOMA_SERVICES.find((h) => h.slug === slug) || HOMA_SERVICES[0];
-
-  const galleryImages =
-    Array.isArray(service.gallery) && service.gallery.length > 0
-      ? service.gallery
-      : [service.image];
+  const [service, setService] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [currentSlide, setCurrentSlide] = useState(0);
 
   // Configuration demonstrator state
-  const [selectedHavanCount, setSelectedHavanCount] = useState(
-    service.availableHavanCounts[0] || 1
-  );
-  const [selectedDays, setSelectedDays] = useState(
-    service.availableDays[0] || 1
-  );
-  const [selectedLocation, setSelectedLocation] = useState(
-    service.kashiAvailable ? 'Kashi' : 'Remote'
-  );
+  const [selectedHavanCount, setSelectedHavanCount] = useState(1);
+  const [selectedDays, setSelectedDays] = useState(1);
+  const [selectedLocation, setSelectedLocation] = useState('Kashi');
   const [sankalpaScope, setSankalpaScope] = useState('Family');
 
+  // Fetch service details from authoritative API with static fallback on failure
   useEffect(() => {
+    let isMounted = true;
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    setCurrentSlide(0);
-    if (service) {
-      setSelectedHavanCount(service.availableHavanCounts[0] || 1);
-      setSelectedDays(service.availableDays[0] || 1);
-      setSelectedLocation(service.kashiAvailable ? 'Kashi' : 'Remote');
-      document.title = `${service.name} | Vedic Homa & Havan | Veda Structure`;
-    }
-  }, [slug, service]);
 
-  const relatedHomas = HOMA_SERVICES.filter(
+    async function loadService() {
+      try {
+        const data = await homaCatalogueService.getHomaServiceBySlug(slug);
+        if (!isMounted) return;
+
+        if (data) {
+          setService(data);
+          setSelectedHavanCount(data.availableHavanCounts?.[0] || 1);
+          setSelectedDays(data.availableDays?.[0] || 1);
+          setSelectedLocation(data.kashiAvailable ? 'Kashi' : 'Remote');
+          document.title = `${data.name} | Vedic Homa & Havan | Veda Structure`;
+          setLoading(false);
+        } else {
+          // Check static fallback
+          const fallback = HOMA_CATALOGUE_LIST.find((h) => h.slug === slug);
+          if (fallback) {
+            const mapped = mapApiHomaServiceDetailToUi(fallback);
+            setService(mapped);
+            setSelectedHavanCount(mapped.availableHavanCounts?.[0] || 1);
+            setSelectedDays(mapped.availableDays?.[0] || 1);
+            setSelectedLocation(mapped.kashiAvailable ? 'Kashi' : 'Remote');
+            document.title = `${mapped.name} | Vedic Homa & Havan | Veda Structure`;
+            setLoading(false);
+          } else {
+            setError("The requested Vedic Homa ritual could not be found.");
+            setLoading(false);
+          }
+        }
+      } catch (err) {
+        if (!isMounted) return;
+        console.warn(`Homa service detail API error for ${slug}, engaging fallback:`, err?.message || err);
+        const fallback = HOMA_CATALOGUE_LIST.find((h) => h.slug === slug);
+        if (fallback) {
+          const mapped = mapApiHomaServiceDetailToUi(fallback);
+          setService(mapped);
+          setSelectedHavanCount(mapped.availableHavanCounts?.[0] || 1);
+          setSelectedDays(mapped.availableDays?.[0] || 1);
+          setSelectedLocation(mapped.kashiAvailable ? 'Kashi' : 'Remote');
+          document.title = `${mapped.name} | Vedic Homa & Havan | Veda Structure`;
+          setLoading(false);
+        } else {
+          setError("Unable to load ceremony details. Please check your connection and try again.");
+          setLoading(false);
+        }
+      }
+    }
+
+    loadService();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#faf4e6] flex flex-col items-center justify-center p-8">
+        <div className="relative mb-4">
+          <Flame className="w-12 h-12 text-[#b36c1e] animate-pulse" />
+        </div>
+        <h3 className="font-serif text-xl font-bold text-[#2b241d] mb-2">
+          Loading Sacred Homa Ceremony...
+        </h3>
+        <p className="text-sm text-[#78644e]">
+          Consulting Vedic repository and ritual parameters.
+        </p>
+      </div>
+    );
+  }
+
+  if (error || !service) {
+    return (
+      <div className="min-h-screen bg-[#faf4e6] flex flex-col items-center justify-center p-8">
+        <div className="bg-[#fffdf9] p-8 rounded-2xl border border-[#ebdcc4] max-w-md text-center shadow-md">
+          <AlertCircle className="w-12 h-12 text-[#b36c1e] mx-auto mb-4" />
+          <h3 className="font-serif text-xl font-bold text-[#2b241d] mb-2">
+            Ceremony Not Found
+          </h3>
+          <p className="text-sm text-[#78644e] mb-6">
+            {error || "The requested Vedic Homa ritual could not be found."}
+          </p>
+          <Link
+            to="/yagya-puja/homa"
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#b36c1e] hover:bg-[#8a4e0c] text-white font-semibold text-xs uppercase tracking-wider rounded-xl transition-all"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span>Return to Homa Catalogue</span>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const galleryImages =
+    Array.isArray(service.gallery) && service.gallery.length > 0
+      ? service.gallery
+      : Array.isArray(service.galleryImages) && service.galleryImages.length > 0
+      ? service.galleryImages
+      : [service.image || service.bannerImage];
+
+  const relatedHomas = HOMA_CATALOGUE_LIST.filter(
     (h) => h.slug !== service.slug
-  ).slice(0, 3);
+  ).slice(0, 3).map(mapApiHomaServiceDetailToUi);
 
   // Approximate illustrative preview calculations
   const havanMultiplier =
     typeof selectedHavanCount === 'number' ? selectedHavanCount : 3;
   const estimatedPandits = Math.min(
-    service.maximumPandits,
+    service.maximumPandits || 11,
     Math.max(
-      service.minimumPandits,
+      service.minimumPandits || 2,
       Math.ceil(havanMultiplier * 0.8) + (selectedDays > 1 ? 1 : 0)
     )
   );
@@ -186,7 +267,7 @@ export default function HomaServiceDetails() {
                     Starting Dakshina
                   </span>
                   <span className="text-sm font-bold font-serif text-[#2a221b]">
-                    ₹{service.startingPrice.toLocaleString('en-IN')}
+                    ₹{(service.startingPrice || 0).toLocaleString('en-IN')}
                   </span>
                 </div>
                 <div className="bg-[#faf6ee] p-3 rounded-xl border border-[#ebdcc4] text-center">
@@ -194,7 +275,7 @@ export default function HomaServiceDetails() {
                     Supported Havans
                   </span>
                   <span className="text-sm font-bold font-serif text-[#2a221b]">
-                    {service.availableHavanCounts.join(', ')}
+                    {(service.availableHavanCounts || []).join(', ')}
                   </span>
                 </div>
                 <div className="bg-[#faf6ee] p-3 rounded-xl border border-[#ebdcc4] text-center">
@@ -210,7 +291,9 @@ export default function HomaServiceDetails() {
                     Daily Hours
                   </span>
                   <span className="text-sm font-bold font-serif text-[#2a221b]">
-                    {service.dailyHours} hrs / day
+                    {String(service.dailyHours || '').toLowerCase().includes('hour')
+                      ? service.dailyHours
+                      : `${service.dailyHours || '3 – 4'} hrs / day`}
                   </span>
                 </div>
               </div>
@@ -276,7 +359,7 @@ export default function HomaServiceDetails() {
                     Prescribed Pandit Qualifications:
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    {service.requiredSkills.map((skill, idx) => (
+                    {(Array.isArray(service.requiredSkills) ? service.requiredSkills : []).map((skill, idx) => (
                       <span
                         key={idx}
                         className="text-xs bg-[#f4ebe1] text-[#6b553e] px-2.5 py-1 rounded-md border border-[#ebdcc4]"
@@ -523,13 +606,21 @@ export default function HomaServiceDetails() {
                 <button
                   type="button"
                   onClick={() =>
-                    alert(
-                      `Configuration Demonstrator: Your selection for ${service.name} (${selectedHavanCount} Havan, ${selectedDays} Day(s), ${selectedLocation}) has been recorded. Payment and live booking engines are scheduled for future platform phases.`
-                    )
+                    navigate(`/yagya-puja/homa/${service.slug}/book`, {
+                      state: {
+                        service,
+                        configuration: {
+                          havanCount: selectedHavanCount,
+                          days: selectedDays,
+                          location: selectedLocation,
+                          sankalpaScope,
+                        },
+                      },
+                    })
                   }
-                  className="w-full py-3 bg-[#c77722] hover:bg-[#b36c1e] text-white text-xs uppercase tracking-wider font-semibold rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-[#c77722] hover:bg-[#b36c1e] text-white text-xs uppercase tracking-wider font-semibold rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span>Proceed to Booking Demo</span>
+                  <span>Proceed to Booking</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -594,7 +685,7 @@ export default function HomaServiceDetails() {
                   ? service.sankalpaFields
                   : typeof service.sankalpaFields === 'object' && service.sankalpaFields !== null
                   ? Object.entries(service.sankalpaFields)
-                      .filter(([_, val]) => Boolean(val))
+                      .filter(([, val]) => Boolean(val))
                       .map(([key]) => {
                         if (key === 'name') return 'Yajamana / Devotee Full Name';
                         if (key === 'gotra') return 'Family Vedic Gotra';
@@ -649,7 +740,8 @@ export default function HomaServiceDetails() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {relatedHomas.map((h) => (
               <HomaServiceCard
-                key={h.id}
+                key={h.id || h.slug}
+                service={h}
                 homa={h}
                 onConfigure={(selected) => navigate(`/yagya-puja/homa/${selected.slug}`)}
               />

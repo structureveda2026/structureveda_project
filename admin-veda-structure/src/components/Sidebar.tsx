@@ -8,6 +8,7 @@ import {
   Sparkles,
   Flame,
   BookOpen,
+  Scroll,
   ShoppingBag,
   Users,
   UserCog,
@@ -64,6 +65,22 @@ const navItems: NavItem[] = [
     icon: Sparkles,
     children: [
       { label: "All Japa Services", path: "/admin/japa-services" },
+    ],
+  },
+  {
+    label: "Homa Catalogue",
+    path: "/admin/homa-services",
+    icon: Flame,
+    children: [
+      { label: "All Homa Services", path: "/admin/homa-services" },
+    ],
+  },
+  {
+    label: "Path Catalogue",
+    path: "/admin/path-services",
+    icon: Scroll,
+    children: [
+      { label: "All Path Services", path: "/admin/path-services" },
     ],
   },
   {

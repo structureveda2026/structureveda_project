@@ -173,7 +173,7 @@ export const createRitualBookingAdapter = (ritualBooking) => {
     paymentGateway: ritualBooking.paymentGateway || "Cashfree",
     paymentMethod: null, // RitualBooking does not have paymentMethod column
     returnUrl: `${process.env.FRONTEND_URL || "http://localhost:5173"}/yagya-puja/${
-      serviceType === "YAGYA" ? "yagya" : serviceType === "JAPA" ? "japa" : "puja"
+      serviceType === "YAGYA" ? "yagya" : serviceType === "JAPA" ? "japa" : serviceType === "HOMA" ? "homa" : serviceType === "PATH" ? "path" : "puja"
     }/${serviceSlug}/booking-status?order_id={order_id}`,
     orderNote: `${serviceType} Booking - ${ritualBooking.serviceName || serviceSlug} (${ritualBooking.bookingReference})`,
 

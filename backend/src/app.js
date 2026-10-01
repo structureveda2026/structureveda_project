@@ -15,6 +15,10 @@ import yagyaServiceRoutes from "./routes/yagyaService.routes.js";
 import yagyaServiceAdminRoutes from "./routes/yagyaServiceAdmin.routes.js";
 import japaServiceRoutes from "./routes/japaService.routes.js";
 import japaServiceAdminRoutes from "./routes/japaServiceAdmin.routes.js";
+import homaServiceRoutes from "./routes/homaService.routes.js";
+import homaServiceAdminRoutes from "./routes/homaServiceAdmin.routes.js";
+import pathServiceRoutes from "./routes/pathService.routes.js";
+import pathServiceAdminRoutes from "./routes/pathServiceAdmin.routes.js";
 
 // Library Module routes
 import { blogAdminRoutes, blogPublicRoutes } from "./modules/library/index.js";
@@ -57,6 +61,10 @@ app.use("/api/yagya-services", yagyaServiceRoutes);
 app.use("/api/admin/yagya-services", yagyaServiceAdminRoutes);
 app.use("/api/japa-services", japaServiceRoutes);
 app.use("/api/admin/japa-services", japaServiceAdminRoutes);
+app.use("/api/homa-services", homaServiceRoutes);
+app.use("/api/admin/homa-services", homaServiceAdminRoutes);
+app.use("/api/path-services", pathServiceRoutes);
+app.use("/api/admin/path-services", pathServiceAdminRoutes);
 
 // Library Module Endpoints (Standard & Aliases)
 app.use("/api/admin/library/blogs", blogAdminRoutes);
