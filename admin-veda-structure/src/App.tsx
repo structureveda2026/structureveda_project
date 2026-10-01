@@ -14,6 +14,15 @@ import PujaServiceDetail from "@/pages/PujaServiceDetail";
 import YagyaServices from "@/pages/YagyaServices";
 import YagyaServiceForm from "@/pages/YagyaServiceForm";
 import YagyaServiceDetail from "@/pages/YagyaServiceDetail";
+import JapaServices from "@/pages/JapaServices";
+import JapaServiceForm from "@/pages/JapaServiceForm";
+import JapaServiceDetail from "@/pages/JapaServiceDetail";
+import HomaServices from "@/pages/HomaServices";
+import HomaServiceForm from "@/pages/HomaServiceForm";
+import HomaServiceDetail from "@/pages/HomaServiceDetail";
+import PathServices from "@/pages/PathServices";
+import PathServiceForm from "@/pages/PathServiceForm";
+import PathServiceDetail from "@/pages/PathServiceDetail";
 import ConsultationDetail from "@/pages/ConsultationDetail";
 
 // Veda Library Module (Modular Architecture)
@@ -60,6 +69,24 @@ export default function App() {
               <Route path="yagya-services/new" element={<YagyaServiceForm />} />
               <Route path="yagya-services/:id" element={<YagyaServiceDetail />} />
               <Route path="yagya-services/:id/edit" element={<YagyaServiceForm />} />
+
+              {/* Japa Services Catalogue */}
+              <Route path="japa-services" element={<JapaServices />} />
+              <Route path="japa-services/new" element={<JapaServiceForm />} />
+              <Route path="japa-services/:id" element={<JapaServiceDetail />} />
+              <Route path="japa-services/:id/edit" element={<JapaServiceForm />} />
+
+              {/* Homa Services Catalogue */}
+              <Route path="homa-services" element={<HomaServices />} />
+              <Route path="homa-services/new" element={<HomaServiceForm />} />
+              <Route path="homa-services/:id" element={<HomaServiceDetail />} />
+              <Route path="homa-services/:id/edit" element={<HomaServiceForm />} />
+
+              {/* Path Services Catalogue */}
+              <Route path="path-services" element={<PathServices />} />
+              <Route path="path-services/new" element={<PathServiceForm />} />
+              <Route path="path-services/:id" element={<PathServiceDetail />} />
+              <Route path="path-services/:id/edit" element={<PathServiceForm />} />
 
               {/* Veda Library Module - Blog Routes */}
               <Route path="library/blogs" element={<BlogListPage />} />

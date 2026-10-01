@@ -12,9 +12,13 @@ import {
   BookOpen,
   Package,
   CheckCircle2,
-  Info,
+  AlertCircle,
+  RefreshCw,
 } from "lucide-react";
 import { PATH_CATALOGUE_LIST } from "../data/pathCatalogueData";
+import pathCatalogueService, {
+  mapApiPathServiceDetailToUi,
+} from "../services/pathCatalogueService";
 import PathServiceCard from "../components/PathServiceCard";
 
 const formatBadge = (fmt) => {
@@ -27,29 +31,130 @@ const formatBadge = (fmt) => {
 
 const PathServiceDetails = () => {
   const { slug } = useParams();
-  const service =
+
+  // Find local static initial fallback
+  const staticFallback =
     PATH_CATALOGUE_LIST.find((p) => p.slug === slug) || PATH_CATALOGUE_LIST[0];
 
-  const galleryImages =
-    Array.isArray(service.gallery) && service.gallery.length > 0
-      ? service.gallery
-      : [service.image];
+  const [service, setService] = useState(
+    staticFallback ? mapApiPathServiceDetailToUi(staticFallback) : null
+  );
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedFormatIndex, setSelectedFormatIndex] = useState(0);
 
+  // Fetch authoritative service from backend API
   useEffect(() => {
+    let isCancelled = false;
     window.scrollTo({ top: 0, behavior: "smooth" });
-    setCurrentSlide(0);
-    setSelectedFormatIndex(0);
-    if (service?.name) {
-      document.title = `${service.name} | Vedic Path & Recitation | Veda Structure`;
-    }
-  }, [slug, service]);
+
+    const timer = setTimeout(() => {
+      setLoading(true);
+      setError(null);
+      setCurrentSlide(0);
+      setSelectedFormatIndex(0);
+
+      pathCatalogueService
+        .getPathServiceBySlug(slug)
+        .then((data) => {
+          if (!isCancelled) {
+            if (data) {
+              setService(data);
+              if (data.name) {
+                document.title = `${data.name} | Vedic Path & Recitation | Veda Structure`;
+              }
+            } else {
+              // Check static fallback
+              const local = PATH_CATALOGUE_LIST.find((p) => p.slug === slug);
+              if (local) {
+                const mapped = mapApiPathServiceDetailToUi(local);
+                setService(mapped);
+                document.title = `${mapped.name} | Vedic Path & Recitation | Veda Structure`;
+              } else {
+                setError("The requested Vedic Path service was not found.");
+              }
+            }
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          if (!isCancelled) {
+            console.warn("Path detail API failed, checking local static data:", err?.message || err);
+            const local = PATH_CATALOGUE_LIST.find((p) => p.slug === slug);
+            if (local) {
+              const mapped = mapApiPathServiceDetailToUi(local);
+              setService(mapped);
+              document.title = `${mapped.name} | Vedic Path & Recitation | Veda Structure`;
+            } else {
+              setError("Unable to load Path details. Please check your connection.");
+            }
+            setLoading(false);
+          }
+        });
+    }, 0);
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(timer);
+    };
+  }, [slug]);
+
+  if (loading && !service) {
+    return (
+      <div className="flex min-h-[65vh] items-center justify-center bg-[#faf4e6] p-6 text-center">
+        <div className="space-y-4">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#f8edd8] text-[#c77722] animate-spin">
+            <RefreshCw size={24} />
+          </div>
+          <h3 className="font-serif text-[20px] font-semibold text-[#2b241d]">
+            Loading Sacred Recitation...
+          </h3>
+          <p className="text-[13.5px] text-[#75695c]">
+            Fetching authoritative Path parameters from the Vedic registry.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !service) {
+    return (
+      <div className="flex min-h-[65vh] items-center justify-center bg-[#faf4e6] p-6 text-center">
+        <div className="max-w-[460px] rounded-2xl border border-[#ead8b8] bg-[#fffdfa] p-8 shadow-sm">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">
+            <AlertCircle size={24} />
+          </div>
+          <h2 className="mt-4 font-serif text-[22px] font-bold text-[#2b241d]">
+            Scripture Recitation Not Found
+          </h2>
+          <p className="mt-2 text-[14px] text-[#685c4f]">
+            {error || "The requested Path service could not be located."}
+          </p>
+          <div className="mt-6">
+            <Link
+              to="/yagya-puja/path"
+              className="rounded-full bg-[#b56e20] px-6 py-2.5 text-[13px] font-bold text-white shadow-sm hover:bg-[#8f5211]"
+            >
+              Back to Path Catalogue
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const galleryImages =
+    Array.isArray(service.gallery) && service.gallery.length > 0
+      ? service.gallery
+      : Array.isArray(service.galleryImages) && service.galleryImages.length > 0
+      ? service.galleryImages
+      : [service.image || service.bannerImage];
 
   const relatedPaths = PATH_CATALOGUE_LIST.filter(
     (p) => p.slug !== service.slug
-  ).slice(0, 3);
+  ).slice(0, 3).map(mapApiPathServiceDetailToUi);
 
   return (
     <div className="min-h-screen bg-[#faf4e6] text-[#2b241d]">
@@ -140,13 +245,13 @@ const PathServiceDetails = () => {
                   <span className="rounded-full border border-[#d8b584] bg-[#fbf3e4] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#8e5a1e]">
                     {service.pathType}
                   </span>
-                  {service.kashiAvailable && (
+                  {service.isKashiAvailable && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-[#f4e4cd] px-3 py-1 text-[11px] font-bold text-[#8a571c]">
                       <MapPin size={11} />
                       Kashi Kshetra
                     </span>
                   )}
-                  {service.remoteAvailable && (
+                  {service.isRemoteAvailable && (
                     <span className="rounded-full bg-[#eee5d8] px-3 py-1 text-[11px] font-bold text-[#685c4f]">
                       Remote Available
                     </span>
@@ -179,7 +284,7 @@ const PathServiceDetails = () => {
                   </div>
                   <div className="flex items-center gap-2 rounded-lg bg-[#fbf5eb] p-2.5">
                     <Clock size={16} className="text-[#c77722]" />
-                    <span><strong>Duration:</strong> {service.estimatedRecitationHours} Hours Est.</span>
+                    <span><strong>Duration:</strong> {service.estimatedRecitationHours} Est.</span>
                   </div>
                 </div>
 
@@ -206,11 +311,12 @@ const PathServiceDetails = () => {
                   </div>
 
                   <Link
-                    to="/book-consultation"
-                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#b56e20] to-[#cb832c] px-6 py-3 text-[13.5px] font-bold text-white shadow-md hover:brightness-105"
+                    to={`/yagya-puja/path/${service.slug}/book`}
+                    state={{ service }}
+                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#b56e20] to-[#cb832c] px-7 py-3 text-[14px] font-bold text-white shadow-md hover:brightness-105 transition cursor-pointer"
                   >
-                    <span>Talk to a Vedic Scholar</span>
-                    <ArrowRight size={14} />
+                    <span>Book Now / Configure</span>
+                    <ArrowRight size={15} />
                   </Link>
                 </div>
               </div>
@@ -272,7 +378,7 @@ const PathServiceDetails = () => {
                           <Clock size={12} className="text-[#c77722]" /> Duration:
                         </span>
                         <span className="font-semibold text-[#2b241d]">
-                          {service.availableDurations?.[idx] || `${service.estimatedRecitationHours} Hours`}
+                          {service.availableDurations?.[idx] || `${service.estimatedRecitationHours}`}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
@@ -295,6 +401,17 @@ const PathServiceDetails = () => {
               );
             })}
           </div>
+
+          <div className="mt-8 flex justify-center">
+            <Link
+              to={`/yagya-puja/path/${service.slug}/book`}
+              state={{ service, selectedFormat: service.availableFormats?.[selectedFormatIndex] }}
+              className="inline-flex items-center gap-2 rounded-full bg-[#2b241d] px-8 py-3 text-[13.5px] font-bold text-[#f7ecd5] shadow-md hover:bg-[#3d3228] transition"
+            >
+              <span>Continue with Selected Format</span>
+              <ArrowRight size={14} />
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -310,15 +427,18 @@ const PathServiceDetails = () => {
             </p>
 
             <div className="mt-6 flex flex-wrap gap-2.5">
-              {service.samagri.map((item) => (
-                <span
-                  key={item}
-                  className="inline-flex items-center gap-2 rounded-xl border border-[#e2cca8] bg-[#faf2e3] px-3.5 py-2 text-[13px] font-semibold text-[#5c421f]"
-                >
-                  <Package size={14} className="text-[#b36c1e]" />
-                  {item}
-                </span>
-              ))}
+              {service.samagri.map((item, idx) => {
+                const itemName = typeof item === "string" ? item : item?.name || "Samagri Item";
+                return (
+                  <span
+                    key={idx}
+                    className="inline-flex items-center gap-2 rounded-xl border border-[#e2cca8] bg-[#faf2e3] px-3.5 py-2 text-[13px] font-semibold text-[#5c421f]"
+                  >
+                    <Package size={14} className="text-[#b36c1e]" />
+                    {itemName}
+                  </span>
+                );
+              })}
             </div>
 
             {service.prasad && (
@@ -348,7 +468,7 @@ const PathServiceDetails = () => {
 
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {relatedPaths.map((rel) => (
-              <PathServiceCard key={rel.id} service={rel} />
+              <PathServiceCard key={rel.id || rel.slug} service={rel} />
             ))}
           </div>
         </div>

@@ -35,6 +35,9 @@ const StepReview = () => {
   } = useRitualBooking();
 
   const isYagya = serviceType === "YAGYA";
+  const isJapa = serviceType === "JAPA";
+  const isHoma = serviceType === "HOMA";
+  const isPath = serviceType === "PATH";
 
   // Helper to jump to step
   const handleEdit = (stepIdx) => {
@@ -140,7 +143,15 @@ const StepReview = () => {
               1
             </span>
             <h3 className="font-serif text-[16px] font-semibold text-[#2b241d]">
-              {isYagya ? "Yagya / Sacred Maha Anushthan" : "Puja / Sacred Service"}
+              {isPath
+                ? "Path / Sacred Scripture Recitation"
+                : isHoma
+                ? "Homa / Sacred Fire Offering"
+                : isJapa
+                ? "Japa / Sacred Anushthan"
+                : isYagya
+                ? "Yagya / Sacred Maha Anushthan"
+                : "Puja / Sacred Service"}
             </h3>
           </div>
           <button
@@ -153,7 +164,70 @@ const StepReview = () => {
           </button>
         </div>
 
-        {isYagya ? (
+        {isPath ? (
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Path Service</span>
+              <p className="mt-0.5 font-serif text-[15px] font-bold text-[#2b241d]">
+                {service?.name || "Vedic Path"}
+              </p>
+            </div>
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Scripture / Granth</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#b36c1e]">
+                {service?.scripture || "Sacred Granth"}
+              </p>
+            </div>
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Path Classification</span>
+              <p className="mt-0.5 text-[13px] text-[#685c4f]">
+                {service?.pathType || "Vedic Scripture Recitation"}
+              </p>
+            </div>
+          </div>
+        ) : isHoma ? (
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Homa Service</span>
+              <p className="mt-0.5 font-serif text-[15px] font-bold text-[#2b241d]">
+                {service?.name || "Vedic Homa"}
+              </p>
+            </div>
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Homa Classification</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#b36c1e]">
+                {service?.homaType || "Vedic Fire Ceremony"}
+              </p>
+            </div>
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Sanctum Purpose</span>
+              <p className="mt-0.5 text-[13px] text-[#685c4f]">
+                {service?.purposeSummary || service?.purpose || "Sacred Fire Offering"}
+              </p>
+            </div>
+          </div>
+        ) : isJapa ? (
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Japa Service</span>
+              <p className="mt-0.5 font-serif text-[15px] font-bold text-[#2b241d]">
+                {service?.name || "Vedic Japa Anushthan"}
+              </p>
+            </div>
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Presiding Deity</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#b36c1e]">
+                {service?.deity || "Supreme Divine"}
+              </p>
+            </div>
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Sacred Mantra</span>
+              <p className="mt-0.5 text-[13px] font-medium text-[#2b241d] italic">
+                {service?.mantra || configuration?.mantra || "Prescribed Vedic Mantra"}
+              </p>
+            </div>
+          </div>
+        ) : isYagya ? (
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
               <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Yagya Service</span>
@@ -200,7 +274,13 @@ const StepReview = () => {
               2
             </span>
             <h3 className="font-serif text-[16px] font-semibold text-[#2b241d]">
-              {isYagya
+              {isPath
+                ? "Path Recitation Schedule & Scholar Team Configuration"
+                : isHoma
+                ? "Homa Sacred Fire & Priest Team Configuration"
+                : isJapa
+                ? "Japa Anushthan Schedule & Team Configuration"
+                : isYagya
                 ? "Yagya Anushthan Schedule & Mandapam Configuration"
                 : "Ceremony Configuration & Schedule"}
             </h3>
@@ -215,7 +295,224 @@ const StepReview = () => {
           </button>
         </div>
 
-        {isYagya ? (
+        {isPath ? (
+          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Recitation Format</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#b36c1e]">
+                {configuration.selectedFormat || configuration.format || "Standard Recitation"}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Recitation Duration</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.duration || configuration.durationSelected || "3 to 4 Hours"}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Anushthan Days</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.days || 1} Day{Number(configuration.days) > 1 ? "s" : ""}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Officiating Pandit Squad</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.panditCount || 2} Vedic Scholar{Number(configuration.panditCount) > 1 ? "s" : ""}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Commencement Date</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {formatDate(configuration.commencementDate || configuration.bookingDate)}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Maha Purnahuti (End Date)</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2e7d32]">
+                {formatDate(priceBreakdown?.completionDate || configuration.completionDate) || "Derived from duration"}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Muhurat / Commencement Time</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.bookingTime || configuration.timeSlot || "06:00 AM"}
+              </p>
+            </div>
+
+            <div className="col-span-2">
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Arrangement & Venue Mode</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {getArrangementLabel(configuration.arrangementMode)}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Location Classification</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {LOCATION_TYPE_LABELS[configuration.locationType] || configuration.locationType || "Standard"}
+              </p>
+            </div>
+          </div>
+        ) : isHoma ? (
+          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Sacred Offerings</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#b36c1e]">
+                {configuration.havanCount || 1} Havan{Number(configuration.havanCount) > 1 ? "s" : ""}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Anushthan Duration</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.days || configuration.durationDays || 1} Day{Number(configuration.days || configuration.durationDays) > 1 ? "s" : ""} Session
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Officiating Scholars</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.panditCount || 1} Vedic Acharyas
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Daily Chanting Cadence</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.dailyHours || service?.dailyHours || "3 – 4 Hours Daily"}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Havan Capacity / Pandit</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.havanCapacityPerPandit || service?.havanCapacityPerPandit || "500 Ahutis per Pandit / Day"}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Daily Operational Capacity</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                Approx. {(
+                  (Number(configuration.panditCount) || 1) *
+                  (parseInt(String(configuration.havanCapacityPerPandit || service?.havanCapacityPerPandit || "500").match(/\d+/g)?.[0] || 500, 10))
+                ).toLocaleString("en-IN")}{" "}
+                Ahutis / Day
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Commencement Date</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {formatDate(configuration.commencementDate || configuration.bookingDate)}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Maha Purnahuti (End Date)</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2e7d32]">
+                {formatDate(priceBreakdown?.completionDate || configuration.completionDate) || "Derived from duration"}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Muhurat / Commencement Time</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.bookingTime || configuration.timeSlot || "06:00 AM"}
+              </p>
+            </div>
+
+            <div className="col-span-2">
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Arrangement & Venue Mode</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {getArrangementLabel(configuration.arrangementMode)}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Location Classification</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {LOCATION_TYPE_LABELS[configuration.locationType] || configuration.locationType || "Standard"}
+              </p>
+            </div>
+          </div>
+        ) : isJapa ? (
+          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Total Recitations</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#b36c1e]">
+                {Number(configuration.japaCount || 0).toLocaleString("en-IN")} Jaap
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Officiating Purohits</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.panditCount || 1} Learned Brahmin{Number(configuration.panditCount) > 1 ? "s" : ""}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Daily Chanting Capacity</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {Number(
+                  configuration.totalDailyCapacity ||
+                    (configuration.panditCount || 1) * (configuration.dailyCapacityPerPandit || 1000)
+                ).toLocaleString("en-IN")}{" "}
+                Jaap / Day
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Required Anushthan Days</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.requiredDays || 1} Day{Number(configuration.requiredDays) > 1 ? "s" : ""}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Commencement Date</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {formatDate(configuration.commencementDate || configuration.bookingDate)}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Sacred Purnahuti (End Date)</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2e7d32]">
+                {formatDate(configuration.completionDate) || "Derived from daily capacity"}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Daily Ritual Hours</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.dailyHours || 4} Hours / Day
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Commencement Time</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {configuration.bookingTime || "07:00 AM"}
+              </p>
+            </div>
+
+            <div className="col-span-2 sm:col-span-1">
+              <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Arrangement & Venue</span>
+              <p className="mt-0.5 text-[13.5px] font-semibold text-[#2b241d]">
+                {getArrangementLabel(configuration.arrangementMode)}
+              </p>
+            </div>
+          </div>
+        ) : isYagya ? (
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
             <div>
               <span className="block text-[11.5px] font-medium text-[#8a7c6b]">Commencement Date</span>
@@ -769,6 +1066,80 @@ const StepReview = () => {
               <p className="mt-0.5">{priceError}</p>
             </div>
           </div>
+        ) : isHoma ? (
+          <div className="space-y-2.5 text-[13.5px]">
+            {/* Base Ceremony Dakshina */}
+            <div className="flex items-center justify-between text-[#685c4f]">
+              <span>Base Homa Dakshina:</span>
+              <span className="font-semibold text-[#2b241d]">
+                ₹{Number(priceBreakdown?.basePrice ?? service?.basePrice ?? 11000).toLocaleString("en-IN")}
+              </span>
+            </div>
+
+            {/* Extra Havans Adjustment */}
+            {priceBreakdown?.havanAddonPrice != null && Number(priceBreakdown.havanAddonPrice) > 0 && (
+              <div className="flex items-center justify-between text-[#685c4f]">
+                <span>Extra Havans Adjustment ({(configuration.havanCount || 1) - 1} extra):</span>
+                <span className="font-semibold text-[#2b241d]">
+                  +₹{Number(priceBreakdown.havanAddonPrice).toLocaleString("en-IN")}
+                </span>
+              </div>
+            )}
+
+            {/* Multi-Day Extension */}
+            {priceBreakdown?.dayAddonPrice != null && Number(priceBreakdown.dayAddonPrice) > 0 && (
+              <div className="flex items-center justify-between text-[#685c4f]">
+                <span>
+                  Multi-Day Extension ({(configuration.days || 1) - 1} extra day
+                  {Number(configuration.days || 1) - 1 > 1 ? "s" : ""}):
+                </span>
+                <span className="font-semibold text-[#2b241d]">
+                  +₹{Number(priceBreakdown.dayAddonPrice).toLocaleString("en-IN")}
+                </span>
+              </div>
+            )}
+
+            {/* Pandit Team Dakshina */}
+            <div className="flex items-center justify-between text-[#685c4f]">
+              <span>Officiating Pandit Team ({configuration.panditCount || 1} Acharyas):</span>
+              <span className="font-semibold text-emerald-700">
+                ₹0 (Included)
+              </span>
+            </div>
+
+            {/* Add-ons Total */}
+            {addonsTotal != null && Number(addonsTotal) > 0 && (
+              <div className="flex items-center justify-between text-[#685c4f]">
+                <span>Add-ons Total:</span>
+                <span className="font-semibold text-[#2b241d]">
+                  +₹{Number(addonsTotal).toLocaleString("en-IN")}
+                </span>
+              </div>
+            )}
+
+            {/* Pricing Authority */}
+            {priceBreakdown?.pricingSource && (
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-[11px] text-[#8a7c6b]">Pricing Authority:</span>
+                <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 font-mono text-[10.5px] font-semibold text-emerald-800">
+                  {priceBreakdown.pricingSource}
+                </span>
+              </div>
+            )}
+
+            {/* Total Dakshina */}
+            <div className="border-t border-[#ead8b8] pt-3 flex items-baseline justify-between text-[#2b241d]">
+              <div>
+                <p className="font-serif text-[16px] font-bold">Total Sacred Dakshina</p>
+                <p className="text-[11.5px] text-[#7a6f62]">Backend Authoritative • Inclusive of all Samagri</p>
+              </div>
+              <div className="text-right">
+                <span className="font-serif text-[26px] font-bold text-[#b36c1e]">
+                  ₹{Number(totalDakshina).toLocaleString("en-IN")}
+                </span>
+              </div>
+            </div>
+          </div>
         ) : (
           <div className="space-y-2.5 text-[13.5px]">
             {isYagya && (
@@ -785,7 +1156,13 @@ const StepReview = () => {
             {/* Base Ceremony Dakshina */}
             {baseAmount != null && (
               <div className="flex items-center justify-between text-[#685c4f]">
-                <span>{isYagya ? "Package Base Dakshina" : "Base Ceremony Dakshina"}</span>
+                <span>
+                  {isJapa
+                    ? "Japa Anushthan Base Dakshina"
+                    : isYagya
+                    ? "Package Base Dakshina"
+                    : "Base Ceremony Dakshina"}
+                </span>
                 <span className="font-semibold text-[#2b241d]">
                   ₹{Number(baseAmount).toLocaleString("en-IN")}
                 </span>

@@ -17,12 +17,18 @@ import pujaCatalogueService, {
   getServiceFallbackImage,
 } from "../../../services/pujaCatalogueService";
 import yagyaCatalogueService from "../../../services/yagyaCatalogueService";
+import japaCatalogueService from "../../../services/japaCatalogueService";
+import homaCatalogueService from "../../../services/homaCatalogueService";
+import pathCatalogueService from "../../../services/pathCatalogueService";
 import {
   RitualBookingProvider,
   useRitualBooking,
 } from "../context/RitualBookingContext";
 import StepConfiguration from "../components/booking/StepConfiguration";
 import StepConfigurationYagya from "../components/booking/StepConfigurationYagya";
+import StepConfigurationJapa from "../components/booking/StepConfigurationJapa";
+import StepConfigurationHoma from "../components/booking/StepConfigurationHoma";
+import StepConfigurationPath from "../components/booking/StepConfigurationPath";
 import StepYajman from "../components/booking/StepYajman";
 import StepSankalp from "../components/booking/StepSankalp";
 import StepFamilyMembers from "../components/booking/StepFamilyMembers";
@@ -88,8 +94,17 @@ const RitualBookingWizardContent = () => {
     return <RitualBookingConfirmation />;
   }
 
+  const isPath = serviceType === "PATH";
   const isYagya = serviceType === "YAGYA";
-  const fallbackImg = isYagya
+  const isJapa = serviceType === "JAPA";
+  const isHoma = serviceType === "HOMA";
+  const fallbackImg = isPath
+    ? service?.bannerImage || service?.image || "/assets/c-gita.jpg"
+    : isHoma
+    ? service?.bannerImage || service?.image || "/assets/card-yagya-fire-CIHyRsVH.jpg"
+    : isJapa
+    ? service?.bannerImage || service?.image || "/assets/card-japa-beads.jpg"
+    : isYagya
     ? service?.bannerImage || "/assets/card-yagya-fire-CIHyRsVH.jpg"
     : getServiceFallbackImage(service?.slug);
   const primaryImg = service?.image || service?.bannerImage || fallbackImg;
@@ -159,15 +174,39 @@ const RitualBookingWizardContent = () => {
             </Link>
             <span>/</span>
             <Link
-              to={isYagya ? "/yagya-puja/yagya" : "/yagya-puja/puja"}
+              to={
+                isPath
+                  ? "/yagya-puja/path"
+                  : isHoma
+                  ? "/yagya-puja/homa"
+                  : isJapa
+                  ? "/yagya-puja/japa"
+                  : isYagya
+                  ? "/yagya-puja/yagya"
+                  : "/yagya-puja/puja"
+              }
               className="hover:text-[#2b241d]"
             >
-              {isYagya ? "Yagya Catalogue" : "Puja Catalogue"}
+              {isPath
+                ? "Path Catalogue"
+                : isHoma
+                ? "Homa Catalogue"
+                : isJapa
+                ? "Japa Catalogue"
+                : isYagya
+                ? "Yagya Catalogue"
+                : "Puja Catalogue"}
             </Link>
             <span>/</span>
             <Link
               to={
-                isYagya
+                isPath
+                  ? `/yagya-puja/path/${service.slug}`
+                  : isHoma
+                  ? `/yagya-puja/homa/${service.slug}`
+                  : isJapa
+                  ? `/yagya-puja/japa/${service.slug}`
+                  : isYagya
                   ? `/yagya-puja/yagya/${service.slug}`
                   : `/yagya-puja/puja/${service.slug}`
               }
@@ -185,7 +224,13 @@ const RitualBookingWizardContent = () => {
             type="button"
             onClick={() =>
               navigate(
-                isYagya
+                isPath
+                  ? `/yagya-puja/path/${service.slug}`
+                  : isHoma
+                  ? `/yagya-puja/homa/${service.slug}`
+                  : isJapa
+                  ? `/yagya-puja/japa/${service.slug}`
+                  : isYagya
                   ? `/yagya-puja/yagya/${service.slug}`
                   : `/yagya-puja/puja/${service.slug}`
               )
@@ -194,7 +239,15 @@ const RitualBookingWizardContent = () => {
           >
             <ArrowLeft size={14} />
             <span>
-              {isYagya ? "Return to Yagya Overview" : "Return to Ceremony Overview"}
+              {isPath
+                ? "Return to Path Overview"
+                : isHoma
+                ? "Return to Homa Overview"
+                : isJapa
+                ? "Return to Japa Overview"
+                : isYagya
+                ? "Return to Yagya Overview"
+                : "Return to Ceremony Overview"}
             </span>
           </button>
         </div>
@@ -204,7 +257,13 @@ const RitualBookingWizardContent = () => {
           <div className="inline-flex items-center gap-2 rounded-full border border-[#d4872b]/30 bg-[#f8edd8] px-3.5 py-1 text-[11px] font-bold uppercase tracking-[0.24em] text-[#b36c1e]">
             <Sparkles size={12} className="text-[#c77722]" />
             <span>
-              {isYagya
+              {isPath
+                ? "SACRED PATH / RECITATION WIZARD • PHASE P4 ACTIVE"
+                : isHoma
+                ? "SACRED HOMA / HAVAN WIZARD • PHASE H4-C ACTIVE"
+                : isJapa
+                ? "SACRED JAPA WIZARD • PHASE J3-B ACTIVE"
+                : isYagya
                 ? "SACRED YAGYA WIZARD • PHASE 5C CONFIGURATION ACTIVE"
                 : "SACRED CEREMONY WIZARD • PHASE 4B.4A ACTIVE"}
             </span>
@@ -213,7 +272,13 @@ const RitualBookingWizardContent = () => {
             Arrange {service.name}
           </h1>
           <p className="mt-1 text-[14.5px] text-[#685c4f]">
-            {isYagya
+            {isPath
+              ? "Configure your sacred recitation format, duration, officiating Pandit squad, and auspicious commencement date."
+              : isHoma
+              ? "Configure your sacred Ahuti count, officiating Pandit team, daily chanting cadence, and auspicious commencement date."
+              : isJapa
+              ? "Configure your sacred Japa count, officiating Pandit team, daily chanting capacity, and auspicious commencement date."
+              : isYagya
               ? "Configure your multi-day Vedic Yagya parameters, daily Ahuti hours, Gotra recitations, and sacred mandapam."
               : "Configure your personalized Vedic ceremony parameters, Gotra recitations, and venue details."}
           </p>
@@ -320,7 +385,17 @@ const RitualBookingWizardContent = () => {
               {/* ACTIVE STEP CONTENT */}
               <div className="mt-6">
                 {currentStep === 0 &&
-                  (isYagya ? <StepConfigurationYagya /> : <StepConfiguration />)}
+                  (isPath ? (
+                    <StepConfigurationPath />
+                  ) : isHoma ? (
+                    <StepConfigurationHoma />
+                  ) : isJapa ? (
+                    <StepConfigurationJapa />
+                  ) : isYagya ? (
+                    <StepConfigurationYagya />
+                  ) : (
+                    <StepConfiguration />
+                  ))}
                 {currentStep === 1 && <StepYajman />}
                 {currentStep === 2 && <StepSankalp />}
                 {currentStep === 3 && <StepFamilyMembers />}
@@ -389,7 +464,15 @@ const RitualBookingWizardContent = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1c1308]/90 via-[#1c1308]/30 to-transparent" />
                 <div className="absolute bottom-3 left-4 right-4 text-white">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[#eab12c]">
-                    {isYagya ? "VEDIC MAHA YAGYA" : "VEDIC CEREMONY"}
+                    {isPath
+                      ? "VEDIC PATH / RECITATION"
+                      : isHoma
+                      ? "VEDIC HOMA / HAVAN"
+                      : isJapa
+                      ? "VEDIC JAPA ANUSHTHAN"
+                      : isYagya
+                      ? "VEDIC MAHA YAGYA"
+                      : "VEDIC CEREMONY"}
                   </span>
                   <h3 className="font-serif text-[17px] font-bold leading-tight line-clamp-1">
                     {service.name}
@@ -400,13 +483,59 @@ const RitualBookingWizardContent = () => {
               <div className="p-5 space-y-4">
                 {/* Configuration Summary Badges */}
                 <div className="space-y-2 border-b border-[#f0e2cd] pb-4 text-[12.5px]">
+                  {isPath && (
+                    <div className="flex items-center justify-between text-[#685c4f]">
+                      <span className="flex items-center gap-1.5">
+                        <Sparkles size={14} className="text-[#b36c1e]" />
+                        Recitation Format:
+                      </span>
+                      <strong className="text-[#2b241d] truncate max-w-[170px]">
+                        {configuration.selectedFormat || configuration.format || "Standard Recitation"}
+                      </strong>
+                    </div>
+                  )}
+
+                  {isHoma && (
+                    <div className="flex items-center justify-between text-[#685c4f]">
+                      <span className="flex items-center gap-1.5">
+                        <Sparkles size={14} className="text-[#b36c1e]" />
+                        Sacred Offerings:
+                      </span>
+                      <strong className="text-[#2b241d]">
+                        {configuration.havanCount || 1} Havan{Number(configuration.havanCount) > 1 ? "s" : ""}
+                      </strong>
+                    </div>
+                  )}
+
+                  {isJapa && (
+                    <div className="flex items-center justify-between text-[#685c4f]">
+                      <span className="flex items-center gap-1.5">
+                        <Sparkles size={14} className="text-[#b36c1e]" />
+                        Total Recitations:
+                      </span>
+                      <strong className="text-[#2b241d]">
+                        {Number(configuration.japaCount || 0).toLocaleString("en-IN")} Jaap
+                      </strong>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between text-[#685c4f]">
                     <span className="flex items-center gap-1.5">
                       <Clock size={14} className="text-[#b36c1e]" />
                       Duration:
                     </span>
                     <strong className="text-[#2b241d]">
-                      {isYagya
+                      {isPath
+                        ? `${configuration.days || configuration.durationDays || 1} Day(s) (${
+                            configuration.duration || configuration.durationSelected || "3 – 4 Hours"
+                          })`
+                        : isHoma
+                        ? `${configuration.days || configuration.durationDays || 1} Day(s) (${
+                            configuration.dailyHours || service?.dailyHours || "3 – 4 Hours Daily"
+                          })`
+                        : isJapa
+                        ? `${configuration.requiredDays || 1} Days (${configuration.dailyHours || 4} Hrs/Day)`
+                        : isYagya
                         ? `${configuration.days || 3} Days (${
                             configuration.durationHours ||
                             (configuration.days || 3) * (configuration.dailyHours || 4)
@@ -422,7 +551,13 @@ const RitualBookingWizardContent = () => {
                       Pandit Team:
                     </span>
                     <strong className="text-[#2b241d]">
-                      {isYagya
+                      {isPath
+                        ? `${configuration.panditCount || 2} Vedic Scholars`
+                        : isHoma
+                        ? `${configuration.panditCount || 1} Officiating Scholars`
+                        : isJapa
+                        ? `${configuration.panditCount || 1} Officiating Purohits`
+                        : isYagya
                         ? `${
                             configuration.panditCount ||
                             service?.panditRequirement?.minPandits ||
@@ -617,9 +752,26 @@ const RitualBookingWizard = ({ serviceType = null }) => {
 
   const resolvedServiceType =
     serviceType ||
-    (location.pathname.startsWith("/yagya-puja/yagya") ||
-    location.state?.service?.dailyRitualHours != null ||
-    location.state?.service?.ritualType === "YAGYA"
+    (location.pathname.startsWith("/yagya-puja/path") ||
+    location.state?.service?.serviceType === "PATH" ||
+    location.state?.service?.ritualType === "PATH" ||
+    (Array.isArray(location.state?.service?.availableFormats) && location.state.service.scripture)
+      ? "PATH"
+      : location.pathname.startsWith("/yagya-puja/homa") ||
+      location.state?.service?.serviceType === "HOMA" ||
+      location.state?.service?.ritualType === "HOMA" ||
+      (Array.isArray(location.state?.service?.availableHavanCounts) &&
+        location.state.service.availableHavanCounts.length > 0)
+      ? "HOMA"
+      : location.pathname.startsWith("/yagya-puja/japa") ||
+        location.state?.service?.serviceType === "JAPA" ||
+        location.state?.service?.ritualType === "JAPA" ||
+        (Array.isArray(location.state?.service?.availableCounts) &&
+          location.state.service.availableCounts.length > 0)
+      ? "JAPA"
+      : location.pathname.startsWith("/yagya-puja/yagya") ||
+        location.state?.service?.dailyRitualHours != null ||
+        location.state?.service?.ritualType === "YAGYA"
       ? "YAGYA"
       : "PUJA");
 
@@ -646,7 +798,13 @@ const RitualBookingWizard = ({ serviceType = null }) => {
 
     let isMounted = true;
     const fetchService =
-      resolvedServiceType === "YAGYA"
+      resolvedServiceType === "PATH"
+        ? pathCatalogueService.getPathServiceBySlug(slug)
+        : resolvedServiceType === "HOMA"
+        ? homaCatalogueService.getHomaServiceBySlug(slug)
+        : resolvedServiceType === "JAPA"
+        ? japaCatalogueService.getJapaServiceBySlug(slug)
+        : resolvedServiceType === "YAGYA"
         ? yagyaCatalogueService.getYagyaServiceBySlug(slug)
         : pujaCatalogueService.getPujaServiceBySlug(slug);
 
@@ -658,7 +816,13 @@ const RitualBookingWizard = ({ serviceType = null }) => {
             setError(null);
           } else {
             setError(
-              resolvedServiceType === "YAGYA"
+              resolvedServiceType === "PATH"
+                ? "The requested Vedic Path is not available in our catalogue."
+                : resolvedServiceType === "HOMA"
+                ? "The requested Vedic Homa is not available in our catalogue."
+                : resolvedServiceType === "JAPA"
+                ? "The requested Vedic Japa is not available in our catalogue."
+                : resolvedServiceType === "YAGYA"
                 ? "The requested Vedic Yagya is not available in our catalogue."
                 : "The requested Vedic ceremony is not available in our catalogue.",
             );
@@ -721,7 +885,17 @@ const RitualBookingWizard = ({ serviceType = null }) => {
               Retry
             </button>
             <Link
-              to={resolvedServiceType === "YAGYA" ? "/yagya-puja/yagya" : "/yagya-puja/puja"}
+              to={
+                resolvedServiceType === "PATH"
+                  ? "/yagya-puja/path"
+                  : resolvedServiceType === "HOMA"
+                  ? "/yagya-puja/homa"
+                  : resolvedServiceType === "JAPA"
+                  ? "/yagya-puja/japa"
+                  : resolvedServiceType === "YAGYA"
+                  ? "/yagya-puja/yagya"
+                  : "/yagya-puja/puja"
+              }
               className="rounded-full border border-[#ebdcc4] bg-white px-6 py-2.5 text-[13px] font-bold text-[#5c4e3f] hover:bg-[#faf4e8]"
             >
               Browse Catalogue

@@ -31,10 +31,13 @@ import YagyaCatalogueListing from "../features/yagyaPuja/pages/YagyaCatalogueLis
 import YagyaServiceDetails from "../features/yagyaPuja/pages/YagyaServiceDetails";
 import JapaCatalogueListing from "../features/yagyaPuja/pages/JapaCatalogueListing";
 import JapaServiceDetails from "../features/yagyaPuja/pages/JapaServiceDetails";
+import JapaBookingStatus from "../features/yagyaPuja/pages/JapaBookingStatus";
 import PathCatalogueListing from "../features/yagyaPuja/pages/PathCatalogueListing";
 import PathServiceDetails from "../features/yagyaPuja/pages/PathServiceDetails";
+import PathBookingStatus from "../features/yagyaPuja/pages/PathBookingStatus";
 import HomaCatalogueListing from "../features/yagyaPuja/pages/HomaCatalogueListing";
 import HomaServiceDetails from "../features/yagyaPuja/pages/HomaServiceDetails";
+import HomaBookingStatus from "../features/yagyaPuja/pages/HomaBookingStatus";
 
 import { LibraryPage, LibraryTreePage, LibraryTopicPage } from "../library";
 
@@ -96,10 +99,16 @@ const AppRoutes = () => {
         <Route path="/yagya-puja/yagya/:slug/book" element={<RitualBookingWizard serviceType="YAGYA" />} />
         <Route path="/yagya-puja/japa" element={<JapaCatalogueListing />} />
         <Route path="/yagya-puja/japa/:slug" element={<JapaServiceDetails />} />
+        <Route path="/yagya-puja/japa/:slug/book" element={<RitualBookingWizard serviceType="JAPA" />} />
+        <Route path="/yagya-puja/japa/:slug/booking-status" element={<JapaBookingStatus />} />
         <Route path="/yagya-puja/path" element={<PathCatalogueListing />} />
         <Route path="/yagya-puja/path/:slug" element={<PathServiceDetails />} />
+        <Route path="/yagya-puja/path/:slug/book" element={<RitualBookingWizard serviceType="PATH" />} />
+        <Route path="/yagya-puja/path/:slug/booking-status" element={<PathBookingStatus />} />
         <Route path="/yagya-puja/homa" element={<HomaCatalogueListing />} />
         <Route path="/yagya-puja/homa/:slug" element={<HomaServiceDetails />} />
+        <Route path="/yagya-puja/homa/:slug/book" element={<RitualBookingWizard serviceType="HOMA" />} />
+        <Route path="/yagya-puja/homa/:slug/booking-status" element={<HomaBookingStatus />} />
         <Route path="/yagya-puja/kashi" element={<PujaListing />} />
 
         {/* Astrologers */}

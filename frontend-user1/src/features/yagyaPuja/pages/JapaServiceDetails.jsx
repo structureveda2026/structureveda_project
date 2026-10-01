@@ -17,6 +17,9 @@ import {
   Info,
 } from "lucide-react";
 import { JAPA_CATALOGUE_LIST } from "../data/japaCatalogueData";
+import japaCatalogueService, {
+  mapApiJapaServiceDetailToUi,
+} from "../../../services/japaCatalogueService";
 import JapaServiceCard from "../components/JapaServiceCard";
 
 const formatCount = (count) => {
@@ -27,27 +30,115 @@ const formatCount = (count) => {
 
 const JapaServiceDetails = () => {
   const { slug } = useParams();
-  const service =
-    JAPA_CATALOGUE_LIST.find((j) => j.slug === slug) || JAPA_CATALOGUE_LIST[0];
+
+  const [service, setService] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isFallback, setIsFallback] = useState(false);
+
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
+  const [openFaqIndex, setOpenFaqIndex] = useState(0);
+
+  // Fetch service details from authoritative API with fallback on failure
+  useEffect(() => {
+    let isMounted = true;
+    setLoading(true);
+    setError(null);
+    setCurrentSlide(0);
+    setSelectedVariantIndex(0);
+
+    async function loadService() {
+      try {
+        const data = await japaCatalogueService.getJapaServiceBySlug(slug);
+        if (!isMounted) return;
+
+        if (data) {
+          setService(data);
+          setIsFallback(false);
+          setLoading(false);
+        } else {
+          // If API returns null, check static fallback
+          const fallback = JAPA_CATALOGUE_LIST.find((j) => j.slug === slug);
+          if (fallback) {
+            setService(mapApiJapaServiceDetailToUi(fallback));
+            setIsFallback(true);
+            setLoading(false);
+          } else {
+            setError("The requested Vedic Mantra Japa service could not be found.");
+            setLoading(false);
+          }
+        }
+      } catch (err) {
+        if (!isMounted) return;
+        console.warn(`Japa service detail API error for ${slug}, engaging fallback:`, err?.message || err);
+
+        const fallback = JAPA_CATALOGUE_LIST.find((j) => j.slug === slug);
+        if (fallback) {
+          setService(mapApiJapaServiceDetailToUi(fallback));
+          setIsFallback(true);
+          setLoading(false);
+        } else {
+          setError("Unable to load ceremony details. Please check your connection and try again.");
+          setLoading(false);
+        }
+      }
+    }
+
+    loadService();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [slug]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (service?.name) {
+      document.title = `${service.name} | Vedic Mantra Japa | Veda Structure`;
+    }
+  }, [service]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[65vh] flex-col items-center justify-center bg-[#fffaf0] p-6 text-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-3 border-[#c77722] border-t-transparent" />
+        <p className="mt-4 font-serif text-[18px] text-[#5c4d3c]">
+          Loading Sacred Mantra Japa Service...
+        </p>
+      </div>
+    );
+  }
+
+  if (error || !service) {
+    return (
+      <div className="flex min-h-[65vh] flex-col items-center justify-center bg-[#fffaf0] p-6 text-center">
+        <div className="max-w-[480px] rounded-2xl border border-[#ebd8bc] bg-[#fffdfa] p-8 shadow-sm">
+          <Sparkles size={36} className="mx-auto text-[#c77722]" />
+          <h2 className="mt-3 font-serif text-[24px] font-bold text-[#2b241d]">
+            Mantra Japa Not Found
+          </h2>
+          <p className="mt-2 text-[14px] text-[#75695c]">
+            {error || "The requested Japa service could not be located."}
+          </p>
+          <div className="mt-6 flex justify-center gap-3">
+            <Link
+              to="/yagya-puja/japa"
+              className="rounded-full bg-[#b56e20] px-6 py-2.5 text-[13px] font-bold text-white hover:bg-[#8f5211]"
+            >
+              Back to Japa Catalogue
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Gallery slider
   const galleryImages =
     Array.isArray(service.gallery) && service.gallery.length > 0
       ? service.gallery
       : [service.image];
-
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
-  const [openFaqIndex, setOpenFaqIndex] = useState(0);
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    setCurrentSlide(0);
-    setSelectedVariantIndex(0);
-    if (service?.name) {
-      document.title = `${service.name} | Vedic Mantra Japa | Veda Structure`;
-    }
-  }, [slug, service]);
 
   const selectedVariant =
     service.variants && service.variants[selectedVariantIndex]
@@ -217,7 +308,8 @@ const JapaServiceDetails = () => {
                   </div>
 
                   <Link
-                    to="/book-consultation"
+                    to={`/yagya-puja/japa/${service.slug}/book`}
+                    state={{ service, selectedVariant }}
                     className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#b56e20] to-[#cb832c] px-6 py-3 text-[13.5px] font-bold text-white shadow-md hover:brightness-105"
                   >
                     <span>Talk to a Vedic Scholar</span>
@@ -330,7 +422,8 @@ const JapaServiceDetails = () => {
                   </span>
                 </div>
                 <Link
-                  to="/book-consultation"
+                  to={`/yagya-puja/japa/${service.slug}/book`}
+                  state={{ service, selectedVariant }}
                   className="rounded-full bg-[#2b241d] px-5 py-2.5 text-[13px] font-bold text-[#f7ecd5] hover:bg-[#a8641b] hover:text-white"
                 >
                   Consult Acharya

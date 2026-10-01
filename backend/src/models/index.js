@@ -10,6 +10,12 @@ import PujaService from "./pujaServiceModel.js";
 import RitualBooking from "./ritualBookingModel.js";
 import YagyaPurpose from "./yagyaPurposeModel.js";
 import YagyaService from "./yagyaServiceModel.js";
+import JapaPurpose from "./japaPurposeModel.js";
+import JapaService from "./japaServiceModel.js";
+import HomaPurpose from "./homaPurposeModel.js";
+import HomaService from "./homaServiceModel.js";
+import PathPurpose from "./pathPurposeModel.js";
+import PathService from "./pathServiceModel.js";
 import BlogPost from "./blogPostModel.js";
 
 // Existing Associations (Astrologer Consultations)
@@ -75,7 +81,6 @@ PujaService.belongsTo(PujaPurpose, {
   as: "purposeDetails",
 });
 
-
 // Yagya Service Catalogue Associations
 YagyaPurpose.hasMany(YagyaService, {
   foreignKey: "purposeId",
@@ -83,6 +88,39 @@ YagyaPurpose.hasMany(YagyaService, {
 });
 
 YagyaService.belongsTo(YagyaPurpose, {
+  foreignKey: "purposeId",
+  as: "purposeDetails",
+});
+
+// Japa Service Catalogue Associations
+JapaPurpose.hasMany(JapaService, {
+  foreignKey: "purposeId",
+  as: "services",
+});
+
+JapaService.belongsTo(JapaPurpose, {
+  foreignKey: "purposeId",
+  as: "purposeDetails",
+});
+
+// Homa Service Catalogue Associations
+HomaPurpose.hasMany(HomaService, {
+  foreignKey: "purposeId",
+  as: "services",
+});
+
+HomaService.belongsTo(HomaPurpose, {
+  foreignKey: "purposeId",
+  as: "purposeDetails",
+});
+
+// Path Service Catalogue Associations
+PathPurpose.hasMany(PathService, {
+  foreignKey: "purposeId",
+  as: "services",
+});
+
+PathService.belongsTo(PathPurpose, {
   foreignKey: "purposeId",
   as: "purposeDetails",
 });
@@ -111,6 +149,12 @@ const db = {
   RitualBooking,
   YagyaPurpose,
   YagyaService,
+  JapaPurpose,
+  JapaService,
+  HomaPurpose,
+  HomaService,
+  PathPurpose,
+  PathService,
   BlogPost,
 };
 
@@ -126,6 +170,12 @@ export {
   RitualBooking,
   YagyaPurpose,
   YagyaService,
+  JapaPurpose,
+  JapaService,
+  HomaPurpose,
+  HomaService,
+  PathPurpose,
+  PathService,
   BlogPost,
 };
 export default db;

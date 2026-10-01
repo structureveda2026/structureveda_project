@@ -22,11 +22,35 @@ export const serializeRitualPriceCalculation = (priceData) => {
     ...(priceData.panditCount != null && { panditCount: priceData.panditCount }),
     ...(priceData.pricingSource && { pricingSource: priceData.pricingSource }),
     ...(priceData.pricingTier && { pricingTier: priceData.pricingTier }),
+    // Japa specific fields
+    ...(priceData.japaCount != null && { japaCount: priceData.japaCount }),
+    ...(priceData.dailyCapacityPerPandit != null && { dailyCapacityPerPandit: priceData.dailyCapacityPerPandit }),
+    ...(priceData.totalDailyCapacity != null && { totalDailyCapacity: priceData.totalDailyCapacity }),
+    ...(priceData.requiredDays != null && { requiredDays: priceData.requiredDays }),
+    ...(priceData.commencementDate != null && { commencementDate: priceData.commencementDate }),
+    ...(priceData.completionDate != null && { completionDate: priceData.completionDate }),
+    ...(priceData.variant && { variant: priceData.variant }),
+    // Homa specific fields
+    ...(priceData.havanCount != null && { havanCount: priceData.havanCount }),
+    ...(priceData.havanAddonPrice != null && { havanAddonPrice: Number(priceData.havanAddonPrice) }),
+    ...(priceData.dayAddonPrice != null && { dayAddonPrice: Number(priceData.dayAddonPrice) }),
+    ...(priceData.havanCapacityPerPandit != null && { havanCapacityPerPandit: priceData.havanCapacityPerPandit }),
+    // Path specific fields
+    ...(priceData.format && { format: priceData.format }),
+    ...(priceData.selectedFormat && { selectedFormat: priceData.selectedFormat }),
+    ...(priceData.duration && { duration: priceData.duration }),
+    ...(priceData.selectedDuration && { selectedDuration: priceData.selectedDuration }),
+    ...(priceData.scripture && { scripture: priceData.scripture }),
+    ...(priceData.pathType && { pathType: priceData.pathType }),
+    ...(priceData.service && { service: priceData.service }),
   };
 };
 
 export const serializeRitualBookingCreation = (booking, formattedTotal) => {
   const yagyaMeta = booking.sankalpDetails?.yagyaMetadata;
+  const japaMeta = booking.sankalpDetails?.japaMetadata;
+  const homaMeta = booking.sankalpDetails?.homaMetadata;
+  const pathMeta = booking.sankalpDetails?.pathMetadata;
 
   return {
     id: booking.id,
@@ -49,6 +73,40 @@ export const serializeRitualBookingCreation = (booking, formattedTotal) => {
         completionDate: yagyaMeta.completionDate,
         selectedPricingTier: yagyaMeta.selectedPricingTier,
       }),
+      ...(japaMeta && {
+        japaCount: japaMeta.japaCount,
+        dailyCapacityPerPandit: japaMeta.dailyCapacityPerPandit,
+        totalDailyCapacity: japaMeta.totalDailyCapacity,
+        requiredDays: japaMeta.requiredDays,
+        dailyHours: japaMeta.dailyHours,
+        commencementDate: japaMeta.commencementDate,
+        completionDate: japaMeta.completionDate,
+        pricingSource: japaMeta.pricingSource,
+      }),
+      ...(homaMeta && {
+        havanCount: homaMeta.havanCount,
+        durationDays: homaMeta.durationDays,
+        dailyHours: homaMeta.dailyHours,
+        havanCapacityPerPandit: homaMeta.havanCapacityPerPandit,
+        panditCount: homaMeta.panditCount,
+        commencementDate: homaMeta.commencementDate,
+        completionDate: homaMeta.completionDate,
+        pricingSource: homaMeta.pricingSource,
+        priceBreakdown: homaMeta.priceBreakdown,
+      }),
+      ...(pathMeta && {
+        format: pathMeta.selectedFormat,
+        selectedFormat: pathMeta.selectedFormat,
+        selectedDuration: pathMeta.selectedDuration,
+        duration: pathMeta.selectedDuration,
+        days: pathMeta.selectedDays,
+        dailyHours: pathMeta.dailyHours,
+        panditCount: pathMeta.panditCount,
+        commencementDate: pathMeta.commencementDate,
+        completionDate: pathMeta.completionDate,
+        pricingSource: pathMeta.pricingSource,
+        priceBreakdown: pathMeta.priceBreakdown,
+      }),
     },
     location: {
       locationType: booking.locationType,
@@ -64,7 +122,7 @@ export const serializeRitualBookingCreation = (booking, formattedTotal) => {
       addonsTotal: Number(booking.addonsTotal),
       totalAmount: Number(booking.totalAmount),
       currency: booking.currency,
-      formattedTotal: formattedTotal || `₹${Number(booking.totalAmount).toLocaleString("en-IN")}`,
+      formattedTotal: formattedTotal || `\u20B9${Number(booking.totalAmount).toLocaleString("en-IN")}`,
     },
     bookingStatus: booking.bookingStatus,
     paymentStatus: booking.paymentStatus,
@@ -75,6 +133,9 @@ export const serializeRitualBookingCreation = (booking, formattedTotal) => {
 
 export const serializeRitualBookingDetail = (booking) => {
   const yagyaMeta = booking.sankalpDetails?.yagyaMetadata;
+  const japaMeta = booking.sankalpDetails?.japaMetadata;
+  const homaMeta = booking.sankalpDetails?.homaMetadata;
+  const pathMeta = booking.sankalpDetails?.pathMetadata;
 
   return {
     bookingReference: booking.bookingReference,
@@ -97,6 +158,40 @@ export const serializeRitualBookingDetail = (booking) => {
         completionDate: yagyaMeta.completionDate,
         selectedPricingTier: yagyaMeta.selectedPricingTier,
       }),
+      ...(japaMeta && {
+        japaCount: japaMeta.japaCount,
+        dailyCapacityPerPandit: japaMeta.dailyCapacityPerPandit,
+        totalDailyCapacity: japaMeta.totalDailyCapacity,
+        requiredDays: japaMeta.requiredDays,
+        dailyHours: japaMeta.dailyHours,
+        commencementDate: japaMeta.commencementDate,
+        completionDate: japaMeta.completionDate,
+        pricingSource: japaMeta.pricingSource,
+      }),
+      ...(homaMeta && {
+        havanCount: homaMeta.havanCount,
+        durationDays: homaMeta.durationDays,
+        dailyHours: homaMeta.dailyHours,
+        havanCapacityPerPandit: homaMeta.havanCapacityPerPandit,
+        panditCount: homaMeta.panditCount,
+        commencementDate: homaMeta.commencementDate,
+        completionDate: homaMeta.completionDate,
+        pricingSource: homaMeta.pricingSource,
+        priceBreakdown: homaMeta.priceBreakdown,
+      }),
+      ...(pathMeta && {
+        format: pathMeta.selectedFormat,
+        selectedFormat: pathMeta.selectedFormat,
+        selectedDuration: pathMeta.selectedDuration,
+        duration: pathMeta.selectedDuration,
+        days: pathMeta.selectedDays,
+        dailyHours: pathMeta.dailyHours,
+        panditCount: pathMeta.panditCount,
+        commencementDate: pathMeta.commencementDate,
+        completionDate: pathMeta.completionDate,
+        pricingSource: pathMeta.pricingSource,
+        priceBreakdown: pathMeta.priceBreakdown,
+      }),
     },
     location: {
       locationType: booking.locationType,
@@ -112,7 +207,7 @@ export const serializeRitualBookingDetail = (booking) => {
       addonsTotal: Number(booking.addonsTotal),
       totalAmount: Number(booking.totalAmount),
       currency: booking.currency,
-      formattedTotal: `₹${Number(booking.totalAmount).toLocaleString("en-IN")}`,
+      formattedTotal: `\u20B9${Number(booking.totalAmount).toLocaleString("en-IN")}`,
     },
     bookingStatus: booking.bookingStatus,
     paymentStatus: booking.paymentStatus,

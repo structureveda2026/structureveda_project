@@ -1,8 +1,11 @@
 import crypto from "crypto";
-import db, { RitualBooking, PujaService, YagyaService } from "../models/index.js";
+import db, { RitualBooking, PujaService, YagyaService, JapaService, HomaService, PathService } from "../models/index.js";
 import {
   calculateRitualPriceInternal,
   calculateYagyaPriceInternal,
+  calculateJapaPriceInternal,
+  calculateHomaPriceInternal,
+  calculatePathPriceInternal,
   deriveCompletionDate,
 } from "../services/ritualPricing.service.js";
 import {
@@ -47,10 +50,10 @@ export const calculateRitualPrice = async (req, res) => {
 
     const serviceType = (rawServiceType || "PUJA").toString().trim().toUpperCase();
 
-    if (!["PUJA", "YAGYA"].includes(serviceType)) {
+    if (!["PUJA", "YAGYA", "JAPA", "HOMA", "PATH"].includes(serviceType)) {
       return res.status(400).json({
         success: false,
-        message: `Unsupported serviceType: ${serviceType}. Supported: PUJA, YAGYA`,
+        message: `Unsupported serviceType: ${serviceType}. Supported: PUJA, YAGYA, JAPA, HOMA, PATH`,
       });
     }
 
@@ -95,6 +98,268 @@ export const calculateRitualPrice = async (req, res) => {
         panditCount: panditCount != null ? panditCount : 1,
         addons,
       });
+
+      return res.status(200).json({
+        success: true,
+        data: serializeRitualPriceCalculation(priceData),
+      });
+    }
+
+
+    // JAPA Service Price Calculation (Phase J2)
+    if (serviceType === "JAPA") {
+      const service = await JapaService.findOne({
+        where: {
+          slug: String(serviceSlug).trim().toLowerCase(),
+        },
+      });
+
+      if (!service) {
+        return res.status(404).json({
+          success: false,
+          message: "Japa service not found",
+        });
+      }
+
+      if (serviceId && service.id !== serviceId) {
+        return res.status(400).json({
+          success: false,
+          message: "serviceId does not match serviceSlug",
+        });
+      }
+
+      if (!service.isActive) {
+        return res.status(404).json({
+          success: false,
+          message: "Japa service is currently inactive",
+        });
+      }
+
+      // Validate arrangementMode and locationType if provided
+      if (arrangementMode && !VALID_MODES.includes(String(arrangementMode).trim().toLowerCase())) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid arrangementMode: ${arrangementMode}. Allowed: ${VALID_MODES.join(", ")}`,
+        });
+      }
+
+      if (locationType && !VALID_LOCATION_TYPES.includes(String(locationType).trim().toLowerCase())) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid locationType: ${locationType}. Allowed: ${VALID_LOCATION_TYPES.join(", ")}`,
+        });
+      }
+
+      const mode = arrangementMode ? String(arrangementMode).trim().toLowerCase() : null;
+      if (mode === "kashi" && service.isKashiAvailable === false) {
+        return res.status(400).json({
+          success: false,
+          message: "Kashi arrangement mode is not available for this Japa",
+        });
+      }
+      if (mode === "remote" && service.isRemoteAvailable === false) {
+        return res.status(400).json({
+          success: false,
+          message: "Remote arrangement mode is not available for this Japa",
+        });
+      }
+
+      const countParam = req.body.japaCount != null ? req.body.japaCount : req.body.count;
+      const commencementParam = req.body.commencementDate || req.body.date;
+
+      const priceData = calculateJapaPriceInternal({
+        service,
+        japaCount: countParam,
+        panditCount,
+        commencementDate: commencementParam,
+        dailyHours,
+        arrangementMode,
+        locationType,
+        addons,
+      });
+
+      priceData.service = {
+        id: service.id,
+        slug: service.slug,
+        name: service.name,
+      };
+
+      return res.status(200).json({
+        success: true,
+        data: serializeRitualPriceCalculation(priceData),
+      });
+    }
+
+    // HOMA Service Price Calculation (Phase H3)
+    if (serviceType === "HOMA") {
+      const service = await HomaService.findOne({
+        where: {
+          slug: String(serviceSlug).trim().toLowerCase(),
+        },
+      });
+
+      if (!service) {
+        return res.status(404).json({
+          success: false,
+          message: "Homa service not found",
+        });
+      }
+
+      if (serviceId && service.id !== serviceId) {
+        return res.status(400).json({
+          success: false,
+          message: "serviceId does not match serviceSlug",
+        });
+      }
+
+      if (!service.isActive) {
+        return res.status(404).json({
+          success: false,
+          message: "Homa service is currently inactive",
+        });
+      }
+
+      // Validate arrangementMode and locationType if provided
+      if (arrangementMode && !VALID_MODES.includes(String(arrangementMode).trim().toLowerCase())) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid arrangementMode: ${arrangementMode}. Allowed: ${VALID_MODES.join(", ")}`,
+        });
+      }
+
+      if (locationType && !VALID_LOCATION_TYPES.includes(String(locationType).trim().toLowerCase())) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid locationType: ${locationType}. Allowed: ${VALID_LOCATION_TYPES.join(", ")}`,
+        });
+      }
+
+      const mode = arrangementMode ? String(arrangementMode).trim().toLowerCase() : null;
+      if (mode === "kashi" && service.isKashiAvailable === false) {
+        return res.status(400).json({
+          success: false,
+          message: "Kashi arrangement mode is not available for this Homa",
+        });
+      }
+      if (mode === "remote" && service.isRemoteAvailable === false) {
+        return res.status(400).json({
+          success: false,
+          message: "Remote arrangement mode is not available for this Homa",
+        });
+      }
+
+      const havanParam = req.body.havanCount != null ? req.body.havanCount : (req.body.homaCount != null ? req.body.homaCount : req.body.count);
+      const daysParam = req.body.days != null ? req.body.days : (req.body.durationDays != null ? req.body.durationDays : (req.body.durationSelected ? (String(req.body.durationSelected).match(/(\d+)\s*Day/i) ? parseInt(String(req.body.durationSelected).match(/(\d+)\s*Day/i)[1], 10) : null) : null));
+      const commencementParam = req.body.commencementDate || req.body.date;
+
+      const priceData = await calculateHomaPriceInternal({
+        service,
+        havanCount: havanParam,
+        days: daysParam,
+        panditCount,
+        commencementDate: commencementParam,
+        dailyHours,
+        arrangementMode,
+        locationType,
+        addons,
+      });
+
+      priceData.service = {
+        id: service.id,
+        slug: service.slug,
+        name: service.name,
+      };
+
+      return res.status(200).json({
+        success: true,
+        data: serializeRitualPriceCalculation(priceData),
+      });
+    }
+
+    // PATH Service Price Calculation (Phase P3)
+    if (serviceType === "PATH") {
+      const service = await PathService.findOne({
+        where: {
+          slug: String(serviceSlug).trim().toLowerCase(),
+        },
+      });
+
+      if (!service) {
+        return res.status(404).json({
+          success: false,
+          message: "Path service not found",
+        });
+      }
+
+      if (serviceId && service.id !== serviceId) {
+        return res.status(400).json({
+          success: false,
+          message: "serviceId does not match serviceSlug",
+        });
+      }
+
+      if (!service.isActive) {
+        return res.status(404).json({
+          success: false,
+          message: "Path service is currently inactive",
+        });
+      }
+
+      // Validate arrangementMode and locationType if provided
+      if (arrangementMode && !VALID_MODES.includes(String(arrangementMode).trim().toLowerCase())) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid arrangementMode: ${arrangementMode}. Allowed: ${VALID_MODES.join(", ")}`,
+        });
+      }
+
+      if (locationType && !VALID_LOCATION_TYPES.includes(String(locationType).trim().toLowerCase())) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid locationType: ${locationType}. Allowed: ${VALID_LOCATION_TYPES.join(", ")}`,
+        });
+      }
+
+      const mode = arrangementMode ? String(arrangementMode).trim().toLowerCase() : null;
+      if (mode === "kashi" && service.isKashiAvailable === false) {
+        return res.status(400).json({
+          success: false,
+          message: "Kashi arrangement mode is not available for this Path",
+        });
+      }
+      if (mode === "remote" && service.isRemoteAvailable === false) {
+        return res.status(400).json({
+          success: false,
+          message: "Remote arrangement mode is not available for this Path",
+        });
+      }
+
+      const formatParam = req.body.format || req.body.selectedFormat;
+      const durationParam = req.body.duration || req.body.selectedDuration || req.body.durationSelected;
+      const daysParam = req.body.days != null ? req.body.days : (req.body.durationDays != null ? req.body.durationDays : (req.body.durationSelected ? (String(req.body.durationSelected).match(/(\d+)\s*Day/i) ? parseInt(String(req.body.durationSelected).match(/(\d+)\s*Day/i)[1], 10) : null) : null));
+      const commencementParam = req.body.commencementDate || req.body.date;
+
+      const priceData = await calculatePathPriceInternal({
+        service,
+        format: formatParam,
+        selectedFormat: formatParam,
+        duration: durationParam,
+        selectedDuration: durationParam,
+        durationSelected: durationParam,
+        days: daysParam,
+        panditCount,
+        commencementDate: commencementParam,
+        dailyHours,
+        arrangementMode,
+        locationType,
+        addons,
+      });
+
+      priceData.service = {
+        id: service.id,
+        slug: service.slug,
+        name: service.name,
+      };
 
       return res.status(200).json({
         success: true,
@@ -209,10 +474,10 @@ export const createRitualBooking = async (req, res) => {
 
     const serviceType = (rawServiceType || "PUJA").toString().trim().toUpperCase();
 
-    if (!["PUJA", "YAGYA"].includes(serviceType)) {
+    if (!["PUJA", "YAGYA", "JAPA", "HOMA", "PATH"].includes(serviceType)) {
       return res.status(400).json({
         success: false,
-        message: `Unsupported serviceType: ${serviceType}. Supported: PUJA, YAGYA`,
+        message: `Unsupported serviceType: ${serviceType}. Supported: PUJA, YAGYA, JAPA, HOMA, PATH`,
       });
     }
 
@@ -473,6 +738,887 @@ export const createRitualBooking = async (req, res) => {
       return res.status(201).json({
         success: true,
         message: "Ritual booking created successfully",
+        data: serializeRitualBookingCreation(newBooking, priceData.formattedTotal),
+      });
+    }
+
+    //
+    // -------------------------------------------------------------------------
+    // JAPA BOOKING BRANCH (Phase J2)
+    // -------------------------------------------------------------------------
+    if (serviceType === "JAPA") {
+      const service = await JapaService.findOne({
+        where: {
+          slug: String(serviceSlug).trim().toLowerCase(),
+        },
+      });
+
+      if (!service) {
+        return res.status(404).json({
+          success: false,
+          message: "Japa service not found",
+        });
+      }
+
+      if (serviceId && service.id !== serviceId) {
+        return res.status(400).json({
+          success: false,
+          message: "serviceId does not match serviceSlug",
+        });
+      }
+
+      if (!service.isActive) {
+        return res.status(404).json({
+          success: false,
+          message: "Japa service is currently inactive",
+        });
+      }
+
+      const {
+        date,
+        commencementDate,
+        timeSlot,
+        japaCount,
+        count,
+        panditCount,
+        dailyHours,
+        completionDate,
+        arrangementMode,
+      } = configuration;
+
+      const effectiveDate = commencementDate || date;
+      if (!effectiveDate || !/^\d{4}-\d{2}-\d{2}$/.test(String(effectiveDate).trim())) {
+        return res.status(400).json({
+          success: false,
+          message: "Valid Japa commencement date (YYYY-MM-DD) is required",
+        });
+      }
+
+      if (!timeSlot || !String(timeSlot).trim()) {
+        return res.status(400).json({
+          success: false,
+          message: "Valid daily commencement time is required",
+        });
+      }
+
+      if (!arrangementMode || !VALID_MODES.includes(String(arrangementMode).trim().toLowerCase())) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid arrangementMode. Allowed: ${VALID_MODES.join(", ")}`,
+        });
+      }
+
+      const cleanMode = String(arrangementMode).trim().toLowerCase();
+      if (cleanMode === "kashi" && service.isKashiAvailable === false) {
+        return res.status(400).json({
+          success: false,
+          message: "Kashi arrangement mode is not available for this Japa",
+        });
+      }
+      if (cleanMode === "remote" && service.isRemoteAvailable === false) {
+        return res.status(400).json({
+          success: false,
+          message: "Remote arrangement mode is not available for this Japa",
+        });
+      }
+
+      // Authoritative server-side price & days calculation
+      let priceData;
+      try {
+        priceData = calculateJapaPriceInternal({
+          service,
+          japaCount: japaCount != null ? japaCount : count,
+          panditCount,
+          commencementDate: effectiveDate,
+          dailyHours,
+          arrangementMode: cleanMode,
+          addons,
+        });
+      } catch (pricingError) {
+        return res.status(400).json({
+          success: false,
+          message: pricingError.message,
+        });
+      }
+
+      // Server-derived completion date validation
+      if (completionDate && String(completionDate).trim() !== priceData.completionDate) {
+        return res.status(400).json({
+          success: false,
+          message: `Completion date mismatch. For commencement ${effectiveDate} and ${priceData.requiredDays} days, completion date must be ${priceData.completionDate}.`,
+        });
+      }
+
+      // Validate Location
+      if (!location || typeof location !== "object") {
+        return res.status(400).json({
+          success: false,
+          message: "Location information is required",
+        });
+      }
+
+      const { locationType, venueDetails = {} } = location;
+      if (!locationType || !VALID_LOCATION_TYPES.includes(String(locationType).trim().toLowerCase())) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid locationType. Allowed: ${VALID_LOCATION_TYPES.join(", ")}`,
+        });
+      }
+
+      if (
+        (locationType === "customer_home" || locationType === "other") &&
+        (!venueDetails ||
+          !venueDetails.address ||
+          !String(venueDetails.address).trim() ||
+          !venueDetails.city ||
+          !String(venueDetails.city).trim())
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Home/Other location requires street address and city details in venueDetails",
+        });
+      }
+
+      // Validate Yajman Details
+      if (!yajman || typeof yajman !== "object") {
+        return res.status(400).json({
+          success: false,
+          message: "Yajman details are required",
+        });
+      }
+
+      if (!yajman.name || !String(yajman.name).trim()) {
+        return res.status(400).json({
+          success: false,
+          message: "Yajman name is required",
+        });
+      }
+
+      if (!yajman.mobile || !String(yajman.mobile).trim()) {
+        return res.status(400).json({
+          success: false,
+          message: "Yajman mobile number is required",
+        });
+      }
+
+      if (yajman.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(yajman.email).trim())) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid Yajman email format",
+        });
+      }
+
+      // Validate Sankalp Details
+      if (!sankalp || typeof sankalp !== "object") {
+        return res.status(400).json({
+          success: false,
+          message: "Sankalp details are required",
+        });
+      }
+
+      if (!sankalp.purpose && !sankalp.mainIntention) {
+        return res.status(400).json({
+          success: false,
+          message: "Sankalp purpose or main intention is required",
+        });
+      }
+
+      // Validate Family Members
+      if (!Array.isArray(familyMembers)) {
+        return res.status(400).json({
+          success: false,
+          message: "familyMembers must be an array",
+        });
+      }
+
+      for (let i = 0; i < familyMembers.length; i++) {
+        const member = familyMembers[i];
+        if (!member || typeof member !== "object" || !member.name || !String(member.name).trim()) {
+          return res.status(400).json({
+            success: false,
+            message: `Family member at position ${i + 1} must have a valid name`,
+          });
+        }
+      }
+
+      if (!Array.isArray(addons)) {
+        return res.status(400).json({
+          success: false,
+          message: "addons must be an array",
+        });
+      }
+
+      const userId = req.user ? req.user.id : null;
+
+      // Enrich sankalp details with Japa operational metadata (canonical JSONB reuse)
+      const enrichedSankalp = {
+        ...sankalp,
+        japaMetadata: {
+          japaCount: priceData.japaCount,
+          dailyCapacityPerPandit: priceData.dailyCapacityPerPandit,
+          totalDailyCapacity: priceData.totalDailyCapacity,
+          panditCount: priceData.panditCount,
+          requiredDays: priceData.requiredDays,
+          dailyHours: priceData.dailyHours,
+          commencementDate: effectiveDate,
+          completionDate: priceData.completionDate,
+          pricingSource: priceData.pricingSource,
+        },
+      };
+
+      // Create Booking inside a Sequelize Transaction
+      const newBooking = await db.sequelize.transaction(async (t) => {
+        let bookingReference = generateUniqueBookingReference("JAPA");
+
+        let existing = await RitualBooking.findOne({
+          where: { bookingReference },
+          transaction: t,
+        });
+
+        let attempts = 0;
+        while (existing && attempts < 5) {
+          bookingReference = generateUniqueBookingReference("JAPA");
+          existing = await RitualBooking.findOne({
+            where: { bookingReference },
+            transaction: t,
+          });
+          attempts++;
+        }
+
+        const created = await RitualBooking.create(
+          {
+            bookingReference,
+            serviceType: "JAPA",
+            serviceId: service.id,
+            serviceSlug: service.slug,
+            serviceName: service.name,
+            userId,
+            bookingDate: String(effectiveDate).trim(),
+            bookingTime: String(timeSlot).trim(),
+            durationSelected: priceData.durationSelected,
+            durationHours: priceData.durationHours,
+            panditCount: priceData.panditCount,
+            arrangementMode: cleanMode,
+            locationType: String(locationType).trim().toLowerCase(),
+            venueDetails: venueDetails || {},
+            yajmanDetails: { ...yajman, phone: yajman.phone || yajman.mobile, mobile: yajman.mobile || yajman.phone },
+            sankalpDetails: enrichedSankalp,
+            familyMembers: familyMembers || [],
+            addons: addons || [],
+            basePrice: priceData.basePrice,
+            panditAddonPrice: priceData.panditAddonPrice,
+            addonsTotal: priceData.addonsTotal,
+            totalAmount: priceData.totalAmount, // Server authoritative amount!
+            currency: "INR",
+            bookingStatus: "Pending",
+            paymentStatus: "Pending",
+            paymentGateway: "Cashfree",
+          },
+          { transaction: t }
+        );
+
+        return created;
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: "Japa ritual booking created successfully",
+        data: serializeRitualBookingCreation(newBooking, priceData.formattedTotal),
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // HOMA BOOKING BRANCH (Phase H3)
+    // -------------------------------------------------------------------------
+    if (serviceType === "HOMA") {
+      const service = await HomaService.findOne({
+        where: {
+          slug: String(serviceSlug).trim().toLowerCase(),
+        },
+      });
+
+      if (!service) {
+        return res.status(404).json({
+          success: false,
+          message: "Homa service not found",
+        });
+      }
+
+      if (serviceId && service.id !== serviceId) {
+        return res.status(400).json({
+          success: false,
+          message: "serviceId does not match serviceSlug",
+        });
+      }
+
+      if (!service.isActive) {
+        return res.status(404).json({
+          success: false,
+          message: "Homa service is currently inactive",
+        });
+      }
+
+      const {
+        date,
+        commencementDate,
+        timeSlot,
+        havanCount,
+        homaCount,
+        count,
+        days,
+        durationDays,
+        panditCount,
+        dailyHours,
+        completionDate,
+        arrangementMode,
+      } = configuration;
+
+      const effectiveDate = commencementDate || date;
+      if (!effectiveDate || !/^\d{4}-\d{2}-\d{2}$/.test(String(effectiveDate).trim())) {
+        return res.status(400).json({
+          success: false,
+          message: "Valid Homa commencement date (YYYY-MM-DD) is required",
+        });
+      }
+
+      if (!timeSlot || !String(timeSlot).trim()) {
+        return res.status(400).json({
+          success: false,
+          message: "Valid daily commencement time is required",
+        });
+      }
+
+      if (!arrangementMode || !VALID_MODES.includes(String(arrangementMode).trim().toLowerCase())) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid arrangementMode. Allowed: ${VALID_MODES.join(", ")}`,
+        });
+      }
+
+      const cleanMode = String(arrangementMode).trim().toLowerCase();
+      if (cleanMode === "kashi" && service.isKashiAvailable === false) {
+        return res.status(400).json({
+          success: false,
+          message: "Kashi arrangement mode is not available for this Homa",
+        });
+      }
+      if (cleanMode === "remote" && service.isRemoteAvailable === false) {
+        return res.status(400).json({
+          success: false,
+          message: "Remote arrangement mode is not available for this Homa",
+        });
+      }
+
+      // Authoritative server-side price calculation
+      let priceData;
+      try {
+        priceData = await calculateHomaPriceInternal({
+          service,
+          havanCount: havanCount != null ? havanCount : (homaCount != null ? homaCount : count),
+          days: days != null ? days : durationDays,
+          panditCount,
+          commencementDate: effectiveDate,
+          dailyHours,
+          arrangementMode: cleanMode,
+          addons,
+        });
+      } catch (pricingError) {
+        return res.status(400).json({
+          success: false,
+          message: pricingError.message,
+        });
+      }
+
+      // Server-derived completion date validation if provided by client
+      if (completionDate && String(completionDate).trim() !== priceData.completionDate) {
+        return res.status(400).json({
+          success: false,
+          message: `Completion date mismatch. For commencement ${effectiveDate} and ${priceData.days} days, completion date must be ${priceData.completionDate}.`,
+        });
+      }
+
+      // Validate Location
+      if (!location || typeof location !== "object") {
+        return res.status(400).json({
+          success: false,
+          message: "Location information is required",
+        });
+      }
+
+      const { locationType, venueDetails = {} } = location;
+      if (!locationType || !VALID_LOCATION_TYPES.includes(String(locationType).trim().toLowerCase())) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid locationType. Allowed: ${VALID_LOCATION_TYPES.join(", ")}`,
+        });
+      }
+
+      if (
+        (locationType === "customer_home" || locationType === "other") &&
+        (!venueDetails ||
+          !venueDetails.address ||
+          !String(venueDetails.address).trim() ||
+          !venueDetails.city ||
+          !String(venueDetails.city).trim())
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Home/Other location requires street address and city details in venueDetails",
+        });
+      }
+
+      // Validate Yajman Details
+      if (!yajman || typeof yajman !== "object") {
+        return res.status(400).json({
+          success: false,
+          message: "Yajman details are required",
+        });
+      }
+
+      if (!yajman.name || !String(yajman.name).trim()) {
+        return res.status(400).json({
+          success: false,
+          message: "Yajman name is required",
+        });
+      }
+
+      if (!yajman.mobile || !String(yajman.mobile).trim()) {
+        return res.status(400).json({
+          success: false,
+          message: "Yajman mobile number is required",
+        });
+      }
+
+      if (yajman.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(yajman.email).trim())) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid Yajman email format",
+        });
+      }
+
+      // Validate Sankalp Details
+      if (!sankalp || typeof sankalp !== "object") {
+        return res.status(400).json({
+          success: false,
+          message: "Sankalp details are required",
+        });
+      }
+
+      if (!sankalp.purpose && !sankalp.mainIntention) {
+        return res.status(400).json({
+          success: false,
+          message: "Sankalp purpose or main intention is required",
+        });
+      }
+
+      // Validate Family Members
+      if (!Array.isArray(familyMembers)) {
+        return res.status(400).json({
+          success: false,
+          message: "familyMembers must be an array",
+        });
+      }
+
+      for (let i = 0; i < familyMembers.length; i++) {
+        const member = familyMembers[i];
+        if (!member || typeof member !== "object" || !member.name || !String(member.name).trim()) {
+          return res.status(400).json({
+            success: false,
+            message: `Family member at position ${i + 1} must have a valid name`,
+          });
+        }
+      }
+
+      if (!Array.isArray(addons)) {
+        return res.status(400).json({
+          success: false,
+          message: "addons must be an array",
+        });
+      }
+
+      const userId = req.user ? req.user.id : null;
+
+      // Enrich sankalp details with Homa operational metadata (canonical JSONB reuse)
+      const enrichedSankalp = {
+        ...sankalp,
+        homaMetadata: {
+          havanCount: priceData.havanCount,
+          durationDays: priceData.days,
+          dailyHours: priceData.dailyHours,
+          havanCapacityPerPandit: priceData.havanCapacityPerPandit,
+          panditCount: priceData.panditCount,
+          commencementDate: effectiveDate,
+          completionDate: priceData.completionDate,
+          pricingSource: priceData.pricingSource,
+          priceBreakdown: {
+            basePrice: priceData.basePrice,
+            havanAddonPrice: priceData.havanAddonPrice,
+            dayAddonPrice: priceData.dayAddonPrice,
+            panditAddonPrice: 0,
+            addonsTotal: 0,
+            totalAmount: priceData.totalAmount,
+          },
+        },
+      };
+
+      // Create Booking inside a Sequelize Transaction
+      const newBooking = await db.sequelize.transaction(async (t) => {
+        let bookingReference = generateUniqueBookingReference("HOMA");
+
+        let existing = await RitualBooking.findOne({
+          where: { bookingReference },
+          transaction: t,
+        });
+
+        let attempts = 0;
+        while (existing && attempts < 5) {
+          bookingReference = generateUniqueBookingReference("HOMA");
+          existing = await RitualBooking.findOne({
+            where: { bookingReference },
+            transaction: t,
+          });
+          attempts++;
+        }
+
+        const created = await RitualBooking.create(
+          {
+            bookingReference,
+            serviceType: "HOMA",
+            serviceId: service.id,
+            serviceSlug: service.slug,
+            serviceName: service.name,
+            userId,
+            bookingDate: String(effectiveDate).trim(),
+            bookingTime: String(timeSlot).trim(),
+            durationSelected: priceData.durationSelected,
+            durationHours: priceData.durationHours,
+            panditCount: priceData.panditCount,
+            arrangementMode: cleanMode,
+            locationType: String(locationType).trim().toLowerCase(),
+            venueDetails: venueDetails || {},
+            yajmanDetails: { ...yajman, phone: yajman.phone || yajman.mobile, mobile: yajman.mobile || yajman.phone },
+            sankalpDetails: enrichedSankalp,
+            familyMembers: familyMembers || [],
+            addons: addons || [],
+            basePrice: priceData.basePrice,
+            panditAddonPrice: priceData.panditAddonPrice,
+            addonsTotal: priceData.addonsTotal,
+            totalAmount: priceData.totalAmount, // Server authoritative amount!
+            currency: "INR",
+            bookingStatus: "Pending",
+            paymentStatus: "Pending",
+            paymentGateway: "Cashfree",
+          },
+          { transaction: t }
+        );
+
+        return created;
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: "Homa ritual booking created successfully",
+        data: serializeRitualBookingCreation(newBooking, priceData.formattedTotal),
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // PATH BOOKING BRANCH (Phase P3)
+    // -------------------------------------------------------------------------
+    if (serviceType === "PATH") {
+      const service = await PathService.findOne({
+        where: {
+          slug: String(serviceSlug).trim().toLowerCase(),
+        },
+      });
+
+      if (!service) {
+        return res.status(404).json({
+          success: false,
+          message: "Path service not found",
+        });
+      }
+
+      if (serviceId && service.id !== serviceId) {
+        return res.status(400).json({
+          success: false,
+          message: "serviceId does not match serviceSlug",
+        });
+      }
+
+      if (!service.isActive) {
+        return res.status(404).json({
+          success: false,
+          message: "Path service is currently inactive",
+        });
+      }
+
+      const {
+        date,
+        commencementDate,
+        timeSlot,
+        format,
+        selectedFormat,
+        duration,
+        selectedDuration,
+        durationSelected,
+        days,
+        durationDays,
+        panditCount,
+        dailyHours,
+        completionDate,
+        arrangementMode,
+      } = configuration;
+
+      const effectiveDate = commencementDate || date;
+      if (!effectiveDate || !/^\d{4}-\d{2}-\d{2}$/.test(String(effectiveDate).trim())) {
+        return res.status(400).json({
+          success: false,
+          message: "Valid Path commencement date (YYYY-MM-DD) is required",
+        });
+      }
+
+      if (!timeSlot || !String(timeSlot).trim()) {
+        return res.status(400).json({
+          success: false,
+          message: "Valid daily commencement time is required",
+        });
+      }
+
+      if (!arrangementMode || !VALID_MODES.includes(String(arrangementMode).trim().toLowerCase())) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid arrangementMode. Allowed: ${VALID_MODES.join(", ")}`,
+        });
+      }
+
+      const cleanMode = String(arrangementMode).trim().toLowerCase();
+      if (cleanMode === "kashi" && service.isKashiAvailable === false) {
+        return res.status(400).json({
+          success: false,
+          message: "Kashi arrangement mode is not available for this Path",
+        });
+      }
+      if (cleanMode === "remote" && service.isRemoteAvailable === false) {
+        return res.status(400).json({
+          success: false,
+          message: "Remote arrangement mode is not available for this Path",
+        });
+      }
+
+      // Authoritative server-side price calculation
+      let priceData;
+      try {
+        priceData = await calculatePathPriceInternal({
+          service,
+          format: format || selectedFormat,
+          duration: duration || selectedDuration || durationSelected,
+          days: days != null ? days : durationDays,
+          panditCount,
+          commencementDate: effectiveDate,
+          dailyHours,
+          arrangementMode: cleanMode,
+          addons,
+        });
+      } catch (pricingError) {
+        return res.status(400).json({
+          success: false,
+          message: pricingError.message,
+        });
+      }
+
+      // Server-derived completion date validation if provided by client
+      if (completionDate && String(completionDate).trim() !== priceData.completionDate) {
+        return res.status(400).json({
+          success: false,
+          message: `Completion date mismatch. For commencement ${effectiveDate} and ${priceData.days} days, completion date must be ${priceData.completionDate}.`,
+        });
+      }
+
+      // Validate Location
+      if (!location || typeof location !== "object") {
+        return res.status(400).json({
+          success: false,
+          message: "Location information is required",
+        });
+      }
+
+      const { locationType, venueDetails = {} } = location;
+      if (!locationType || !VALID_LOCATION_TYPES.includes(String(locationType).trim().toLowerCase())) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid locationType. Allowed: ${VALID_LOCATION_TYPES.join(", ")}`,
+        });
+      }
+
+      if (
+        (locationType === "customer_home" || locationType === "other") &&
+        (!venueDetails ||
+          !venueDetails.address ||
+          !String(venueDetails.address).trim() ||
+          !venueDetails.city ||
+          !String(venueDetails.city).trim())
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Home/Other location requires street address and city details in venueDetails",
+        });
+      }
+
+      // Validate Yajman Details
+      if (!yajman || typeof yajman !== "object") {
+        return res.status(400).json({
+          success: false,
+          message: "Yajman details are required",
+        });
+      }
+
+      if (!yajman.name || !String(yajman.name).trim()) {
+        return res.status(400).json({
+          success: false,
+          message: "Yajman name is required",
+        });
+      }
+
+      if (!yajman.mobile || !String(yajman.mobile).trim()) {
+        return res.status(400).json({
+          success: false,
+          message: "Yajman mobile number is required",
+        });
+      }
+
+      if (yajman.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(yajman.email).trim())) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid Yajman email format",
+        });
+      }
+
+      // Validate Sankalp Details
+      if (!sankalp || typeof sankalp !== "object") {
+        return res.status(400).json({
+          success: false,
+          message: "Sankalp details are required",
+        });
+      }
+
+      if (!sankalp.purpose && !sankalp.mainIntention) {
+        return res.status(400).json({
+          success: false,
+          message: "Sankalp purpose or main intention is required",
+        });
+      }
+
+      // Validate Family Members
+      if (!Array.isArray(familyMembers)) {
+        return res.status(400).json({
+          success: false,
+          message: "familyMembers must be an array",
+        });
+      }
+
+      for (let i = 0; i < familyMembers.length; i++) {
+        const member = familyMembers[i];
+        if (!member || typeof member !== "object" || !member.name || !String(member.name).trim()) {
+          return res.status(400).json({
+            success: false,
+            message: `Family member at position ${i + 1} must have a valid name`,
+          });
+        }
+      }
+
+      if (!Array.isArray(addons)) {
+        return res.status(400).json({
+          success: false,
+          message: "addons must be an array",
+        });
+      }
+
+      const userId = req.user ? req.user.id : null;
+
+      // Enrich sankalp details with Path operational metadata (canonical JSONB reuse)
+      const enrichedSankalp = {
+        ...sankalp,
+        pathMetadata: {
+          serviceId: service.id,
+          serviceSlug: service.slug,
+          serviceName: service.name,
+          pathType: service.pathType,
+          scripture: service.scripture,
+          selectedFormat: priceData.format,
+          selectedDuration: priceData.durationSelected,
+          selectedDays: priceData.days,
+          dailyHours: priceData.dailyHours,
+          panditCount: priceData.panditCount,
+          commencementDate: effectiveDate,
+          completionDate: priceData.completionDate,
+          pricingSource: priceData.pricingSource,
+          priceBreakdown: {
+            basePrice: priceData.basePrice,
+            panditAddonPrice: 0,
+            addonsTotal: 0,
+            totalAmount: priceData.totalAmount,
+          },
+        },
+      };
+
+      // Create Booking inside a Sequelize Transaction
+      const newBooking = await db.sequelize.transaction(async (t) => {
+        let bookingReference = generateUniqueBookingReference("PATH");
+
+        let existing = await RitualBooking.findOne({
+          where: { bookingReference },
+          transaction: t,
+        });
+
+        let attempts = 0;
+        while (existing && attempts < 5) {
+          bookingReference = generateUniqueBookingReference("PATH");
+          existing = await RitualBooking.findOne({
+            where: { bookingReference },
+            transaction: t,
+          });
+          attempts++;
+        }
+
+        const created = await RitualBooking.create(
+          {
+            bookingReference,
+            serviceType: "PATH",
+            serviceId: service.id,
+            serviceSlug: service.slug,
+            serviceName: service.name,
+            userId,
+            bookingDate: String(effectiveDate).trim(),
+            bookingTime: String(timeSlot).trim(),
+            durationSelected: priceData.durationSelected,
+            durationHours: priceData.durationHours,
+            panditCount: priceData.panditCount,
+            arrangementMode: cleanMode,
+            locationType: String(locationType).trim().toLowerCase(),
+            venueDetails: venueDetails || {},
+            yajmanDetails: { ...yajman, phone: yajman.phone || yajman.mobile, mobile: yajman.mobile || yajman.phone },
+            sankalpDetails: enrichedSankalp,
+            familyMembers: familyMembers || [],
+            addons: addons || [],
+            basePrice: priceData.basePrice,
+            panditAddonPrice: priceData.panditAddonPrice,
+            addonsTotal: priceData.addonsTotal,
+            totalAmount: priceData.totalAmount, // Server authoritative amount!
+            currency: "INR",
+            bookingStatus: "Pending",
+            paymentStatus: "Pending",
+            paymentGateway: "Cashfree",
+          },
+          { transaction: t }
+        );
+
+        return created;
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: "Path recitation booking created successfully",
         data: serializeRitualBookingCreation(newBooking, priceData.formattedTotal),
       });
     }
