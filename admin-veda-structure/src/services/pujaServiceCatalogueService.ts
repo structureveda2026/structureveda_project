@@ -21,6 +21,12 @@ export interface AdminPujaServiceListingItem {
     name: string;
     slug: string;
   };
+  categoryId?: string | null;
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+  } | null;
   startingPrice: number;
   formattedPrice: string;
   availableMode: PujaAvailableMode;
@@ -63,6 +69,12 @@ export interface AdminPujaServiceDetail {
     name: string;
     slug: string;
   };
+  categoryId?: string | null;
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+  } | null;
   purposeSummary?: string | null;
   availableDurations: string[];
   duration?: string | null;
@@ -111,6 +123,7 @@ export interface PujaServicePayload {
   startingPrice: number;
   availableMode: PujaAvailableMode;
   purposeId: string;
+  categoryId?: string | null;
   eyebrow?: string | null;
   tagline?: string | null;
   shortDescription?: string | null;
@@ -217,6 +230,16 @@ const getPurposes = async (): Promise<PujaPurpose[]> => {
   return (response.data || []) as PujaPurpose[];
 };
 
+/**
+ * Fetch list of active Puja categories from public API for dynamic category selector.
+ */
+const getCategories = async (): Promise<
+  { id: string; name: string; slug: string }[]
+> => {
+  const response = await api.get("/puja-categories");
+  return (response.data || []) as { id: string; name: string; slug: string }[];
+};
+
 export default {
   getPujaServices,
   getPujaService,
@@ -224,4 +247,5 @@ export default {
   updatePujaService,
   deletePujaService,
   getPurposes,
+  getCategories,
 };

@@ -1,6 +1,6 @@
 import { Op } from "sequelize";
 import sequelize from "../config/database.js";
-import { PujaService, PujaPurpose } from "../models/index.js";
+import { PujaService, PujaPurpose, PujaCategory } from "../models/index.js";
 import {
   serializeAdminPujaServiceListing,
   serializeAdminPujaServiceDetail,
@@ -39,6 +39,7 @@ export const getAdminPujaServices = async (req, res) => {
     const {
       search,
       purpose,
+      category,
       isActive,
       isFeatured,
       mode,
@@ -127,6 +128,23 @@ export const getAdminPujaServices = async (req, res) => {
       purposeInclude.required = true;
     }
 
+    // category filter
+    const categoryInclude = {
+      model: PujaCategory,
+      as: "categoryDetails",
+      required: false,
+    };
+
+    if (category && String(category).trim()) {
+      const trimmedCat = String(category).trim().toLowerCase();
+      if (isValidUUID(trimmedCat)) {
+        categoryInclude.where = { id: trimmedCat };
+      } else {
+        categoryInclude.where = { slug: trimmedCat };
+      }
+      categoryInclude.required = true;
+    }
+
     // 3. Sorting Whitelist Validation
     const trimmedSort = String(sortBy).trim().toLowerCase();
     if (!VALID_ADMIN_SORTS.includes(trimmedSort)) {
@@ -162,7 +180,7 @@ export const getAdminPujaServices = async (req, res) => {
     const offset = (pageNum - 1) * limitNum;
     const { count, rows } = await PujaService.findAndCountAll({
       where,
-      include: [purposeInclude],
+      include: [purposeInclude, categoryInclude],
       order,
       limit: limitNum,
       offset,
@@ -211,6 +229,10 @@ export const getAdminPujaServiceById = async (req, res) => {
           model: PujaPurpose,
           as: "purposeDetails",
         },
+        {
+          model: PujaCategory,
+          as: "categoryDetails",
+        },
       ],
     });
 
@@ -249,6 +271,7 @@ export const createAdminPujaService = async (req, res) => {
       fullDescription,
       deity,
       purposeId,
+      categoryId,
       purposeSummary,
       availableDurations = [],
       duration,
@@ -329,6 +352,23 @@ export const createAdminPujaService = async (req, res) => {
         return res.status(400).json({
           success: false,
           message: "Specified purposeId does not exist.",
+        });
+      }
+    }
+
+    // Category Validation
+    if (categoryId) {
+      if (!isValidUUID(categoryId)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid categoryId format. Must be a valid UUID.",
+        });
+      }
+      const category = await PujaCategory.findByPk(categoryId);
+      if (!category) {
+        return res.status(400).json({
+          success: false,
+          message: "Specified categoryId does not exist.",
         });
       }
     }
@@ -426,6 +466,7 @@ export const createAdminPujaService = async (req, res) => {
           fullDescription: fullDescription ? String(fullDescription).trim() : null,
           deity: deity.trim(),
           purposeId: purposeId || null,
+          categoryId: categoryId || null,
           purposeSummary: purposeSummary ? String(purposeSummary).trim() : null,
           availableDurations: Array.isArray(availableDurations) ? availableDurations : [],
           duration: duration ? String(duration).trim() : null,
@@ -449,9 +490,12 @@ export const createAdminPujaService = async (req, res) => {
       );
     });
 
-    // Reload with purpose association
+    // Reload with purpose and category associations
     await newService.reload({
-      include: [{ model: PujaPurpose, as: "purposeDetails" }],
+      include: [
+        { model: PujaPurpose, as: "purposeDetails" },
+        { model: PujaCategory, as: "categoryDetails" },
+      ],
     });
 
     return res.status(201).json({
@@ -589,6 +633,28 @@ export const updateAdminPujaService = async (req, res) => {
       }
     }
 
+    // Category ID validation
+    if (typeof body.categoryId !== "undefined") {
+      if (body.categoryId !== null) {
+        if (!isValidUUID(body.categoryId)) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid categoryId format. Must be a valid UUID.",
+          });
+        }
+        const category = await PujaCategory.findByPk(body.categoryId);
+        if (!category) {
+          return res.status(400).json({
+            success: false,
+            message: "Specified categoryId does not exist.",
+          });
+        }
+        updateFields.categoryId = body.categoryId;
+      } else {
+        updateFields.categoryId = null;
+      }
+    }
+
     // 7. Duration validation
     if (typeof body.durationHours !== "undefined") {
       if (body.durationHours !== null) {
@@ -707,7 +773,10 @@ export const updateAdminPujaService = async (req, res) => {
 
     // Reload with associations
     await service.reload({
-      include: [{ model: PujaPurpose, as: "purposeDetails" }],
+      include: [
+        { model: PujaPurpose, as: "purposeDetails" },
+        { model: PujaCategory, as: "categoryDetails" },
+      ],
     });
 
     return res.status(200).json({

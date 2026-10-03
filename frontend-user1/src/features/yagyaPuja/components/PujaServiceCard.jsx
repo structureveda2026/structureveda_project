@@ -48,11 +48,19 @@ const PujaServiceCard = ({ service }) => {
       {/* ── Card Content ── */}
       <div className="flex flex-1 flex-col justify-between px-5 py-5 sm:px-6 sm:py-5">
         <div>
-          {/* Deity + Duration row */}
+          {/* Deity + Category + Duration row */}
           <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold">
             <span className="rounded-full bg-[#f8edd8] px-2.5 py-0.5 text-[#8a561c] border border-[#eed7b6]">
               {service.deity}
             </span>
+            {service.category?.name && (
+              <>
+                <span className="text-[#d2baa0]">·</span>
+                <span className="rounded-full bg-[#fff4e0] px-2.5 py-0.5 text-[#b36c1e] border border-[#fae5be]">
+                  {service.category.name}
+                </span>
+              </>
+            )}
             <span className="text-[#d2baa0]">·</span>
             <span className="flex items-center gap-1 text-[#6e6052]">
               <Clock size={11} className="text-[#c77722]" />

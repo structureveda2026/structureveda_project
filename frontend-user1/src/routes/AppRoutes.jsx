@@ -25,6 +25,8 @@ import YagyaListing from "../features/yagya/pages/YagyaListing";
 import YagyaDetails from "../features/yagya/pages/YagyaDetails";
 import YagyaPujaLanding from "../features/yagyaPuja/pages/YagyaPujaLanding";
 import PujaCatalogueListing from "../features/yagyaPuja/pages/PujaCatalogueListing";
+import PujaAllCatalogueListing from "../features/yagyaPuja/pages/PujaAllCatalogueListing";
+import PujaCategoryListing from "../features/yagyaPuja/pages/PujaCategoryListing";
 import PujaServiceDetails from "../features/yagyaPuja/pages/PujaServiceDetails";
 import RitualBookingWizard from "../features/yagyaPuja/pages/RitualBookingWizard";
 import YagyaCatalogueListing from "../features/yagyaPuja/pages/YagyaCatalogueListing";
@@ -92,6 +94,8 @@ const AppRoutes = () => {
         {/* Yagya & Puja Module (Service Catalogue) */}
         <Route path="/yagya-puja" element={<YagyaPujaLanding />} />
         <Route path="/yagya-puja/puja" element={<PujaCatalogueListing />} />
+        <Route path="/yagya-puja/puja/all" element={<PujaAllCatalogueListing />} />
+        <Route path="/yagya-puja/puja/category/:categorySlug" element={<PujaCategoryListing />} />
         <Route path="/yagya-puja/puja/:slug" element={<PujaServiceDetails />} />
         <Route path="/yagya-puja/puja/:slug/book" element={<RitualBookingWizard serviceType="PUJA" />} />
         <Route path="/yagya-puja/yagya" element={<YagyaCatalogueListing />} />

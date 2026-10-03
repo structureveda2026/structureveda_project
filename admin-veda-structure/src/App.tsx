@@ -11,6 +11,9 @@ import UpcomingPujaDetail from "@/pages/UpcomingPujaDetail";
 import PujaServices from "@/pages/PujaServices";
 import PujaServiceForm from "@/pages/PujaServiceForm";
 import PujaServiceDetail from "@/pages/PujaServiceDetail";
+import PujaCategories from "@/pages/PujaCategories";
+import PujaCategoryForm from "@/pages/PujaCategoryForm";
+import PujaCategoryDetail from "@/pages/PujaCategoryDetail";
 import YagyaServices from "@/pages/YagyaServices";
 import YagyaServiceForm from "@/pages/YagyaServiceForm";
 import YagyaServiceDetail from "@/pages/YagyaServiceDetail";
@@ -23,7 +26,7 @@ import HomaServiceDetail from "@/pages/HomaServiceDetail";
 import PathServices from "@/pages/PathServices";
 import PathServiceForm from "@/pages/PathServiceForm";
 import PathServiceDetail from "@/pages/PathServiceDetail";
-import ConsultationDetail from "@/pages/ConsultationDetail";
+
 
 // Veda Library Module (Modular Architecture)
 import {
@@ -63,6 +66,18 @@ export default function App() {
               <Route path="puja-services/new" element={<PujaServiceForm />} />
               <Route path="puja-services/:id" element={<PujaServiceDetail />} />
               <Route path="puja-services/:id/edit" element={<PujaServiceForm />} />
+
+              {/* Puja Categories */}
+              <Route path="puja/categories" element={<PujaCategories />} />
+              <Route path="puja/categories/new" element={<PujaCategoryForm />} />
+              <Route path="puja/categories/:id" element={<PujaCategoryDetail />} />
+              <Route path="puja/categories/:id/edit" element={<PujaCategoryForm />} />
+
+              {/* Puja Categories Direct Aliases */}
+              <Route path="puja-categories" element={<PujaCategories />} />
+              <Route path="puja-categories/new" element={<PujaCategoryForm />} />
+              <Route path="puja-categories/:id" element={<PujaCategoryDetail />} />
+              <Route path="puja-categories/:id/edit" element={<PujaCategoryForm />} />
 
               {/* Yagya Services Catalogue */}
               <Route path="yagya-services" element={<YagyaServices />} />

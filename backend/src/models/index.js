@@ -6,6 +6,7 @@ import UpcomingPuja from "./upcomingPujaModel.js";
 import PujaPackage from "./pujaPackageModel.js";
 import PujaBooking from "./pujaBookingModel.js";
 import PujaPurpose from "./pujaPurposeModel.js";
+import PujaCategory from "./pujaCategoryModel.js";
 import PujaService from "./pujaServiceModel.js";
 import RitualBooking from "./ritualBookingModel.js";
 import YagyaPurpose from "./yagyaPurposeModel.js";
@@ -81,6 +82,16 @@ PujaService.belongsTo(PujaPurpose, {
   as: "purposeDetails",
 });
 
+PujaCategory.hasMany(PujaService, {
+  foreignKey: "categoryId",
+  as: "services",
+});
+
+PujaService.belongsTo(PujaCategory, {
+  foreignKey: "categoryId",
+  as: "categoryDetails",
+});
+
 // Yagya Service Catalogue Associations
 YagyaPurpose.hasMany(YagyaService, {
   foreignKey: "purposeId",
@@ -145,6 +156,7 @@ const db = {
   PujaPackage,
   PujaBooking,
   PujaPurpose,
+  PujaCategory,
   PujaService,
   RitualBooking,
   YagyaPurpose,
@@ -166,6 +178,7 @@ export {
   PujaPackage,
   PujaBooking,
   PujaPurpose,
+  PujaCategory,
   PujaService,
   RitualBooking,
   YagyaPurpose,

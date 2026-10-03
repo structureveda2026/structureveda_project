@@ -145,6 +145,11 @@ export const getPujaServices = async (filterParams = {}) => {
       query.purpose = String(filterParams.purpose).trim().toLowerCase();
     }
 
+    // Category filter (supports category slug e.g. "shiva-puja")
+    if (filterParams.category && filterParams.category !== "All" && filterParams.category !== "all") {
+      query.category = String(filterParams.category).trim().toLowerCase();
+    }
+
     // 3. Duration filter (extracts integer e.g. "2 Hours" -> 2)
     if (filterParams.duration && filterParams.duration !== "All Durations") {
       const durNum = parseInt(filterParams.duration, 10);
@@ -180,14 +185,14 @@ export const getPujaServices = async (filterParams = {}) => {
       }
     }
 
-    // 7. Pagination
+    // 7. Pagination (Default 6 per page as per Phase 2A requirements)
     if (filterParams.page) {
       query.page = parseInt(filterParams.page, 10) || 1;
     }
     if (filterParams.limit) {
-      query.limit = parseInt(filterParams.limit, 10) || 20;
+      query.limit = parseInt(filterParams.limit, 10) || 6;
     } else {
-      query.limit = 50; // Default generous limit to show all catalogue services
+      query.limit = 6;
     }
 
     const response = await api.get("/puja-services", { params: query });
@@ -252,11 +257,72 @@ export const getPujaPurposes = async () => {
   }
 };
 
+let cachedCategories = null;
+let categoriesPromise = null;
+
+/**
+ * Fetches active Puja categories from GET /api/puja-categories with in-memory session caching
+ */
+export const getPujaCategories = async (forceRefresh = false) => {
+  if (cachedCategories && !forceRefresh) {
+    return cachedCategories;
+  }
+
+  if (!categoriesPromise || forceRefresh) {
+    categoriesPromise = api
+      .get("/puja-categories")
+      .then((response) => {
+        const payload = response.data;
+        if (payload && payload.success && Array.isArray(payload.data)) {
+          const sorted = [...payload.data].sort(
+            (a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)
+          );
+          cachedCategories = sorted;
+          return sorted;
+        }
+        return [];
+      })
+      .catch((error) => {
+        categoriesPromise = null;
+        console.error("Failed to fetch puja categories:", error);
+        throw error;
+      });
+  }
+
+  return categoriesPromise;
+};
+
+/**
+ * Fetches a single public Puja category by slug from GET /api/puja-categories/:slug
+ */
+export const getPujaCategoryBySlug = async (slug) => {
+  if (!slug) return null;
+
+  try {
+    const response = await api.get(`/puja-categories/${encodeURIComponent(slug)}`);
+    const payload = response.data;
+
+    if (payload && payload.success && payload.data) {
+      return payload.data;
+    }
+    return null;
+  } catch (error) {
+    if (error.response?.status === 404) {
+      return null;
+    }
+    console.error(`Failed to fetch puja category by slug (${slug}):`, error);
+    throw error;
+  }
+};
+
 export default {
   getPujaServices,
   getPujaServiceBySlug,
   getPujaPurposes,
+  getPujaCategories,
+  getPujaCategoryBySlug,
   mapApiPujaServiceToUi,
   mapApiPujaServiceDetailToUi,
   getServiceFallbackImage,
 };
+

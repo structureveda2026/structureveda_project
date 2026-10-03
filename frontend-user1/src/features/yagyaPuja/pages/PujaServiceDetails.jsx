@@ -189,6 +189,17 @@ const PujaServiceDetails = () => {
             <Link to="/yagya-puja/puja" className="transition-colors hover:text-[#c77722]">
               Puja
             </Link>
+            {service.category?.slug && (
+              <>
+                <BreadcrumbChevron size={13} className="text-[#a89d91]" />
+                <Link
+                  to={`/yagya-puja/puja/category/${service.category.slug}`}
+                  className="transition-colors hover:text-[#c77722]"
+                >
+                  {service.category.name}
+                </Link>
+              </>
+            )}
             <BreadcrumbChevron size={13} className="text-[#a89d91]" />
             <span className="font-semibold text-[#2b241d] truncate max-w-[240px] sm:max-w-none">
               {service.name}
@@ -292,6 +303,16 @@ const PujaServiceDetails = () => {
               </p>
 
               <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                {service.category?.name && (
+                  <Link
+                    to={`/yagya-puja/puja/category/${service.category.slug}`}
+                    className="inline-flex items-center gap-2 rounded-xl border border-[#ead8b8] bg-[#fffaf0] px-3.5 py-1.5 text-[13px] font-semibold text-[#2b241d] shadow-2xs hover:border-[#d4872b] transition-colors"
+                  >
+                    <Sparkles size={14} className="text-[#d4872b]" />
+                    <span>{service.category.name}</span>
+                  </Link>
+                )}
+
                 <div className="inline-flex items-center gap-2 rounded-xl border border-[#ead8b8] bg-[#fffaf0] px-3.5 py-1.5 text-[13px] font-semibold text-[#2b241d] shadow-2xs">
                   <Clock size={14} className="text-[#d4872b]" />
                   <span>Duration: {service.duration || "2 - 3 Hours"}</span>

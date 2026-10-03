@@ -49,6 +49,7 @@ const navItems: NavItem[] = [
     icon: Flame,
     children: [
       { label: "All Puja Services", path: "/admin/puja-services" },
+      { label: "Puja Categories", path: "/admin/puja/categories" },
     ],
   },
   {
