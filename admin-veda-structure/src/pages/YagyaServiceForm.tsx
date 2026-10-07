@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   Save, Plus, Trash2, HelpCircle, Image as ImageIcon, Upload, X,
@@ -209,9 +209,9 @@ export default function YagyaServiceForm() {
     setForm((p) => { const s = [...p.procedureSteps]; s.splice(i, 1); return { ...p, procedureSteps: s }; });
 
 
-  const handleBannerSelect = async (e) => {
+  const handleBannerSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
-    try { mediaUploadService.validateImageFile(file); } catch (err) {
+    try { mediaUploadService.validateImageFile(file); } catch (err: any) {
       toast.error(err.message); if (bannerInputRef.current) bannerInputRef.current.value = ""; return;
     }
     setBannerUploading(true);
@@ -219,12 +219,12 @@ export default function YagyaServiceForm() {
       const r = await mediaUploadService.uploadImage(file, { folder: "veda-structure/yagya-services/banners" });
       setForm((p) => ({ ...p, bannerImage: r.url }));
       toast.success("Banner uploaded.");
-    } catch (err) { toast.error(err.message || "Upload failed."); }
+    } catch (err: any) { toast.error(err.message || "Upload failed."); }
     finally { setBannerUploading(false); if (bannerInputRef.current) bannerInputRef.current.value = ""; }
   };
 
-  const handleGallerySelect = async (e) => {
-    const files = Array.from(e.target.files || []); if (!files.length) return;
+  const handleGallerySelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []) as File[]; if (!files.length) return;
     setGalleryUploading(true);
     try {
       const results = await mediaUploadService.uploadImages(files, {
@@ -233,12 +233,12 @@ export default function YagyaServiceForm() {
       });
       setForm((p) => ({ ...p, galleryImages: [...p.galleryImages, ...results.map((r) => r.url)] }));
       toast.success(`${results.length} image(s) uploaded.`);
-    } catch (err) { toast.error(err.message || "Gallery upload failed."); }
+    } catch (err: any) { toast.error(err.message || "Gallery upload failed."); }
     finally { setGalleryUploading(false); setGalleryProgress(null); if (galleryInputRef.current) galleryInputRef.current.value = ""; }
   };
 
   const validate = () => {
-    const e = {};
+    const e: Record<string, string> = {};
     if (!form.name.trim()) e.name = "Name is required.";
     if (!form.slug.trim()) e.slug = "Slug is required.";
     if (!form.deity.trim()) e.deity = "Deity is required.";
@@ -248,7 +248,7 @@ export default function YagyaServiceForm() {
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = async (ev) => {
+  const handleSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
     if (!validate()) { toast.error("Please fix the highlighted errors."); return; }
     setSubmitting(true);
@@ -294,7 +294,7 @@ export default function YagyaServiceForm() {
         toast.success(`"${form.name}" created.`);
         navigate(`/admin/yagya-services/${created.id}`);
       }
-    } catch (err) { toast.error(err?.message || "Failed to save Yagya service."); }
+    } catch (err: any) { toast.error(err?.message || "Failed to save Yagya service."); }
     finally { setSubmitting(false); }
   };
 
@@ -529,7 +529,7 @@ export default function YagyaServiceForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="label-field">Available Mode</label>
-              <select className="input-field" value={form.availableMode} onChange={(e) => setForm((p) => ({ ...p, availableMode: e.target.value }))}>
+              <select className="input-field" value={form.availableMode} onChange={(e) => setForm((p) => ({ ...p, availableMode: e.target.value as "in_person" | "remote" | "hybrid" }))}>
                 <option value="hybrid">Hybrid (In-Person + Remote)</option>
                 <option value="in_person">In-Person Only</option>
                 <option value="remote">Remote Only</option>

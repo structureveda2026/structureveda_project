@@ -17,6 +17,50 @@ import HomaService from "./homaServiceModel.js";
 import PathPurpose from "./pathPurposeModel.js";
 import PathService from "./pathServiceModel.js";
 import BlogPost from "./blogPostModel.js";
+import Veda from "./vedaModel.js";
+import VedaNode from "./vedaNodeModel.js";
+import VedaMantra from "./vedaMantraModel.js";
+
+// Veda & Hierarchy Associations
+Veda.hasMany(VedaNode, {
+  foreignKey: "vedaId",
+  as: "nodes",
+});
+
+VedaNode.belongsTo(Veda, {
+  foreignKey: "vedaId",
+  as: "veda",
+});
+
+VedaNode.hasMany(VedaNode, {
+  foreignKey: "parentId",
+  as: "children",
+});
+
+VedaNode.belongsTo(VedaNode, {
+  foreignKey: "parentId",
+  as: "parent",
+});
+
+Veda.hasMany(VedaMantra, {
+  foreignKey: "vedaId",
+  as: "mantras",
+});
+
+VedaMantra.belongsTo(Veda, {
+  foreignKey: "vedaId",
+  as: "veda",
+});
+
+VedaNode.hasMany(VedaMantra, {
+  foreignKey: "nodeId",
+  as: "mantras",
+});
+
+VedaMantra.belongsTo(VedaNode, {
+  foreignKey: "nodeId",
+  as: "node",
+});
 
 // Existing Associations (Astrologer Consultations)
 User.hasMany(Booking, {
@@ -156,6 +200,9 @@ const db = {
   PathPurpose,
   PathService,
   BlogPost,
+  Veda,
+  VedaNode,
+  VedaMantra,
 };
 
 export {
@@ -177,5 +224,8 @@ export {
   PathPurpose,
   PathService,
   BlogPost,
+  Veda,
+  VedaNode,
+  VedaMantra,
 };
 export default db;

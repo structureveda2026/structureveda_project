@@ -20,8 +20,14 @@ import homaServiceAdminRoutes from "./routes/homaServiceAdmin.routes.js";
 import pathServiceRoutes from "./routes/pathService.routes.js";
 import pathServiceAdminRoutes from "./routes/pathServiceAdmin.routes.js";
 
-// Library Module routes
-import { blogAdminRoutes, blogPublicRoutes } from "./modules/library/index.js";
+// Library Module routes (Blogs, Vedas, Mantras & Suktas)
+import {
+  blogAdminRoutes,
+  blogPublicRoutes,
+  vedaPublicRoutes,
+  vedaAdminRoutes,
+  vedaMantraAdminRoutes,
+} from "./modules/library/index.js";
 
 const app = express();
 
@@ -33,12 +39,13 @@ app.use(
 
 app.use(
   express.json({
+    limit: "50mb",
     verify: (req, res, buf) => {
       req.rawBody = buf.toString();
     },
   }),
 );
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({
@@ -71,5 +78,15 @@ app.use("/api/admin/library/blogs", blogAdminRoutes);
 app.use("/api/admin/blogs", blogAdminRoutes);
 app.use("/api/library/blogs", blogPublicRoutes);
 app.use("/api/blogs", blogPublicRoutes);
+
+// Veda & Mantra Library Endpoints
+app.use("/api/admin/library/vedas", vedaAdminRoutes);
+app.use("/api/admin/vedas", vedaAdminRoutes);
+app.use("/api/admin/library/mantras", vedaMantraAdminRoutes);
+app.use("/api/admin/mantras", vedaMantraAdminRoutes);
+
+app.use("/api/library", vedaPublicRoutes);
+app.use("/api/vedas", vedaPublicRoutes);
+app.use("/api/mantras", vedaPublicRoutes);
 
 export default app;

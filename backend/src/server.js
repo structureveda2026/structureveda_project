@@ -21,7 +21,13 @@ import homaServiceRoutes from "./routes/homaService.routes.js";
 import homaServiceAdminRoutes from "./routes/homaServiceAdmin.routes.js";
 import pathServiceRoutes from "./routes/pathService.routes.js";
 import pathServiceAdminRoutes from "./routes/pathServiceAdmin.routes.js";
-import { blogAdminRoutes, blogPublicRoutes } from "./modules/library/index.js";
+import {
+  blogAdminRoutes,
+  blogPublicRoutes,
+  vedaPublicRoutes,
+  vedaAdminRoutes,
+  vedaMantraAdminRoutes,
+} from "./modules/library/index.js";
 
 dotenv.config();
 
@@ -33,12 +39,13 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(
   express.json({
+    limit: "50mb",
     verify: (req, res, buf) => {
       req.rawBody = buf.toString();
     },
   }),
 );
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 // Health check
 app.get("/api/health", (req, res) => {
@@ -67,11 +74,20 @@ app.use("/api/admin/homa-services", homaServiceAdminRoutes);
 app.use("/api/path-services", pathServiceRoutes);
 app.use("/api/admin/path-services", pathServiceAdminRoutes);
 
-// Library Module Endpoints (Standard & Aliases)
+// Library Module Endpoints (Blogs, Vedas, Mantras)
 app.use("/api/admin/library/blogs", blogAdminRoutes);
 app.use("/api/admin/blogs", blogAdminRoutes);
 app.use("/api/library/blogs", blogPublicRoutes);
 app.use("/api/blogs", blogPublicRoutes);
+
+app.use("/api/admin/library/vedas", vedaAdminRoutes);
+app.use("/api/admin/vedas", vedaAdminRoutes);
+app.use("/api/admin/library/mantras", vedaMantraAdminRoutes);
+app.use("/api/admin/mantras", vedaMantraAdminRoutes);
+
+app.use("/api/library", vedaPublicRoutes);
+app.use("/api/vedas", vedaPublicRoutes);
+app.use("/api/mantras", vedaPublicRoutes);
 
 const startServer = async () => {
   try {

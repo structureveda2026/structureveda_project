@@ -323,7 +323,7 @@ export default function YagyaServiceDetail() {
           {/* Samagri */}
           {Array.isArray(service.samagri) && service.samagri.length > 0 && (
             <SectionCard title="Samagri (Ritual Materials)" icon={Layers}>
-              <TagList items={service.samagri as string[]} colorClass="bg-amber-50 text-amber-800 border border-amber-200" />
+              <TagList items={service.samagri as any} colorClass="bg-amber-50 text-amber-800 border border-amber-200" />
               {service.prasad && (
                 <div className="mt-3">
                   <InfoRow label="Prasad" value={service.prasad} />

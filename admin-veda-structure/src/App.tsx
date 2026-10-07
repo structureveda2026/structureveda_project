@@ -25,11 +25,17 @@ import PathServiceForm from "@/pages/PathServiceForm";
 import PathServiceDetail from "@/pages/PathServiceDetail";
 import ConsultationDetail from "@/pages/ConsultationDetail";
 
-// Veda Library Module (Modular Architecture)
+// Veda Library Module (Blogs, Vedas, Mantras & Suktas)
 import {
   BlogListPage,
   BlogFormPage,
   BlogDetailPage,
+  VedaListPage,
+  VedaFormPage,
+  VedaTreePage,
+  MantraListPage,
+  MantraFormPage,
+  MantraDetailPage,
 } from "@/modules/library";
 
 export default function App() {
@@ -87,6 +93,30 @@ export default function App() {
               <Route path="path-services/new" element={<PathServiceForm />} />
               <Route path="path-services/:id" element={<PathServiceDetail />} />
               <Route path="path-services/:id/edit" element={<PathServiceForm />} />
+
+              {/* Veda Library Module - Vedas (Ved) */}
+              <Route path="library/vedas" element={<VedaListPage />} />
+              <Route path="library/vedas/new" element={<VedaFormPage />} />
+              <Route path="library/vedas/:id" element={<VedaTreePage />} />
+              <Route path="library/vedas/:id/edit" element={<VedaFormPage />} />
+              <Route path="library/vedas/:id/structure" element={<VedaTreePage />} />
+
+              {/* Veda Library Module - Mantras & Suktas */}
+              <Route path="library/mantras" element={<MantraListPage />} />
+              <Route path="library/mantras/new" element={<MantraFormPage />} />
+              <Route path="library/mantras/:id" element={<MantraDetailPage />} />
+              <Route path="library/mantras/:id/edit" element={<MantraFormPage />} />
+
+              {/* Direct Veda Aliases */}
+              <Route path="vedas" element={<VedaListPage />} />
+              <Route path="vedas/new" element={<VedaFormPage />} />
+              <Route path="vedas/:id" element={<VedaTreePage />} />
+              <Route path="vedas/:id/edit" element={<VedaFormPage />} />
+              <Route path="vedas/:id/structure" element={<VedaTreePage />} />
+              <Route path="mantras" element={<MantraListPage />} />
+              <Route path="mantras/new" element={<MantraFormPage />} />
+              <Route path="mantras/:id" element={<MantraDetailPage />} />
+              <Route path="mantras/:id/edit" element={<MantraFormPage />} />
 
               {/* Veda Library Module - Blog Routes */}
               <Route path="library/blogs" element={<BlogListPage />} />

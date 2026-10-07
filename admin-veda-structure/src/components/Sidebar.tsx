@@ -85,9 +85,11 @@ const navItems: NavItem[] = [
   },
   {
     label: "Library",
-    path: "/admin/library/blogs",
+    path: "/admin/library/vedas",
     icon: BookOpen,
     children: [
+      { label: "Ved (Vedas)", path: "/admin/library/vedas" },
+      { label: "Mantras & Suktas", path: "/admin/library/mantras" },
       { label: "Blog Posts", path: "/admin/library/blogs" },
     ],
   },

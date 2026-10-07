@@ -3,34 +3,52 @@ import Modal from './Modal';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
+  onClose?: () => void;
+  onCancel?: () => void;
+  onConfirm: () => void | Promise<void>;
   title: string;
   message: string;
   confirmText?: string;
+  confirmLabel?: string;
   cancelText?: string;
   danger?: boolean;
+  type?: string;
+  variant?: string;
 }
 
 export default function ConfirmDialog({
-  isOpen, onClose, onConfirm, title, message,
-  confirmText = 'Confirm', cancelText = 'Cancel', danger = false,
+  isOpen,
+  onClose,
+  onCancel,
+  onConfirm,
+  title,
+  message,
+  confirmText,
+  confirmLabel,
+  cancelText = 'Cancel',
+  danger = false,
+  type,
+  variant,
 }: ConfirmDialogProps) {
+  const handleClose = onClose || onCancel || (() => {});
+  const isDanger = danger || type === 'danger' || variant === 'danger';
+  const actionText = confirmText || confirmLabel || 'Confirm';
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={title} size="sm">
+    <Modal isOpen={isOpen} onClose={handleClose} title={title} size="sm">
       <div className="flex gap-4">
-        <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${danger ? 'bg-red-50' : 'bg-saffron-50'}`}>
-          <AlertTriangle className={`w-6 h-6 ${danger ? 'text-red-500' : 'text-saffron-500'}`} />
+        <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${isDanger ? 'bg-red-50' : 'bg-saffron-50'}`}>
+          <AlertTriangle className={`w-6 h-6 ${isDanger ? 'text-red-500' : 'text-saffron-500'}`} />
         </div>
         <p className="text-sm text-charcoal-600 pt-3">{message}</p>
       </div>
       <div className="flex justify-end gap-3 mt-6">
-        <button onClick={onClose} className="btn-secondary">{cancelText}</button>
+        <button onClick={handleClose} className="btn-secondary">{cancelText}</button>
         <button
-          onClick={() => { onConfirm(); onClose(); }}
-          className={danger ? 'btn-danger' : 'btn-primary'}
+          onClick={async () => { await onConfirm(); handleClose(); }}
+          className={isDanger ? 'btn-danger' : 'btn-primary'}
         >
-          {confirmText}
+          {actionText}
         </button>
       </div>
     </Modal>
