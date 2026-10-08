@@ -1,0 +1,762 @@
+{
+  "vedaId": "samaveda",
+  "vedaName": "सामवेद (Samaveda)",
+  "shakha": "कौथुम शाखा एवं जैमिनीय शाखा",
+  "source": "Government of India Vedic Heritage Portal (vedicheritage.gov.in)",
+  "description": "Authentic curated Samaveda Suktas, Parvas, and Mantras sourced from the Vedic Heritage Portal, featuring Kauthuma Shakha Poorvarchik and Uttararchik, Jaiminiya Shakha, and Chandogya Upanishad Udgitha Vidya.",
+  "nodes": [
+    {
+      "id": "kauthuma-shakha",
+      "slug": "kauthuma-shakha",
+      "vedaId": "samaveda",
+      "parentId": null,
+      "nodeType": "SHAKHA",
+      "name": "कौथुम शाखा (Kauthuma Shakha)",
+      "enName": "Kauthuma Shakha",
+      "desc": "सामवेद की सर्वाधिक प्रसिद्ध एवं प्रामाणिक शाखा। उत्तर भारत, गुजरात, मिथिला तथा बंगाल में प्रचलित। इसमें पूर्वार्चिक, उत्तरार्चिक तथा चार प्रकार के गान (ग्रामगेय, आरण्यगेय, ऊह, ऊह्य गान) समाहित हैं।",
+      "stats": "१८७५ मन्त्र • पूर्वार्चिक व उत्तरार्चिक",
+      "priest": "उद्गातृ (Udgatri)",
+      "badge": "प्रधान शाखा",
+      "imageKey": "card-kauthuma-shakha.jpg",
+      "mantraId": "sv-1-1-1",
+      "orderIndex": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "sv-poorvarchik",
+      "slug": "sv-poorvarchik",
+      "vedaId": "samaveda",
+      "parentId": "kauthuma-shakha",
+      "nodeType": "ARCHIKA",
+      "name": "पूर्वार्चिक (Poorvarchik - First Chanting Book)",
+      "enName": "Poorvarchik (First Part)",
+      "desc": "कौथुम सामवेद संहिता का प्रथम भाग जिसमें ६ प्रपाठक, ६५० ऋचाएँ हैं। यह आग्नेय काण्ड, ऐन्द्र पर्व, पवमान काण्ड तथा आरण्य काण्ड में विभाजित है।",
+      "stats": "६ प्रपाठक • ६५० मन्त्र",
+      "priest": "उद्गातृ (Udgatri)",
+      "badge": "पूर्वार्चिक",
+      "imageKey": "card-samhita.jpg",
+      "mantraId": "sv-1-1-1",
+      "orderIndex": 2,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "sv-agneya-kanda",
+      "slug": "sv-agneya-kanda",
+      "vedaId": "samaveda",
+      "parentId": "sv-poorvarchik",
+      "nodeType": "KANDA",
+      "name": "आग्नेय काण्ड (Agneya Kanda)",
+      "enName": "Agneya Kanda (Agni Hymns)",
+      "desc": "पूर्वार्चिक का प्रथम प्रपाठक (काण्ड)। इसमें अग्निदेव की स्तुति में ११४ सामगान मन्त्र हैं, जिनका शुभारम्भ 'अग्न आ याहि वीतये' से होता है।",
+      "stats": "११४ मन्त्र • प्रपाठक १",
+      "priest": "उद्गातृ (Udgatri)",
+      "badge": "काण्ड",
+      "imageKey": "card-sukta-agni.jpg",
+      "mantraId": "sv-1-1-1",
+      "orderIndex": 3,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "sv-aindra-parva",
+      "slug": "sv-aindra-parva",
+      "vedaId": "samaveda",
+      "parentId": "sv-poorvarchik",
+      "nodeType": "PARVA",
+      "name": "ऐन्द्र पर्व (Aindra Parva)",
+      "enName": "Aindra Parva (Indra Hymns)",
+      "desc": "पूर्वार्चिक का द्वितीय, तृतीय एवं चतुर्थ प्रपाठक। इसमें देवाधिदेव इन्द्र की असीम शक्ति, पराक्रम, सोमपान तथा विजय की महिमा में ३५२ सामगान मन्त्र हैं।",
+      "stats": "३५२ मन्त्र • प्रपाठक २-४",
+      "priest": "उद्गातृ (Udgatri)",
+      "badge": "पर्व",
+      "imageKey": "card-sukta-indra.jpg",
+      "mantraId": "sv-1-2-1",
+      "orderIndex": 4,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "sv-pavamana-kanda",
+      "slug": "sv-pavamana-kanda",
+      "vedaId": "samaveda",
+      "parentId": "sv-poorvarchik",
+      "nodeType": "KANDA",
+      "name": "पवमान काण्ड (Pavamana Kanda)",
+      "enName": "Pavamana Kanda (Soma Hymns)",
+      "desc": "पूर्वार्चिक का पंचम प्रपाठक। इसमें पवमान सोम (शोधित अमृत रस) की स्तुति में ११९ साम मन्त्र हैं, जो आन्तरिक शुद्धि और चेतना के उत्थान का सामगान हैं।",
+      "stats": "११९ मन्त्र • प्रपाठक ५",
+      "priest": "उद्गातृ (Udgatri)",
+      "badge": "काण्ड",
+      "imageKey": "card-sukta-soma.jpg",
+      "mantraId": "sv-2-1-1",
+      "orderIndex": 5,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "sv-aranya-kanda",
+      "slug": "sv-aranya-kanda",
+      "vedaId": "samaveda",
+      "parentId": "sv-poorvarchik",
+      "nodeType": "KANDA",
+      "name": "आरण्य काण्ड (Aranya Kanda)",
+      "enName": "Aranya Kanda (Forest Chants)",
+      "desc": "पूर्वार्चिक का षष्ठ प्रपाठक। यह अरण्य (वन के एकान्त) में ऋषि-मुनियों द्वारा गाए जाने वाले ५५ अत्यन्त गूढ़, रहस्यमयी एवं आध्यात्मिक सामगानों का संग्रह है।",
+      "stats": "५५ मन्त्र • प्रपाठक ६",
+      "priest": "उद्गातृ (Udgatri)",
+      "badge": "काण्ड",
+      "imageKey": "card-aranya-kanda.jpg",
+      "mantraId": null,
+      "orderIndex": 6,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "sv-uttararchik",
+      "slug": "sv-uttararchik",
+      "vedaId": "samaveda",
+      "parentId": "kauthuma-shakha",
+      "nodeType": "ARCHIKA",
+      "name": "उत्तरार्चिक (Uttararchik - Ritual Hymns)",
+      "enName": "Uttararchik (Second Part)",
+      "desc": "कौथुम संहिता का द्वितीय भाग जिसमें ९ प्रपाठक, ४०० सूक्त (तृच समूह) तथा १२२५ मन्त्र हैं। यह सोमयाग, अग्निष्टोम, राजसूय आदि श्रौत याज्ञिक अनुष्ठानों में उद्गाता द्वारा गाया जाता है।",
+      "stats": "९ प्रपाठक • ४०० तृच • १२२५ मन्त्र",
+      "priest": "उद्गातृ (Udgatri)",
+      "badge": "उत्तरार्चिक",
+      "imageKey": "card-uttararchik.jpg",
+      "mantraId": "sv-2-1-1",
+      "orderIndex": 7,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "jaiminiya-shakha",
+      "slug": "jaiminiya-shakha",
+      "vedaId": "samaveda",
+      "parentId": null,
+      "nodeType": "SHAKHA",
+      "name": "जैमिनीय शाखा (Jaiminiya Shakha / Talavakara)",
+      "enName": "Jaiminiya Shakha",
+      "desc": "सामवेद की दक्षिण भारत (विशेषतः केरल एवं तमिलनाडु के नम्बूदरी ब्राह्मणों) में संरक्षित प्राचीन शाखा, जिसे तलवकार शाखा भी कहते हैं। इसमें जैमिनीय संहिता (१६८७ मन्त्र), जैमिनीय ब्राह्मण एवं केनोपनिषद् सम्मिलित हैं।",
+      "stats": "१६८७ मन्त्र • जैमिनीय ब्राह्मण व केनोपनिषद्",
+      "priest": "उद्गातृ (Udgatri)",
+      "badge": "शाखा",
+      "imageKey": "card-jaiminiya-shakha.jpg",
+      "mantraId": null,
+      "orderIndex": 8,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "chandogya-udgitha",
+      "slug": "chandogya-udgitha",
+      "vedaId": "samaveda",
+      "parentId": "kauthuma-shakha",
+      "nodeType": "UPANISHAD",
+      "name": "छान्दोग्योपनिषद्: उद्गीथ विद्या (Chandogya Upanishad: Udgitha Vidya)",
+      "enName": "Chandogya Upanishad: Udgitha Vidya",
+      "desc": "सामवेदीय छान्दोग्योपनिषद् का प्रथम प्रपाठक। इसमें ओंकार (प्रणव) को उद्गीथ मानकर उसकी रसतम, प्राणमयी, वाङ्मयी तथा ब्रह्म रूप में उपासना का निरूपण है ('ॐ इत्येतदक्षरमुद्गीथमुपासीत')।",
+      "stats": "प्रपाठक १ • ओंकार उद्गीथ उपासना",
+      "priest": "उद्गातृ (Udgatri)",
+      "badge": "उपनिषद्",
+      "imageKey": "card-grantha-chandogya.jpg",
+      "mantraId": "sv-ch-1-1",
+      "orderIndex": 9,
+      "status": "ACTIVE"
+    }
+  ],
+  "mantras": [
+    {
+      "id": "sv-1-1-1",
+      "slug": "sv-1-1-1",
+      "vedaId": "samaveda",
+      "nodeId": "sv-agneya-kanda",
+      "vedaName": "सामवेद (Samaveda)",
+      "shakha": "कौथुम शाखा",
+      "textName": "सामवेद संहिता (पूर्वार्चिक - आग्नेय काण्ड)",
+      "sectionRef": "पूर्वार्चिक, प्रपाठक १, दशति १, मन्त्र १ (ऋग्वेद ६.१६.१० से सामगान)",
+      "mantraNumber": "१.१.१",
+      "rishi": "भारद्वाज बार्हस्पत्य",
+      "devata": "अग्नि (Agni)",
+      "chhanda": "गायत्री (८+८+८ = २४ वर्ण)",
+      "svara": "सामगान सप्त स्वर (कृष्ठ, प्रथम, द्वितीय, तृतीय, चतुर्थ, मन्द्र, अतिस्वार्य)",
+      "sanskrit": "ॐ अ॒ग्न आ या॑हि वी॒तये॑ गृणा॒नो ह॒व्यदा॑तये।\nनि होता॑ सत्सि ब॒र्हिषि॑॥१॥",
+      "transliteration": "oṃ agna ā yāhi vītaye gṛṇāno havyadātaye |\nni hotā satsi barhiṣi || 1 ||",
+      "hindiTranslation": "हे अग्निदेव! आप स्तुति किए जाने पर हमारी हवि ग्रहण करने और यज्ञ की रक्षा के लिए पधारें; और मुख्य होता के रूप में हमारे इस पवित्र कुशासन (बर्हि) पर विराजमान हों।",
+      "englishTranslation": "O Agni, invoked and praised by our sacred hymns, come hither to feast upon the oblation; sit down as the divine presiding priest upon the sacred sacrificial grass (barhis).",
+      "hinglishTranslation": "Hey Agni Dev! Hamari stuti sunkar yagya mein havi grahan karne ke liye padharein aur mukhya hota ke roop mein hamare pavitra kusha aasan (barhi) par virajman hon.",
+      "padapatha": [
+        {
+          "word": "अग्ने॑",
+          "meaning": "हे अग्निदेव!"
+        },
+        {
+          "word": "आ",
+          "meaning": "यहाँ"
+        },
+        {
+          "word": "या॒हि॒",
+          "meaning": "पधारिए / आइए"
+        },
+        {
+          "word": "वी॒तये॑",
+          "meaning": "हवि भक्षण व यज्ञ रक्षा हेतु"
+        },
+        {
+          "word": "गृ॒णा॒नः",
+          "meaning": "स्तुति किए जाते हुए / वन्दना सुनते हुए"
+        },
+        {
+          "word": "ह॒व्यऽदा॑तये",
+          "meaning": "हवि प्रदान करने के लिए"
+        },
+        {
+          "word": "नि",
+          "meaning": "निश्चयपूर्वक / सादर"
+        },
+        {
+          "word": "होता॑",
+          "meaning": "यज्ञ के मुख्य होता रूप में"
+        },
+        {
+          "word": "सत्सि",
+          "meaning": "बैठिए / आसीन होइए"
+        },
+        {
+          "word": "ब॒र्हिषि॑",
+          "meaning": "कुश के पवित्र आसन पर"
+        }
+      ],
+      "shastricContext": "सामवेद का सर्वप्रमुख मंगलाचरण मन्त्र। इस मन्त्र पर गान की अनेक साम प्रवृत्तियाँ (यथा गौतमीय गान) आश्रित हैं। सामवेद में ऋचाओं का गायन भारतीय शास्त्रीय संगीत के सप्तस्वरों (षड्ज, ऋषभ, गान्धार, मध्यम, पञ्चम, धैवत, निषाद) के उद्गम का आधार माना जाता है।",
+      "audioUrl": null,
+      "previousId": null,
+      "nextId": "sv-1-1-2",
+      "chapterMantraIds": [
+        "sv-1-1-1",
+        "sv-1-1-2",
+        "sv-1-1-3"
+      ],
+      "orderIndex": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "sv-1-1-2",
+      "slug": "sv-1-1-2",
+      "vedaId": "samaveda",
+      "nodeId": "sv-agneya-kanda",
+      "vedaName": "सामवेद (Samaveda)",
+      "shakha": "कौथुम शाखा",
+      "textName": "सामवेद संहिता (पूर्वार्चिक - आग्नेय काण्ड)",
+      "sectionRef": "पूर्वार्चिक, प्रपाठक १, दशति १, मन्त्र २ (ऋग्वेद ६.१६.१)",
+      "mantraNumber": "१.१.२",
+      "rishi": "भारद्वाज बार्हस्पत्य",
+      "devata": "अग्नि (Agni)",
+      "chhanda": "गायत्री",
+      "svara": "सामगान स्वर",
+      "sanskrit": "ॐ त्वम॑ग्ने य॒ज्ञानां॒ होता॒ विश्वा॑षां हि॒तः।\nदे॒वेभि॒र्मानु॑षे॒ जने॑॥२॥",
+      "transliteration": "oṃ tvam agne yajñānāṃ hotā viśvāsāṃ hitaḥ |\ndevebhir mānuṣe jane || 2 ||",
+      "hindiTranslation": "हे अग्निदेव! समस्त मानवों के कल्याणकारी यज्ञों में देवताओं द्वारा आप ही मुख्य होता (आह्वानकर्ता पुरोहित) एवं सर्वहितैषी के रूप में प्रतिष्ठित किए गए हैं।",
+      "englishTranslation": "O Agni, thou art established by the gods among mortal beings as the supreme invoking priest and benefactor of all holy sacrifices.",
+      "hinglishTranslation": "Hey Agni Dev! Manushyo ke kalyankari yagyo mein devtaon dwara aap hi mukhya hota aur sarva-hitashi ke roop mein sthapit kiye gaye hain.",
+      "padapatha": [
+        {
+          "word": "त्वम्",
+          "meaning": "आप"
+        },
+        {
+          "word": "अग्ने॑",
+          "meaning": "हे अग्निदेव!"
+        },
+        {
+          "word": "य॒ज्ञानाम्",
+          "meaning": "समस्त यज्ञों के"
+        },
+        {
+          "word": "होता॑",
+          "meaning": "आह्वानकर्ता होता"
+        },
+        {
+          "word": "विश्वा॑षाम्",
+          "meaning": "समस्त प्रजाओं / यज्ञों के"
+        },
+        {
+          "word": "हि॒तः",
+          "meaning": "कल्याणकारी / हितैषी रूप में"
+        },
+        {
+          "word": "दे॒वेभिः॑",
+          "meaning": "देवताओं द्वारा"
+        },
+        {
+          "word": "मानु॑षे",
+          "meaning": "मानव"
+        },
+        {
+          "word": "जने॑",
+          "meaning": "समाज / मनुष्यों में"
+        }
+      ],
+      "shastricContext": "अग्निदेव को मर्त्य (मनुष्य) और अमर्त्य (देवता) के मध्य का सेतु और यज्ञ का सर्वोच्च हितकारी पुरोहित स्वीकार करने वाला पावन सामगान मन्त्र। सामगान में यह मन्त्र देव-मानव समन्वय का गान करता है।",
+      "audioUrl": null,
+      "previousId": "sv-1-1-1",
+      "nextId": "sv-1-1-3",
+      "chapterMantraIds": [
+        "sv-1-1-1",
+        "sv-1-1-2",
+        "sv-1-1-3"
+      ],
+      "orderIndex": 2,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "sv-1-1-3",
+      "slug": "sv-1-1-3",
+      "vedaId": "samaveda",
+      "nodeId": "sv-agneya-kanda",
+      "vedaName": "सामवेद (Samaveda)",
+      "shakha": "कौथुम शाखा",
+      "textName": "सामवेद संहिता (पूर्वार्चिक - आग्नेय काण्ड)",
+      "sectionRef": "पूर्वार्चिक, प्रपाठक १, दशति १, मन्त्र ३ (ऋग्वेद १.१२.१)",
+      "mantraNumber": "१.१.३",
+      "rishi": "मेधातिथि काण्व",
+      "devata": "अग्नि (Agni - Duta)",
+      "chhanda": "गायत्री",
+      "svara": "सामगान स्वर",
+      "sanskrit": "ॐ अ॒ग्निं दू॒तं पु॒रो द॑धे हव्य॒वाह॒मुप॑ ब्रुवे।\nदे॒वाँ आ सा॑दया॒दिह॑॥३॥",
+      "transliteration": "oṃ agniṃ dūtaṃ puro dadhe havyavāham upa bruve |\ndevāṃ ā sādayād iha || 3 ||",
+      "hindiTranslation": "मैं देवदूत रूप अग्नि को अपने सम्मुख (अग्रणी पुरोहित रूप में) स्थापित करता हूँ और हव्यवाह (हवि को देवों तक पहुँचाने वाले) अग्नि की प्रार्थना करता हूँ, जिससे वे समस्त देवों को यहाँ यज्ञवेदी पर लाएँ।",
+      "englishTranslation": "I place in front Agni, the divine messenger and bearer of oblations, and invoke him that he may bring and seat the gods here upon our sacrifice.",
+      "hinglishTranslation": "Main divya sandeshvahak Agni Dev ko apne aagey sthapit karta hoon aur havi le jane wale Agni ki prarthana karta hoon, taaki ve sabhi devtaon ko is yagya mein aasan par virajman karein.",
+      "padapatha": [
+        {
+          "word": "अ॒ग्निम्",
+          "meaning": "अग्निदेव को"
+        },
+        {
+          "word": "दू॒तम्",
+          "meaning": "देवदूत रूप में"
+        },
+        {
+          "word": "पु॒रः",
+          "meaning": "सम्मुख / आगे"
+        },
+        {
+          "word": "द॒धे॒",
+          "meaning": "स्थापित करता हूँ"
+        },
+        {
+          "word": "ह॒व्य॒ऽवाह॑म्",
+          "meaning": "हवि को देवताओं तक पहुँचाने वाले को"
+        },
+        {
+          "word": "उप॑",
+          "meaning": "समीप आकर"
+        },
+        {
+          "word": "ब्रु॒वे॒",
+          "meaning": "प्रार्थना करता हूँ / पुकारता हूँ"
+        },
+        {
+          "word": "दे॒वान्",
+          "meaning": "दिव्य देवताओं को"
+        },
+        {
+          "word": "आ",
+          "meaning": "यहाँ"
+        },
+        {
+          "word": "सा॒द॒या॒त्",
+          "meaning": "विराजमान कराएं"
+        },
+        {
+          "word": "इ॒ह",
+          "meaning": "इस यज्ञ स्थल पर"
+        }
+      ],
+      "shastricContext": "अग्नि को 'हव्यवाह' (हवि ले जाने वाला) एवं 'दूत' (यजमान और देवताओं के बीच संदेशवाहक) रूप में प्रतिष्ठापित करने वाला सुप्रसिद्ध मन्त्र। सामगान में यह मन्त्र देवों के पृथ्वी पर आगमन का संगीतमय आह्वान है।",
+      "audioUrl": null,
+      "previousId": "sv-1-1-2",
+      "nextId": "sv-1-2-1",
+      "chapterMantraIds": [
+        "sv-1-1-1",
+        "sv-1-1-2",
+        "sv-1-1-3"
+      ],
+      "orderIndex": 3,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "sv-1-2-1",
+      "slug": "sv-1-2-1",
+      "vedaId": "samaveda",
+      "nodeId": "sv-aindra-parva",
+      "vedaName": "सामवेद (Samaveda)",
+      "shakha": "कौथुम शाखा",
+      "textName": "सामवेद संहिता (पूर्वार्चिक - ऐन्द्र पर्व)",
+      "sectionRef": "पूर्वार्चिक, प्रपाठक २, दशति १, मन्त्र १ (ऋग्वेद १.७.१)",
+      "mantraNumber": "१.२.१",
+      "rishi": "मधुच्छन्दा वैश्वामित्र",
+      "devata": "इन्द्र (Indra)",
+      "chhanda": "गायत्री",
+      "svara": "सामगान स्वर",
+      "sanskrit": "ॐ इन्द्र॒मिद्गा॒थिनो॑ बृ॒हदिन्द्र॑म॒र्केभि॑र॒र्किनः॑।\nइन्द्रं॒ वाणी॑रनूषत॥१॥",
+      "transliteration": "oṃ indram id gāthino bṛhad indram arkebhir arkinaḥ |\nindraṃ vāṇīr anūṣata || 1 ||",
+      "hindiTranslation": "गायक (गाथा गाने वाले उद्गाता) विशाल इन्द्र का ही गान करते हैं, ऋचाओं के पाठकर्ता ऋत्विक मन्त्रों से इन्द्र की ही स्तुति करते हैं, और विविध संगीत वाणी (गीतियाँ) इन्द्र का ही जयघोष करती हैं।",
+      "englishTranslation": "The singers glorify Indra with vast chants, the worshippers praise Indra with sacred hymns, and the diverse melodies of sacred speech sing Indra's renown.",
+      "hinglishTranslation": "Gayan karne wale Udgata vishal Indra ka hi gayan karte hain, archana karne wale rishi mantra-stuti se Indra ko sarhate hain, aur vibhinn sangeet mayi vaniyan Indra ka hi gunogan karti hain.",
+      "padapatha": [
+        {
+          "word": "इन्द्र॑म्",
+          "meaning": "इन्द्रदेव को"
+        },
+        {
+          "word": "इत्",
+          "meaning": "ही / केवल"
+        },
+        {
+          "word": "गा॒थिनः॑",
+          "meaning": "गाथा गाने वाले उद्गाता"
+        },
+        {
+          "word": "बृ॒हत्",
+          "meaning": "विशाल / उच्च स्वर से"
+        },
+        {
+          "word": "इन्द्र॑म्",
+          "meaning": "इन्द्रदेव को"
+        },
+        {
+          "word": "अ॒र्केभिः॑",
+          "meaning": "अर्चन योग्य मन्त्रों से"
+        },
+        {
+          "word": "अ॒र्किनः॑",
+          "meaning": "स्तुतिकर्ता ऋत्विक"
+        },
+        {
+          "word": "इन्द्र॑म्",
+          "meaning": "इन्द्रदेव का"
+        },
+        {
+          "word": "वाणीः॑",
+          "meaning": "विविध स्वर-लहरियाँ व गीतियाँ"
+        },
+        {
+          "word": "अ॒नू॒ष॒त",
+          "meaning": "गान करती हैं / जयघोष करती हैं"
+        }
+      ],
+      "shastricContext": "ऐन्द्र पर्व का प्रसिद्ध मन्त्र जो वैदिक संगीत के विभिन्न पक्षों—गाथा (सामगान), अर्क (ऋचा पाठ) एवं वाणी (स्वर-ध्वनि)—का समन्वय इन्द्र की महिमा में प्रस्तुत करता है।",
+      "audioUrl": null,
+      "previousId": "sv-1-1-3",
+      "nextId": "sv-1-2-2",
+      "chapterMantraIds": [
+        "sv-1-2-1",
+        "sv-1-2-2"
+      ],
+      "orderIndex": 4,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "sv-1-2-2",
+      "slug": "sv-1-2-2",
+      "vedaId": "samaveda",
+      "nodeId": "sv-aindra-parva",
+      "vedaName": "सामवेद (Samaveda)",
+      "shakha": "कौथुम शाखा",
+      "textName": "सामवेद संहिता (पूर्वार्चिक - ऐन्द्र पर्व)",
+      "sectionRef": "पूर्वार्चिक, प्रपाठक २, दशति १, मन्त्र २ (ऋग्वेद १.७.२)",
+      "mantraNumber": "१.२.२",
+      "rishi": "मधुच्छन्दा वैश्वामित्र",
+      "devata": "इन्द्र (Indra)",
+      "chhanda": "गायत्री",
+      "svara": "सामगान स्वर",
+      "sanskrit": "ॐ इन्द्र॒ इद्धर्योः॒ सचा॒ संमि॑श्ल॒ आ व॑चो॒युजा॑।\nइन्द्रो॑ व॒ज्री हिर॑ण्ययः॥२॥",
+      "transliteration": "oṃ indra id dharyoḥ sacā sammiśla ā vacoyujā |\nindro vajrī hiraṇyayaḥ || 2 ||",
+      "hindiTranslation": "वाणी के संकेत मात्र से रथ में जुतने वाले अपने दोनों अश्वों (हरियों) के साथ इन्द्रदेव ही सम्मिलित होते हैं। वे इन्द्रदेव वज्रधारी तथा सुवर्णमय दिव्य आभा से सुशोभित हैं।",
+      "englishTranslation": "Indra alone is united with his two bay steeds that are yoked at prayer's word; Indra is the wielder of the thunderbolt (vajra) and resplendent like gold.",
+      "hinglishTranslation": "Vani ke sanket se jutne wale apne do peele ghodo ke saath Indra Dev aate hain; ve vajradhari Indra swarnamay divya aabha se chamak rahe hain.",
+      "padapatha": [
+        {
+          "word": "इन्द्रः॑",
+          "meaning": "इन्द्रदेव"
+        },
+        {
+          "word": "इत्",
+          "meaning": "ही"
+        },
+        {
+          "word": "हर्योः॑",
+          "meaning": "दोनों हरित/पीत अश्वों के साथ"
+        },
+        {
+          "word": "सचा॑",
+          "meaning": "सहित / संयुक्त होकर"
+        },
+        {
+          "word": "सम्ऽमि॑श्लः",
+          "meaning": "भली-भांति मिले हुए"
+        },
+        {
+          "word": "आ",
+          "meaning": "आते हैं"
+        },
+        {
+          "word": "व॒चः॒ऽयुजा॑",
+          "meaning": "वाणी या स्तुति मात्र से जुतने वाले"
+        },
+        {
+          "word": "इन्द्रः॑",
+          "meaning": "इन्द्रदेव"
+        },
+        {
+          "word": "व॒ज्री",
+          "meaning": "वज्र को धारण करने वाले"
+        },
+        {
+          "word": "हिर॑ण्ययः",
+          "meaning": "सुवर्णमय / प्रकाशवान्"
+        }
+      ],
+      "shastricContext": "इन्द्र के रथ, वज्र एवं मनःसंकल्प से चलने वाले अश्वों का सामगान रूप में वर्णन, जो संकल्प-शक्ति की त्वरित गति और सामर्थ्य का द्योतक है।",
+      "audioUrl": null,
+      "previousId": "sv-1-2-1",
+      "nextId": "sv-2-1-1",
+      "chapterMantraIds": [
+        "sv-1-2-1",
+        "sv-1-2-2"
+      ],
+      "orderIndex": 5,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "sv-2-1-1",
+      "slug": "sv-2-1-1",
+      "vedaId": "samaveda",
+      "nodeId": "sv-pavamana-kanda",
+      "vedaName": "सामवेद (Samaveda)",
+      "shakha": "कौथुम शाखा",
+      "textName": "सामवेद संहिता (उत्तरार्चिक - पवमान काण्ड / तृच १)",
+      "sectionRef": "उत्तरार्चिक, प्रपाठक २, दशति १, मन्त्र १ (ऋग्वेद ९.६१.१०)",
+      "mantraNumber": "२.१.१",
+      "rishi": "असित काश्यप अथवा देवल काश्यप",
+      "devata": "पवमान सोम (Soma Pavamana)",
+      "chhanda": "गायत्री",
+      "svara": "सामगान स्वर",
+      "sanskrit": "ॐ उ॒च्चा ते॑ जा॒तमन्ध॑सो दि॒वि सद्भूम्या॑ ददे।\nउ॒ग्रं शर्म॑ म॒हि श्रवः॑॥१॥",
+      "transliteration": "oṃ uccā te jātam andhaso divi sad bhūmyā dade |\nugraṃ śarma mahi śravaḥ || 1 ||",
+      "hindiTranslation": "हे सोम! द्युलोक में उत्पन्न आपका जो परम पावन दिव्य रस (अमृत तत्व) है, उसे हम इस पृथ्वी पर यज्ञ में सादर धारण करते हैं। वह हमें परम संरक्षण (सुख) और महती आध्यात्मिक कीर्ति प्रदान करे।",
+      "englishTranslation": "High-born in heaven is thy sacred soma-juice, which we receive here on earth; may it grant us mighty shelter and exalted fame.",
+      "hinglishTranslation": "Hey Som Dev! Dyulok mein utpann aapka divya amrit tatva hum prithvi par grahan karte hain; yeh hume shreshth raksha, sukh aur mahan aadhyatmik yash pradan kare.",
+      "padapatha": [
+        {
+          "word": "उ॒च्चा",
+          "meaning": "उच्च द्युलोक में"
+        },
+        {
+          "word": "ते॒",
+          "meaning": "आपका"
+        },
+        {
+          "word": "जा॒तम्",
+          "meaning": "उत्पन्न हुआ"
+        },
+        {
+          "word": "अन्ध॑सः",
+          "meaning": "सोमरस / अमृतमय अन्न"
+        },
+        {
+          "word": "दि॒वि",
+          "meaning": "द्युलोक / स्वर्ग में"
+        },
+        {
+          "word": "सत्",
+          "meaning": "विद्यमान रहता हुआ"
+        },
+        {
+          "word": "भूम्या॑",
+          "meaning": "पृथ्वी पर"
+        },
+        {
+          "word": "द॒दे॒",
+          "meaning": "धारण करते हैं / स्वीकार करते हैं"
+        },
+        {
+          "word": "उ॒ग्रम्",
+          "meaning": "प्रचण्ड / परम शक्तिशाली"
+        },
+        {
+          "word": "शर्म॑",
+          "meaning": "सुख एवं अभय आश्रय"
+        },
+        {
+          "word": "म॒हि",
+          "meaning": "महान"
+        },
+        {
+          "word": "श्रवः॑",
+          "meaning": "यश एवं आध्यात्मिक ज्ञान"
+        }
+      ],
+      "shastricContext": "सामवेद उत्तरार्चिक का प्रथम तृच गान (ऋग्वेद ९.६१.१० से गृहीत)। सोमरस के दिव्य स्वर्गीय मूल और पार्थिव यज्ञ में उसके अवतरण का यह स्तवन अंतःकरण के अमृतत्व और महती आध्यात्मिक कीर्ति का उद्घोषक है।",
+      "audioUrl": null,
+      "previousId": "sv-1-2-2",
+      "nextId": "sv-2-1-2",
+      "chapterMantraIds": [
+        "sv-2-1-1",
+        "sv-2-1-2"
+      ],
+      "orderIndex": 6,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "sv-2-1-2",
+      "slug": "sv-2-1-2",
+      "vedaId": "samaveda",
+      "nodeId": "sv-uttararchik",
+      "vedaName": "सामवेद (Samaveda)",
+      "shakha": "कौथुम शाखा",
+      "textName": "सामवेद संहिता (उत्तरार्चिक - पवमान काण्ड)",
+      "sectionRef": "उत्तरार्चिक, प्रपाठक २, दशति १, मन्त्र २ (ऋग्वेद ९.१०७.४)",
+      "mantraNumber": "२.१.२",
+      "rishi": "सप्तर्षयः (भारद्वाज, कश्यप, गोतम, अत्रि, विश्वामित्र, जमदग्नि, वसिष्ठ)",
+      "devata": "पवमान सोम (Soma Pavamana)",
+      "chhanda": "उष्णिक् / बृहती (सामगान तृच)",
+      "svara": "सामगान स्वर",
+      "sanskrit": "ॐ पु॒ना॒नः सो॑म धा॒रयापो॒ वसा॑नो अर्षसि।\nआ र॑त्न॒धा योनि॑मृ॒तस्य॑ सीदसि॥२॥",
+      "transliteration": "oṃ punānaḥ soma dhārayāpo vasāno arṣasi |\nā ratnadhā yonim ṛtasya sīdasi || 2 ||",
+      "hindiTranslation": "हे सोमदेव! आप अपनी पावन अमृत धारा से शुद्ध होते हुए, जल को वस्त्र रूप में धारण कर कलश की ओर प्रवाहित होते हैं; तथा परम रत्नों (अमूल्य आत्मिक गुणों) को प्रदान करते हुए सत्य (ऋत) के मूल स्रोत पर प्रतिष्ठित होते हैं।",
+      "englishTranslation": "Purifying thyself in a golden stream, O Soma, clothed in sacred waters thou streamest forth; bestowing precious treasures, thou takest thy seat upon the throne of Eternal Truth (Rta).",
+      "hinglishTranslation": "Hey Som Dev! Pavitra dhara se shuddh hokar, jal ko vastra ke roop mein dharan karke aap pravahit hote hain, aur divya ratnon ko pradan karte hue param satya (Rta) ke aasan par virajman hote hain.",
+      "padapatha": [
+        {
+          "word": "पु॒ना॒नः",
+          "meaning": "पवित्र होता हुआ / छनता हुआ"
+        },
+        {
+          "word": "सो॒म॒",
+          "meaning": "हे सोमदेव!"
+        },
+        {
+          "word": "धा॒रया॑",
+          "meaning": "अविच्छिन्न पावन धारा से"
+        },
+        {
+          "word": "अपः॑",
+          "meaning": "जलों (वसतीवरी/एकधना) को"
+        },
+        {
+          "word": "वसा॑नः",
+          "meaning": "वस्त्र के समान ओढ़ता हुआ"
+        },
+        {
+          "word": "अ॒र्ष॒सि॒",
+          "meaning": "कलश की ओर प्रवाहित होता है"
+        },
+        {
+          "word": "आ",
+          "meaning": "समन्ततः"
+        },
+        {
+          "word": "र॒त्न॒ऽधाः",
+          "meaning": "श्रेष्ठ आध्यात्मिक रत्नों को देने वाला"
+        },
+        {
+          "word": "योनि॑म्",
+          "meaning": "स्थान / अधिष्ठान पर"
+        },
+        {
+          "word": "ऋ॒तस्य॑",
+          "meaning": "परम सत्य एवं ब्रह्माण्डीय नियम (ऋत) के"
+        },
+        {
+          "word": "सी॒द॒सि॒",
+          "meaning": "आसीन होता है"
+        }
+      ],
+      "shastricContext": "उत्तरार्चिक पवमान सामगान (ऋग्वेद ९.१०७.४)। सोम का द्रोणकलश में अवतरण और 'ऋतस्य योनि' (सत्य के अधिष्ठान) पर प्रतिष्ठित होना यह दर्शाता है कि बाह्य यज्ञ वस्तुतः अन्तःचेतना में ऋत और सत्य की स्थापना का प्रतीक है।",
+      "audioUrl": null,
+      "previousId": "sv-2-1-1",
+      "nextId": "sv-ch-1-1",
+      "chapterMantraIds": [
+        "sv-2-1-1",
+        "sv-2-1-2"
+      ],
+      "orderIndex": 7,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "sv-ch-1-1",
+      "slug": "sv-ch-1-1",
+      "vedaId": "samaveda",
+      "nodeId": "chandogya-udgitha",
+      "vedaName": "सामवेद (Samaveda)",
+      "shakha": "कौथुम शाखा",
+      "textName": "छान्दोग्य उपनिषद् (प्रथमोऽध्यायः)",
+      "sectionRef": "छान्दोग्योपनिषद्, प्रपाठक १, खण्ड १, मन्त्र १",
+      "mantraNumber": "१.१.१",
+      "rishi": "महर्षि उद्दालक आरुणि / छान्दोग्य उपनिषद् परम्परा",
+      "devata": "परब्रह्म ओंकार (Pranava / Udgitha)",
+      "chhanda": "ब्राह्मी उपनिषद् गद्य",
+      "svara": "उपनिषद् स्वर",
+      "sanskrit": "ॐ इत्ये॒तद॒क्षर॑मुद्गी॒थमु॑पासीत।\nओमि॑ति॒ ह्युद्गा॑यति॒ तस्योप॒व्याख्या॑नम्॥१॥",
+      "transliteration": "oṃ ity etad akṣaram udgītham upāsīta |\nom iti hy udgāyati tasyopavyākhyānam || 1 ||",
+      "hindiTranslation": "परम पावन 'ॐ' इस अविनाशी अक्षर की 'उद्गीथ' रूप में उपासना करनी चाहिए; क्योंकि ओंकार का उच्चारण करके ही उद्गाता सामगान का प्रारम्भ करता है। आगे उसी की विस्तृत व्याख्या (उपव्याख्यान) की जा रही है।",
+      "englishTranslation": "One should meditate upon the syllable 'OM' as the Udgitha; for beginning with 'OM', the Udgatri priest chants the sacred Sama. Now follows its profound elucidation.",
+      "hinglishTranslation": "Pavitra akshar 'OM' ki Udgitha ke roop mein upasana karni chahiye; kyonki OM bolkar hi Udgata samaveda ka gayan prarambh karta hai. Aage usi ki vishleshatmak vyakhya ki ja rahi hai.",
+      "padapatha": [
+        {
+          "word": "ॐ",
+          "meaning": "परमब्रह्म का वाचक प्रणव"
+        },
+        {
+          "word": "इति",
+          "meaning": "ऐसा / इस प्रकार"
+        },
+        {
+          "word": "ए॒तत्",
+          "meaning": "यह"
+        },
+        {
+          "word": "अ॒क्षर॑म्",
+          "meaning": "अविनाशी अक्षर"
+        },
+        {
+          "word": "उ॒द्गी॒थम्",
+          "meaning": "सामवेद का प्रधान उद्गीथ भाग"
+        },
+        {
+          "word": "उ॒पा॒सी॒त",
+          "meaning": "ध्यान व उपासना करे"
+        },
+        {
+          "word": "ॐ",
+          "meaning": "ओम्"
+        },
+        {
+          "word": "इति",
+          "meaning": "इस प्रकार"
+        },
+        {
+          "word": "हि",
+          "meaning": "क्योंकि"
+        },
+        {
+          "word": "उ॒द्गा॑यति",
+          "meaning": "उच्च स्वर से गान प्रारम्भ करता है"
+        },
+        {
+          "word": "तस्य॑",
+          "meaning": "उस ओंकार उद्गीथ का"
+        },
+        {
+          "word": "उ॒प॒व्याख्या॑नम्",
+          "meaning": "समीपस्थ विस्तृत रहस्यपूर्ण विवेचन"
+        }
+      ],
+      "shastricContext": "छान्दोग्योपनिषद् का प्रथम मंगलाचरण सूत्र। सामवेद के समस्त गानों में ओंकार को ही 'उद्गीथ' का सारभूत प्राण माना गया है। उपनिषद् के अनुसार पृथ्वी का रस जल है, जल का रस वनस्पति है, वनस्पति का रस पुरुष है, पुरुष का रस वाणी है, वाणी का रस ऋक् है, ऋक् का रस साम है और साम का सर्वोत्तम रस उद्गीथ (ॐ) है — रसतमः परमः परार्ध्यः।",
+      "audioUrl": null,
+      "previousId": "sv-2-1-2",
+      "nextId": null,
+      "chapterMantraIds": [
+        "sv-ch-1-1"
+      ],
+      "orderIndex": 8,
+      "status": "ACTIVE"
+    }
+  ]
+}

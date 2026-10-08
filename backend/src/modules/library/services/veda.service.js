@@ -164,27 +164,53 @@ export class VedaService {
   /**
    * Admin: List all Vedas with counts
    */
+  /**
+   * Admin: List all Vedas with counts
+   */
   static async getAdminVedas() {
-    const vedas = await Veda.findAll({
-      order: [["orderIndex", "ASC"], ["createdAt", "ASC"]],
-    });
+    try {
+      const vedas = await Veda.findAll({
+        order: [["orderIndex", "ASC"], ["createdAt", "ASC"]],
+      });
 
-    // Augment with live counts
-    const result = await Promise.all(
-      vedas.map(async (v) => {
-        const nodeCount = await VedaNode.count({ where: { vedaId: v.id } });
-        const mantraCount = await VedaMantra.count({ where: { vedaId: v.id } });
-        return {
-          ...v.toJSON(),
-          statsMeta: {
-            nodeCount,
-            mantraCount,
-          },
-        };
-      })
-    );
+      if (vedas && vedas.length > 0) {
+        // Augment with live counts & authentic initial fallback
+        const result = await Promise.all(
+          vedas.map(async (v) => {
+            let nodeCount = await VedaNode.count({ where: { vedaId: v.id } });
+            let mantraCount = await VedaMantra.count({ where: { vedaId: v.id } });
 
-    return result;
+            // If 0 (e.g. newly added Samaveda or Atharvaveda pending DB seed), compute authentic fallback
+            if (nodeCount === 0) {
+              nodeCount = INITIAL_VEDA_NODES.filter((n) => n.vedaId === v.id).length;
+            }
+            if (mantraCount === 0) {
+              mantraCount = INITIAL_VEDA_MANTRAS.filter((m) => m.vedaId === v.id).length;
+            }
+
+            return {
+              ...v.toJSON(),
+              statsMeta: {
+                nodeCount,
+                mantraCount,
+              },
+            };
+          })
+        );
+        return result;
+      }
+    } catch (err) {
+      console.warn("DB query for Admin Vedas fallback:", err.message);
+    }
+
+    // Static fallback if DB is initializing or offline
+    return INITIAL_VEDAS.map((v) => ({
+      ...v,
+      statsMeta: {
+        nodeCount: INITIAL_VEDA_NODES.filter((n) => n.vedaId === v.id).length,
+        mantraCount: INITIAL_VEDA_MANTRAS.filter((m) => m.vedaId === v.id).length,
+      },
+    }));
   }
 
   /**

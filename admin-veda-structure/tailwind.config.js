@@ -55,6 +55,7 @@ export default {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+        devanagari: ['"Noto Serif Devanagari"', '"Rozha One"', '"Tiro Devanagari Sanskrit"', 'Mangal', 'serif'],
       },
       boxShadow: {
         soft: '0 1px 3px rgba(60, 45, 30, 0.06), 0 1px 2px rgba(60, 45, 30, 0.04)',

@@ -3,27 +3,37 @@
  */
 
 export const BLOG_CATEGORIES = [
-  "Vedic Astrology",
+  "Vedas",
+  "Upanishads",
+  "Yagya & Havans",
   "Puja & Rituals",
-  "Vastu Shastra",
-  "Spirituality & Meditation",
+  "Vedic Astrology",
   "Ayurveda & Health",
+  "Vastu Shastra",
+  "Mantras & Stotrams",
+  "Spirituality & Meditation",
   "Festivals & Fasting",
   "Kundali & Planetary Remedies",
-  "Mantras & Stotrams",
   "Sanatan Dharma",
 ] as const;
 
 export const SUGGESTED_TAGS = [
+  "Rigveda",
+  "Yajurveda",
+  "Samaveda",
+  "Atharvaveda",
+  "Upanishads",
+  "Maha Yagya",
+  "Havan Vidhi",
   "Vedic Astrology",
   "Lord Shiva",
   "Rudrabhishek",
-  "Navgrah",
+  "Navgrah Shanti",
   "Vastu Tips",
   "Maha Shivratri",
   "Diwali Puja",
   "Kundali Dosha",
-  "Mantras",
+  "Gayatri Mantra",
   "Ayurveda",
   "Peace & Prosperity",
   "Spiritual Rituals",
@@ -33,4 +43,4 @@ export const SUGGESTED_TAGS = [
 
 export const DEFAULT_AUTHOR = "Veda Structure Team";
 export const DEFAULT_READ_TIME = "5 min read";
-export const DEFAULT_CATEGORY = "Vedic Wisdom";
+export const DEFAULT_CATEGORY = "Vedas";

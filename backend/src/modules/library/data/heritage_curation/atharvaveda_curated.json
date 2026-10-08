@@ -1,0 +1,1411 @@
+{
+  "vedaId": "atharvaveda",
+  "vedaName": "अथर्ववेद (Atharvaveda)",
+  "shakha": "शौनक शाखा एवं पिप्पलाद शाखा",
+  "source": "Government of India Vedic Heritage Portal (vedicheritage.gov.in)",
+  "description": "Authentic curated Atharvaveda Suktas and Mantras sourced from the Vedic Heritage Portal, featuring Shaunaka Shakha Samhita (Medha Janana, Ayushya & Roganashana, Prithvi/Bhumi, Vishva Shanti, Brahmacharya, and Skambha Suktas) and Paippalada Shakha.",
+  "nodes": [
+    {
+      "id": "shaunaka-shakha",
+      "slug": "shaunaka-shakha",
+      "vedaId": "atharvaveda",
+      "parentId": null,
+      "nodeType": "SHAKHA",
+      "name": "शौनक शाखा (Shaunaka Shakha)",
+      "enName": "Shaunaka Shakha",
+      "desc": "अथर्ववेद की वर्तमान में पूर्णतः सुरक्षित एवं सर्वाधिक प्रचलित प्रधान संहिता शाखा। इसमें २० काण्ड, ७३० सूक्त तथा ५,९७७ मन्त्र संकलित हैं। इसके प्रमुख ऋत्विक् 'ब्रह्मा' हैं, जो सम्पूर्ण यज्ञ की रक्षा व संचालन करते हैं।",
+      "stats": "२० काण्ड • ७३० सूक्त • ५,९७७ मन्त्र",
+      "priest": "ब्रह्मा (Brahma)",
+      "badge": "प्रधान शाखा",
+      "imageKey": "card-shaunaka-shakha.jpg",
+      "mantraId": "av-1-1-1",
+      "orderIndex": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "av-kanda-1-sukta-1",
+      "slug": "av-kanda-1-sukta-1",
+      "vedaId": "atharvaveda",
+      "parentId": "shaunaka-shakha",
+      "nodeType": "SUKTA",
+      "name": "मेधा जनन सूक्त (काण्ड १, सूक्त १)",
+      "enName": "Medha Janana Sukta (Kanda 1, Sukta 1)",
+      "desc": "अथर्ववेद संहिता का प्रथम मङ्गलाचरण सूक्त। वाणी, मेधा, बुद्धि और स्मरण शक्ति के अधिपति वाचस्पति से प्रज्ञा एवं धारणा सामर्थ्य की पावन प्रार्थना।",
+      "stats": "४ मन्त्र • अनुष्टुप्",
+      "priest": "ब्रह्मा (Brahma)",
+      "badge": "मेधा सूक्त",
+      "imageKey": "card-sukta-vak.jpg",
+      "mantraId": "av-1-1-1",
+      "orderIndex": 2,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "av-kanda-1-sukta-2",
+      "slug": "av-kanda-1-sukta-2",
+      "vedaId": "atharvaveda",
+      "parentId": "shaunaka-shakha",
+      "nodeType": "SUKTA",
+      "name": "आयुष्य एवं रोगनाशन सूक्त (काण्ड १, सूक्त २)",
+      "enName": "Ayushya & Roganashana Sukta (Kanda 1, Sukta 2)",
+      "desc": "शारीरिक व्याधियों के निवारण, जल-चिकित्सा, जीवन शक्ति संवर्धन एवं पर्जन्य देव की अनुकम्पा का प्रमुख भैषज्य सूक्त।",
+      "stats": "४ मन्त्र • अनुष्टुप्",
+      "priest": "ब्रह्मा (Brahma)",
+      "badge": "भैषज्य सूक्त",
+      "imageKey": "card-sukta-ayushya.jpg",
+      "mantraId": "av-1-2-1",
+      "orderIndex": 3,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "av-kanda-10-skambha",
+      "slug": "av-kanda-10-skambha",
+      "vedaId": "atharvaveda",
+      "parentId": "shaunaka-shakha",
+      "nodeType": "SUKTA",
+      "name": "स्कम्भ सूक्त (काण्ड १०, सूक्त ७)",
+      "enName": "Skambha Sukta (Cosmic Pillar Hymn - Kanda 10, Sukta 7)",
+      "desc": "ब्रह्माण्ड के आधारभूत परम तत्व 'स्कम्भ' (विराट् ब्रह्म) का अत्यन्त गूढ़ व दार्शनिक सूक्त। समस्त सृष्टि, सत्य, तप, ऋत और देवताओं का मूल आश्रय स्कम्भ ही है।",
+      "stats": "४४ मन्त्र • जगती व त्रिष्टुप्",
+      "priest": "ब्रह्मा (Brahma)",
+      "badge": "ब्रह्मविद्या सूक्त",
+      "imageKey": "card-sukta-skambha.jpg",
+      "mantraId": "av-10-7-1",
+      "orderIndex": 4,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "av-kanda-11-brahmacharya",
+      "slug": "av-kanda-11-brahmacharya",
+      "vedaId": "atharvaveda",
+      "parentId": "shaunaka-shakha",
+      "nodeType": "SUKTA",
+      "name": "ब्रह्मचर्य सूक्त (काण्ड ११, सूक्त ५)",
+      "enName": "Brahmacharya Sukta (Kanda 11, Sukta 5)",
+      "desc": "विद्यार्थी जीवन, तप, आत्मसंयम, ओज, तेज और राष्ट्र-निर्माण में ब्रह्मचारी की असीम शक्ति का वैदिक प्रतिपादन। ब्रह्मचारी अपने तपोबल से लोकों और गुरु को तृप्त करता है।",
+      "stats": "२६ मन्त्र • त्रिष्टुप् व जगती",
+      "priest": "ब्रह्मा (Brahma)",
+      "badge": "तप एवं ज्ञान सूक्त",
+      "imageKey": "card-sukta-brahmacharya.jpg",
+      "mantraId": "av-11-5-1",
+      "orderIndex": 5,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "av-kanda-12-bhumi",
+      "slug": "av-kanda-12-bhumi",
+      "vedaId": "atharvaveda",
+      "parentId": "shaunaka-shakha",
+      "nodeType": "SUKTA",
+      "name": "भूमि सूक्त / पृथ्वी सूक्त (काण्ड १२, सूक्त १)",
+      "enName": "Bhumi Sukta / Prithvi Sukta (Earth Hymn - Kanda 12, Sukta 1)",
+      "desc": "विश्व वांग्मय का प्रथम पर्यावरण महासूक्त व राष्ट्रगान। 'माता भूमिः पुत्रो अहं पृथिव्याः' का सनातन वैदिक उद्घोष, जिसमें पृथ्वी के समस्त पर्वतों, नदियों, वनस्पतियों व मानवों के सामंजस्य का स्तवन है।",
+      "stats": "६३ मन्त्र • त्रिष्टुप्, जगती, अनुष्टुप्",
+      "priest": "ब्रह्मा (Brahma)",
+      "badge": "राष्ट्र व पर्यावरण सूक्त",
+      "imageKey": "card-sukta-prithvi.jpg",
+      "mantraId": "av-12-1-1",
+      "orderIndex": 6,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "av-kanda-19-shanti",
+      "slug": "av-kanda-19-shanti",
+      "vedaId": "atharvaveda",
+      "parentId": "shaunaka-shakha",
+      "nodeType": "SUKTA",
+      "name": "विश्व शांति सूक्त (काण्ड १९, सूक्त ९)",
+      "enName": "Vishva Shanti Sukta (Peace Hymn - Kanda 19, Sukta 9)",
+      "desc": "समस्त ब्रह्माण्ड, द्युलोक, अंतरिक्ष, पृथ्वी, जल, औषधि, वनस्पति तथा समस्त देवों में परम शांति और विश्व कल्याण की सार्वभौमिक वैदिक प्रार्थना।",
+      "stats": "१४ मन्त्र • अनुष्टुप्",
+      "priest": "ब्रह्मा (Brahma)",
+      "badge": "शांति सूक्त",
+      "imageKey": "card-sukta-shanti.jpg",
+      "mantraId": "av-19-9-1",
+      "orderIndex": 7,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "paippalada-shakha",
+      "slug": "paippalada-shakha",
+      "vedaId": "atharvaveda",
+      "parentId": null,
+      "nodeType": "SHAKHA",
+      "name": "पिप्पलाद शाखा (Paippalada Shakha)",
+      "enName": "Paippalada Shakha",
+      "desc": "महर्षि पिप्पलाद द्वारा प्रवर्तित अथर्ववेद की अत्यन्त प्राचीन शाखा। इसके दुर्लभ तालपत्र हस्तलेख उड़ीसा, बंगाल तथा कश्मीर (शारदा लिपि) में सुरक्षित हैं। प्रश्नोपनिषद् इसी शाखा का मुख्य दार्शनिक आधार है।",
+      "stats": "२० काण्ड • दुर्लभ प्राचीन पाठ",
+      "priest": "ब्रह्मा (Brahma)",
+      "badge": "प्राचीन शाखा",
+      "imageKey": "card-paippalada-shakha.jpg",
+      "mantraId": null,
+      "orderIndex": 8,
+      "status": "ACTIVE"
+    }
+  ],
+  "mantras": [
+    {
+      "id": "av-1-1-1",
+      "slug": "av-1-1-1",
+      "vedaId": "atharvaveda",
+      "nodeId": "av-kanda-1-sukta-1",
+      "vedaName": "अथर्ववेद (Atharvaveda)",
+      "shakha": "शौनक शाखा",
+      "textName": "अथर्ववेद संहिता (मेधा जनन सूक्त)",
+      "sectionRef": "काण्ड १, सूक्त १, मन्त्र १",
+      "mantraNumber": "१.१.१",
+      "rishi": "महर्षि अथर्वा",
+      "devata": "वाचस्पतिः (Vachaspati - Lord of Speech & Wisdom)",
+      "chhanda": "अनुष्टुप्",
+      "svara": "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
+      "sanskrit": "ॐ ये त्रि॒षप्ताः प॑रि॒यन्ति॒ विश्वा॑ रू॒पाणि॒ बिभ्र॑तः।\nवा॒चस्पति॒र्बला॒ तेषां॑ त॒न्वो३ अ॒द्य द॑धातु मे॥१॥",
+      "transliteration": "oṃ ye triṣaptāḥ pariyanti viśvā rūpāṇi bibhrataḥ |\nvācaspatir balā teṣāṃ tanvo adya dadhātu me || 1 ||",
+      "hindiTranslation": "जो इक्कीस (तीन गुणा सात - ज्ञानेन्द्रियाँ, कर्मेन्द्रियाँ, पंच महाभूत, मन, बुद्धि आदि) सर्वत्र विद्यमान होकर सम्पूर्ण रूपों को धारण करते हैं; वाणी एवं ज्ञान के अधिपति वाचस्पति देव आज उनके बल और सामर्थ्य को मेरे शरीर एवं आत्मा में स्थापित करें।",
+      "englishTranslation": "Those thrice seven that go about, bearing all forms and essences—may the Lord of Speech (Vachaspati) bestow their strength and vital energies upon my body and intellect today!",
+      "hinglishTranslation": "Jo ikkis tattva (treen guna saat) sampoorna roopo ko dharan karke charo taraf virajman hain, vani aur vidya ke devta Vachaspati unka bal aur shakti aaj mere sharir aur aatma mein sthapit karein.",
+      "padapatha": [
+        {
+          "word": "ये",
+          "meaning": "जो (तत्त्व)"
+        },
+        {
+          "word": "त्रि॒ऽस॒प्ताः",
+          "meaning": "इक्कीस (३ × ७ = इन्द्रियाँ, भूत व अन्तःकरण)"
+        },
+        {
+          "word": "प॒रि॒ऽयन्ति॑",
+          "meaning": "सर्वत्र व्याप्त होकर गति करते हैं"
+        },
+        {
+          "word": "विश्वा॑",
+          "meaning": "समस्त"
+        },
+        {
+          "word": "रू॒पाणि॑",
+          "meaning": "आकृतियों व रूपों को"
+        },
+        {
+          "word": "बिभ्र॑तः",
+          "meaning": "धारण करते हुए"
+        },
+        {
+          "word": "वा॒चस्पतिः॑",
+          "meaning": "वाणी व प्रज्ञा के अधिपति"
+        },
+        {
+          "word": "बला॑",
+          "meaning": "बल / सामर्थ्य"
+        },
+        {
+          "word": "तेषा॑म्",
+          "meaning": "उनका"
+        },
+        {
+          "word": "त॒न्वः॑",
+          "meaning": "शरीर / आत्म-स्वरूप में"
+        },
+        {
+          "word": "अ॒द्य",
+          "meaning": "आज ही"
+        },
+        {
+          "word": "द॒धा॒तु",
+          "meaning": "स्थापित करें"
+        },
+        {
+          "word": "मे॒",
+          "meaning": "मुझमें"
+        }
+      ],
+      "shastricContext": "अथर्ववेद संहिता का प्रथम मंगलाचरण मंत्र। यहाँ 'त्रिषप्ताः' से तात्पर्य सांख्य एवं वैदिक दर्शन के अनुसार ७ धातुएँ, ७ प्राण व ७ छंद अथवा पंचभूत, दश इन्द्रियाँ, मन, बुद्धि, अहंकार, प्रकृति आदि इक्कीस तत्वों से है, जिनके समन्वय से बुद्धि एवं देह बलवान बनती है।",
+      "audioUrl": null,
+      "previousId": null,
+      "nextId": "av-1-1-2",
+      "chapterMantraIds": [
+        "av-1-1-1",
+        "av-1-1-2",
+        "av-1-1-4"
+      ],
+      "orderIndex": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "av-1-1-2",
+      "slug": "av-1-1-2",
+      "vedaId": "atharvaveda",
+      "nodeId": "av-kanda-1-sukta-1",
+      "vedaName": "अथर्ववेद (Atharvaveda)",
+      "shakha": "शौनक शाखा",
+      "textName": "अथर्ववेद संहिता (मेधा जनन सूक्त)",
+      "sectionRef": "काण्ड १, सूक्त १, मन्त्र २",
+      "mantraNumber": "१.१.२",
+      "rishi": "महर्षि अथर्वा",
+      "devata": "वाचस्पतिः (Vachaspati)",
+      "chhanda": "अनुष्टुप्",
+      "svara": "सस्वर वैदिक पाठ",
+      "sanskrit": "ॐ पुन॒रेहि॑ वाचस्पते दे॒वेन॒ मन॑सा स॒ह।\nवसो॑ष्पते॒ नि र॑मय॒ मय्ये॒व श्रु॒तं मयि॑॥२॥",
+      "transliteration": "oṃ punar ehi vācaspate devena manasā saha |\nvasoṣpate ni ramaya mayy eva śrutaṃ mayi || 2 ||",
+      "hindiTranslation": "हे वाणी एवं ज्ञान के अधिपति वाचस्पते! आप दिव्य एवं पवित्र मन के साथ मेरे अंतःकरण में पुनः पधारिए। हे ज्ञान-धन के स्वामी! आपने जो भी श्रुति (वेद ज्ञान) मुझे प्रदान किया है, उसे मुझमें ही स्थिर एवं सुरक्षित कीजिए।",
+      "englishTranslation": "Come again, O Lord of Speech, together with divine intellect and pious thought! O Lord of Treasures, make pleasant and permanently firmly fixed in me all that I have heard and studied (the sacred Vedic wisdom)!",
+      "hinglishTranslation": "Hey Vachaspati! Aap divya man ke saath mere hriday mein punah padhariye. Hey divya sampatti ke swami! Maine jo bhi Ved gyan suna aur seekha hai, use sadaiv mere bheetar sthir aur surakshit kijiye.",
+      "padapatha": [
+        {
+          "word": "पुनः॑",
+          "meaning": "पुनः / बार-बार"
+        },
+        {
+          "word": "आ । इहि॑",
+          "meaning": "आइए"
+        },
+        {
+          "word": "वा॒च॒स्प॒ते॒",
+          "meaning": "हे वाणी के अधिपति!"
+        },
+        {
+          "word": "दे॒वेन॑",
+          "meaning": "दिव्य / प्रकाशमान"
+        },
+        {
+          "word": "मन॑सा",
+          "meaning": "मन के"
+        },
+        {
+          "word": "स॒ह",
+          "meaning": "साथ"
+        },
+        {
+          "word": "वसोः॑ । प॒ते॒",
+          "meaning": "हे आत्म-ऐश्वर्य के पालक!"
+        },
+        {
+          "word": "नि",
+          "meaning": "निश्चित रूप से"
+        },
+        {
+          "word": "र॒म॒य॒",
+          "meaning": "स्थिर / रमण कराइए"
+        },
+        {
+          "word": "मयि॑",
+          "meaning": "मुझमें"
+        },
+        {
+          "word": "ए॒व",
+          "meaning": "ही"
+        },
+        {
+          "word": "श्रु॒तम्",
+          "meaning": "अध्ययन किया हुआ वेद ज्ञान"
+        },
+        {
+          "word": "मयि॑",
+          "meaning": "मुझमें"
+        }
+      ],
+      "shastricContext": "विद्यार्थी एवं साधक द्वारा विस्मृति (भूलने की दुर्बलता) को दूर कर स्मृति और मेधा को सदा जाग्रत रखने की सर्वश्रेष्ठ वैदिक प्रार्थना। निरुक्त (१०.१७) में वाचस्पति को प्रज्ञा का अधिष्ठाता माना गया है।",
+      "audioUrl": null,
+      "previousId": "av-1-1-1",
+      "nextId": "av-1-1-4",
+      "chapterMantraIds": [
+        "av-1-1-1",
+        "av-1-1-2",
+        "av-1-1-4"
+      ],
+      "orderIndex": 2,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "av-1-1-4",
+      "slug": "av-1-1-4",
+      "vedaId": "atharvaveda",
+      "nodeId": "av-kanda-1-sukta-1",
+      "vedaName": "अथर्ववेद (Atharvaveda)",
+      "shakha": "शौनक शाखा",
+      "textName": "अथर्ववेद संहिता (मेधा जनन सूक्त)",
+      "sectionRef": "काण्ड १, सूक्त १, मन्त्र ४",
+      "mantraNumber": "१.१.४",
+      "rishi": "महर्षि अथर्वा",
+      "devata": "वाचस्पतिः (Vachaspati)",
+      "chhanda": "अनुष्टुप्",
+      "svara": "सस्वर वैदिक पाठ",
+      "sanskrit": "ॐ इ॒हैवाभि वि त॑नू॒भे आर्त्नी॑ इव॒ ज्यया॑।\nवा॒चस्पति॒र्निय॑च्छतु॒ मय्ये॒वास्तु॒ मयि॑ श्रु॒तम्॥४॥",
+      "transliteration": "oṃ ihaivābhi vi tanūbhe ārtnī iva jyayā |\nvācaspatir niyacchatu mayy evāstu mayi śrutam || 4 ||",
+      "hindiTranslation": "जिस प्रकार धनुष की प्रत्यंचा (डोरी) धनुष के दोनों सिरों (कोटियों) को आपस में दृढ़तापूर्वक बाँधकर तान देती है, उसी प्रकार हे वाचस्पति! आप मेरे चित्त और बुद्धि को ज्ञान से संयुक्त कर दीजिए। समस्त श्रुत (वैदिक ज्ञान) मुझमें ही सदा निवास करे।",
+      "englishTranslation": "Even as both ends of the bow are drawn tightly and joined by the bowstring, so right here may the Lord of Speech bind and fix knowledge firmly in me. May all sacred learning remain within me forever!",
+      "hinglishTranslation": "Jaise dhanush ki dori dhanush ke dono siro ko majbooti se baandh deti hai, usi tarah hey Vachaspati! Mere man aur buddhi ko gyan se jodkar sthir kar dijiye. Samast Ved gyan sadaiv mujhme sthit rahe.",
+      "padapatha": [
+        {
+          "word": "इ॒ह",
+          "meaning": "यहाँ (मेरे अंतःकरण में)"
+        },
+        {
+          "word": "ए॒व",
+          "meaning": "ही"
+        },
+        {
+          "word": "अ॒भि",
+          "meaning": "सम्मुख"
+        },
+        {
+          "word": "वि",
+          "meaning": "विशेष रूप से"
+        },
+        {
+          "word": "त॒नु॒",
+          "meaning": "विस्तारित / तान दीजिए"
+        },
+        {
+          "word": "उ॒भे",
+          "meaning": "दोनों को"
+        },
+        {
+          "word": "आर्त्नी॑",
+          "meaning": "धनुष के दोनों सिरों को"
+        },
+        {
+          "word": "इ॒व",
+          "meaning": "जिस प्रकार"
+        },
+        {
+          "word": "ज्यया॑",
+          "meaning": "प्रत्यंचा (डोरी) से"
+        },
+        {
+          "word": "वा॒चस्पतिः॑",
+          "meaning": "वाणी के स्वामी"
+        },
+        {
+          "word": "नि",
+          "meaning": "नियमपूर्वक"
+        },
+        {
+          "word": "य॒च्छ॒तु॒",
+          "meaning": "नियंत्रित एवं स्थिर करें"
+        },
+        {
+          "word": "मयि॑",
+          "meaning": "मुझमें"
+        },
+        {
+          "word": "ए॒व",
+          "meaning": "ही"
+        },
+        {
+          "word": "अ॒स्तु॒",
+          "meaning": "रहे"
+        },
+        {
+          "word": "मयि॑",
+          "meaning": "मुझमें"
+        },
+        {
+          "word": "श्रु॒तम्",
+          "meaning": "श्रुत ज्ञान / धारणा"
+        }
+      ],
+      "shastricContext": "धनुष और प्रत्यंचा का सुंदर रूपक देते हुए एकाग्रता (Conscious Concentration) और अखंड स्मृति का विज्ञान। जैसे प्रत्यंचा धनुष को लक्ष्य-वेधन योग्य बनाती है, वैसे ही वाचस्पति साधक की मेधा को स्थिर करते हैं।",
+      "audioUrl": null,
+      "previousId": "av-1-1-2",
+      "nextId": "av-1-2-1",
+      "chapterMantraIds": [
+        "av-1-1-1",
+        "av-1-1-2",
+        "av-1-1-4"
+      ],
+      "orderIndex": 3,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "av-1-2-1",
+      "slug": "av-1-2-1",
+      "vedaId": "atharvaveda",
+      "nodeId": "av-kanda-1-sukta-2",
+      "vedaName": "अथर्ववेद (Atharvaveda)",
+      "shakha": "शौनक शाखा",
+      "textName": "अथर्ववेद संहिता (आयुष्य एवं रोगनाशन सूक्त)",
+      "sectionRef": "काण्ड १, सूक्त २, मन्त्र १",
+      "mantraNumber": "१.२.१",
+      "rishi": "महर्षि अथर्वा",
+      "devata": "पर्जन्यः / शरः (रोगनिवारक जल व वनस्पति)",
+      "chhanda": "अनुष्टुप्",
+      "svara": "सस्वर वैदिक पाठ",
+      "sanskrit": "ॐ वि॒द्याम॑ श॒रस्य॑ पि॒तरं॑ प॒र्जन्यं॑ श॒तवृ॑ष्ण्यम्।\nतेना॑ ते त॒न्वे३ शं क॑रं पृथि॒व्यां ते नि॒षेच॑नम्॥१॥",
+      "transliteration": "oṃ vidyāma śarasya pitaraṃ parjanyaṃ śatavṛṣṇyam |\ntenā te tanve śaṃ karaṃ pṛthivyāṃ te niṣecanam || 1 ||",
+      "hindiTranslation": "हम सौ प्रकार की जीवन-वर्धक शक्तियों से युक्त, शर (जल-प्रवाह / औषधीय तृण) के जनक पर्जन्य (मेघ/वृष्टि देव) को भलीभाँति जानते हैं। उसके द्वारा मैं तुम्हारे शरीर के लिए कल्याणकारी आरोग्य करता हूँ; तुम्हारा समस्त रोग व विष पृथ्वी में विसर्जित हो जाए।",
+      "englishTranslation": "We know Parjanya, the father of the healing reed and life-giving rain, endowed with a hundredfold fertilizing and vitalizing powers. Through him I bring healing wellness to thy body; may thy affliction be safely drained into the earth!",
+      "hinglishTranslation": "Hum sau guni shaktiyo wale parjanya dev (varsha aur jal ke swami) ko jante hain jo aushadhi ke janak hain. Us divya tatva se main tumhare sharir ko arogya aur kalyan pradan karta hoon; tumhari vyadhi prithvi mein visarjit ho jaye.",
+      "padapatha": [
+        {
+          "word": "वि॒द्याम॑",
+          "meaning": "हम जानें"
+        },
+        {
+          "word": "श॒रस्य॑",
+          "meaning": "शर (रोगनिवारक औषधीय तृण / जल) के"
+        },
+        {
+          "word": "पि॒तर॑म्",
+          "meaning": "जनक / पालक को"
+        },
+        {
+          "word": "प॒र्जन्य॑म्",
+          "meaning": "पर्जन्य देव (मेघ) को"
+        },
+        {
+          "word": "श॒तऽवृ॑ष्ण्यम्",
+          "meaning": "सैकड़ों जीवन-वर्धक शक्तियों से सम्पन्न"
+        },
+        {
+          "word": "तेन॑",
+          "meaning": "उसके द्वारा"
+        },
+        {
+          "word": "ते॒",
+          "meaning": "तुम्हारे"
+        },
+        {
+          "word": "त॒न्वे॑",
+          "meaning": "शरीर के लिए"
+        },
+        {
+          "word": "शम्",
+          "meaning": "आरोग्य / कल्याण"
+        },
+        {
+          "word": "क॒र॒म्",
+          "meaning": "मैं करूँ"
+        },
+        {
+          "word": "पृ॒थि॒व्याम्",
+          "meaning": "पृथ्वी पर / भूमि में"
+        },
+        {
+          "word": "ते॒",
+          "meaning": "तुम्हारा"
+        },
+        {
+          "word": "नि॒ऽसेच॑नम्",
+          "meaning": "दोषों का निष्कासन व जल-सिंचन"
+        }
+      ],
+      "shastricContext": "आयुर्वेद एवं भैषज्य विद्या का मूल अथर्ववेदीय मंत्र। इसमें पर्जन्य को जल-चिकित्सा (Hydrotherapy) और औषधियों का मूल स्रोत मानकर शरीर की आधि-व्याधि के शमन एवं शुद्धीकरण का विधान है।",
+      "audioUrl": null,
+      "previousId": "av-1-1-4",
+      "nextId": "av-10-7-1",
+      "chapterMantraIds": [
+        "av-1-2-1"
+      ],
+      "orderIndex": 4,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "av-10-7-1",
+      "slug": "av-10-7-1",
+      "vedaId": "atharvaveda",
+      "nodeId": "av-kanda-10-skambha",
+      "vedaName": "अथर्ववेद (Atharvaveda)",
+      "shakha": "शौनक शाखा",
+      "textName": "अथर्ववेद संहिता (स्कम्भ सूक्त)",
+      "sectionRef": "काण्ड १०, सूक्त ७, मन्त्र १",
+      "mantraNumber": "१०.७.१",
+      "rishi": "महर्षि अथर्वा / ब्रह्मा",
+      "devata": "स्कम्भः (Cosmic Pillar / Supreme Brahman)",
+      "chhanda": "त्रिष्टुप्",
+      "svara": "सस्वर वैदिक पाठ",
+      "sanskrit": "ॐ कस्मि॒न्नङ्गे॒ तपो॑ अस्याधि॑ तिष्ठति॒ कस्मि॒न्नङ्ग॑ ऋ॒तम॒स्याध्या॑हि॒तम्।\nक्व॑ व्र॒तं क्व श्र॒द्धास्य॒ तिष्ठ॑ति॒ कस्मि॒न्नङ्गे॑ स॒त्यमस्य॒ प्रति॑ष्ठितम्॥१॥",
+      "transliteration": "oṃ kasminn aṅge tapo asyādhi tiṣṭhati kasminn aṅga ṛtam asyādhyāhitam |\nkva vrataṃ kva śraddhāsya tiṣṭhati kasminn aṅge satyam asya pratiṣṭhitam || 1 ||",
+      "hindiTranslation": "इस विराट् स्कम्भ (ब्रह्माण्ड के आधारभूत परम ब्रह्म) के किस अंग में तप अधिष्ठित है? इसके किस अंग में ऋत (सृष्टि का सनातन नियम) स्थापित है? इसका व्रत कहाँ है और इसकी श्रद्धा कहाँ स्थित है? तथा इसके किस अंग में परम सत्य प्रतिष्ठित है?",
+      "englishTranslation": "In which of his limbs doth Fervour (Tapas) abide? In which limb is the Cosmic Order (Rita) set? Where lies his holy vow (Vrata), and where his Faith (Shraddha)? And in which limb of his is absolute Truth (Satya) firmly established?",
+      "hinglishTranslation": "Is virat Skambha (Brahman) ke kis ang mein tap sthit hai? Iske kis ang mein shashwat niyam (Rit) sthapit hai? Iska vrat kahan hai aur shraddha kahan virajman hai? Aur iske kis ang mein param satya pratishthit hai?",
+      "padapatha": [
+        {
+          "word": "कस्मि॑न्",
+          "meaning": "किस"
+        },
+        {
+          "word": "अङ्गे॑",
+          "meaning": "अंग में"
+        },
+        {
+          "word": "तपः॑",
+          "meaning": "तप (सृजन-ऊर्जा)"
+        },
+        {
+          "word": "अ॒स्य॒",
+          "meaning": "इस स्कम्भ के"
+        },
+        {
+          "word": "अधि॑",
+          "meaning": "ऊपर / भीतर"
+        },
+        {
+          "word": "ति॒ष्ठ॒ति॒",
+          "meaning": "स्थित है"
+        },
+        {
+          "word": "कस्मि॑न्",
+          "meaning": "किस"
+        },
+        {
+          "word": "अङ्गे॑",
+          "meaning": "अंग में"
+        },
+        {
+          "word": "ऋ॒तम्",
+          "meaning": "ऋत (ब्रह्माण्डीय व्यवस्था)"
+        },
+        {
+          "word": "अ॒स्य॒",
+          "meaning": "इसके"
+        },
+        {
+          "word": "अधि॑",
+          "meaning": "अधिष्ठित"
+        },
+        {
+          "word": "आऽहि॑तम्",
+          "meaning": "स्थापित है"
+        },
+        {
+          "word": "क्व॑",
+          "meaning": "कहाँ"
+        },
+        {
+          "word": "व्र॒तम्",
+          "meaning": "नियम व संकल्प"
+        },
+        {
+          "word": "क्व॑",
+          "meaning": "कहाँ"
+        },
+        {
+          "word": "श्र॒द्धा",
+          "meaning": "दिव्य श्रद्धा"
+        },
+        {
+          "word": "अ॒स्य॒",
+          "meaning": "इसकी"
+        },
+        {
+          "word": "ति॒ष्ठ॒ति॒",
+          "meaning": "रहती है"
+        },
+        {
+          "word": "कस्मि॑न्",
+          "meaning": "किस"
+        },
+        {
+          "word": "अङ्गे॑",
+          "meaning": "अंग में"
+        },
+        {
+          "word": "स॒त्यम्",
+          "meaning": "सत्य"
+        },
+        {
+          "word": "अ॒स्य॒",
+          "meaning": "इसका"
+        },
+        {
+          "word": "प्रति॑ऽस्थितम्",
+          "meaning": "प्रतिष्ठित है"
+        }
+      ],
+      "shastricContext": "अथर्ववेद का सर्वोत्कृष्ट दार्शनिक सूक्त। 'स्कम्भ' का अर्थ है समस्त ब्रह्माण्ड को सम्भाले रखने वाला परम ब्रह्म रूपी स्तम्भ। यह मंत्र उपनिषदों की ब्रह्म-जिज्ञासा ('अथातो ब्रह्मजिज्ञासा') का वैदिक उद्गम है।",
+      "audioUrl": null,
+      "previousId": "av-1-2-1",
+      "nextId": "av-11-5-1",
+      "chapterMantraIds": [
+        "av-10-7-1"
+      ],
+      "orderIndex": 5,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "av-11-5-1",
+      "slug": "av-11-5-1",
+      "vedaId": "atharvaveda",
+      "nodeId": "av-kanda-11-brahmacharya",
+      "vedaName": "अथर्ववेद (Atharvaveda)",
+      "shakha": "शौनक शाखा",
+      "textName": "अथर्ववेद संहिता (ब्रह्मचर्य सूक्त)",
+      "sectionRef": "काण्ड ११, सूक्त ५, मन्त्र १",
+      "mantraNumber": "११.५.१",
+      "rishi": "महर्षि अथर्वा / ब्रह्मा",
+      "devata": "ब्रह्मचारी (The Dedicated Vedic Seeker / Cosmic Student)",
+      "chhanda": "त्रिष्टुप्",
+      "svara": "सस्वर वैदिक पाठ",
+      "sanskrit": "ॐ इ॒यं समि॑त्पृथि॒वी द्यौर्द्वि॑ती॒योता॒न्तरि॑क्षं॒ समि॑धा पृणाति।\nब्र॒ह्म॒चा॒री समि॑धा मे॒खल॑या॒ श्रमे॑ण लो॒कांस्तप॑सा पिपर्ति॥१॥",
+      "transliteration": "oṃ iyaṃ samit pṛthivī dyaur dvitīyotāntarikṣaṃ samidhā pṛṇāti |\nbrahmacārī samidhā mekhalayā śrameṇa lokāṃs tapasā piparti || 1 ||",
+      "hindiTranslation": "यह पृथ्वी एक पवित्र समिधा है, द्युलोक दूसरी समिधा है और यह विशाल अंतरिक्ष भी ज्ञान-समिधा से परिपूर्ण है। ब्रह्मचारी समिधा (ज्ञान-यज्ञ), मेखला (संयम-कटिबंध), सतत श्रम और कठोर तपस्या के द्वारा सम्पूर्ण लोकों का भरण-पोषण व रक्षण करता है।",
+      "englishTranslation": "This Earth is one sacred faggot (samidh), Heaven is the second, and the atmosphere too is filled with holy fuel. The Brahmachari, equipped with his sacrificial fuel, girdle, hard labour, and fervent austerity, nourishes and sustains all the worlds!",
+      "hinglishTranslation": "Yeh dharti ek pavitra samidha hai, swarg doosri samidha hai aur antariksh bhi gyan-samidha se paripoorna hai. Brahmachari samidha, mekhala, kade parishram aur tap se samast loko ko trupt karta hai.",
+      "padapatha": [
+        {
+          "word": "इ॒यम्",
+          "meaning": "यह"
+        },
+        {
+          "word": "समि॑त्",
+          "meaning": "समिधा (यज्ञ-काष्ठ / ऊर्जा)"
+        },
+        {
+          "word": "पृ॒थि॒वी",
+          "meaning": "पृथ्वी"
+        },
+        {
+          "word": "द्यौः",
+          "meaning": "द्युलोक / आकाश"
+        },
+        {
+          "word": "द्वि॒ती॒या",
+          "meaning": "दूसरी"
+        },
+        {
+          "word": "उ॒त",
+          "meaning": "और"
+        },
+        {
+          "word": "अ॒न्तरि॑क्षम्",
+          "meaning": "अंतरिक्ष को"
+        },
+        {
+          "word": "समि॑धा",
+          "meaning": "समिधा से"
+        },
+        {
+          "word": "पृ॒णा॒ति॒",
+          "meaning": "परिपूर्ण करता है"
+        },
+        {
+          "word": "ब्र॒ह्म॒ऽचा॒री",
+          "meaning": "ब्रह्म का आचरण करने वाला विद्यार्थी"
+        },
+        {
+          "word": "समि॑धा",
+          "meaning": "ज्ञान की समिधा से"
+        },
+        {
+          "word": "मे॒खल॑या",
+          "meaning": "मेखला (संयम के कटिबंध) से"
+        },
+        {
+          "word": "श्रमे॑ण",
+          "meaning": "सतत उद्यम व परिश्रम से"
+        },
+        {
+          "word": "लो॒कान्",
+          "meaning": "समस्त लोकों / समाजों को"
+        },
+        {
+          "word": "तप॑सा",
+          "meaning": "आत्म-नियंत्रण व तप से"
+        },
+        {
+          "word": "पि॒प॒र्ति॒",
+          "meaning": "परितृप्त एवं पुष्ट करता है"
+        }
+      ],
+      "shastricContext": "ब्रह्मचर्य सूक्त का प्रसिद्ध उद्घोष। वैदिक दर्शन में ब्रह्मचारी केवल एक विद्यार्थी नहीं, अपितु सम्पूर्ण राष्ट्र और ब्रह्माण्ड को अपनी तपस्या, संयम (मेखला) और ज्ञानार्जन (समिधा) से संजोने वाली आधारशिला है।",
+      "audioUrl": null,
+      "previousId": "av-10-7-1",
+      "nextId": "av-12-1-1",
+      "chapterMantraIds": [
+        "av-11-5-1"
+      ],
+      "orderIndex": 6,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "av-12-1-1",
+      "slug": "av-12-1-1",
+      "vedaId": "atharvaveda",
+      "nodeId": "av-kanda-12-bhumi",
+      "vedaName": "अथर्ववेद (Atharvaveda)",
+      "shakha": "शौनक शाखा",
+      "textName": "अथर्ववेद संहिता (भूमि सूक्त / पृथ्वी सूक्त)",
+      "sectionRef": "काण्ड १२, सूक्त १, मन्त्र १",
+      "mantraNumber": "१२.१.१",
+      "rishi": "महर्षि अथर्वा",
+      "devata": "भूमिः / पृथिवी (Mother Earth)",
+      "chhanda": "जगती",
+      "svara": "सस्वर वैदिक पाठ",
+      "sanskrit": "ॐ स॒त्यं बृ॒हदृत॑मु॒ग्रं दी॒क्षा तपो॒ ब्रह्म॑ य॒ज्ञः पृ॑थि॒वीं धा॑रयन्ति।\nसा नो॑ भू॒तस्य॒ भव्य॑स्य॒ पत्न्यु॒रुं लो॒कं पृ॑थि॒वी नः॑ कृणोतु॥१॥",
+      "transliteration": "oṃ satyaṃ bṛhad ṛtam ugraṃ dīkṣā tapo brahma yajñaḥ pṛthivīṃ dhārayanti |\nsā no bhūtasya bhavyasya patny uruṃ lokaṃ pṛthivī naḥ kṛṇotu || 1 ||",
+      "hindiTranslation": "परम सत्य, विराट् ब्रह्माण्डीय नियम (ऋत), उग्र साधना, दीक्षा, तप, ब्रह्म-ज्ञान और लोक-कल्याणकारी यज्ञ — ये सात महान दिव्य शक्तियाँ पृथ्वी को धारण करती हैं। भूत (अतीत) और भव्य (भविष्य) की स्वामिनी वह मातृभूमि हमारे लिए विस्तृत, समृद्ध और सुरक्षित लोक का निर्माण करे।",
+      "englishTranslation": "Truth, vast Cosmic Order (Rita), unyielding resolve, Dedication, Tapas (Fervour), Spiritual Knowledge (Brahman), and Holy Sacrifice (Yajna) sustain the Earth. May She, the sovereign queen of what has been and what shall be, create for us a wide and glorious world!",
+      "hinglishTranslation": "Satya, vishal Rit (brahmandiya niyam), sankalp, deeksha, tap, brahma-gyan aur yagya — ye saat mahan tatva Prithvi ko dharan karte hain. Bhoot aur bhavishya ki swamini yeh Dharti Mata hamare liye vishal aur samriddh sthan pradan kare.",
+      "padapatha": [
+        {
+          "word": "स॒त्यम्",
+          "meaning": "शाश्वत सत्य"
+        },
+        {
+          "word": "बृ॒हत्",
+          "meaning": "विशाल / महान"
+        },
+        {
+          "word": "ऋ॒तम्",
+          "meaning": "प्राकृतिक व नैतिक नियम"
+        },
+        {
+          "word": "उ॒ग्रम्",
+          "meaning": "तेजस्वी / दृढ़"
+        },
+        {
+          "word": "दी॒क्षा",
+          "meaning": "पवित्र व्रत व दीक्षा"
+        },
+        {
+          "word": "तपः॑",
+          "meaning": "तपस्या व साधना"
+        },
+        {
+          "word": "ब्रह्म॑",
+          "meaning": "ब्रह्म-विद्या / वेद"
+        },
+        {
+          "word": "य॒ज्ञः",
+          "meaning": "यज्ञ व निःस्वार्थ कर्म"
+        },
+        {
+          "word": "पृ॒थि॒वीम्",
+          "meaning": "पृथ्वी को"
+        },
+        {
+          "word": "धा॒र॒य॒न्ति॒",
+          "meaning": "धारण करते हैं"
+        },
+        {
+          "word": "सा",
+          "meaning": "वह"
+        },
+        {
+          "word": "नः॒",
+          "meaning": "हमारे लिए"
+        },
+        {
+          "word": "भू॒तस्य॑",
+          "meaning": "अतीत के"
+        },
+        {
+          "word": "भव्य॑स्य",
+          "meaning": "भविष्य के"
+        },
+        {
+          "word": "पत्नी॑",
+          "meaning": "स्वामिनी / रक्षिका"
+        },
+        {
+          "word": "उ॒रुम्",
+          "meaning": "विशाल / विस्तृत"
+        },
+        {
+          "word": "लो॒कम्",
+          "meaning": "संसार / जीवन क्षेत्र"
+        },
+        {
+          "word": "पृ॒थि॒वी",
+          "meaning": "मातृभूमि"
+        },
+        {
+          "word": "नः॒",
+          "meaning": "हमारे लिए"
+        },
+        {
+          "word": "कृ॒णो॒तु॒",
+          "meaning": "बनाए / सिद्ध करे"
+        }
+      ],
+      "shastricContext": "भूमि सूक्त का प्रथम मन्त्र। यह बताता है कि भूगोल केवल मिट्टी या पत्थर नहीं है; अपितु सत्य, ऋत, तप, यज्ञ और ब्रह्म जैसे आध्यात्मिक और नैतिक मूल्यों पर ही राष्ट्र और धरा टिकी रहती है।",
+      "audioUrl": null,
+      "previousId": "av-11-5-1",
+      "nextId": "av-12-1-3",
+      "chapterMantraIds": [
+        "av-12-1-1",
+        "av-12-1-3",
+        "av-12-1-12",
+        "av-12-1-63"
+      ],
+      "orderIndex": 7,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "av-12-1-3",
+      "slug": "av-12-1-3",
+      "vedaId": "atharvaveda",
+      "nodeId": "av-kanda-12-bhumi",
+      "vedaName": "अथर्ववेद (Atharvaveda)",
+      "shakha": "शौनक शाखा",
+      "textName": "अथर्ववेद संहिता (भूमि सूक्त / पृथ्वी सूक्त)",
+      "sectionRef": "काण्ड १२, सूक्त १, मन्त्र ३",
+      "mantraNumber": "१२.१.३",
+      "rishi": "महर्षि अथर्वा",
+      "devata": "भूमिः (Mother Earth)",
+      "chhanda": "त्रिष्टुप्",
+      "svara": "सस्वर वैदिक पाठ",
+      "sanskrit": "ॐ यस्यां॑ स॒मुद्र उ॒त सिन्धु॒रापो॒ यस्या॒मन्नं॑ कृ॒ष्टयः॑ संब॒भूवुः॑।\nयस्या॑मि॒दं जिन्व॑ति प्रा॒णदेज॒त् सा नो॒ भूमिः॑ पूर्वपे॒ये द॑धातु॥३॥",
+      "transliteration": "oṃ yasyāṃ samudra uta sindhur āpo yasyām annaṃ kṛṣṭayaḥ saṃbabhūvuḥ |\nyasyām idaṃ jinvati prāṇad ejat sā no bhūmiḥ pūrvapeye dadhātu || 3 ||",
+      "hindiTranslation": "जिस पृथ्वी पर महासागर, नदियाँ और अमृतमय जल-स्रोत विद्यमान हैं; जिस पर अन्न उत्पन्न होता है और परिश्रमी कृषक व जन-समुदाय समृद्ध होते हैं; जिस पर श्वास लेने वाले और गति करने वाले समस्त प्राणी चेतना पाते हैं; वह मातृभूमि हमें जीवन के प्रथम पेय (सर्वोत्तम पोषण व सुख) में प्रतिष्ठित करे।",
+      "englishTranslation": "In whom the oceans, the rivers, and the waters abide; in whom food and cultivating peoples have come into being; in whom all that breathes and moves finds vital sustenance—may that Earth establish us in the foremost nourishment!",
+      "hinglishTranslation": "Jis Dharti par samudra, nadiyaan aur pavitra jal-srot hain, jahan ann aur parishrami kisan samriddh hote hain, aur jahan sabhi jeev saans lete aur vikas karte hain — wo Dharti Mata hume sarvottam poshan aur anand pradan kare.",
+      "padapatha": [
+        {
+          "word": "यस्या॑म्",
+          "meaning": "जिसमें"
+        },
+        {
+          "word": "स॒मु॒द्रः",
+          "meaning": "महासागर"
+        },
+        {
+          "word": "उ॒त",
+          "meaning": "और"
+        },
+        {
+          "word": "सिन्धुः॑",
+          "meaning": "सिंधु आदि नदियाँ"
+        },
+        {
+          "word": "आपः॑",
+          "meaning": "समस्त जल-राशियाँ"
+        },
+        {
+          "word": "यस्या॑म्",
+          "meaning": "जिसमें"
+        },
+        {
+          "word": "अन्न॑म्",
+          "meaning": "अन्न-धान्य"
+        },
+        {
+          "word": "कृ॒ष्टयः॑",
+          "meaning": "कृषि करने वाली प्रजाएँ"
+        },
+        {
+          "word": "स॒म्ऽब॒भू॒वुः",
+          "meaning": "उत्पन्न हुईं / पुष्ट हुईं"
+        },
+        {
+          "word": "यस्या॑म्",
+          "meaning": "जिसमें"
+        },
+        {
+          "word": "इ॒दम्",
+          "meaning": "यह"
+        },
+        {
+          "word": "जिन्व॑ति",
+          "meaning": "प्राण पाता है / सचेत होता है"
+        },
+        {
+          "word": "प्रा॒णत्",
+          "meaning": "श्वास लेता हुआ"
+        },
+        {
+          "word": "एज॑त्",
+          "meaning": "गतिशील प्राणी-जगत"
+        },
+        {
+          "word": "सा",
+          "meaning": "वह"
+        },
+        {
+          "word": "नः॒",
+          "meaning": "हमें"
+        },
+        {
+          "word": "भूमिः॑",
+          "meaning": "मातृभूमि"
+        },
+        {
+          "word": "पूर्व॒ऽपे॒ये",
+          "meaning": "सर्वप्रथम पेय / जीवन-रस में"
+        },
+        {
+          "word": "द॒धा॒तु॒",
+          "meaning": "स्थापित करे"
+        }
+      ],
+      "shastricContext": "जैव-विविधता (Biodiversity) और जल-संरक्षण का प्राचीनतम सूक्त। पृथ्वी समस्त चराचर जगत, वनस्पति, जीव-जन्तुओं और नदियों की समान पोषणकर्त्री है।",
+      "audioUrl": null,
+      "previousId": "av-12-1-1",
+      "nextId": "av-12-1-12",
+      "chapterMantraIds": [
+        "av-12-1-1",
+        "av-12-1-3",
+        "av-12-1-12",
+        "av-12-1-63"
+      ],
+      "orderIndex": 8,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "av-12-1-12",
+      "slug": "av-12-1-12",
+      "vedaId": "atharvaveda",
+      "nodeId": "av-kanda-12-bhumi",
+      "vedaName": "अथर्ववेद (Atharvaveda)",
+      "shakha": "शौनक शाखा",
+      "textName": "अथर्ववेद संहिता (भूमि सूक्त / पृथ्वी सूक्त)",
+      "sectionRef": "काण्ड १२, सूक्त १, मन्त्र १२",
+      "mantraNumber": "१२.१.१२",
+      "rishi": "महर्षि अथर्वा",
+      "devata": "भूमिः (Mother Earth)",
+      "chhanda": "पुरउष्णिक् / अनुष्टुप्",
+      "svara": "सस्वर वैदिक पाठ",
+      "sanskrit": "ॐ यत्ते॒ मध्यं॑ पृथि॒वि यच्च॒ नभ्यं॒ यास्त॑ ऊ॒र्जस्त॒न्वः॒ संब॑भू॒वुः।\nतासु॑ नो धे॒ह्य॒भि नः॑ पवस्व मा॒ता भूमिः॑ पु॒त्रो अ॒हं पृ॑थि॒व्याः।\nप॒र्जन्यः॑ पि॒ता स उ॑ नः पिपर्तु॥१२॥",
+      "transliteration": "oṃ yat te madhyaṃ pṛthivi yac ca nabhyaṃ yās ta ūrjas tanvaḥ saṃbabhūvuḥ |\ntāsu no dhehy abhi naḥ pavasva mātā bhūmiḥ putro ahaṃ pṛthivyāḥ |\nparjanyaḥ pitā sa u naḥ pipartu || 12 ||",
+      "hindiTranslation": "हे पृथ्वी माता! जो आपका मध्य भाग है, जो आपकी नाभि (केंद्र) है, और जो आपकी ऊर्जा-प्रदायिनी पावन शक्तियाँ हैं; उन सब में हमें स्थापित कीजिए और हमें निरंतर पवित्र कीजिए। यह संपूर्ण भूमि मेरी माता है और मैं इस पावन पृथ्वी का पुत्र हूँ! पर्जन्य (मेघ) हमारे पिता हैं, वे हमारा पालन-पोषण करें!",
+      "englishTranslation": "What is thy middle, O Earth, what thy navel, what the vitalizing energies that have arisen from thy body—therein establish us, and cleanse us with pure grace. Earth is my Mother; I am the son of Earth! Parjanya is my Father; may he nourish and protect us!",
+      "hinglishTranslation": "Hey Dharti Mata! Jo aapka madhya hai, jo aapki naabhi hai, aur jo aapki urja-dayini divya shaktiyan hain, unme hume sthapit kijiye aur pavitra kijiye. Dharti meri mata hai aur main iska putra hoon! Parjanya hamare pita hain, ve hamara palan karein!",
+      "padapatha": [
+        {
+          "word": "यत्",
+          "meaning": "जो"
+        },
+        {
+          "word": "ते॒",
+          "meaning": "तुम्हारा"
+        },
+        {
+          "word": "मध्य॑म्",
+          "meaning": "मध्य भाग"
+        },
+        {
+          "word": "पृ॒थि॒वि",
+          "meaning": "हे पृथ्वी माता!"
+        },
+        {
+          "word": "यत्",
+          "meaning": "जो"
+        },
+        {
+          "word": "च॒",
+          "meaning": "और"
+        },
+        {
+          "word": "नभ्य॑म्",
+          "meaning": "नाभि (केंद्र स्थल)"
+        },
+        {
+          "word": "याः",
+          "meaning": "जो"
+        },
+        {
+          "word": "ते॒",
+          "meaning": "तुम्हारी"
+        },
+        {
+          "word": "ऊर्जः॑",
+          "meaning": "ऊर्जाएँ / जीवन-रस"
+        },
+        {
+          "word": "त॒न्वः॑",
+          "meaning": "शरीर से"
+        },
+        {
+          "word": "स॒म्ऽब॒भू॒वुः",
+          "meaning": "प्रकट हुईं"
+        },
+        {
+          "word": "तासु॑",
+          "meaning": "उनमें"
+        },
+        {
+          "word": "नः॒",
+          "meaning": "हमें"
+        },
+        {
+          "word": "धे॒हि॒",
+          "meaning": "स्थापित करो"
+        },
+        {
+          "word": "अ॒भि",
+          "meaning": "सर्वतोभावेन"
+        },
+        {
+          "word": "नः॒",
+          "meaning": "हमें"
+        },
+        {
+          "word": "प॒व॒स्व॒",
+          "meaning": "पवित्र करो"
+        },
+        {
+          "word": "मा॒ता",
+          "meaning": "माता"
+        },
+        {
+          "word": "भूमिः॑",
+          "meaning": "भूमि"
+        },
+        {
+          "word": "पु॒त्रः",
+          "meaning": "पुत्र"
+        },
+        {
+          "word": "अ॒हम्",
+          "meaning": "मैं"
+        },
+        {
+          "word": "पृ॒थि॒व्याः",
+          "meaning": "इस पृथ्वी का"
+        },
+        {
+          "word": "प॒र्जन्यः॑",
+          "meaning": "मेघ / पर्जन्य"
+        },
+        {
+          "word": "पि॒ता",
+          "meaning": "पिता"
+        },
+        {
+          "word": "सः",
+          "meaning": "वह"
+        },
+        {
+          "word": "उ॒",
+          "meaning": "भी"
+        },
+        {
+          "word": "नः॒",
+          "meaning": "हमारा"
+        },
+        {
+          "word": "पि॒प॒र्तु॒",
+          "meaning": "पालन-पोषण करे"
+        }
+      ],
+      "shastricContext": "सनातन पर्यावरण दर्शन, राष्ट्रीय एकात्मता और मातृभूमि-भक्ति का विश्व-विख्यात उद्घोष — 'माता भूमिः पुत्रो अहं पृथिव्याः'। यह मंत्र मानव और प्रकृति के सम्बंध को उपभोग्य नहीं, अपितु मातृ-पुत्र का पवित्र सम्बंध घोषित करता है।",
+      "audioUrl": null,
+      "previousId": "av-12-1-3",
+      "nextId": "av-12-1-63",
+      "chapterMantraIds": [
+        "av-12-1-1",
+        "av-12-1-3",
+        "av-12-1-12",
+        "av-12-1-63"
+      ],
+      "orderIndex": 9,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "av-12-1-63",
+      "slug": "av-12-1-63",
+      "vedaId": "atharvaveda",
+      "nodeId": "av-kanda-12-bhumi",
+      "vedaName": "अथर्ववेद (Atharvaveda)",
+      "shakha": "शौनक शाखा",
+      "textName": "अथर्ववेद संहिता (भूमि सूक्त / पृथ्वी सूक्त)",
+      "sectionRef": "काण्ड १२, सूक्त १, मन्त्र ६३",
+      "mantraNumber": "१२.१.६३",
+      "rishi": "महर्षि अथर्वा",
+      "devata": "भूमिः (Mother Earth)",
+      "chhanda": "अनुष्टुप्",
+      "svara": "सस्वर वैदिक पाठ",
+      "sanskrit": "ॐ भूमे॑ मात॒र्नि धे॑हि मा भ॒द्रया॑ सु॒प्रति॑ष्ठितम्।\nसं॒वि॒दा॒ना दि॒वा क॑वे॒ श्रियां॑ मा धेहि॒ भूत्या॑म्॥६३॥",
+      "transliteration": "oṃ bhūme mātar ni dhehi mā bhadrayā supratiṣṭhitam |\nsaṃvidānā divā kave śriyāṃ mā dhehi bhūtyām || 63 ||",
+      "hindiTranslation": "हे माता भूमि! आप मुझ पर कल्याणमयी कृपा करते हुए मुझे अपने ऊपर भलीभाँति सुप्रतिष्ठित (स्थिर व सुरक्षित) कीजिए। हे क्रांतदर्शी ज्ञानमयी धरा! आप द्युलोक के साथ सामंजस्य स्थापित करके मुझे श्री (शोभा/ऐश्वर्य) और भूति (समृद्धि व सामर्थ्य) में स्थापित कीजिए।",
+      "englishTranslation": "O Mother Earth, lovingly set me down well-established and firmly supported with thy auspicious blessing! In concord with the shining heavens, O wise and radiant one, set me in glorious majesty and enduring prosperity!",
+      "hinglishTranslation": "Hey Mata Bhumi! Mujh par kalyankari kripa karte hue mujhe achhi tarah sthir aur surakshit kijiye. Hey gyanmayi dhara! Swarg ke saath santulan banakar mujhe shree (shobha) aur samriddhi mein sthapit kijiye.",
+      "padapatha": [
+        {
+          "word": "भूमे॑",
+          "meaning": "हे भूमि!"
+        },
+        {
+          "word": "मा॒तः॒",
+          "meaning": "हे माता!"
+        },
+        {
+          "word": "नि",
+          "meaning": "निश्चित रूप से"
+        },
+        {
+          "word": "धे॒हि॒",
+          "meaning": "स्थापित कीजिए"
+        },
+        {
+          "word": "मा॒",
+          "meaning": "मुझको"
+        },
+        {
+          "word": "भ॒द्रया॑",
+          "meaning": "कल्याणमयी दृष्टि/कृपा से"
+        },
+        {
+          "word": "सु॒ऽप्रति॑ष्ठितम्",
+          "meaning": "उत्तम प्रकार से स्थिर व प्रतिष्ठित"
+        },
+        {
+          "word": "स॒म्ऽवि॒दा॒ना",
+          "meaning": "सामंजस्य स्थापित करती हुई"
+        },
+        {
+          "word": "दि॒वा",
+          "meaning": "द्युलोक / आकाश के साथ"
+        },
+        {
+          "word": "क॒वे॒",
+          "meaning": "हे ज्ञानमयी क्रांतदर्शिनी!"
+        },
+        {
+          "word": "श्रिया॑म्",
+          "meaning": "श्री / दिव्य तेज में"
+        },
+        {
+          "word": "मा॒",
+          "meaning": "मुझको"
+        },
+        {
+          "word": "धे॒हि॒",
+          "meaning": "प्रतिष्ठित कीजिए"
+        },
+        {
+          "word": "भूत्या॑म्",
+          "meaning": "समृद्धि व ऐश्वर्य में"
+        }
+      ],
+      "shastricContext": "भूमि सूक्त का अंतिम उपसंहार मंत्र। यह मंत्र प्रकृति से कृतज्ञतापूर्वक आशीर्वाद मांगते हुए भौतिक समृद्धि (भूति) और आध्यात्मिक शोभा (श्री) दोनों की समन्वित प्रार्थना करता है।",
+      "audioUrl": null,
+      "previousId": "av-12-1-12",
+      "nextId": "av-19-9-1",
+      "chapterMantraIds": [
+        "av-12-1-1",
+        "av-12-1-3",
+        "av-12-1-12",
+        "av-12-1-63"
+      ],
+      "orderIndex": 10,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "av-19-9-1",
+      "slug": "av-19-9-1",
+      "vedaId": "atharvaveda",
+      "nodeId": "av-kanda-19-shanti",
+      "vedaName": "अथर्ववेद (Atharvaveda)",
+      "shakha": "शौनक शाखा",
+      "textName": "अथर्ववेद संहिता (विश्व शांति सूक्त)",
+      "sectionRef": "काण्ड १९, सूक्त ९, मन्त्र १",
+      "mantraNumber": "१९.९.१",
+      "rishi": "महर्षि अथर्वा / भृगु",
+      "devata": "शान्तिः (Universal Peace - Dyau, Prithvi, Antariksha, Apah, Oshadhayah)",
+      "chhanda": "अनुष्टुप्",
+      "svara": "सस्वर वैदिक पाठ",
+      "sanskrit": "ॐ शान्ता॒ द्यौः शान्ता॑ पृथि॒वी शान्त॑मि॒दमु॒र्व१न्तरि॑क्षम्।\nशान्ता॑ उद॒न्वती॒रापः॒ शान्ता नः॑ सन्त्वोष॑धीः॥१॥",
+      "transliteration": "oṃ śāntā dyauḥ śāntā pṛthivī śāntam idam urv antarikṣam |\nśāntā udanvatīr āpaḥ śāntā naḥ santv oṣadhīḥ || 1 ||",
+      "hindiTranslation": "द्युलोक शांत हो, पृथ्वी शांत हो, यह विशाल अंतरिक्ष शांत हो, महासागरों एवं नदियों का जल शांत और कल्याणकारी हो तथा समस्त औषधियाँ एवं वनस्पतियाँ हमारे लिए शांतिप्रद हों।",
+      "englishTranslation": "Peaceful be the heavens, peaceful be the earth, peaceful be this vast atmosphere! Peaceful be the waters flowing in the ocean, and may all healing herbs and plants be tranquil and benevolent unto us!",
+      "hinglishTranslation": "Swarglok shant ho, dharti shant ho, vishal antariksh shant ho! Samudra aur nadiyo ka jal shant ho aur samast aushadhiyaan v vanaspatiyaan hamare liye shantiprad hon.",
+      "padapatha": [
+        {
+          "word": "शान्ता॑",
+          "meaning": "शांत / उपद्रव-रहित"
+        },
+        {
+          "word": "द्यौः",
+          "meaning": "द्युलोक / आकाश"
+        },
+        {
+          "word": "शान्ता॑",
+          "meaning": "शांत"
+        },
+        {
+          "word": "पृ॒थि॒वी",
+          "meaning": "पृथ्वी"
+        },
+        {
+          "word": "शान्त॑म्",
+          "meaning": "शांत"
+        },
+        {
+          "word": "इ॒दम्",
+          "meaning": "यह"
+        },
+        {
+          "word": "उ॒रु",
+          "meaning": "विस्तृत / विशाल"
+        },
+        {
+          "word": "अ॒न्तरि॑क्षम्",
+          "meaning": "अंतरिक्ष"
+        },
+        {
+          "word": "शान्ताः॑",
+          "meaning": "शांत"
+        },
+        {
+          "word": "उ॒द॒न्वतीः॑",
+          "meaning": "तरंगित / जलमयी"
+        },
+        {
+          "word": "आपः॑",
+          "meaning": "जल-राशियाँ"
+        },
+        {
+          "word": "शान्ताः॑",
+          "meaning": "शांतिप्रद"
+        },
+        {
+          "word": "नः॒",
+          "meaning": "हमारे लिए"
+        },
+        {
+          "word": "स॒न्तु॒",
+          "meaning": "हों"
+        },
+        {
+          "word": "ओष॑धीः",
+          "meaning": "समस्त औषधियाँ"
+        }
+      ],
+      "shastricContext": "अथर्ववेदीय विश्व शांति सूक्त का प्रथम मंत्र। यह आंतरिक और बाह्य प्रकृति के समस्त घटकों में आधिभौतिक, आधिदैविक और आध्यात्मिक उपद्रवों की शांति हेतु सार्वभौमिक शांति-मंत्र है।",
+      "audioUrl": null,
+      "previousId": "av-12-1-63",
+      "nextId": "av-19-9-14",
+      "chapterMantraIds": [
+        "av-19-9-1",
+        "av-19-9-14"
+      ],
+      "orderIndex": 11,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "av-19-9-14",
+      "slug": "av-19-9-14",
+      "vedaId": "atharvaveda",
+      "nodeId": "av-kanda-19-shanti",
+      "vedaName": "अथर्ववेद (Atharvaveda)",
+      "shakha": "शौनक शाखा",
+      "textName": "अथर्ववेद संहिता (विश्व शांति सूक्त)",
+      "sectionRef": "काण्ड १९, सूक्त ९, मन्त्र १४",
+      "mantraNumber": "१९.९.१४",
+      "rishi": "महर्षि अथर्वा / भृगु",
+      "devata": "विश्वेदेवाः एवं सर्वशान्तिः",
+      "chhanda": "निचृदनुष्टुप् / बृहती",
+      "svara": "सस्वर वैदिक पाठ",
+      "sanskrit": "ॐ द्यौः शान्ति॑र॒न्तरि॑क्षं॒ शान्तिः॑ पृथि॒वी शान्ति॒रापः॒ शान्तिरोष॑धयः॒ शान्तिः॑।\nवन॒स्पत॑यः॒ शान्ति॒र्विश्वे॑ दे॒वाः शान्ति॒र्ब्रह्म॒ शान्तिः॒ सर्वं॒ शान्तिः॒ शान्ति॑रे॒व शान्तिः॒ सा मा॒ शान्ति॑रेधि॥१४॥",
+      "transliteration": "oṃ dyauḥ śāntir antarikṣaṃ śāntiḥ pṛthivī śāntir āpaḥ śāntir oṣadhayaḥ śāntiḥ |\nvanaspatayaḥ śāntir viśve devāḥ śāntir brahma śāntiḥ sarvaṃ śāntiḥ śāntir eva śāntiḥ sā mā śāntir edhi || 14 ||",
+      "hindiTranslation": "द्युलोक में शांति हो, अंतरिक्ष में शांति हो, पृथ्वी पर शांति हो, जल में शांति हो, औषधियों में शांति हो, वनस्पतियों में शांति हो, विश्वेदेवों में शांति हो, परब्रह्म में शांति हो, समस्त चराचर जगत में शांति ही शांति हो; और वह परम शांति मेरे अंतःकरण में प्रविष्ट होकर सदा वृद्धि को प्राप्त हो!",
+      "englishTranslation": "May peace radiate in the celestial realms; may peace permeate the atmosphere; peace on earth; peace in waters; peace in medicinal herbs; peace in vegetation and trees; peace in all cosmic divinities; peace in Brahman; may peace prevail everywhere; may peace itself be peaceful; and may that supreme peace abide in me!",
+      "hinglishTranslation": "Swarglok mein shanti ho, antariksh mein shanti ho, prithvi par shanti ho, jal aur aushadhiyon mein shanti ho. Samast vanaspati, devta aur parbrahma shant ho. Sabhi jagah shanti hi shanti ho; aur wo divya shanti mere hriday mein vikasit ho!",
+      "padapatha": [
+        {
+          "word": "द्यौः",
+          "meaning": "द्युलोक / आकाश"
+        },
+        {
+          "word": "शान्तिः॑",
+          "meaning": "शांतिमय हो"
+        },
+        {
+          "word": "अ॒न्तरि॑क्षम्",
+          "meaning": "अंतरिक्ष"
+        },
+        {
+          "word": "शान्तिः॑",
+          "meaning": "शांतिमय हो"
+        },
+        {
+          "word": "पृ॒थि॒वी",
+          "meaning": "पृथ्वी"
+        },
+        {
+          "word": "शान्तिः॑",
+          "meaning": "शांतिमय हो"
+        },
+        {
+          "word": "आपः॑",
+          "meaning": "जल-राशियाँ"
+        },
+        {
+          "word": "शान्तिः॑",
+          "meaning": "शांतिमय हों"
+        },
+        {
+          "word": "ओष॑धयः",
+          "meaning": "समस्त औषधियाँ"
+        },
+        {
+          "word": "शान्तिः॑",
+          "meaning": "शांतिमय हों"
+        },
+        {
+          "word": "वन॒स्पत॑यः",
+          "meaning": "वनस्पति व वृक्ष"
+        },
+        {
+          "word": "शान्तिः॑",
+          "meaning": "शांतिमय हों"
+        },
+        {
+          "word": "विश्वे॑",
+          "meaning": "समस्त"
+        },
+        {
+          "word": "दे॒वाः",
+          "meaning": "देवगण"
+        },
+        {
+          "word": "शान्तिः॑",
+          "meaning": "शांतिदाता हों"
+        },
+        {
+          "word": "ब्रह्म॑",
+          "meaning": "परब्रह्म"
+        },
+        {
+          "word": "शान्तिः॑",
+          "meaning": "शांति स्वरूप हो"
+        },
+        {
+          "word": "सर्व॑म्",
+          "meaning": "समस्त ब्रह्माण्ड"
+        },
+        {
+          "word": "शान्तिः॑",
+          "meaning": "शांत हो"
+        },
+        {
+          "word": "शान्तिः॑",
+          "meaning": "शांति"
+        },
+        {
+          "word": "ए॒व",
+          "meaning": "ही"
+        },
+        {
+          "word": "शान्तिः॑",
+          "meaning": "शांति हो"
+        },
+        {
+          "word": "सा",
+          "meaning": "वह परम शांति"
+        },
+        {
+          "word": "मा॒",
+          "meaning": "मेरे भीतर"
+        },
+        {
+          "word": "शान्तिः॑",
+          "meaning": "शांति रूप होकर"
+        },
+        {
+          "word": "ए॒धि॒",
+          "meaning": "विराजमान व वृद्धिंगत हो"
+        }
+      ],
+      "shastricContext": "वैदिक सनातन वांग्मय का महाशांति मंत्र। यजुर्वेद (३६.१७) एवं अथर्ववेद (१९.९.१४) में समान रूप से प्रतिष्ठित यह मंत्र समस्त ब्रह्माण्ड, पारिस्थितिकी (Ecology), और मानव चेतना के मध्य एकात्मता और शांति की पराकाष्ठा है।",
+      "audioUrl": null,
+      "previousId": "av-19-9-1",
+      "nextId": null,
+      "chapterMantraIds": [
+        "av-19-9-1",
+        "av-19-9-14"
+      ],
+      "orderIndex": 12,
+      "status": "ACTIVE"
+    }
+  ]
+}

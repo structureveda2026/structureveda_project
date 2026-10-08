@@ -1,0 +1,2029 @@
+{
+  "nodes": [
+    {
+      "id": "shakala-shakha",
+      "slug": "shakala-shakha",
+      "vedaId": "rigveda",
+      "parentId": null,
+      "nodeType": "SHAKHA",
+      "name": "शाकल शाखा (Shakala Shakha)",
+      "enName": "Shakala Shakha",
+      "desc": "ऋग्वेद की वर्तमान में उपलब्ध मुख्य एवं प्रामाणिक शाखा। पतंजलि के महाभाष्य के अनुसार ऋग्वेद की २१ शाखाएँ थीं, जिनमें शाकल शाखा सर्वाधिक सुरक्षित व मान्य है।",
+      "stats": "१० मण्डल • १०२८ सूक्त • १०,५५२ ऋचाएँ",
+      "priest": "होतृ (Hotri)",
+      "badge": "प्रधान शाखा",
+      "imageKey": "card-shakala-shakha.jpg",
+      "orderIndex": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rigveda-samhita",
+      "slug": "rigveda-samhita",
+      "vedaId": "rigveda",
+      "parentId": "shakala-shakha",
+      "nodeType": "SAMHITA",
+      "name": "ऋग्वेद संहिता (मूल मंत्र भाग)",
+      "enName": "Rigveda Samhita",
+      "desc": "१० मण्डल, १०२८ सूक्त और १०,५५२ ऋचाओं का पवित्रतम संकलन। अग्नि सूक्त, पुरुष सूक्त, नासदीय सूक्त, गायत्री महामंत्र और महामृत्युंजय मंत्र का उद्गम स्थल।",
+      "stats": "१० मण्डल • १०२८ सूक्त • १०,५५२ ऋचाएँ",
+      "priest": "होतृ (Hotri)",
+      "badge": "संहिता ग्रंथ",
+      "imageKey": "card-samhita.jpg",
+      "orderIndex": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-mandala-1",
+      "slug": "rv-mandala-1",
+      "vedaId": "rigveda",
+      "parentId": "rigveda-samhita",
+      "nodeType": "MANDALA",
+      "name": "प्रथम मण्डल (Mandala 1)",
+      "enName": "Rigveda Mandala 1",
+      "desc": "ऋग्वेद का प्रथम मण्डल जिसमें १९१ सूक्त हैं। यह सूक्त १ (अग्नि सूक्त) से प्रारंभ होता है। इसके प्रमुख ऋषि मधुच्छन्दा, मेधातिथि, दीर्घतमा, अगस्त्य आदि हैं।",
+      "stats": "१९१ सूक्त • २०१६ मंत्र",
+      "priest": "होतृ (Hotri)",
+      "badge": "प्रथम मण्डल",
+      "imageKey": "card-mandala-1.jpg",
+      "mantraId": "rv-1-1-1",
+      "orderIndex": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-sukta-1",
+      "slug": "rv-sukta-1",
+      "vedaId": "rigveda",
+      "parentId": "rv-mandala-1",
+      "nodeType": "SUKTA",
+      "name": "१. अग्नि सूक्त (मण्डल १, सूक्त १)",
+      "enName": "Agni Sukta (Mandala 1, Sukta 1)",
+      "desc": "ऋग्वेद का प्रथम सूक्त — ऋषि मधुच्छन्दा वैश्वामित्र कृत ९ ऋचाओं में अग्निदेव की महत्ता, पुरोहित रूप एवं हविर्वाहक स्वरूप का निरूपण।",
+      "stats": "९ ऋचाएँ • गायत्री छंद",
+      "priest": "होतृ (Hotri)",
+      "badge": "प्रथम सूक्त",
+      "imageKey": "card-sukta-agni.jpg",
+      "mantraId": "rv-1-1-1",
+      "orderIndex": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-mandala-3",
+      "slug": "rv-mandala-3",
+      "vedaId": "rigveda",
+      "parentId": "rigveda-samhita",
+      "nodeType": "MANDALA",
+      "name": "तृतीय मण्डल (Mandala 3 - विश्वामित्र वंश)",
+      "enName": "Rigveda Mandala 3 (Vishvamitra Family)",
+      "desc": "महर्षि विश्वामित्र और उनके वंशजों द्वारा दृष्ट कुल-मण्डल। इसमें ६२ सूक्त हैं। इसी मण्डल के ६२वें सूक्त में सनातन धर्म का प्राणभूत 'गायत्री महामंत्र' प्रतिष्ठापित है।",
+      "stats": "६२ सूक्त • ६१७ मंत्र",
+      "priest": "होतृ (Hotri)",
+      "badge": "कुल मण्डल",
+      "imageKey": "card-mandala-3.jpg",
+      "mantraId": "rv-3-62-10",
+      "orderIndex": 3,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-sukta-3-62",
+      "slug": "rv-sukta-3-62",
+      "vedaId": "rigveda",
+      "parentId": "rv-mandala-3",
+      "nodeType": "SUKTA",
+      "name": "२. सविता / गायत्री सूक्त (मण्डल ३, सूक्त ६२)",
+      "enName": "Savitr / Gayatri Sukta (Mandala 3, Sukta 62)",
+      "desc": "महर्षि विश्वामित्र द्वारा दृष्ट सूक्त — वेदमाता गायत्री महामंत्र (३.६२.१०) जिसमें सविता देव के परम तेज का ध्यान एवं सद्बुद्धि की प्रार्थना निहित है।",
+      "stats": "१८ ऋचाएँ • निचृद् गायत्री छंद",
+      "priest": "होतृ (Hotri)",
+      "badge": "गायत्री महामंत्र",
+      "imageKey": "card-sukta-gayatri.jpg",
+      "mantraId": "rv-3-62-10",
+      "orderIndex": 2,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-sukta-gayatri",
+      "slug": "rv-sukta-gayatri",
+      "vedaId": "rigveda",
+      "parentId": "rigveda-samhita",
+      "nodeType": "SUKTA",
+      "name": "२. गायत्री महामंत्र (मण्डल ३, सूक्त ६२)",
+      "enName": "Gayatri Mantra (Mandala 3, Sukta 62)",
+      "desc": "वेदमाता गायत्री — सविता देव के परम तेज का ध्यान एवं सद्बुद्धि की प्रार्थना।",
+      "stats": "मंत्र १० • २४ अक्षर",
+      "badge": "महामंत्र",
+      "imageKey": "card-sukta-gayatri.jpg",
+      "mantraId": "rv-3-62-10",
+      "orderIndex": 2,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-mandala-7",
+      "slug": "rv-mandala-7",
+      "vedaId": "rigveda",
+      "parentId": "rigveda-samhita",
+      "nodeType": "MANDALA",
+      "name": "सप्तम मण्डल (Mandala 7 - वसिष्ठ वंश)",
+      "enName": "Rigveda Mandala 7 (Vasishtha Family)",
+      "desc": "ब्रह्मर्षि वसिष्ठ और उनके वंशजों द्वारा दृष्ट कुल-मण्डल। इसमें १०४ सूक्त हैं। इसी मण्डल के ५९वें सूक्त में भगवान शिव का अमोघ 'महामृत्युंजय संजीवनी मंत्र' तथा वरुण एवं इंद्र स्तुतियाँ निहित हैं।",
+      "stats": "१०४ सूक्त • ८४१ मंत्र",
+      "priest": "होतृ (Hotri)",
+      "badge": "कुल मण्डल",
+      "imageKey": "card-mandala-7.jpg",
+      "mantraId": "rv-7-59-12",
+      "orderIndex": 7,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-sukta-7-59",
+      "slug": "rv-sukta-7-59",
+      "vedaId": "rigveda",
+      "parentId": "rv-mandala-7",
+      "nodeType": "SUKTA",
+      "name": "३. महामृत्युंजय सूक्त / रुद्र सूक्त (मण्डल ७, सूक्त ५९)",
+      "enName": "Mahamrityunjaya Sukta (Mandala 7, Sukta 59)",
+      "desc": "ब्रह्मर्षि वसिष्ठ द्वारा दृष्ट मरुद्गण एवं रुद्र सूक्त — ऋचा १२ में संजीवनी महामृत्युंजय मंत्र निहित है जो अकाल मृत्यु और भव-बंधन से मुक्ति दिलाता है।",
+      "stats": "१२ ऋचाएँ • अनुष्टुप् छंद",
+      "priest": "होतृ (Hotri)",
+      "badge": "संजीवनी महामंत्र",
+      "imageKey": "card-sukta-mrityunjaya.jpg",
+      "mantraId": "rv-7-59-12",
+      "orderIndex": 3,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-sukta-mrityunjaya",
+      "slug": "rv-sukta-mrityunjaya",
+      "vedaId": "rigveda",
+      "parentId": "rigveda-samhita",
+      "nodeType": "SUKTA",
+      "name": "३. महामृत्युंजय मंत्र (मण्डल ७, सूक्त ५९)",
+      "enName": "Mahamrityunjaya Mantra (Mandala 7, Sukta 59)",
+      "desc": "संजीवनी महामंत्र — त्र्यम्बक रुद्र की उपासना से मृत्यु-भय व भव-बंधन से मुक्ति।",
+      "stats": "मंत्र १२ • अनुष्टुप् छंद",
+      "badge": "महामंत्र",
+      "imageKey": "card-sukta-mrityunjaya.jpg",
+      "mantraId": "rv-7-59-12",
+      "orderIndex": 3,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-mandala-10",
+      "slug": "rv-mandala-10",
+      "vedaId": "rigveda",
+      "parentId": "rigveda-samhita",
+      "nodeType": "MANDALA",
+      "name": "दशम मण्डल (Mandala 10 - दार्शनिक एवं सृष्टि सूक्त)",
+      "enName": "Rigveda Mandala 10",
+      "desc": "ऋग्वेद का अंतिम एवं सर्वाधिक गहन दार्शनिक मण्डल। इसमें १९१ सूक्त और १७५४ मंत्र हैं। इसमें पुरुष सूक्त, नासदीय सूक्त, हिरण्यगर्भ सूक्त, वाक् सूक्त (देवी सूक्त) और ऋग्वेद का अंतिम संगठन सूक्त समाहित हैं।",
+      "stats": "१९१ सूक्त • १७५४ मंत्र",
+      "priest": "होतृ (Hotri)",
+      "badge": "दार्शनिक मण्डल",
+      "imageKey": "card-mandala-10.jpg",
+      "mantraId": "rv-10-90-1",
+      "orderIndex": 10,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-sukta-10-90",
+      "slug": "rv-sukta-10-90",
+      "vedaId": "rigveda",
+      "parentId": "rv-mandala-10",
+      "nodeType": "SUKTA",
+      "name": "४. पुरुष सूक्त (मण्डल १०, सूक्त ९०)",
+      "enName": "Purusha Sukta (Mandala 10, Sukta 90)",
+      "desc": "नारायण ऋषि द्वारा दृष्ट विराट् पुरुष सूक्त — संपूर्ण ब्रह्माण्ड के विराट् स्वरूप, सृष्टि की उत्पत्ति एवं यज्ञीय व्यवस्था का सार्वभौमिक वैदिक विज्ञान।",
+      "stats": "१६ ऋचाएँ • अनुष्टुप् व त्रिष्टुप् छंद",
+      "priest": "होतृ (Hotri)",
+      "badge": "विराट् पुरुष",
+      "imageKey": "card-sukta-purusha.jpg",
+      "mantraId": "rv-10-90-1",
+      "orderIndex": 4,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-sukta-purusha",
+      "slug": "rv-sukta-purusha",
+      "vedaId": "rigveda",
+      "parentId": "rigveda-samhita",
+      "nodeType": "SUKTA",
+      "name": "४. पुरुष सूक्त (मण्डल १०, सूक्त ९०)",
+      "enName": "Purusha Sukta (Mandala 10, Sukta 90)",
+      "desc": "ब्रह्माण्ड के विराट् पुरुष का स्वरूप और सृष्टि उत्पत्ति का वैदिक विज्ञान।",
+      "stats": "१६ ऋचाएँ • अनुष्टुप् छंद",
+      "badge": "सूक्त",
+      "imageKey": "card-sukta-purusha.jpg",
+      "mantraId": "rv-10-90-1",
+      "orderIndex": 4,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-sukta-10-121",
+      "slug": "rv-sukta-10-121",
+      "vedaId": "rigveda",
+      "parentId": "rv-mandala-10",
+      "nodeType": "SUKTA",
+      "name": "५. हिरण्यगर्भ सूक्त (मण्डल १०, सूक्त १२१)",
+      "enName": "Hiranyagarbha Sukta (Mandala 10, Sukta 121)",
+      "desc": "हिरण्यगर्भ प्राजापत्य द्वारा दृष्ट ब्रह्माण्ड उत्पत्ति सूक्त — 'कस्मै देवाय हविषा विधेम' के ध्रुवपद द्वारा आनंदमय प्रजापति परमेश्वर का निरूपण।",
+      "stats": "१० ऋचाएँ • त्रिष्टुप् छंद",
+      "priest": "होतृ (Hotri)",
+      "badge": "सृष्टि सूक्त",
+      "imageKey": "card-sukta-hiranyagarbha.jpg",
+      "mantraId": "rv-10-121-1",
+      "orderIndex": 5,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-sukta-10-125",
+      "slug": "rv-sukta-10-125",
+      "vedaId": "rigveda",
+      "parentId": "rv-mandala-10",
+      "nodeType": "SUKTA",
+      "name": "६. देवी सूक्त / वाक् सूक्त (मण्डल १०, सूक्त १२५)",
+      "enName": "Devi Sukta / Vak Sukta (Mandala 10, Sukta 125)",
+      "desc": "ब्रह्मवादिनी विदुषी वागाम्भृणी द्वारा दृष्ट अद्वैत पराशक्ति सूक्त — 'अहं रुद्रेभिर्वसुभिश्चरामि'। शाक्त उपासना एवं दुर्गा सप्तशती का मूल वैदिक आधार।",
+      "stats": "८ ऋचाएँ • त्रिष्टुप् व जगती छंद",
+      "priest": "होतृ (Hotri)",
+      "badge": "पराशक्ति सूक्त",
+      "imageKey": "card-sukta-devi.jpg",
+      "mantraId": "rv-10-125-1",
+      "orderIndex": 6,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-sukta-10-129",
+      "slug": "rv-sukta-10-129",
+      "vedaId": "rigveda",
+      "parentId": "rv-mandala-10",
+      "nodeType": "SUKTA",
+      "name": "७. नासदीय सूक्त (मण्डल १०, सूक्त १२९)",
+      "enName": "Nasadiya Sukta (Mandala 10, Sukta 129)",
+      "desc": "परमेष्ठी प्रजापति द्वारा दृष्ट विश्व का सर्वाधिक प्राचीन एवं गूढ़ दार्शनिक सूक्त — सृष्टि के पूर्व क्या था? सत् और असत् के अतीत अनिर्वचनीय सत्य का अन्वेषण।",
+      "stats": "७ ऋचाएँ • त्रिष्टुप् छंद",
+      "priest": "होतृ (Hotri)",
+      "badge": "परम दार्शनिक सूक्त",
+      "imageKey": "card-sukta-nasadiya.jpg",
+      "mantraId": "rv-10-129-1",
+      "orderIndex": 7,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-sukta-nasadiya",
+      "slug": "rv-sukta-nasadiya",
+      "vedaId": "rigveda",
+      "parentId": "rigveda-samhita",
+      "nodeType": "SUKTA",
+      "name": "५. नासदीय सूक्त (मण्डल १०, सूक्त १२९)",
+      "enName": "Nasadiya Sukta (Creation Hymn)",
+      "desc": "सृष्टि के पूर्व क्या था? विश्व का सर्वाधिक प्राचीन एवं गूढ़ दार्शनिक सूक्त।",
+      "stats": "७ ऋचाएँ • त्रिष्टुप् छंद",
+      "badge": "दार्शनिक सूक्त",
+      "imageKey": "card-sukta-nasadiya.jpg",
+      "mantraId": "rv-10-129-1",
+      "orderIndex": 7,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-sukta-10-191",
+      "slug": "rv-sukta-10-191",
+      "vedaId": "rigveda",
+      "parentId": "rv-mandala-10",
+      "nodeType": "SUKTA",
+      "name": "८. संज्ञान / संगठन सूक्त (मण्डल १०, सूक्त १९१)",
+      "enName": "Samjnana / Sangathan Sukta (Mandala 10, Sukta 191)",
+      "desc": "ऋषि संवनन आङ्गिरस द्वारा दृष्ट ऋग्वेद का अंतिम सूक्त — 'सं गच्छध्वं सं वदध्वं'। विश्व बंधुत्व, सामाजिक समरसता, लोकतांत्रिक संवाद एवं सामूहिक एकता का अमर संदेश।",
+      "stats": "४ ऋचाएँ • अनुष्टुप् व त्रिष्टुप् छंद",
+      "priest": "होतृ (Hotri)",
+      "badge": "विश्व एकता सूक्त",
+      "imageKey": "card-sukta-samgathan.jpg",
+      "mantraId": "rv-10-191-1",
+      "orderIndex": 8,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-sukta-sangathan",
+      "slug": "rv-sukta-sangathan",
+      "vedaId": "rigveda",
+      "parentId": "rigveda-samhita",
+      "nodeType": "SUKTA",
+      "name": "६. संगठन सूक्त (मण्डल १०, सूक्त १९१)",
+      "enName": "Sangathan Sukta (Unity Hymn)",
+      "desc": "'सं गच्छध्वं सं वदध्वं' — सामूहिक एकता, सद्भाव और विश्व बंधुत्व का संदेश।",
+      "stats": "४ ऋचाएँ • अनुष्टुप् छंद",
+      "badge": "सूक्त",
+      "imageKey": "card-sukta-samgathan.jpg",
+      "mantraId": "rv-10-191-2",
+      "orderIndex": 8,
+      "status": "ACTIVE"
+    }
+  ],
+  "mantras": [
+    {
+      "id": "rv-1-1-1",
+      "slug": "rv-1-1-1",
+      "vedaId": "rigveda",
+      "nodeId": "rv-sukta-1",
+      "vedaName": "ऋग्वेद (Rigveda)",
+      "shakha": "शाकल शाखा",
+      "textName": "ऋग्वेद संहिता (शाकल शाखा)",
+      "sectionRef": "मण्डल १, सूक्त १, ऋचा १",
+      "mantraNumber": "१.१.१",
+      "rishi": "मधुच्छन्दा वैश्वामित्र",
+      "devata": "अग्नि (Agni - Purohita)",
+      "chhanda": "गायत्री (८+८+८ = २४ वर्ण)",
+      "svara": "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
+      "sanskrit": "ॐ अ॒ग्निमी॑ळे पु॒रोहि॑तं य॒ज्ञस्य॑ दे॒वमृ॒त्विज॑म्।\nहोता॑रं रत्न॒धात॑मम्॥१॥",
+      "transliteration": "oṃ agnim īḷe purohitaṃ yajñasya devam ṛtvijam |\nhotāraṃ ratnadhātamam || 1 ||",
+      "hindiTranslation": "मैं यज्ञ के पुरोहित, दिव्य प्रकाशयुक्त, देवों को बुलाने वाले ऋत्विक तथा प्रचुर रत्नों (श्रेष्ठ सुखों एवं आध्यात्मिक ऐश्वर्य) को धारण कराने वाले अग्निदेव की स्तुति करता हूँ।",
+      "englishTranslation": "I magnify Agni, the divine domestic priest of the sacrifice, the ministrant priest who summons the gods, and the supreme bestower of treasures.",
+      "hinglishTranslation": "Main yagya ke purohit, divya prakaash se yukt, devon ka aahvaan karne waale ritvik aur sarvashreshth ratnon/sukhon ko pradaan karne waale Agni Dev ki stuti karta hoon.",
+      "padapatha": [
+        {
+          "word": "अ॒ग्निम्",
+          "meaning": "अग्निदेव को"
+        },
+        {
+          "word": "ई॒ळे",
+          "meaning": "स्तुति करता हूँ / वंदना करता हूँ"
+        },
+        {
+          "word": "पु॒रःऽहि॑तम्",
+          "meaning": "सम्मुख स्थापित पुरोहित को"
+        },
+        {
+          "word": "य॒ज्ञस्य॑",
+          "meaning": "यज्ञ कर्म के"
+        },
+        {
+          "word": "दे॒वम्",
+          "meaning": "दिव्य प्रकाशमान देव को"
+        },
+        {
+          "word": "ऋ॒त्विज॑म्",
+          "meaning": "ऋतु-ऋतु में यज्ञ कराने वाले ऋत्विक को"
+        },
+        {
+          "word": "होता॑रम्",
+          "meaning": "देवताओं का आह्वान करने वाले को"
+        },
+        {
+          "word": "र॒त्न॒ऽधात॑मम्",
+          "meaning": "सर्वश्रेष्ठ रत्नों/सुखों को धारण कराने वाले को"
+        }
+      ],
+      "shastricContext": "ऋग्वेद का प्रथम मंत्र। समस्त वैदिक वांग्मय का यह प्रथम मंगलाचरण मंत्र है जिसमें भौतिक एवं आध्यात्मिक अग्नि दोनों की सर्वव्यापकता प्रतिपादित की गई है।",
+      "audioUrl": null,
+      "previousId": null,
+      "nextId": "rv-1-1-2",
+      "chapterMantraIds": [
+        "rv-1-1-1",
+        "rv-1-1-2",
+        "rv-1-1-3",
+        "rv-1-1-4",
+        "rv-1-1-5",
+        "rv-1-1-9"
+      ],
+      "orderIndex": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-1-1-2",
+      "slug": "rv-1-1-2",
+      "vedaId": "rigveda",
+      "nodeId": "rv-sukta-1",
+      "vedaName": "ऋग्वेद (Rigveda)",
+      "shakha": "शाकल शाखा",
+      "textName": "ऋग्वेद संहिता (शाकल शाखा)",
+      "sectionRef": "मण्डल १, सूक्त १, ऋचा २",
+      "mantraNumber": "१.१.२",
+      "rishi": "मधुच्छन्दा वैश्वामित्र",
+      "devata": "अग्नि (Agni)",
+      "chhanda": "गायत्री (८+८+८ = २४ वर्ण)",
+      "svara": "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
+      "sanskrit": "अ॒ग्निः पूर्वे॑भि॒रृषि॑भि॒रीड्यो॒ नूत॑नैरु॒त।\nस दे॒वाँ एह व॑क्षति॥२॥",
+      "transliteration": "agniḥ pūrvebhir ṛṣibhir īḍyo nūtanair uta |\nsa devāṃ eha vakṣati || 2 ||",
+      "hindiTranslation": "अग्निदेव पूर्वकालीन ऋषियों (भृगु, अंगिरा आदि) द्वारा स्तुत्य थे और वर्तमान नवीन ऋषियों द्वारा भी स्तुत्य हैं। वे इस यज्ञ में अन्य देवों को यहाँ लेकर आएं।",
+      "englishTranslation": "Agni, worthy of praise by ancient seers as well as by modern ones, may he bring the gods hither.",
+      "hinglishTranslation": "Agni Dev puraatan rishiyon (Bhrigu, Angira) dwara bhi poojit the aur aaj ke rishiyon dwara bhi poojya hain. Wo is yagya sthal par sabhi divya shaktiyon aur devtaon ko lekar aaein.",
+      "padapatha": [
+        {
+          "word": "अ॒ग्निः",
+          "meaning": "अग्निदेव"
+        },
+        {
+          "word": "पूर्वे॑भिः",
+          "meaning": "पुरातन काल के"
+        },
+        {
+          "word": "ऋषि॑भिः",
+          "meaning": "ऋषियों द्वारा"
+        },
+        {
+          "word": "ईड्यः॑",
+          "meaning": "स्तुति के योग्य हैं"
+        },
+        {
+          "word": "नूत॑नैः",
+          "meaning": "नवीन ऋषियों द्वारा"
+        },
+        {
+          "word": "उ॒त",
+          "meaning": "और भी"
+        },
+        {
+          "word": "सः",
+          "meaning": "वह अग्नि"
+        },
+        {
+          "word": "दे॒वान्",
+          "meaning": "दिव्य शक्तियों/देवताओं को"
+        },
+        {
+          "word": "आ",
+          "meaning": "यहाँ"
+        },
+        {
+          "word": "इ॒ह",
+          "meaning": "इस स्थान पर"
+        },
+        {
+          "word": "व॒क्ष॒ति",
+          "meaning": "प्राप्त कराएं/लाएं"
+        }
+      ],
+      "shastricContext": "ऋषि परंपरा की निरंतरता का द्योतक मंत्र, जो बताता है कि सत्य की खोज और अग्नि की उपासना अनादि एवं सनातन है।",
+      "audioUrl": null,
+      "previousId": "rv-1-1-1",
+      "nextId": "rv-1-1-3",
+      "chapterMantraIds": [
+        "rv-1-1-1",
+        "rv-1-1-2",
+        "rv-1-1-3",
+        "rv-1-1-4",
+        "rv-1-1-5",
+        "rv-1-1-9"
+      ],
+      "orderIndex": 2,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-1-1-3",
+      "slug": "rv-1-1-3",
+      "vedaId": "rigveda",
+      "nodeId": "rv-sukta-1",
+      "vedaName": "ऋग्वेद (Rigveda)",
+      "shakha": "शाकल शाखा",
+      "textName": "ऋग्वेद संहिता (शाकल शाखा)",
+      "sectionRef": "मण्डल १, सूक्त १, ऋचा ३",
+      "mantraNumber": "१.१.३",
+      "rishi": "मधुच्छन्दा वैश्वामित्र",
+      "devata": "अग्नि (Agni)",
+      "chhanda": "गायत्री (८+८+८ = २४ वर्ण)",
+      "svara": "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
+      "sanskrit": "अ॒ग्निना॑ र॒यिम॑श्नव॒त्पोष॑मे॒व दि॒वेदि॑वे।\nय॒शसं॑ वी॒रव॑त्तमम्॥३॥",
+      "transliteration": "agninā rayim aśnavat poṣam eva dive-dive |\nyaśasaṃ vīravattamam || 3 ||",
+      "hindiTranslation": "अग्नि के माध्यम से साधक प्रतिदिन पुष्टिदायक धन, अक्षय यश और श्रेष्ठ सामर्थ्यवान संतानों/सहयोगियों को प्राप्त करता है।",
+      "englishTranslation": "Through Agni one attains wealth and daily prosperity, glorious and full of valiant offspring.",
+      "hinglishTranslation": "Agni ke madhyam se sadhak ko daily aatmik v bhautik samriddhi, samman aur veer sahyogiyon ki praapti hoti hai.",
+      "padapatha": [
+        {
+          "word": "अ॒ग्निना॑",
+          "meaning": "अग्निदेव द्वारा"
+        },
+        {
+          "word": "र॒यिम्",
+          "meaning": "दिव्य धन व ऐश्वर्य को"
+        },
+        {
+          "word": "अ॒श्न॒व॒त्",
+          "meaning": "प्राप्त करता है"
+        },
+        {
+          "word": "पोष॑म्",
+          "meaning": "पुष्टि एवं संवर्धन को"
+        },
+        {
+          "word": "ए॒व",
+          "meaning": "ही"
+        },
+        {
+          "word": "दि॒वेऽदि॑वे",
+          "meaning": "प्रतिदिन"
+        },
+        {
+          "word": "य॒शस॑म्",
+          "meaning": "अक्षय कीर्ति को"
+        },
+        {
+          "word": "वी॒रऽव॑त्ऽतमम्",
+          "meaning": "वीर संतानों व सहयोगियों से युक्त"
+        }
+      ],
+      "shastricContext": "दैनिक जीवन में आध्यात्मिक एवं भौतिक ऐश्वर्य की समरसता और पुरुषार्थ का वैदिक निरूपण।",
+      "audioUrl": null,
+      "previousId": "rv-1-1-2",
+      "nextId": "rv-1-1-4",
+      "chapterMantraIds": [
+        "rv-1-1-1",
+        "rv-1-1-2",
+        "rv-1-1-3",
+        "rv-1-1-4",
+        "rv-1-1-5",
+        "rv-1-1-9"
+      ],
+      "orderIndex": 3,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-1-1-4",
+      "slug": "rv-1-1-4",
+      "vedaId": "rigveda",
+      "nodeId": "rv-sukta-1",
+      "vedaName": "ऋग्वेद (Rigveda)",
+      "shakha": "शाकल शाखा",
+      "textName": "ऋग्वेद संहिता (शाकल शाखा)",
+      "sectionRef": "मण्डल १, सूक्त १, ऋचा ४",
+      "mantraNumber": "१.१.४",
+      "rishi": "मधुच्छन्दा वैश्वामित्र",
+      "devata": "अग्नि (Agni)",
+      "chhanda": "गायत्री (८+८+८ = २४ वर्ण)",
+      "svara": "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
+      "sanskrit": "अग्ने॒ यं य॒ज्ञम॑ध्व॒रं वि॒श्वत॑ः परि॒भूरसि॑।\nस इद्दे॒वेषु॑ गच्छति॥४॥",
+      "transliteration": "agne yaṃ yajñam adhvaraṃ viśvataḥ paribhūr asi |\nsa id deveṣu gacchati || 4 ||",
+      "hindiTranslation": "हे अग्निदेव! जिस हिंसारहित, पवित्र यज्ञ को आप सब ओर से अपनी रक्षा में घेर लेते हैं (व्याप्त रहते हैं), वही यज्ञ निश्चय ही देवताओं तक पहुँचता है।",
+      "englishTranslation": "O Agni, whatever non-violent sacrifice thou encompassest on every side, that alone goes directly unto the gods.",
+      "hinglishTranslation": "Hey Agni Dev! Jis ahimsak aur pavitra yagya ko aap chaaron taraf se apni raksha mein gher lete hain, wahi yagya devtaon tak nishchit roop se pahunchta hai.",
+      "padapatha": [
+        {
+          "word": "अग्ने॑",
+          "meaning": "हे अग्निदेव"
+        },
+        {
+          "word": "यम्",
+          "meaning": "जिस"
+        },
+        {
+          "word": "य॒ज्ञम्",
+          "meaning": "यज्ञ को"
+        },
+        {
+          "word": "अ॒ध्व॒रम्",
+          "meaning": "हिंसारहित, निर्विघ्न"
+        },
+        {
+          "word": "वि॒श्वतः॑",
+          "meaning": "सब ओर से"
+        },
+        {
+          "word": "प॒रि॒ऽभूः",
+          "meaning": "रक्षक रूप में व्याप्त"
+        },
+        {
+          "word": "असि॑",
+          "meaning": "आप हैं"
+        },
+        {
+          "word": "सः",
+          "meaning": "वही यज्ञ"
+        },
+        {
+          "word": "इत्",
+          "meaning": "निश्चय ही"
+        },
+        {
+          "word": "दे॒वेषु॑",
+          "meaning": "देवताओं के पास"
+        },
+        {
+          "word": "ग॒च्छ॒ति॒",
+          "meaning": "पहुँचता है"
+        }
+      ],
+      "shastricContext": "'अध्वर' शब्द का अर्थ है हिंसारहित और अक्षय। अग्निदेव को यज्ञ का परम रक्षक बताया गया है जो दैवी और आसुरी विघ्नों से यज्ञ की रक्षा करते हैं।",
+      "audioUrl": null,
+      "previousId": "rv-1-1-3",
+      "nextId": "rv-1-1-5",
+      "chapterMantraIds": [
+        "rv-1-1-1",
+        "rv-1-1-2",
+        "rv-1-1-3",
+        "rv-1-1-4",
+        "rv-1-1-5",
+        "rv-1-1-9"
+      ],
+      "orderIndex": 4,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-1-1-5",
+      "slug": "rv-1-1-5",
+      "vedaId": "rigveda",
+      "nodeId": "rv-sukta-1",
+      "vedaName": "ऋग्वेद (Rigveda)",
+      "shakha": "शाकल शाखा",
+      "textName": "ऋग्वेद संहिता (शाकल शाखा)",
+      "sectionRef": "मण्डल १, सूक्त १, ऋचा ५",
+      "mantraNumber": "१.१.५",
+      "rishi": "मधुच्छन्दा वैश्वामित्र",
+      "devata": "अग्नि (Agni)",
+      "chhanda": "गायत्री (८+८+८ = २४ वर्ण)",
+      "svara": "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
+      "sanskrit": "अ॒ग्निर्होता॑ क॒विक्र॑तुः स॒त्यश्चि॒त्रश्र॑वस्तमः।\nदे॒वो दे॒वेभि॒रा ग॑मत्॥५॥",
+      "transliteration": "agnir hotā kavikratuḥ satyaś citraśravastamaḥ |\ndevo devebhir ā gamat || 5 ||",
+      "hindiTranslation": "अग्निदेव जो दिव्य होता हैं, क्रांतदर्शी प्रज्ञा और अमोघ संकल्प से संपन्न हैं, सत्यनिष्ठ हैं तथा अद्भुत एवं विविध यश से परिपूर्ण हैं; वे प्रकाशमान देव अन्य देवों के साथ इस यज्ञ में पधारें।",
+      "englishTranslation": "May Agni, the priestly invoker, possessing poetic foresight and divine resolve, true and of wondrous renown, come hither, a God accompanied by all the gods.",
+      "hinglishTranslation": "Agni Dev jo divya aahvaankarta hain, jinme divya gyan aur sankalpa shakti hai, jo satyaswaroop aur anupam kirti waale hain, wo baki sabhi devon ke saath yahan padharein.",
+      "padapatha": [
+        {
+          "word": "अ॒ग्निः",
+          "meaning": "अग्निदेव"
+        },
+        {
+          "word": "होता॑",
+          "meaning": "होता ऋत्विक"
+        },
+        {
+          "word": "क॒विऽक्र॑तुः",
+          "meaning": "क्रांतदर्शी प्रज्ञा एवं संकल्पयुक्त"
+        },
+        {
+          "word": "स॒त्यः",
+          "meaning": "सत्यस्वरूप व अमोघ"
+        },
+        {
+          "word": "चि॒त्रऽश्र॑वःऽतमः",
+          "meaning": "अद्भुत और विविध कीर्ति वाले"
+        },
+        {
+          "word": "दे॒वः",
+          "meaning": "प्रकाशमान देव"
+        },
+        {
+          "word": "दे॒वेभिः॑",
+          "meaning": "अन्य देवों के साथ"
+        },
+        {
+          "word": "आ",
+          "meaning": "यहाँ"
+        },
+        {
+          "word": "ग॒म॒त्",
+          "meaning": "पधारें / आएं"
+        }
+      ],
+      "shastricContext": "'कविक्रतु' ऋग्वेद का एक अत्यंत गूढ़ विशेषण है, जिसका अर्थ है ऐसा देव जिसकी क्रिया और संकल्प दूरदर्शी कवि (ऋषि) की चेतना से संचालित हों।",
+      "audioUrl": null,
+      "previousId": "rv-1-1-4",
+      "nextId": "rv-1-1-9",
+      "chapterMantraIds": [
+        "rv-1-1-1",
+        "rv-1-1-2",
+        "rv-1-1-3",
+        "rv-1-1-4",
+        "rv-1-1-5",
+        "rv-1-1-9"
+      ],
+      "orderIndex": 5,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-1-1-9",
+      "slug": "rv-1-1-9",
+      "vedaId": "rigveda",
+      "nodeId": "rv-sukta-1",
+      "vedaName": "ऋग्वेद (Rigveda)",
+      "shakha": "शाकल शाखा",
+      "textName": "ऋग्वेद संहिता (शाकल शाखा)",
+      "sectionRef": "मण्डल १, सूक्त १, ऋचा ९",
+      "mantraNumber": "१.१.९",
+      "rishi": "मधुच्छन्दा वैश्वामित्र",
+      "devata": "अग्नि (Agni)",
+      "chhanda": "गायत्री (८+८+८ = २४ वर्ण)",
+      "svara": "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
+      "sanskrit": "स नः॑ पि॒तेव॑ सू॒नवेऽग्ने॑ सूपाय॒नो भ॑व।\nसच॑स्वा नः स्व॒स्तये॑॥९॥",
+      "transliteration": "sa naḥ piteva sūnave'gne sūpāyano bhava |\nsacasvā naḥ svastaye || 9 ||",
+      "hindiTranslation": "हे अग्निदेव! जिस प्रकार पिता अपने पुत्र के लिए सहज सुलभ एवं स्नेहमय होता है, उसी प्रकार आप हमारे लिए सुलभ होइए; और हमारे समग्र कल्याण एवं मंगल के लिए हमारे साथ रहिए।",
+      "englishTranslation": "O Agni, be thou easily accessible unto us even as a father is unto his son; abide with us for our supreme welfare and enduring peace.",
+      "hinglishTranslation": "Hey Agni Dev! Jaise pita apne putra ke liye sahaj aur prem se yukt hota hai, waise hi aap hamare liye sulabh hoiye; aur hamare kalyan aur mangal ke liye sada hamare sath rahiye.",
+      "padapatha": [
+        {
+          "word": "सः",
+          "meaning": "वह आप"
+        },
+        {
+          "word": "नः॒",
+          "meaning": "हमारे लिए"
+        },
+        {
+          "word": "पि॒ताऽइ॑व",
+          "meaning": "पिता के सदृश"
+        },
+        {
+          "word": "सू॒नवे॑",
+          "meaning": "पुत्र के प्रति"
+        },
+        {
+          "word": "अग्ने॑",
+          "meaning": "हे अग्निदेव"
+        },
+        {
+          "word": "सु॒ऽउ॒पा॒य॒नः",
+          "meaning": "सुगमता से प्राप्त होने वाले"
+        },
+        {
+          "word": "भ॒व॒",
+          "meaning": "होइए"
+        },
+        {
+          "word": "सच॑स्व",
+          "meaning": "साथ रहिए / जुड़े रहिए"
+        },
+        {
+          "word": "नः॒",
+          "meaning": "हमारे"
+        },
+        {
+          "word": "स्व॒स्तये॑",
+          "meaning": "कल्याण एवं मंगल के लिए"
+        }
+      ],
+      "shastricContext": "अग्नि सूक्त का अंतिम उपसंहार मंत्र। यह मंत्र परमात्मा और साधक के मध्य पिता और पुत्र के परम आत्मीय, वात्सल्यपूर्ण संबंध को स्थापित करता है।",
+      "audioUrl": null,
+      "previousId": "rv-1-1-5",
+      "nextId": "rv-3-62-10",
+      "chapterMantraIds": [
+        "rv-1-1-1",
+        "rv-1-1-2",
+        "rv-1-1-3",
+        "rv-1-1-4",
+        "rv-1-1-5",
+        "rv-1-1-9"
+      ],
+      "orderIndex": 6,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-3-62-10",
+      "slug": "rv-3-62-10",
+      "vedaId": "rigveda",
+      "nodeId": "rv-sukta-3-62",
+      "vedaName": "ऋग्वेद (Rigveda)",
+      "shakha": "शाकल शाखा / वाजसनेयि",
+      "textName": "ऋग्वेद संहिता (शाकल शाखा)",
+      "sectionRef": "मण्डल ३, सूक्त ६२, ऋचा १०",
+      "mantraNumber": "३.६२.१०",
+      "rishi": "महर्षि विश्वामित्र गाथिन",
+      "devata": "सविता (Savitri / Supreme Effulgence)",
+      "chhanda": "निचृद् गायत्री (८+८+८ = २४ वर्ण)",
+      "svara": "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
+      "sanskrit": "ॐ भूर्भुवः॒ स्वः॑।\nतत्स॑वि॒तुर्वरे॑ण्यं॒ भर्गो॑ दे॒वस्य॑ धीमहि।\nधियो॒ यो नः॑ प्रचो॒दया॑त्॥१०॥",
+      "transliteration": "oṃ bhūr bhuvaḥ svaḥ |\ntat savitur vareṇyaṃ bhargo devasya dhīmahi |\ndhiyo yo naḥ pracodayāt || 10 ||",
+      "hindiTranslation": "हम उस सृष्टिकर्ता, पापनाशक, प्रकाशमान सविता परमात्मा के सर्वोत्कृष्ट वरण करने योग्य दिव्य तेज का ध्यान करते हैं; वह परमात्मा हमारी बुद्धियों को सन्मार्ग और सत्य ज्ञान की ओर प्रेरित करे।",
+      "englishTranslation": "We meditate upon that supreme, most adorable effulgence of the divine Sun of consciousness, Savitri; may He illuminate, guide, and inspire our intellects towards truth and righteousness.",
+      "hinglishTranslation": "Hum us srishtikarta, dukh-nashak, sarvashreshth Savita Parmatma ke divya tej ka dhyan karte hain; wo Prabhu hamari buddhi ko sahi raaste, gyan aur satya ki or prerit karein.",
+      "padapatha": [
+        {
+          "word": "तत्",
+          "meaning": "उस अनिर्वचनीय परम"
+        },
+        {
+          "word": "स॒वि॒तुः",
+          "meaning": "सृष्टिकर्ता सविता देव के"
+        },
+        {
+          "word": "वरे॑ण्यम्",
+          "meaning": "सर्वश्रेष्ठ वरण करने योग्य"
+        },
+        {
+          "word": "भर्गः॑",
+          "meaning": "पापनाशक दिव्य ज्योतिर्मय तेज को"
+        },
+        {
+          "word": "दे॒वस्य॑",
+          "meaning": "स्वयंप्रकाश देव के"
+        },
+        {
+          "word": "धी॒म॒हि",
+          "meaning": "हम अपने अंतःकरण में धारण करते हैं"
+        },
+        {
+          "word": "धियः॑",
+          "meaning": "बुद्धियों और अंतःप्रेरणाओं को"
+        },
+        {
+          "word": "यः",
+          "meaning": "जो परमात्मा"
+        },
+        {
+          "word": "नः॑",
+          "meaning": "हमारी"
+        },
+        {
+          "word": "प्र॒चो॒दया॑त्",
+          "meaning": "सन्मार्ग की ओर प्रेरित करे"
+        }
+      ],
+      "shastricContext": "सनातन धर्म का परम पावन वेदमाता गायत्री महामंत्र। यह ऋग्वेद (३.६२.१०), यजुर्वेद (३.३५, २२.९, ३६.३) और सामवेद में समान रूप से प्रतिष्ठापित है। इसके २४ अक्षरों में संपूर्ण ब्रह्माण्डीय प्रज्ञा का सार निहित है।",
+      "audioUrl": null,
+      "previousId": "rv-1-1-9",
+      "nextId": "rv-7-59-12",
+      "chapterMantraIds": [
+        "rv-3-62-10"
+      ],
+      "orderIndex": 7,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-7-59-12",
+      "slug": "rv-7-59-12",
+      "vedaId": "rigveda",
+      "nodeId": "rv-sukta-7-59",
+      "vedaName": "ऋग्वेद (Rigveda)",
+      "shakha": "शाकल शाखा / माध्यन्दिना",
+      "textName": "ऋग्वेद संहिता (शाकल शाखा)",
+      "sectionRef": "मण्डल ७, सूक्त ५९, ऋचा १२",
+      "mantraNumber": "७.५९.१२",
+      "rishi": "ब्रह्मर्षि वसिष्ठ मैत्रावरुणि",
+      "devata": "त्र्यम्बक रुद्र (भगवान सदाशिव)",
+      "chhanda": "अनुष्टुप् (८+८+८+८ = ३२ वर्ण)",
+      "svara": "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
+      "sanskrit": "ॐ त्र्य॑म्बकं यजामहे सु॒गन्धिं॑ पुष्टि॒वर्ध॑नम्।\nउ॒र्वा॒रु॒कमि॑व॒ बन्ध॑नान् मृ॒त्योर्मु॑क्षीय॒ मामृता॑त्॥१२॥",
+      "transliteration": "oṃ tryambakaṃ yajāmahe sugandhiṃ puṣṭivardhanam |\nurvārukam iva bandhanān mṛtyor mukṣīya māmṛtāt || 12 ||",
+      "hindiTranslation": "हम त्रिनेत्रधारी, दिव्य सुगंध से युक्त तथा समस्त पुष्टि का संवर्धन करने वाले भगवान शिव की आराधना करते हैं। जिस प्रकार पका हुआ खरबूजा अपनी बेल के बंधन से सहज ही पृथक हो जाता है, उसी प्रकार हम मृत्यु के भय और सांसारिक बंधनों से मुक्त हों, किंतु अमृतत्व (मोक्ष) से कभी विमुख न हों।",
+      "englishTranslation": "We worship the Three-eyed Lord Shiva, fragrant and the nourisher of all vitality. As a ripe cucumber is severed effortlessly from its vine, may we be liberated from the bondage of death and ignorance, but never alienated from immortality.",
+      "hinglishTranslation": "Hum Trinetradhari, divya sugandh se yukt aur sabhi ko pushti pradan karne waale Bhagwan Shiv ki pooja karte hain. Jaise paka hua phal bail se sahaj azaad ho jaata hai, waise hi hum mrityu ke bhay se mukt hokar Moksha aur amritatva ko praapt karein.",
+      "padapatha": [
+        {
+          "word": "त्र्य॑म्बकम्",
+          "meaning": "त्रिनेत्रधारी भगवान शिव को"
+        },
+        {
+          "word": "य॒जा॒म॒हे",
+          "meaning": "हम पूजते हैं / ध्यान करते हैं"
+        },
+        {
+          "word": "सु॒गन्धिम्",
+          "meaning": "दिव्य सुवास और आत्मिक सौरभ युक्त"
+        },
+        {
+          "word": "पु॒ष्टि॒ऽवर्ध॑नम्",
+          "meaning": "समस्त पुष्टि व संवर्धन करने वाले"
+        },
+        {
+          "word": "उ॒र्वा॒रु॒कम्ऽइ॑व",
+          "meaning": "पके हुए खरबूजे के समान"
+        },
+        {
+          "word": "बन्ध॑नात्",
+          "meaning": "लता/संसार के बंधन से"
+        },
+        {
+          "word": "मृ॒त्योः",
+          "meaning": "मृत्यु के भय से"
+        },
+        {
+          "word": "मु॒क्षी॒य॒",
+          "meaning": "मुक्त हो जाऊँ"
+        },
+        {
+          "word": "मा",
+          "meaning": "न"
+        },
+        {
+          "word": "अ॒मृता॑त्",
+          "meaning": "अमृतत्व व मोक्ष से"
+        }
+      ],
+      "shastricContext": "रुद्र सूक्त का संजीवनी महामंत्र। महर्षि मार्कण्डेय और शुक्राचार्य द्वारा सिद्ध अकाल मृत्यु निवारक, रोग नाशक एवं मोक्षदायक महामंत्र।",
+      "audioUrl": null,
+      "previousId": "rv-3-62-10",
+      "nextId": "rv-10-90-1",
+      "chapterMantraIds": [
+        "rv-7-59-12"
+      ],
+      "orderIndex": 8,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-10-90-1",
+      "slug": "rv-10-90-1",
+      "vedaId": "rigveda",
+      "nodeId": "rv-sukta-10-90",
+      "vedaName": "ऋग्वेद (Rigveda)",
+      "shakha": "शाकल शाखा / वाजसनेयि ३१",
+      "textName": "ऋग्वेद संहिता (शाकल शाखा)",
+      "sectionRef": "मण्डल १०, सूक्त ९०, ऋचा १",
+      "mantraNumber": "१०.९०.१",
+      "rishi": "नारायण ऋषि",
+      "devata": "विराट् पुरुष (Cosmic Being)",
+      "chhanda": "अनुष्टुप् (८+८+८+८ = ३२ वर्ण)",
+      "svara": "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
+      "sanskrit": "ॐ स॒हस्र॑शीर्षा॒ पुरु॑षः सहस्रा॒क्षः स॒हस्र॑पात्।\nस भूमिं॑ वि॒श्वतो॑ वृ॒त्वात्य॑तिष्ठद्दशाङ्गु॒लम्॥१॥",
+      "transliteration": "oṃ sahasraśīrṣā puruṣaḥ sahasrākṣaḥ sahasrapāt |\nsa bhūmiṃ viśvato vṛtvāty atiṣṭhad daśāṅgulam || 1 ||",
+      "hindiTranslation": "वह विराट् पुरुष अनंत सिरों, अनंत नेत्रों तथा अनंत चरणों वाला है। उसने संपूर्ण ब्रह्माण्ड को सब ओर से व्याप्त करके भी दस अंगुल (अनंत चेतना के विस्तार) में उससे परे स्थित है।",
+      "englishTranslation": "The Supreme Purusha has a thousand heads, a thousand eyes, and a thousand feet. Encompassing the entire universe on every side, He transcends and extends beyond it by ten fingers (into transcendent infinite consciousness).",
+      "hinglishTranslation": "Wo Virat Purush anant sheesh, anant aankhon aur anant pairon waala hai. Usne poore Universe ko har taraf se dhaanp kar bhi anant guna pare vistar paaya hai.",
+      "padapatha": [
+        {
+          "word": "स॒हस्र॑ऽशीर्षा",
+          "meaning": "अनंत शीशों वाला"
+        },
+        {
+          "word": "पुरु॑षः",
+          "meaning": "परम विराट पुरुष"
+        },
+        {
+          "word": "स॒ह॒स्र॒ऽअ॒क्षः",
+          "meaning": "अनंत नेत्रों वाला"
+        },
+        {
+          "word": "स॒हस्र॑ऽपात्",
+          "meaning": "अनंत चरणों वाला"
+        },
+        {
+          "word": "सः",
+          "meaning": "वह परमात्मा"
+        },
+        {
+          "word": "भूमि॑म्",
+          "meaning": "समस्त ब्रह्मांड को"
+        },
+        {
+          "word": "वि॒श्वतः॑",
+          "meaning": "सब ओर से"
+        },
+        {
+          "word": "वृ॒त्वा",
+          "meaning": "आवृत्त करके"
+        },
+        {
+          "word": "अति॑",
+          "meaning": "परे"
+        },
+        {
+          "word": "अ॒ति॒ष्ठ॒त्",
+          "meaning": "स्थित है"
+        },
+        {
+          "word": "द॒शऽअं॒गु॒लम्",
+          "meaning": "दशांगुल (अनंतता) में"
+        }
+      ],
+      "shastricContext": "सृष्टि का मूल आधार। पुरुष सूक्त की प्रथम ऋचा संपूर्ण कॉस्मोस को एक सजीव चेतन देह बताती है।",
+      "audioUrl": null,
+      "previousId": "rv-7-59-12",
+      "nextId": "rv-10-90-2",
+      "chapterMantraIds": [
+        "rv-10-90-1",
+        "rv-10-90-2",
+        "rv-10-90-16"
+      ],
+      "orderIndex": 9,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-10-90-2",
+      "slug": "rv-10-90-2",
+      "vedaId": "rigveda",
+      "nodeId": "rv-sukta-10-90",
+      "vedaName": "ऋग्वेद (Rigveda)",
+      "shakha": "शाकल शाखा / वाजसनेयि ३१",
+      "textName": "ऋग्वेद संहिता (शाकल शाखा)",
+      "sectionRef": "मण्डल १०, सूक्त ९०, ऋचा २",
+      "mantraNumber": "१०.९०.२",
+      "rishi": "नारायण ऋषि",
+      "devata": "विराट् पुरुष (Cosmic Being)",
+      "chhanda": "अनुष्टुप् (८+८+८+८ = ३२ वर्ण)",
+      "svara": "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
+      "sanskrit": "पुरु॑ष ए॒वेदं सर्वं॒ यद्भू॒तं यच्च॒ भव्य॑म्।\nउ॒तामृ॑त॒त्वस्येशो॑ यदन्ने॑नाति॒रोह॑ति॥२॥",
+      "transliteration": "puruṣa evedaṃ sarvaṃ yad bhūtaṃ yac ca bhavyam |\nutāmṛtatvasyeśo yad annenātirohati || 2 ||",
+      "hindiTranslation": "यह सब कुछ जो वर्तमान में है, जो भूतकाल में था और जो भविष्य में होगा—वह सब केवल विराट् पुरुष ही है। वह अमृतत्व (अमरता) का भी स्वामी है, और जो कुछ अन्न (भोग्य जगत) द्वारा विकसित होता है, उसका भी वह अतिक्रमण करता है।",
+      "englishTranslation": "The Purusha alone is all this universe—what has been in the past and what is yet to come in the future. He is also the Sovereign Lord of immortality, as He transcends all that grows through food and material existence.",
+      "hinglishTranslation": "Jo kuch bhi sansaar mein pehle tha, jo aaj hai, aur jo aage hoga—sab kuch wo Virat Purush hi hai. Wo amritatva (Moksha) ka Swami hai aur bhautik jagat se pare hai.",
+      "padapatha": [
+        {
+          "word": "पुरु॑षः",
+          "meaning": "विराट् परमपुरुष ही"
+        },
+        {
+          "word": "ए॒व",
+          "meaning": "निश्चय ही"
+        },
+        {
+          "word": "इ॒दम्",
+          "meaning": "यह दृश्य जगत"
+        },
+        {
+          "word": "सर्व॑म्",
+          "meaning": "सब कुछ"
+        },
+        {
+          "word": "यत्",
+          "meaning": "जो"
+        },
+        {
+          "word": "भू॒तम्",
+          "meaning": "भूतकाल में हुआ"
+        },
+        {
+          "word": "यत्",
+          "meaning": "जो"
+        },
+        {
+          "word": "च॒",
+          "meaning": "और"
+        },
+        {
+          "word": "भव्य॑म्",
+          "meaning": "भविष्य में होने वाला है"
+        },
+        {
+          "word": "उ॒त",
+          "meaning": "और भी"
+        },
+        {
+          "word": "अ॒मृ॒त॒त्वस्य॑",
+          "meaning": "अमरत्व का"
+        },
+        {
+          "word": "ईशः॑",
+          "meaning": "स्वामी है"
+        },
+        {
+          "word": "यत्",
+          "meaning": "जो कि"
+        },
+        {
+          "word": "अन्ने॑न",
+          "meaning": "अन्न के द्वारा"
+        },
+        {
+          "word": "अ॒ति॒ऽरोह॑ति",
+          "meaning": "संवर्धित होता है और अतिक्रमण करता है"
+        }
+      ],
+      "shastricContext": "यह मंत्र काल (Past, Present, Future) और अमृतत्व दोनों को पुरुष की ही अभिव्यक्ति घोषित करता है।",
+      "audioUrl": null,
+      "previousId": "rv-10-90-1",
+      "nextId": "rv-10-90-16",
+      "chapterMantraIds": [
+        "rv-10-90-1",
+        "rv-10-90-2",
+        "rv-10-90-16"
+      ],
+      "orderIndex": 10,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-10-90-16",
+      "slug": "rv-10-90-16",
+      "vedaId": "rigveda",
+      "nodeId": "rv-sukta-10-90",
+      "vedaName": "ऋग्वेद (Rigveda)",
+      "shakha": "शाकल शाखा / वाजसनेयि ३१",
+      "textName": "ऋग्वेद संहिता (शाकल शाखा)",
+      "sectionRef": "मण्डल १०, सूक्त ९०, ऋचा १६",
+      "mantraNumber": "१०.९०.१६",
+      "rishi": "नारायण ऋषि",
+      "devata": "विराट् पुरुष (Cosmic Being)",
+      "chhanda": "त्रिष्टुप् (११x४ = ४४ वर्ण)",
+      "svara": "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
+      "sanskrit": "य॒ज्ञेन॑ य॒ज्ञम॑यजन्त दे॒वास्तानि॒ धर्मा॑णि प्रथ॒मान्या॑सन्।\nते ह॒ नाकं॑ महि॒मान॑ः सचन्त॒ यत्र॒ पूर्वे॑ सा॒ध्याः सन्ति॑ दे॒वाः॥१६॥",
+      "transliteration": "yajñena yajñam ayajanta devās tāni dharmāṇi prathamāny āsan |\nte ha nākaṃ mahimānaḥ sacanta yatra pūrve sādhyāḥ santi devāḥ || 16 ||",
+      "hindiTranslation": "देवताओं ने आत्म-समर्पण रूपी यज्ञ के द्वारा यज्ञस्वरूप विराट् पुरुष की उपासना की; वे ही कर्म सृष्टि के सर्वप्रथम मौलिक धर्म (सनातन नियम) बने। वे ही महिमावान साधक उस परम आनंदमय द्युलोक (स्वर्ग/मोक्ष) को प्राप्त करते हैं, जहाँ पुरातन साध्य देवगण निवास करते हैं।",
+      "englishTranslation": "By means of sacrifice the gods worshipped the Cosmic Purusha who is Himself the sacrifice; those deeds became the primordial laws of Dharma. Those glorious ones attain the celestial paradise of bliss, where dwell the ancient gods and Sadhyas.",
+      "hinglishTranslation": "Devtaon ne yagya ke dwara yagyaswaroop Virat Purush ki pooja ki; wo hi karm is sansaar ke pehle Dharma ke niyam bane. Aise mahagyani sadhak us divya paramdham ko paate hain jahan puratan devta nivaas karte hain.",
+      "padapatha": [
+        {
+          "word": "य॒ज्ञेन॑",
+          "meaning": "यज्ञ के द्वारा"
+        },
+        {
+          "word": "य॒ज्ञम्",
+          "meaning": "यज्ञस्वरूप विराट पुरुष को"
+        },
+        {
+          "word": "अ॒य॒ज॒न्त॒",
+          "meaning": "पूजन किया"
+        },
+        {
+          "word": "दे॒वाः",
+          "meaning": "देवगणों ने"
+        },
+        {
+          "word": "तानि॑",
+          "meaning": "वे विधान"
+        },
+        {
+          "word": "धर्मा॑णि",
+          "meaning": "धर्म के मौलिक नियम"
+        },
+        {
+          "word": "प्र॒थ॒मानि॑",
+          "meaning": "सर्वप्रथम"
+        },
+        {
+          "word": "आ॒स॒न्",
+          "meaning": "हुए"
+        },
+        {
+          "word": "ते",
+          "meaning": "वे"
+        },
+        {
+          "word": "ह॒",
+          "meaning": "निश्चय ही"
+        },
+        {
+          "word": "नाक॑म्",
+          "meaning": "परम आनंदमय द्युलोक को"
+        },
+        {
+          "word": "म॒हि॒मानः॑",
+          "meaning": "महिमावान सिद्ध पुरुष"
+        },
+        {
+          "word": "स॒च॒न्त॒",
+          "meaning": "प्राप्त हुए"
+        },
+        {
+          "word": "यत्र॑",
+          "meaning": "जहाँ"
+        },
+        {
+          "word": "पूर्वे॑",
+          "meaning": "प्राचीन"
+        },
+        {
+          "word": "सा॒ध्याः",
+          "meaning": "साध्य नामक देवगण"
+        },
+        {
+          "word": "सन्ति॑",
+          "meaning": "निवास करते हैं"
+        },
+        {
+          "word": "दे॒वाः",
+          "meaning": "दिव्य देव"
+        }
+      ],
+      "shastricContext": "पुरुष सूक्त का अत्यंत प्रसिद्ध उपसंहार मंत्र, जो यजुर्वेद (३१.१६) में भी यथावत पठित है। यह यज्ञ को सृष्टि का सर्वोच्च धर्म और मोक्ष का साधन निरूपित करता है।",
+      "audioUrl": null,
+      "previousId": "rv-10-90-2",
+      "nextId": "rv-10-121-1",
+      "chapterMantraIds": [
+        "rv-10-90-1",
+        "rv-10-90-2",
+        "rv-10-90-16"
+      ],
+      "orderIndex": 11,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-10-121-1",
+      "slug": "rv-10-121-1",
+      "vedaId": "rigveda",
+      "nodeId": "rv-sukta-10-121",
+      "vedaName": "ऋग्वेद (Rigveda)",
+      "shakha": "शाकल शाखा",
+      "textName": "ऋग्वेद संहिता (शाकल शाखा)",
+      "sectionRef": "मण्डल १०, सूक्त १२१, ऋचा १",
+      "mantraNumber": "१०.१२१.१",
+      "rishi": "हिरण्यगर्भ प्राजापत्य",
+      "devata": "कः / प्रजापतिः (The Supreme Creator)",
+      "chhanda": "त्रिष्टुप् (११x४ = ४४ वर्ण)",
+      "svara": "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
+      "sanskrit": "ॐ हि॒र॒ण्य॒ग॒र्भः सम॑वर्त॒ताग्रे॑ भू॒तस्य॑ जा॒तः पति॒रेक॑ आसीत्।\nस दा॑धार पृथि॒वीं द्यामु॒तेमां कस्मै॑ दे॒वाय॑ ह॒विषा॑ विधेम॥१॥",
+      "transliteration": "oṃ hiraṇyagarbhaḥ samavartatāgre bhūtasya jātaḥ patir eka āsīt |\nsa dādhāra pṛthivīṃ dyām utemāṃ kasmai devāya haviṣā vidhema || 1 ||",
+      "hindiTranslation": "सृष्टि के प्रारंभ में ज्योतिर्मय हिरण्यगर्भ ही विद्यमान था। उत्पन्न होते ही वह समस्त चराचर जगत का एकमात्र अधिपति था। उसने इस पृथ्वी और द्युलोक को सुदृढ़ता से धारण कर रखा है। उस 'क' स्वरूप (सुख और आनंद के दाता) प्रजापति परमात्मा की हम हविष्य द्वारा भक्तिपूर्वक आराधना करते हैं।",
+      "englishTranslation": "In the beginning the Golden Embryo (Hiranyagarbha) existed; manifested as the sole Sovereign Lord of all created beings. He sustained and established this earth and heaven. Unto that blissful Lord of creation ('Ka' / Prajapati) do we offer worship with our devout oblations.",
+      "hinglishTranslation": "Srishti ke shuru mein keval jyotirmay Hiranyagarbha hi tha. Wo paida hote hi poore brahmand ka ekmatra swami bana. Usne prithvi aur swarga ko thambh rakha hai. Us parampita Prajapati Parmatma ki hum shraddhapoorvak aahuti dekar pooja karte hain.",
+      "padapatha": [
+        {
+          "word": "हि॒र॒ण्य॒ऽग॒र्भः",
+          "meaning": "ज्योतिर्मय ब्रह्माण्ड का जनक हिरण्यगर्भ"
+        },
+        {
+          "word": "सम्",
+          "meaning": "सम्यक् रूप से"
+        },
+        {
+          "word": "अ॒व॒र्त॒त॒",
+          "meaning": "विद्यमान था"
+        },
+        {
+          "word": "अग्रे॑",
+          "meaning": "सृष्टि के प्रारंभ में"
+        },
+        {
+          "word": "भू॒तस्य॑",
+          "meaning": "समस्त उत्पन्न प्राणियों व चराचर जगत का"
+        },
+        {
+          "word": "जा॒तः",
+          "meaning": "प्रकट होकर"
+        },
+        {
+          "word": "पतिः॑",
+          "meaning": "एकछत्र स्वामी, अधिपति"
+        },
+        {
+          "word": "एकः॑",
+          "meaning": "एकमात्र अद्वितीय"
+        },
+        {
+          "word": "आ॒सी॒त्",
+          "meaning": "था"
+        },
+        {
+          "word": "सः",
+          "meaning": "उस परमात्मा ने"
+        },
+        {
+          "word": "दा॒धा॒र॒",
+          "meaning": "धारण कर रखा है"
+        },
+        {
+          "word": "पृ॒थि॒वीम्",
+          "meaning": "इस पृथ्वी लोक को"
+        },
+        {
+          "word": "द्याम्",
+          "meaning": "द्युलोक को"
+        },
+        {
+          "word": "उ॒त",
+          "meaning": "और"
+        },
+        {
+          "word": "इ॒माम्",
+          "meaning": "इस दृश्य जगत को"
+        },
+        {
+          "word": "कस्मै॑",
+          "meaning": "'क' स्वरूप आनंदमय प्रजापति"
+        },
+        {
+          "word": "दे॒वाय॑",
+          "meaning": "देव के लिए"
+        },
+        {
+          "word": "ह॒विषा॑",
+          "meaning": "हविष्य द्वारा"
+        },
+        {
+          "word": "वि॒धे॒म॒",
+          "meaning": "हम सेवा व आराधना करें"
+        }
+      ],
+      "shastricContext": "ऋग्वेद का सुप्रसिद्ध हिरण्यगर्भ सूक्त। 'कस्मै देवाय हविषा विधेम'—यहाँ 'क' शब्द आनंदस्वरूप प्रजापति परमात्मा का साक्षात वाचक नाम है (को वै प्रजापतिः)।",
+      "audioUrl": null,
+      "previousId": "rv-10-90-16",
+      "nextId": "rv-10-125-1",
+      "chapterMantraIds": [
+        "rv-10-121-1"
+      ],
+      "orderIndex": 12,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-10-125-1",
+      "slug": "rv-10-125-1",
+      "vedaId": "rigveda",
+      "nodeId": "rv-sukta-10-125",
+      "vedaName": "ऋग्वेद (Rigveda)",
+      "shakha": "शाकल शाखा",
+      "textName": "ऋग्वेद संहिता (शाकल शाखा)",
+      "sectionRef": "मण्डल १०, सूक्त १२५, ऋचा १",
+      "mantraNumber": "१०.१२५.१",
+      "rishi": "वागाम्भृणी (Vāg Āmbhṛṇī)",
+      "devata": "परमात्मा / आद्यशक्ति वाक् (Parāśakti Vāk)",
+      "chhanda": "त्रिष्टुप् (११x४ = ४४ वर्ण)",
+      "svara": "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
+      "sanskrit": "ॐ अ॒हं रु॒द्रेभि॒र्वसु॑भिश्‍चराम्य॒हमा॑दि॒त्यैरु॒त वि॒श्वदे॑वैः।\nअ॒हं मि॒त्रावरु॑णो॒भा बि॑भर्म्य॒हमि॑न्द्रा॒ग्नी अ॒हम॒श्विनो॒भा॥१॥",
+      "transliteration": "oṃ ahaṃ rudrebhir vasubhiś carāmy aham ādityair uta viśvadevaiḥ |\nahaṃ mitrāvaruṇobhā bibharmy aham indrāgnī aham aśvinobhā || 1 ||",
+      "hindiTranslation": "मैं (ब्रह्मस्वरूपा वाक्-शक्ति) ही एकादश रुद्रों और अष्ट वसुओं के साथ विचरण करती हूँ; मैं ही द्वादश आदित्यों और समस्त विश्वेदेवों के साथ संचरण करती हूँ। मैं ही मित्र और वरुण दोनों को धारण करती हूँ, मैं ही इन्द्र और अग्नि को तथा दोनों अश्विनीकुमारों को धारण व पोषण करती हूँ।",
+      "englishTranslation": "I wander with the Rudras and the Vasus; I wander with the Adityas and all the gods. I uphold both Mitra and Varuna; I sustain Indra and Agni, and both the celestial Ashvins.",
+      "hinglishTranslation": "Main (Brahma-swaroopa Adyashakti Vak) hi Rudron aur Vasuon ke sath vicharan karti hoon; main hi Aadityon aur Vishvedevon ke sath chalti hoon. Main hi Mitra-Varun, Indra-Agni aur dono Ashwini Kumar ko dharan karti hoon.",
+      "padapatha": [
+        {
+          "word": "अ॒हम्",
+          "meaning": "मैं (ब्रह्मस्वरूपा आद्यशक्ति वाक्)"
+        },
+        {
+          "word": "रु॒द्रेभिः॑",
+          "meaning": "एकादश रुद्रों के साथ"
+        },
+        {
+          "word": "वसु॑ऽभिः",
+          "meaning": "अष्ट वसुओं के साथ"
+        },
+        {
+          "word": "च॒रा॒मि॒",
+          "meaning": "विचरण करती हूँ"
+        },
+        {
+          "word": "अ॒हम्",
+          "meaning": "मैं"
+        },
+        {
+          "word": "आ॒दि॒त्यैः",
+          "meaning": "द्वादश आदित्यों के साथ"
+        },
+        {
+          "word": "उ॒त",
+          "meaning": "और भी"
+        },
+        {
+          "word": "वि॒श्वऽदे॑वैः",
+          "meaning": "समस्त विश्वेदेवों के साथ"
+        },
+        {
+          "word": "अ॒हम्",
+          "meaning": "मैं ही"
+        },
+        {
+          "word": "मि॒त्रावरु॑णा",
+          "meaning": "मित्र और वरुण दोनों को"
+        },
+        {
+          "word": "उ॒भा",
+          "meaning": "दोनों को"
+        },
+        {
+          "word": "बि॒भ॒र्मि॒",
+          "meaning": "धारण और पोषण करती हूँ"
+        },
+        {
+          "word": "अ॒हम्",
+          "meaning": "मैं"
+        },
+        {
+          "word": "इ॒न्द्रा॒ग्नी",
+          "meaning": "इंद्र और अग्नि को"
+        },
+        {
+          "word": "अ॒हम्",
+          "meaning": "मैं"
+        },
+        {
+          "word": "अ॒श्विना॑",
+          "meaning": "दोनों अश्विनीकुमारों को"
+        },
+        {
+          "word": "उ॒भा",
+          "meaning": "दोनों को"
+        }
+      ],
+      "shastricContext": "देवी सूक्त (वाक् सूक्त) सनातन धर्म में शक्ति साधना, शाक्त दर्शन एवं दुर्गा सप्तशती का मूल वैदिक आधार है। विदुषी ब्रह्मवादिनी वागाम्भृणी ने समाधि की अवस्था में स्वयं को संपूर्ण ब्रह्माण्ड की आधारभूत पराशक्ति के रूप में साक्षात्कृत किया।",
+      "audioUrl": null,
+      "previousId": "rv-10-121-1",
+      "nextId": "rv-10-129-1",
+      "chapterMantraIds": [
+        "rv-10-125-1"
+      ],
+      "orderIndex": 13,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-10-129-1",
+      "slug": "rv-10-129-1",
+      "vedaId": "rigveda",
+      "nodeId": "rv-sukta-10-129",
+      "vedaName": "ऋग्वेद (Rigveda)",
+      "shakha": "शाकल शाखा",
+      "textName": "ऋग्वेद संहिता (शाकल शाखा)",
+      "sectionRef": "मण्डल १०, सूक्त १२९, ऋचा १",
+      "mantraNumber": "१०.१२९.१",
+      "rishi": "परमेष्ठी प्रजापति",
+      "devata": "भाववृत्त / परमात्मा (Bhāvavṛtta)",
+      "chhanda": "त्रिष्टुप् (११x४ = ४४ वर्ण)",
+      "svara": "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
+      "sanskrit": "नास॑दासी॒न्नो सदा॑सीत्त॒दानीं॒ नासी॒द्रजो॒ नो व्यो॑मा प॒रो यत्।\nकिमाव॑रीवः॒ कुह॒ कस्य॒ शर्म॒न्नम्भः॒ किमा॑सी॒द्गह॑नं गभी॒रम्॥१॥",
+      "transliteration": "nāsad āsīn no sad āsīt tadānīṃ nāsīd rajo no vyomā paro yat |\nkim āvarīvaḥ kuha kasya śarmann ambhaḥ kim āsīd gahanaṃ gabhīram || 1 ||",
+      "hindiTranslation": "सृष्टि से पूर्व उस समय न असत् (अभाव) था और न सत् (भाव/दृश्य जगत) था। न कोई अंतरिक्ष था और न उससे परे का आकाश। तब किस तत्व ने किसको ढँक रखा था? वह आवरण कहाँ था और किसके आश्रय में था? क्या तब कोई अगाध और अथाह प्रलयकालीन जल विद्यमान था?",
+      "englishTranslation": "Then there was neither non-existence nor existence; there was neither the atmospheric realm nor the celestial sky that lies beyond. What enveloped all, and where, and under whose protection? Was there water in that impenetrable, unfathomable deep?",
+      "hinglishTranslation": "Srishti ke banne se pehle na to asat (kuch na hona) tha aur na hi sat (sansaar) tha. Na antariksh tha aur na uske pare ka aakaash. Tab kisne kisko dhaanp rakha tha? Kahan aur kiske aashray mein tha wo sab? Kya koi agadh aur gahra jal tha?",
+      "padapatha": [
+        {
+          "word": "न",
+          "meaning": "न तो"
+        },
+        {
+          "word": "अस॑त्",
+          "meaning": "अभाव / असत् तत्व"
+        },
+        {
+          "word": "आ॒सी॒त्",
+          "meaning": "था"
+        },
+        {
+          "word": "नो",
+          "meaning": "न ही"
+        },
+        {
+          "word": "सत्",
+          "meaning": "स्थूल दृश्यमान जगत"
+        },
+        {
+          "word": "आ॒सी॒त्",
+          "meaning": "था"
+        },
+        {
+          "word": "त॒दानी॑म्",
+          "meaning": "सृष्टि उत्पत्ति से पूर्व"
+        },
+        {
+          "word": "न",
+          "meaning": "न"
+        },
+        {
+          "word": "आ॒सी॒त्",
+          "meaning": "था"
+        },
+        {
+          "word": "रजः॑",
+          "meaning": "अंतरिक्ष लोक"
+        },
+        {
+          "word": "नो",
+          "meaning": "न"
+        },
+        {
+          "word": "व्योम॑",
+          "meaning": "आकाश"
+        },
+        {
+          "word": "प॒रः",
+          "meaning": "परे"
+        },
+        {
+          "word": "यत्",
+          "meaning": "जो"
+        },
+        {
+          "word": "किम्",
+          "meaning": "क्या"
+        },
+        {
+          "word": "आ",
+          "meaning": "सब ओर"
+        },
+        {
+          "word": "व॒री॒वः॒",
+          "meaning": "आच्छादित कर रहा था"
+        },
+        {
+          "word": "कुह॑",
+          "meaning": "कहाँ"
+        },
+        {
+          "word": "कस्य॑",
+          "meaning": "किसके"
+        },
+        {
+          "word": "शर्म॑न्",
+          "meaning": "आश्रय में"
+        },
+        {
+          "word": "अम्भः॑",
+          "meaning": "प्रलयकालीन कारण जल"
+        },
+        {
+          "word": "किम्",
+          "meaning": "क्या"
+        },
+        {
+          "word": "आ॒सी॒त्",
+          "meaning": "था"
+        },
+        {
+          "word": "गहन॑म्",
+          "meaning": "अगाध"
+        },
+        {
+          "word": "ग॒भी॒रम्",
+          "meaning": "गहरा / अथाह"
+        }
+      ],
+      "shastricContext": "विश्व साहित्य का महानतम ब्रह्माण्डीय उद्भव सूक्त (Cosmological Hymn of Creation)। मैक्स मूलर और स्वामी विवेकानंद ने इसे मानवीय प्रज्ञा की सर्वोच्च दार्शनिक ऊंचाई माना है।",
+      "audioUrl": null,
+      "previousId": "rv-10-125-1",
+      "nextId": "rv-10-129-7",
+      "chapterMantraIds": [
+        "rv-10-129-1",
+        "rv-10-129-7"
+      ],
+      "orderIndex": 14,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-10-129-7",
+      "slug": "rv-10-129-7",
+      "vedaId": "rigveda",
+      "nodeId": "rv-sukta-10-129",
+      "vedaName": "ऋग्वेद (Rigveda)",
+      "shakha": "शाकल शाखा",
+      "textName": "ऋग्वेद संहिता (शाकल शाखा)",
+      "sectionRef": "मण्डल १०, सूक्त १२९, ऋचा ७",
+      "mantraNumber": "१०.१२९.७",
+      "rishi": "परमेष्ठी प्रजापति",
+      "devata": "भाववृत्त / परमात्मा (Bhāvavṛtta)",
+      "chhanda": "त्रिष्टुप् (११x४ = ४४ वर्ण)",
+      "svara": "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
+      "sanskrit": "इ॒यं विसृ॑ष्टि॒र्यत॑ आब॒भूव॒ यदि॑ वा द॒धे यदि॑ वा॒ न।\nयो अ॒स्याध्य॑क्षः पर॒मे व्यो॑म॒न्त्सो अ॒ङ्ग वे॑द॒ यदि॑ वा॒ न वेद॑॥७॥",
+      "transliteration": "iyaṃ visṛṣṭir yata ābabhūva yadi vā dadhe yadi vā na |\nyo asyādhyakṣaḥ parame vyoman tso aṅga veda yadi vā na veda || 7 ||",
+      "hindiTranslation": "यह विविध विचित्र सृष्टि जिस परम स्त्रोत से उत्पन्न हुई है, चाहे उसने इसे रचा अथवा नहीं रचा; जो इस संपूर्ण ब्रह्माण्ड का परम साक्षी बनकर सर्वोच्च चिदाकाश में स्थित है, हे साधक! निश्चय ही वह इसे जानता है, अथवा कदाचित् वह भी नहीं जानता (अर्थात यह रहस्य वाणी और बुद्धि की पहुँच से सर्वथा परे अनिर्वचनीय है)!",
+      "englishTranslation": "Whence this manifold creation arose, whether divine will fashioned it or whether it did not; He who is the supreme overseer of this universe in the highest heaven—He surely knows, or maybe even He does not know (as this ultimate reality transcends all conceptual knowing).",
+      "hinglishTranslation": "Yeh srishti jahan se paida hui, chahe usne ise banaya ya nahi banaya; jo is pure Universe ka supreme witness bankar param aakash mein sthit hai, wo prabhu ise jaanta hai, ya shayad wo bhi nahi jaanta (kyunki yeh rahasya buddhi se pare hai).",
+      "padapatha": [
+        {
+          "word": "इ॒यम्",
+          "meaning": "यह विविध रूपों वाली"
+        },
+        {
+          "word": "विऽसृ॑ष्टिः",
+          "meaning": "विशेष सृष्टि"
+        },
+        {
+          "word": "यतः॑",
+          "meaning": "जिस मूल स्रोत से"
+        },
+        {
+          "word": "आ॒ऽब॒भूव॑",
+          "meaning": "प्रकट हुई / उत्पन्न हुई"
+        },
+        {
+          "word": "यदि॑",
+          "meaning": "चाहे"
+        },
+        {
+          "word": "वा",
+          "meaning": "अथवा"
+        },
+        {
+          "word": "द॒धे",
+          "meaning": "उसने इसे धारण किया / रचा"
+        },
+        {
+          "word": "यदि॑",
+          "meaning": "चाहे"
+        },
+        {
+          "word": "वा",
+          "meaning": "अथवा"
+        },
+        {
+          "word": "न",
+          "meaning": "नहीं"
+        },
+        {
+          "word": "यः",
+          "meaning": "जो"
+        },
+        {
+          "word": "अ॒स्य",
+          "meaning": "इस सृष्टि का"
+        },
+        {
+          "word": "अध्य॑क्षः",
+          "meaning": "परम साक्षी / सर्वद्रष्टा प्रभु"
+        },
+        {
+          "word": "प॒र॒मे",
+          "meaning": "सर्वोच्च"
+        },
+        {
+          "word": "व्यो॑मन्",
+          "meaning": "चिदाकाश में"
+        },
+        {
+          "word": "सः",
+          "meaning": "वह"
+        },
+        {
+          "word": "अ॒ङ्ग",
+          "meaning": "हे प्रिय / निश्चय ही"
+        },
+        {
+          "word": "वेद॑",
+          "meaning": "जानता है"
+        },
+        {
+          "word": "यदि॑",
+          "meaning": "अथवा"
+        },
+        {
+          "word": "वा",
+          "meaning": "या"
+        },
+        {
+          "word": "न",
+          "meaning": "नहीं"
+        },
+        {
+          "word": "वेद॑",
+          "meaning": "जानता"
+        }
+      ],
+      "shastricContext": "नासदीय सूक्त की अंतिम ऋचा। यह रहस्योद्घाटन का चरम बिंदु है जहाँ वैदिक ऋषि अगाध विनम्रता से यह उद्घोष करते हैं कि अंतिम सत्य 'अनिर्वचनीय' है।",
+      "audioUrl": null,
+      "previousId": "rv-10-129-1",
+      "nextId": "rv-10-191-1",
+      "chapterMantraIds": [
+        "rv-10-129-1",
+        "rv-10-129-7"
+      ],
+      "orderIndex": 15,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-10-191-1",
+      "slug": "rv-10-191-1",
+      "vedaId": "rigveda",
+      "nodeId": "rv-sukta-10-191",
+      "vedaName": "ऋग्वेद (Rigveda)",
+      "shakha": "शाकल शाखा",
+      "textName": "ऋग्वेद संहिता (शाकल शाखा)",
+      "sectionRef": "मण्डल १०, सूक्त १९१, ऋचा १",
+      "mantraNumber": "१०.१९१.१",
+      "rishi": "संवनन आङ्गिरस",
+      "devata": "अग्नि (Agni - The Unifier)",
+      "chhanda": "त्रिष्टुप् (११x४ = ४४ वर्ण)",
+      "svara": "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
+      "sanskrit": "सं-स॒मिद्यु॑वसे वृष॒न्नग्ने॒ विश्वा॑न्य॒र्य आ।\nइ॒ळस्प॒दे समि॑ध्यसे॒ स नो॒ वसूं॒न्या भ॑र॥१॥",
+      "transliteration": "saṃ-sam id yuvase vṛṣann agne viśvāny arya ā |\niḷas pade sam idhyase sa no vasūny ā bhara || 1 ||",
+      "hindiTranslation": "हे सामर्थ्यवान अग्निदेव! आप यज्ञाग्नि के रूप में पृथ्वी की पावन वेदी पर प्रज्वलित होते हैं और समस्त प्राणियों एवं पदार्थों को एक सूत्र में पिरोते हैं। आप हमारे लिए सब प्रकार के ऐश्वर्य और सद्भाव प्रदान कीजिए।",
+      "englishTranslation": "O mighty Agni, showerer of bounties, thou gatherest together all things of the faithful; kindled upon the sacred altar-place of Earth, do thou bestow noble treasures upon us.",
+      "hinglishTranslation": "Hey shaktishali Agni Dev! Aap sabhi praniyon ko ek sath jodte hain aur pavitra vedi par prajvalit hote hain. Aap hume samast divya sukh aur samriddhi pradaan karein.",
+      "padapatha": [
+        {
+          "word": "सम्ऽस॑म्",
+          "meaning": "सम्यक् रूप से, पूर्णतः"
+        },
+        {
+          "word": "इत्",
+          "meaning": "निश्चय ही"
+        },
+        {
+          "word": "यु॒व॒से॒",
+          "meaning": "तुम एकत्र करते हो / जोड़ते हो"
+        },
+        {
+          "word": "वृ॒ष॒न्",
+          "meaning": "हे सामर्थ्यवान् / वर्षक"
+        },
+        {
+          "word": "अग्ने॑",
+          "meaning": "हे अग्निदेव"
+        },
+        {
+          "word": "विश्वा॑नि",
+          "meaning": "समस्त पदार्थों और प्रजाओं को"
+        },
+        {
+          "word": "अ॒र्यः",
+          "meaning": "स्वामियों / उपासकों के"
+        },
+        {
+          "word": "आ",
+          "meaning": "सब ओर से"
+        },
+        {
+          "word": "इ॒ळः",
+          "meaning": "पृथ्वी की"
+        },
+        {
+          "word": "प॒दे",
+          "meaning": "वेदी स्थान पर"
+        },
+        {
+          "word": "सम्",
+          "meaning": "सम्यक् रूप से"
+        },
+        {
+          "word": "इ॒ध्य॒से॒",
+          "meaning": "प्रज्वलित किए जाते हो"
+        },
+        {
+          "word": "सः",
+          "meaning": "वह आप"
+        },
+        {
+          "word": "नः॒",
+          "meaning": "हमारे लिए"
+        },
+        {
+          "word": "वसूनि॑",
+          "meaning": "समस्त ऐश्वर्यों को"
+        },
+        {
+          "word": "आ",
+          "meaning": "प्रचुरता से"
+        },
+        {
+          "word": "भ॒र॒",
+          "meaning": "प्रदान करो / लाओ"
+        }
+      ],
+      "shastricContext": "ऋग्वेद संहिता का अंतिम सूक्त (१९१)। यह प्रथम मंत्र में अग्निदेव को समस्त मानव जाति को जोड़ने वाले वैश्विक केंद्र के रूप में स्थापित करता है।",
+      "audioUrl": null,
+      "previousId": "rv-10-129-7",
+      "nextId": "rv-10-191-2",
+      "chapterMantraIds": [
+        "rv-10-191-1",
+        "rv-10-191-2",
+        "rv-10-191-3",
+        "rv-10-191-4"
+      ],
+      "orderIndex": 16,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-10-191-2",
+      "slug": "rv-10-191-2",
+      "vedaId": "rigveda",
+      "nodeId": "rv-sukta-10-191",
+      "vedaName": "ऋग्वेद (Rigveda)",
+      "shakha": "शाकल शाखा",
+      "textName": "ऋग्वेद संहिता (शाकल शाखा)",
+      "sectionRef": "मण्डल १०, सूक्त १९१, ऋचा २",
+      "mantraNumber": "१०.१९१.२",
+      "rishi": "संवनन आङ्गिरस",
+      "devata": "संज्ञानम् (Unity / Harmony)",
+      "chhanda": "अनुष्टुप् (८+८+८+८ = ३२ वर्ण)",
+      "svara": "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
+      "sanskrit": "सं ग॑च्छध्वं॒ सं व॑दध्वं॒ सं वो॒ मना॑ंसि जानताम्।\nदे॒वा भा॒गं यथा॒ पूर्वे॑ संजाना॒ना उ॒पास॑ते॥२॥",
+      "transliteration": "saṃ gacchadhvaṃ saṃ vadadhvaṃ saṃ vo manāṃsi jānatām |\ndevā bhāgaṃ yathā pūrve sañjānānā upāsate || 2 ||",
+      "hindiTranslation": "तुम सब साथ मिलकर चलो, एक स्वर में संवाद करो, तुम्हारे मन एकमत होकर सत्य को जानें; जिस प्रकार प्राचीन काल में देवगण पूर्ण सामंजस्य से अपने-अपने यज्ञभाग को ग्रहण करते थे।",
+      "englishTranslation": "Walk together in harmony; speak together with one voice; let your minds be in complete accord, just as the ancient gods of one mind accepted their portions of sacrifice.",
+      "hinglishTranslation": "Tum sab ek sath milkar aage badho, ek sur mein baat karo, tumhare mann ek dusre ko samjhein; jaise puratan devta ekjut hokar apna yagyabhag grahan karte the.",
+      "padapatha": [
+        {
+          "word": "सम्",
+          "meaning": "साथ-साथ, एकमत होकर"
+        },
+        {
+          "word": "ग॒च्छ॒ध्व॒म्",
+          "meaning": "आगे बढ़ो, चलो"
+        },
+        {
+          "word": "सम्",
+          "meaning": "मिलकर"
+        },
+        {
+          "word": "व॒द॒ध्व॒म्",
+          "meaning": "संवाद करो, बोलो"
+        },
+        {
+          "word": "सम्",
+          "meaning": "समान रूप से"
+        },
+        {
+          "word": "वः॒",
+          "meaning": "तुम्हारे"
+        },
+        {
+          "word": "मना॑ंसि",
+          "meaning": "मन और विचार"
+        },
+        {
+          "word": "जा॒न॒ता॒म्",
+          "meaning": "एक दूसरे को समझें"
+        },
+        {
+          "word": "दे॒वाः",
+          "meaning": "प्राचीन देवगण"
+        },
+        {
+          "word": "भा॒गम्",
+          "meaning": "यज्ञ के अपने अंश को"
+        },
+        {
+          "word": "यथा॑",
+          "meaning": "जिस प्रकार"
+        },
+        {
+          "word": "पूर्वे॑",
+          "meaning": "पुरातन काल में"
+        },
+        {
+          "word": "सम्ऽजा॒ना॒नाः",
+          "meaning": "एकमत होकर"
+        },
+        {
+          "word": "उ॒पास॑ते",
+          "meaning": "ग्रहण करते थे"
+        }
+      ],
+      "shastricContext": "वैश्विक एकता, लोकतांत्रिक संवाद और सामाजिक समरसता का विश्व-प्रसिद्ध वैदिक गान।",
+      "audioUrl": null,
+      "previousId": "rv-10-191-1",
+      "nextId": "rv-10-191-3",
+      "chapterMantraIds": [
+        "rv-10-191-1",
+        "rv-10-191-2",
+        "rv-10-191-3",
+        "rv-10-191-4"
+      ],
+      "orderIndex": 17,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-10-191-3",
+      "slug": "rv-10-191-3",
+      "vedaId": "rigveda",
+      "nodeId": "rv-sukta-10-191",
+      "vedaName": "ऋग्वेद (Rigveda)",
+      "shakha": "शाकल शाखा",
+      "textName": "ऋग्वेद संहिता (शाकल शाखा)",
+      "sectionRef": "मण्डल १०, सूक्त १९१, ऋचा ३",
+      "mantraNumber": "१०.१९१.३",
+      "rishi": "संवनन आङ्गिरस",
+      "devata": "संज्ञानम् (Unity / Assembly)",
+      "chhanda": "त्रिष्टुप् (११x४ = ४४ वर्ण)",
+      "svara": "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
+      "sanskrit": "स॒मा॒नो मन्त्रः॒ समि॑तिः समा॒नी स॑मा॒नं मनः॑ स॒ह चि॒त्तमे॑षाम्।\nस॒मा॒नं मन्त्र॑म॒भि म॑न्त्रये वः समा॒नेन॑ वो ह॒विषा॑ जुहोमि॥३॥",
+      "transliteration": "samāno mantraḥ samitiḥ samānī samānaṃ manaḥ saha cittam eṣām |\nsamānaṃ mantram abhi mantraye vaḥ samānena vo haviṣā juhomi || 3 ||",
+      "hindiTranslation": "तुम्हारा परामर्श (लक्ष्य) समान हो, तुम्हारी सभा और संगठन निष्पक्ष व एकमत हों, तुम्हारा मन समान हो और तुम्हारी चेतना एक साथ जुड़ी रहे। मैं तुम्हें एक समान उद्देश्य का उपदेश देता हूँ और तुम्हारी एक समान हवि से यज्ञ सम्पन्न करता हूँ।",
+      "englishTranslation": "Common be your counsel, common your assembly, common your purpose, and unified your thoughts! A common prayer do I impart unto you, and with a common oblation do I worship for you all.",
+      "hinglishTranslation": "Tumhara prayas saman ho, tumhari sabha aur organization ekmat ho, tumhara mann aur chetna aapas mein jude hon. Main tumhe ek saman lakshya ka updesh deta hoon aur ek saman havi se yagya karta hoon.",
+      "padapatha": [
+        {
+          "word": "स॒मा॒नः",
+          "meaning": "समान, एकरूप"
+        },
+        {
+          "word": "मन्त्रः॑",
+          "meaning": "विचार, परामर्श, लक्ष्य"
+        },
+        {
+          "word": "समि॑तिः",
+          "meaning": "सभा, संगठन"
+        },
+        {
+          "word": "स॒मा॒नी",
+          "meaning": "समरस, एकाकार"
+        },
+        {
+          "word": "स॒मा॒नम्",
+          "meaning": "समान"
+        },
+        {
+          "word": "मनः॑",
+          "meaning": "मन"
+        },
+        {
+          "word": "स॒ह",
+          "meaning": "साथ-साथ"
+        },
+        {
+          "word": "चि॒त्तम्",
+          "meaning": "चेतना, संकल्प"
+        },
+        {
+          "word": "ए॒षा॒म्",
+          "meaning": "आप सबका"
+        },
+        {
+          "word": "स॒मा॒नम्",
+          "meaning": "समान"
+        },
+        {
+          "word": "मन्त्र॑म्",
+          "meaning": "मंत्र व उद्देश्य को"
+        },
+        {
+          "word": "अ॒भि",
+          "meaning": "लक्ष्य करके"
+        },
+        {
+          "word": "म॒न्त्र॒ये॒",
+          "meaning": "मैं परामर्श देता हूँ"
+        },
+        {
+          "word": "वः॒",
+          "meaning": "तुम सबको"
+        },
+        {
+          "word": "स॒मा॒नेन॑",
+          "meaning": "समान"
+        },
+        {
+          "word": "वः॒",
+          "meaning": "तुम्हारे"
+        },
+        {
+          "word": "ह॒विषा॑",
+          "meaning": "हविष्य से"
+        },
+        {
+          "word": "जु॒हो॒मि॒",
+          "meaning": "मैं आहुति देता हूँ"
+        }
+      ],
+      "shastricContext": "वैदिक जनतंत्र, सभा और समिति के नियमों का आधारभूत मंत्र। यह राष्ट्रीय और सामाजिक संगठनों में निष्पक्षता और एकात्मता का विधान करता है।",
+      "audioUrl": null,
+      "previousId": "rv-10-191-2",
+      "nextId": "rv-10-191-4",
+      "chapterMantraIds": [
+        "rv-10-191-1",
+        "rv-10-191-2",
+        "rv-10-191-3",
+        "rv-10-191-4"
+      ],
+      "orderIndex": 18,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "rv-10-191-4",
+      "slug": "rv-10-191-4",
+      "vedaId": "rigveda",
+      "nodeId": "rv-sukta-10-191",
+      "vedaName": "ऋग्वेद (Rigveda)",
+      "shakha": "शाकल शाखा",
+      "textName": "ऋग्वेद संहिता (शाकल शाखा)",
+      "sectionRef": "मण्डल १०, सूक्त १९१, ऋचा ४",
+      "mantraNumber": "१०.१९१.४",
+      "rishi": "संवनन आङ्गिरस",
+      "devata": "संज्ञानम् (Universal Accord)",
+      "chhanda": "अनुष्टुप् (८+८+८+८ = ३२ वर्ण)",
+      "svara": "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
+      "sanskrit": "स॒मा॒नी व॑ आ॒कूतिः॑ समा॒ना हृद॑यानि वः।\nस॒मा॒नम॑स्तु वो॒ मनो॒ यथा॑ वः॒ सुस॒हाम॑सति॥४॥",
+      "transliteration": "samānī va ākūtiḥ samānā hṛdayāni vaḥ |\nsamānam astu vo mano yathā vaḥ susahāsati || 4 ||",
+      "hindiTranslation": "तुम्हारे संकल्प एक समान हों, तुम्हारे हृदय एकभाव से युक्त हों, तुम्हारा मन परस्पर संगठित हो; जिससे कि तुम्हारा पारस्परिक सहयोग उत्तम और सुखद रूप से सिद्ध हो सके।",
+      "englishTranslation": "United be your resolves, united your hearts, and harmonious be your minds, so that there may be a perfect and blissful union among you all.",
+      "hinglishTranslation": "Tumhare sankalpa ek jaise hon, tumhare dilon mein prem aur ekta ho, tumhara mann ekjut ho; jisse tumhara aapsi sahyog behtareen aur safal ban sake.",
+      "padapatha": [
+        {
+          "word": "स॒मा॒नी",
+          "meaning": "समान, एकरूप"
+        },
+        {
+          "word": "वः॒",
+          "meaning": "तुम्हारा"
+        },
+        {
+          "word": "आ॒कूतिः॑",
+          "meaning": "संकल्प, अभिलाषा"
+        },
+        {
+          "word": "स॒मा॒ना",
+          "meaning": "समरस, एकभाव"
+        },
+        {
+          "word": "हृद॑यानि",
+          "meaning": "हृदय"
+        },
+        {
+          "word": "वः॒",
+          "meaning": "तुम्हारे"
+        },
+        {
+          "word": "स॒मा॒नम्",
+          "meaning": "समान"
+        },
+        {
+          "word": "अ॒स्तु॒",
+          "meaning": "होवे"
+        },
+        {
+          "word": "वः॒",
+          "meaning": "तुम्हारा"
+        },
+        {
+          "word": "मनः॑",
+          "meaning": "मन"
+        },
+        {
+          "word": "यथा॑",
+          "meaning": "जिससे कि"
+        },
+        {
+          "word": "वः॒",
+          "meaning": "तुम्हारा"
+        },
+        {
+          "word": "सु॒ऽस॒हा",
+          "meaning": "उत्तम सहयोग / सुदृढ़ एकता"
+        },
+        {
+          "word": "अस॑ति",
+          "meaning": "सिद्ध हो सके"
+        }
+      ],
+      "shastricContext": "ऋग्वेद संहिता का अंतिम मंत्र (१०.१९१.४)। संपूर्ण ऋग्वेद ज्ञान की पराकाष्ठा विश्व-मानवता की पूर्ण एकता, बंधुत्व और समरसता पर विराम लेती है।",
+      "audioUrl": null,
+      "previousId": "rv-10-191-3",
+      "nextId": null,
+      "chapterMantraIds": [
+        "rv-10-191-1",
+        "rv-10-191-2",
+        "rv-10-191-3",
+        "rv-10-191-4"
+      ],
+      "orderIndex": 19,
+      "status": "ACTIVE"
+    }
+  ]
+}
