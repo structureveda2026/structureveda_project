@@ -112,10 +112,12 @@ export const MantraFormPage: React.FC = () => {
       setSaving(true);
 
       if (!formData.sanskrit?.trim()) {
-        throw new Error("संस्कृत मूल मंत्र अनिवार्य है।");
+        setActiveTab("content");
+        throw new Error("संस्कृत मूल मंत्र अनिवार्य है। (चरण 1: मूल मंत्र)");
       }
       if (!formData.hindiTranslation?.trim()) {
-        throw new Error("प्रामाणिक हिंदी भावार्थ (Hindi Translation) अनिवार्य है।");
+        setActiveTab("translations");
+        throw new Error("प्रामाणिक हिंदी भावार्थ अनिवार्य है। (चरण 2: बहुभाषी भावार्थ)");
       }
 
       const generatedId =
@@ -151,6 +153,12 @@ export const MantraFormPage: React.FC = () => {
     );
   }
 
+  const translationsCount = [
+    formData.hindiTranslation?.trim(),
+    formData.englishTranslation?.trim(),
+    formData.hinglishTranslation?.trim(),
+  ].filter(Boolean).length;
+
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <PageHeader
@@ -172,12 +180,32 @@ export const MantraFormPage: React.FC = () => {
       />
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-cream-200 pb-2 text-xs font-bold">
+      <div className="flex flex-wrap items-center gap-2 border-b border-cream-200 pb-2 text-xs font-bold">
         {[
-          { id: "content", label: "1. मूल मंत्र एवं संदर्भ", icon: Scroll },
-          { id: "translations", label: "2. बहुभाषी भावार्थ (3 Languages)", icon: Languages },
-          { id: "padapatha", label: "3. पदच्छेद व पदार्थ (Word Meanings)", icon: Sparkles },
-          { id: "shastric", label: "4. शास्त्रीय व्याख्या व विनियोग", icon: Flame },
+          {
+            id: "content",
+            label: "1. मूल मंत्र एवं संदर्भ",
+            icon: Scroll,
+            badge: formData.sanskrit?.trim() ? "✓" : undefined,
+          },
+          {
+            id: "translations",
+            label: "2. बहुभाषी भावार्थ (3 Languages)",
+            icon: Languages,
+            badge: `${translationsCount}/3 भाषाएँ`,
+            badgeColor: formData.hindiTranslation?.trim() ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800",
+          },
+          {
+            id: "padapatha",
+            label: "3. पदच्छेद व पदार्थ (Word Meanings)",
+            icon: Sparkles,
+            badge: formData.padapatha && formData.padapatha.length > 0 ? `${formData.padapatha.length} पद` : undefined,
+          },
+          {
+            id: "shastric",
+            label: "4. शास्त्रीय व्याख्या व विनियोग",
+            icon: Flame,
+          },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -186,7 +214,7 @@ export const MantraFormPage: React.FC = () => {
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id as any)}
-              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all cursor-pointer ${
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl transition-all cursor-pointer ${
                 isActive
                   ? "bg-saffron-600 text-white shadow-2xs"
                   : "bg-white text-charcoal-700 hover:bg-cream-100 border border-cream-200"
@@ -194,6 +222,17 @@ export const MantraFormPage: React.FC = () => {
             >
               <Icon className="w-3.5 h-3.5" />
               <span>{tab.label}</span>
+              {tab.badge && (
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                    isActive
+                      ? "bg-white/25 text-white"
+                      : tab.badgeColor || "bg-cream-200 text-charcoal-700"
+                  }`}
+                >
+                  {tab.badge}
+                </span>
+              )}
             </button>
           );
         })}
@@ -411,6 +450,18 @@ export const MantraFormPage: React.FC = () => {
                 />
               </div>
             </div>
+
+            {/* Step Next Button */}
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => setActiveTab("translations")}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-saffron-50 hover:bg-saffron-100 border border-saffron-300 text-saffron-800 text-xs font-bold transition-all cursor-pointer shadow-2xs"
+              >
+                <span>अगला चरण: बहुभाषी भावार्थ (Hindi, English, Hinglish)</span>
+                <span>➔</span>
+              </button>
+            </div>
           </div>
         )}
 
@@ -421,6 +472,42 @@ export const MantraFormPage: React.FC = () => {
               <Languages className="w-4 h-4 text-saffron-600" />
               <span>त्रिभाषी भावार्थ (Hindi, English & Hinglish Translations)</span>
             </h3>
+
+            {/* Language Status Bar */}
+            <div className="bg-amber-50/70 border border-amber-200/80 rounded-xl p-3 text-xs text-amber-900 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <span className="font-medium">
+                यहाँ हिंदी (अनिवार्य), English एवं Hinglish तीनों भाषाओं में भावार्थ संपादित करें।
+              </span>
+              <div className="flex items-center gap-2 text-[10px] font-bold">
+                <span
+                  className={`px-2 py-0.5 rounded ${
+                    formData.hindiTranslation?.trim()
+                      ? "bg-emerald-100 text-emerald-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
+                >
+                  हिंदी: {formData.hindiTranslation?.trim() ? "भरी है ✓" : "आवश्यक *"}
+                </span>
+                <span
+                  className={`px-2 py-0.5 rounded ${
+                    formData.englishTranslation?.trim()
+                      ? "bg-emerald-100 text-emerald-800"
+                      : "bg-stone-200 text-stone-600"
+                  }`}
+                >
+                  English: {formData.englishTranslation?.trim() ? "भरी है ✓" : "वैकल्पिक"}
+                </span>
+                <span
+                  className={`px-2 py-0.5 rounded ${
+                    formData.hinglishTranslation?.trim()
+                      ? "bg-emerald-100 text-emerald-800"
+                      : "bg-stone-200 text-stone-600"
+                  }`}
+                >
+                  Hinglish: {formData.hinglishTranslation?.trim() ? "भरी है ✓" : "वैकल्पिक"}
+                </span>
+              </div>
+            </div>
 
             {/* 1. Hindi Meaning */}
             <div>
@@ -482,6 +569,25 @@ export const MantraFormPage: React.FC = () => {
                 className="w-full p-3 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-sans leading-relaxed"
               />
             </div>
+
+            {/* Step Navigation Buttons */}
+            <div className="flex items-center justify-between pt-3 border-t border-cream-100">
+              <button
+                type="button"
+                onClick={() => setActiveTab("content")}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cream-50 hover:bg-cream-100 border border-cream-300 text-charcoal-700 text-xs font-bold transition-all cursor-pointer"
+              >
+                <span>⬅ पिछला चरण: मूल मंत्र</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("padapatha")}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-saffron-50 hover:bg-saffron-100 border border-saffron-300 text-saffron-800 text-xs font-bold transition-all cursor-pointer shadow-2xs"
+              >
+                <span>अगला चरण: पदच्छेद व पदार्थ (Word Meanings)</span>
+                <span>➔</span>
+              </button>
+            </div>
           </div>
         )}
 
@@ -494,6 +600,25 @@ export const MantraFormPage: React.FC = () => {
                 setFormData((prev) => ({ ...prev, padapatha }))
               }
             />
+
+            {/* Step Navigation Buttons */}
+            <div className="flex items-center justify-between pt-3 border-t border-cream-100">
+              <button
+                type="button"
+                onClick={() => setActiveTab("translations")}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cream-50 hover:bg-cream-100 border border-cream-300 text-charcoal-700 text-xs font-bold transition-all cursor-pointer"
+              >
+                <span>⬅ पिछला चरण: बहुभाषी भावार्थ</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("shastric")}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-saffron-50 hover:bg-saffron-100 border border-saffron-300 text-saffron-800 text-xs font-bold transition-all cursor-pointer shadow-2xs"
+              >
+                <span>अगला चरण: शास्त्रीय संदर्भ व विनियोग</span>
+                <span>➔</span>
+              </button>
+            </div>
           </div>
         )}
 
@@ -585,6 +710,17 @@ export const MantraFormPage: React.FC = () => {
                   className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-mono"
                 />
               </div>
+            </div>
+
+            {/* Step Navigation Buttons */}
+            <div className="flex items-center justify-start pt-3 border-t border-cream-100">
+              <button
+                type="button"
+                onClick={() => setActiveTab("padapatha")}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cream-50 hover:bg-cream-100 border border-cream-300 text-charcoal-700 text-xs font-bold transition-all cursor-pointer"
+              >
+                <span>⬅ पिछला चरण: पदच्छेद व पदार्थ</span>
+              </button>
             </div>
           </div>
         )}
