@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Search,
@@ -15,6 +15,10 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { logoutUser } from "../../features/auth/authSlice";
 import { useToast } from "../ui/toastContext";
 import pujaCatalogueService from "../../services/pujaCatalogueService";
+import yagyaCatalogueService from "../../services/yagyaCatalogueService";
+import japaCatalogueService from "../../services/japaCatalogueService";
+import pathCatalogueService from "../../services/pathCatalogueService";
+import homaCatalogueService from "../../services/homaCatalogueService";
 
 // Featured astrologers for navbar dropdown
 const NAVBAR_ASTROLOGERS = [
@@ -22,14 +26,67 @@ const NAVBAR_ASTROLOGERS = [
   { name: "Acharya Anurag Bhardwaj", slug: "acharya-anurag-bhardwaj" },
 ];
 
-// Other Yagya & Puja disciplines
-const YAGYA_PUJA_OTHER_ITEMS = [
-  { label: "Yagya", path: "/yagya-puja/yagya" },
-  { label: "Japa / Chanting", path: "/yagya-puja/japa" },
-  { label: "Path / Recitation", path: "/yagya-puja/path" },
-  { label: "Homa / Havan", path: "/yagya-puja/homa" },
-  { label: "Puja in Kashi", path: "/yagya-puja/kashi" },
+// 6 Core Ritual tabs in exact required order
+const RITUAL_TABS = [
+  {
+    id: "puja",
+    label: "Puja",
+    path: "/yagya-puja/puja",
+    viewAllLabel: "View All Pujas",
+    heading: "PUJA CATEGORIES",
+    categoryRoutePrefix: "/yagya-puja/puja/category/",
+  },
+  {
+    id: "yagya",
+    label: "Yagya",
+    path: "/yagya-puja/yagya",
+    viewAllLabel: "View All Yagyas",
+    heading: "YAGYA CATEGORIES",
+    categoryRoutePrefix: "/yagya-puja/yagya/category/",
+  },
+  {
+    id: "japa",
+    label: "Japa / Chanting",
+    path: "/yagya-puja/japa",
+    viewAllLabel: "View All Japa Services",
+    heading: "JAPA CATEGORIES",
+    categoryRoutePrefix: "/yagya-puja/japa/category/",
+  },
+  {
+    id: "path",
+    label: "Path / Recitation",
+    path: "/yagya-puja/path",
+    viewAllLabel: "View All Path Services",
+    heading: "PATH CATEGORIES",
+    categoryRoutePrefix: "/yagya-puja/path/category/",
+  },
+  {
+    id: "homa",
+    label: "Homa / Havan",
+    path: "/yagya-puja/homa",
+    viewAllLabel: "View All Homa Services",
+    heading: "HOMA CATEGORIES",
+    categoryRoutePrefix: "/yagya-puja/homa/category/",
+  },
+  {
+    id: "kashi",
+    label: "Puja in Kashi",
+    path: "/yagya-puja/kashi",
+    viewAllLabel: "Explore Kashi Ceremonies",
+    heading: "PUJA IN KASHI",
+    categoryRoutePrefix: null,
+  },
 ];
+
+const getActiveRitualFromPath = (pathname) => {
+  if (pathname.startsWith("/yagya-puja/yagya")) return "yagya";
+  if (pathname.startsWith("/yagya-puja/japa")) return "japa";
+  if (pathname.startsWith("/yagya-puja/path")) return "path";
+  if (pathname.startsWith("/yagya-puja/homa")) return "homa";
+  if (pathname.startsWith("/yagya-puja/kashi")) return "kashi";
+  if (pathname.startsWith("/yagya-puja/puja")) return "puja";
+  return "puja";
+};
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -39,50 +96,111 @@ const Navbar = () => {
   const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
   const [isMobileAstrologerOpen, setIsMobileAstrologerOpen] = useState(false);
   const [isMobileYagyaPujaOpen, setIsMobileYagyaPujaOpen] = useState(false);
-  const [isMobilePujaOpen, setIsMobilePujaOpen] = useState(false);
 
-  // Dynamic Puja categories state
-  const [pujaCategories, setPujaCategories] = useState([]);
-  const [categoriesLoading, setCategoriesLoading] = useState(true);
-  const [categoriesError, setCategoriesError] = useState(false);
+  // Active ritual tab & mobile accordion state
+  const [selectedRitualTab, setSelectedRitualTab] = useState(null);
+  const [expandedMobileRitual, setExpandedMobileRitual] = useState(null);
 
+  const location = useLocation();
+  const activeRitualTab = selectedRitualTab || getActiveRitualFromPath(location.pathname);
+
+  // Multi-ritual dynamic categories data state
+  const [categoriesData, setCategoriesData] = useState({
+    puja: { items: [], loading: false, error: false, loaded: false },
+    yagya: { items: [], loading: false, error: false, loaded: false },
+    japa: { items: [], loading: false, error: false, loaded: false },
+    path: { items: [], loading: false, error: false, loaded: false },
+    homa: { items: [], loading: false, error: false, loaded: false },
+    kashi: { items: [], loading: false, error: false, loaded: false },
+  });
+
+  const loadedTabsRef = useRef(new Set());
   const accountDropdownRef = useRef(null);
   const yagyaPujaDropdownRef = useRef(null);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
   const { showToast } = useToast();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const displayName =
     user?.fullName || user?.name || user?.email || "Account";
 
   const isYagyaPujaActive = location.pathname.startsWith("/yagya-puja");
-  const isPujaActive = location.pathname.startsWith("/yagya-puja/puja");
 
-  // Load Puja categories on mount with session caching
+  const fetchRitualCategories = useCallback(async (ritualId, forceRefresh = false) => {
+    switch (ritualId) {
+      case "puja":
+        return await pujaCatalogueService.getPujaCategories(forceRefresh);
+      case "yagya":
+        return await yagyaCatalogueService.getYagyaCategories(forceRefresh);
+      case "japa":
+        return await japaCatalogueService.getJapaCategories(forceRefresh);
+      case "path":
+        return await pathCatalogueService.getPathCategories(forceRefresh);
+      case "homa":
+        return await homaCatalogueService.getHomaCategories(forceRefresh);
+      case "kashi": {
+        const result = await pujaCatalogueService.getPujaServices();
+        const list = Array.isArray(result?.services) ? result.services : [];
+        const kashiList = list.filter((s) => s.isKashiAvailable);
+        return kashiList.map((s) => ({
+          id: s.id,
+          name: s.name,
+          slug: s.slug,
+          path: `/yagya-puja/puja/${s.slug}`,
+        }));
+      }
+      default:
+        return [];
+    }
+  }, []);
+
+  const loadCategoryData = useCallback(async (ritualId, forceRefresh = false) => {
+    setCategoriesData((prev) => ({
+      ...prev,
+      [ritualId]: {
+        ...prev[ritualId],
+        loading: true,
+        error: false,
+      },
+    }));
+
+    try {
+      const data = await fetchRitualCategories(ritualId, forceRefresh);
+      setCategoriesData((prev) => ({
+        ...prev,
+        [ritualId]: {
+          items: Array.isArray(data) ? data : [],
+          loading: false,
+          error: false,
+          loaded: true,
+        },
+      }));
+    } catch (err) {
+      console.error(`Navbar: failed to load categories for ${ritualId}:`, err);
+      setCategoriesData((prev) => ({
+        ...prev,
+        [ritualId]: {
+          ...prev[ritualId],
+          loading: false,
+          error: true,
+          loaded: true,
+        },
+      }));
+    }
+  }, [fetchRitualCategories]);
+
+  // Pre-fetch active tab and remaining tabs on mount/dropdown open
   useEffect(() => {
-    let isMounted = true;
-    pujaCatalogueService.getPujaCategories()
-      .then((data) => {
-        if (isMounted && Array.isArray(data)) {
-          setPujaCategories(data);
-          setCategoriesLoading(false);
-          setCategoriesError(false);
-        }
-      })
-      .catch((err) => {
-        console.error("Navbar: could not load Puja categories:", err);
-        if (isMounted) {
-          setCategoriesError(true);
-          setCategoriesLoading(false);
+    if (isYagyaPujaDropdownOpen || isMobileYagyaPujaOpen) {
+      RITUAL_TABS.forEach((tab) => {
+        if (!loadedTabsRef.current.has(tab.id)) {
+          loadedTabsRef.current.add(tab.id);
+          loadCategoryData(tab.id);
         }
       });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+    }
+  }, [isYagyaPujaDropdownOpen, isMobileYagyaPujaOpen, loadCategoryData]);
 
   // Close dropdowns on location changes
   useEffect(() => {
@@ -91,6 +209,8 @@ const Navbar = () => {
       setIsAstrologerDropdownOpen(false);
       setIsAccountDropdownOpen(false);
       setIsMenuOpen(false);
+      setSelectedRitualTab(null);
+      setExpandedMobileRitual(null);
     }, 0);
 
     return () => clearTimeout(timer);
@@ -290,117 +410,157 @@ const Navbar = () => {
             {isYagyaPujaDropdownOpen && (
               <div className="absolute left-[-220px] xl:left-[-260px] top-full z-50 pt-2 w-[900px] xl:w-[960px] max-w-[calc(100vw-32px)]">
                 <div className="overflow-hidden rounded-xl border border-[#ebdcc2] bg-[#fffdfa] shadow-[0_16px_40px_rgba(40,28,15,0.08)] animate-in fade-in slide-in-from-top-2 duration-200">
-                  {/* Top Horizontal Row: Ritual Services Navigation */}
+                  {/* Top Horizontal Row: 6 Ritual Services Navigation Tabs */}
                   <div className="border-b border-[#ebdcc2]/80 bg-[#fbf7ee]/50 px-8 py-3.5">
                     <p className="mb-2 text-[10.5px] font-bold uppercase tracking-[0.22em] text-[#b36a18]">
                       RITUAL SERVICES
                     </p>
-                    <div className="flex flex-wrap items-center gap-x-8 gap-y-2 text-[14px]">
-                      {/* Puja (Active Service Tab) */}
-                      <Link
-                        to="/yagya-puja/puja"
-                        onClick={() => setIsYagyaPujaDropdownOpen(false)}
-                        className="group relative pb-1 font-bold text-[#1f160e] transition-colors hover:text-[#b36a18]"
-                      >
-                        <span>Puja</span>
-                        {/* Active Gold Indicator */}
-                        <span className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full bg-[#c77722]" />
-                      </Link>
-
-                      {/* Other Ritual Services */}
-                      {YAGYA_PUJA_OTHER_ITEMS.map((item) => (
-                        <Link
-                          key={item.path}
-                          to={item.path}
-                          onClick={() => setIsYagyaPujaDropdownOpen(false)}
-                          className="pb-1 font-semibold text-[#483d31] transition-colors hover:text-[#b36a18]"
-                        >
-                          <span>{item.label}</span>
-                        </Link>
-                      ))}
+                    <div
+                      role="tablist"
+                      aria-label="Ritual Disciplines"
+                      className="flex flex-wrap items-center gap-x-8 gap-y-2 text-[14px]"
+                    >
+                      {RITUAL_TABS.map((tab, idx) => {
+                        const isTabSelected = activeRitualTab === tab.id;
+                        return (
+                          <button
+                            key={tab.id}
+                            type="button"
+                            role="tab"
+                            id={`ritual-tab-${tab.id}`}
+                            aria-selected={isTabSelected}
+                            aria-controls={`ritual-panel-${tab.id}`}
+                            tabIndex={isTabSelected ? 0 : -1}
+                            onClick={() => {
+                              setSelectedRitualTab(tab.id);
+                              if (!loadedTabsRef.current.has(tab.id)) {
+                                loadedTabsRef.current.add(tab.id);
+                                loadCategoryData(tab.id);
+                              }
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "ArrowRight") {
+                                e.preventDefault();
+                                const nextIndex = (idx + 1) % RITUAL_TABS.length;
+                                const nextTab = RITUAL_TABS[nextIndex];
+                                setSelectedRitualTab(nextTab.id);
+                                document.getElementById(`ritual-tab-${nextTab.id}`)?.focus();
+                              } else if (e.key === "ArrowLeft") {
+                                e.preventDefault();
+                                const prevIndex = (idx - 1 + RITUAL_TABS.length) % RITUAL_TABS.length;
+                                const prevTab = RITUAL_TABS[prevIndex];
+                                setSelectedRitualTab(prevTab.id);
+                                document.getElementById(`ritual-tab-${prevTab.id}`)?.focus();
+                              }
+                            }}
+                            className={`group relative pb-1.5 transition-colors cursor-pointer text-[13.5px] xl:text-[14px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c77722] rounded-sm ${
+                              isTabSelected
+                                ? "font-bold text-[#1f160e]"
+                                : "font-semibold text-[#483d31] hover:text-[#b36a18]"
+                            }`}
+                          >
+                            <span>{tab.label}</span>
+                            {/* Active Gold Indicator */}
+                            {isTabSelected && (
+                              <span className="absolute bottom-0 left-0 right-0 h-[2.5px] rounded-full bg-[#c77722] transition-all" />
+                            )}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
-                  {/* Main Content Area: Puja Categories */}
-                  <div className="px-8 py-6">
-                    {/* Header: Title + View All Pujas Link */}
-                    <div className="mb-4 flex items-center justify-between border-b border-[#ebdcc2]/60 pb-3">
-                      <p className="text-[10.5px] font-bold uppercase tracking-[0.22em] text-[#b36a18]">
-                        PUJA CATEGORIES
-                      </p>
-                      <Link
-                        to="/yagya-puja/puja"
-                        onClick={() => setIsYagyaPujaDropdownOpen(false)}
-                        className="group inline-flex items-center gap-1 text-[12.5px] font-semibold text-[#b36a18] transition-colors hover:text-[#8a4b08] hover:underline"
-                      >
-                        <span>View All Pujas</span>
-                        <ArrowRight
-                          size={13}
-                          className="transition-transform group-hover:translate-x-0.5"
-                        />
-                      </Link>
-                    </div>
+                  {/* Main Content Area: Active Ritual's Dynamic Categories */}
+                  {(() => {
+                    const currentTab = RITUAL_TABS.find((t) => t.id === activeRitualTab) || RITUAL_TABS[0];
+                    const tabData = categoriesData[currentTab.id] || { items: [], loading: false, error: false };
 
-                    {/* Category List: Clean Multi-Column Text Links */}
-                    {categoriesLoading ? (
-                      <div className="grid grid-cols-2 gap-x-12 gap-y-3.5 py-2">
-                        {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                          <div
-                            key={n}
-                            className="h-6 w-48 rounded bg-[#ebdcc2]/30 animate-pulse"
-                          />
-                        ))}
+                    return (
+                      <div
+                        role="tabpanel"
+                        id={`ritual-panel-${currentTab.id}`}
+                        aria-labelledby={`ritual-tab-${currentTab.id}`}
+                        className="px-8 py-6"
+                      >
+                        {/* Header: Title + View All Link */}
+                        <div className="mb-4 flex items-center justify-between border-b border-[#ebdcc2]/60 pb-3">
+                          <div className="flex items-center gap-2.5">
+                            <p className="text-[10.5px] font-bold uppercase tracking-[0.22em] text-[#b36a18]">
+                              {currentTab.heading}
+                            </p>
+                            {tabData.items.length > 0 && (
+                              <span className="rounded-full bg-[#fbf0db] px-2 py-0.5 text-[10px] font-bold text-[#b36a18]">
+                                {tabData.items.length} {currentTab.id === "kashi" ? "Ceremonies" : "Categories"}
+                              </span>
+                            )}
+                          </div>
+                          <Link
+                            to={currentTab.path}
+                            onClick={() => setIsYagyaPujaDropdownOpen(false)}
+                            className="group inline-flex items-center gap-1 text-[12.5px] font-semibold text-[#b36a18] transition-colors hover:text-[#8a4b08] hover:underline"
+                          >
+                            <span>{currentTab.viewAllLabel}</span>
+                            <ArrowRight
+                              size={13}
+                              className="transition-transform group-hover:translate-x-0.5"
+                            />
+                          </Link>
+                        </div>
+
+                        {/* Category List with Max Height & Vertical Scroll if needed */}
+                        <div className="max-h-[min(480px,calc(100vh-220px))] overflow-y-auto pr-2">
+                          {tabData.loading ? (
+                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-3.5 py-2">
+                              {[1, 2, 3, 4, 5, 6].map((n) => (
+                                <div
+                                  key={n}
+                                  className="h-6 w-full rounded bg-[#ebdcc2]/30 animate-pulse"
+                                />
+                              ))}
+                            </div>
+                          ) : tabData.error ? (
+                            <div className="py-6 text-center">
+                              <p className="text-[13px] text-[#75695c]">
+                                Unable to load {currentTab.label} categories
+                              </p>
+                              <button
+                                type="button"
+                                onClick={() => loadCategoryData(currentTab.id, true)}
+                                className="mt-2 text-[12px] font-semibold text-[#b36a18] underline cursor-pointer hover:text-[#8a4b08]"
+                              >
+                                Retry
+                              </button>
+                            </div>
+                          ) : tabData.items.length === 0 ? (
+                            <div className="py-6 text-center text-[13px] text-[#75695c]">
+                              No categories available at this time.
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-3 pt-1">
+                              {tabData.items.map((item) => {
+                                const itemUrl = item.path || `${currentTab.categoryRoutePrefix}${item.slug}`;
+                                const isCurrent = location.pathname === itemUrl;
+                                return (
+                                  <Link
+                                    key={item.id || item.slug}
+                                    to={itemUrl}
+                                    onClick={() => setIsYagyaPujaDropdownOpen(false)}
+                                    className={`block py-1 text-[14.5px] xl:text-[15px] transition-colors duration-150 rounded px-1 -mx-1 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#c77722] ${
+                                      isCurrent
+                                        ? "font-bold text-[#b36a18]"
+                                        : "font-medium text-[#221a12] hover:text-[#b36a18]"
+                                    }`}
+                                  >
+                                    {item.name}
+                                  </Link>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    ) : categoriesError ? (
-                      <div className="py-6 text-center">
-                        <p className="text-[13px] text-[#75695c]">
-                          Unable to load categories
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setCategoriesLoading(true);
-                            setCategoriesError(false);
-                            pujaCatalogueService
-                              .getPujaCategories(true)
-                              .then((data) => {
-                                setPujaCategories(data);
-                                setCategoriesLoading(false);
-                              })
-                              .catch(() => {
-                                setCategoriesError(true);
-                                setCategoriesLoading(false);
-                              });
-                          }}
-                          className="mt-2 text-[12px] font-semibold text-[#b36a18] underline cursor-pointer"
-                        >
-                          Retry
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-2 gap-x-12 gap-y-3 pt-1">
-                        {pujaCategories.map((cat) => {
-                          const isCurrent =
-                            location.pathname ===
-                            `/yagya-puja/puja/category/${cat.slug}`;
-                          return (
-                            <Link
-                              key={cat.id || cat.slug}
-                              to={`/yagya-puja/puja/category/${cat.slug}`}
-                              onClick={() => setIsYagyaPujaDropdownOpen(false)}
-                              className={`block py-1 text-[15px] transition-colors duration-150 ${
-                                isCurrent
-                                  ? "font-bold text-[#b36a18]"
-                                  : "font-medium text-[#221a12] hover:text-[#b36a18]"
-                              }`}
-                            >
-                              {cat.name}
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
+                    );
+                  })()}
                 </div>
               </div>
             )}
@@ -644,111 +804,125 @@ const Navbar = () => {
                   <p className="px-1 pt-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#b36a18]">
                     RITUAL SERVICES
                   </p>
-                  {/* Puja with Subcategories Accordion */}
-                  <div className="rounded-xl border border-[#ebd6ab] bg-[#fffdf9] p-2">
-                    <button
-                      type="button"
-                      onClick={() => setIsMobilePujaOpen(!isMobilePujaOpen)}
-                      className="flex min-h-[44px] w-full items-center justify-between px-2 py-2 text-left text-[13.5px] font-bold text-[#241c15]"
-                      aria-expanded={isMobilePujaOpen}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className={isPujaActive ? "text-[#b36a18]" : ""}>
-                          Puja
-                        </span>
-                        <span className="rounded-full bg-[#fbf0db] px-2 py-0.5 text-[10px] font-bold text-[#b36a18]">
-                          Active
-                        </span>
-                      </div>
-                      <ChevronDown
-                        size={15}
-                        className={`transition-transform ${
-                          isMobilePujaOpen ? "rotate-180 text-[#b36a18]" : ""
-                        }`}
-                      />
-                    </button>
+                  {RITUAL_TABS.map((tab) => {
+                    const isTabActive = location.pathname.startsWith(tab.path);
+                    const isExpanded = expandedMobileRitual === tab.id;
+                    const tabData = categoriesData[tab.id] || { items: [], loading: false, error: false };
 
-                    {isMobilePujaOpen && (
-                      <div className="mt-1 space-y-1 border-t border-[#ebdcc2]/60 pt-2 pl-2">
-                        <div className="flex items-center justify-between px-2 pb-1.5">
-                          <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#b36a18]">
-                            PUJA CATEGORIES
-                          </span>
-                          <Link
-                            to="/yagya-puja/puja/all"
-                            onClick={() => {
-                              setIsMobileYagyaPujaOpen(false);
-                              setIsMenuOpen(false);
-                            }}
-                            className="text-[11px] font-bold text-[#b36a18] hover:underline"
-                          >
-                            Browse All →
-                          </Link>
-                        </div>
-                        {categoriesLoading ? (
-                          <div className="space-y-1.5 py-1">
-                            {[1, 2, 3].map((n) => (
-                              <div
-                                key={n}
-                                className="h-8 rounded bg-[#ebdcc2]/40 animate-pulse"
-                              />
-                            ))}
+                    return (
+                      <div key={tab.id} className="rounded-xl border border-[#ebd6ab] bg-[#fffdf9] p-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const next = isExpanded ? null : tab.id;
+                            setExpandedMobileRitual(next);
+                            if (next && !loadedTabsRef.current.has(next)) {
+                              loadedTabsRef.current.add(next);
+                              loadCategoryData(next);
+                            }
+                          }}
+                          className="flex min-h-[44px] w-full items-center justify-between px-2 py-2 text-left text-[13.5px] font-bold text-[#241c15] cursor-pointer"
+                          aria-expanded={isExpanded}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className={isTabActive ? "text-[#b36a18]" : ""}>
+                              {tab.label}
+                            </span>
+                            {isTabActive && (
+                              <span className="rounded-full bg-[#fbf0db] px-2 py-0.5 text-[10px] font-bold text-[#b36a18]">
+                                Active
+                              </span>
+                            )}
                           </div>
-                        ) : (
-                          pujaCategories.map((cat) => {
-                            const isCurrent =
-                              location.pathname ===
-                              `/yagya-puja/puja/category/${cat.slug}`;
-                            return (
+                          <ChevronDown
+                            size={15}
+                            className={`transition-transform duration-200 ${
+                              isExpanded ? "rotate-180 text-[#b36a18]" : ""
+                            }`}
+                          />
+                        </button>
+
+                        {isExpanded && (
+                          <div className="mt-1 space-y-1 border-t border-[#ebdcc2]/60 pt-2 pl-2">
+                            <div className="flex items-center justify-between px-2 pb-1.5">
+                              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#b36a18]">
+                                {tab.heading}
+                              </span>
                               <Link
-                                key={cat.id || cat.slug}
-                                to={`/yagya-puja/puja/category/${cat.slug}`}
+                                to={tab.path}
                                 onClick={() => {
                                   setIsMobileYagyaPujaOpen(false);
                                   setIsMenuOpen(false);
                                 }}
-                                className={`flex min-h-[44px] items-center px-2.5 py-2 text-[13.5px] transition-colors ${
-                                  isCurrent
-                                    ? "font-bold text-[#b36a18]"
-                                    : "font-medium text-[#2b241d] hover:text-[#b36a18]"
-                                }`}
+                                className="text-[11px] font-bold text-[#b36a18] hover:underline"
                               >
-                                <span className="truncate">{cat.name}</span>
+                                Browse All →
                               </Link>
-                            );
-                          })
+                            </div>
+                            {tabData.loading ? (
+                              <div className="space-y-1.5 py-1">
+                                {[1, 2, 3].map((n) => (
+                                  <div
+                                    key={n}
+                                    className="h-8 rounded bg-[#ebdcc2]/40 animate-pulse"
+                                  />
+                                ))}
+                              </div>
+                            ) : tabData.error ? (
+                              <div className="py-2 text-center text-[12px] text-[#75695c]">
+                                Failed to load {tab.label} categories.{" "}
+                                <button
+                                  type="button"
+                                  onClick={() => loadCategoryData(tab.id, true)}
+                                  className="font-bold text-[#b36a18] underline cursor-pointer"
+                                >
+                                  Retry
+                                </button>
+                              </div>
+                            ) : tabData.items.length === 0 ? (
+                              <div className="py-2 text-center text-[12px] text-[#75695c]">
+                                No categories found.
+                              </div>
+                            ) : (
+                              tabData.items.map((item) => {
+                                const itemUrl = item.path || `${tab.categoryRoutePrefix}${item.slug}`;
+                                const isCurrent = location.pathname === itemUrl;
+                                return (
+                                  <Link
+                                    key={item.id || item.slug}
+                                    to={itemUrl}
+                                    onClick={() => {
+                                      setIsMobileYagyaPujaOpen(false);
+                                      setIsMenuOpen(false);
+                                    }}
+                                    className={`flex min-h-[44px] items-center px-2.5 py-2 text-[13.5px] transition-colors ${
+                                      isCurrent
+                                        ? "font-bold text-[#b36a18]"
+                                        : "font-medium text-[#2b241d] hover:text-[#b36a18]"
+                                    }`}
+                                  >
+                                    <span className="truncate">{item.name}</span>
+                                  </Link>
+                                );
+                              })
+                            )}
+
+                            <Link
+                              to={tab.path}
+                              onClick={() => {
+                                setIsMobileYagyaPujaOpen(false);
+                                setIsMenuOpen(false);
+                              }}
+                              className="mt-1 flex min-h-[44px] items-center justify-between rounded-lg bg-[#faf2e1] px-3 py-2 text-[12px] font-bold text-[#b36a18] hover:bg-[#eab12c] hover:text-[#1c1308]"
+                            >
+                              <span>{tab.viewAllLabel}</span>
+                              <ArrowRight size={13} />
+                            </Link>
+                          </div>
                         )}
-
-                        <Link
-                          to="/yagya-puja/puja"
-                          onClick={() => {
-                            setIsMobileYagyaPujaOpen(false);
-                            setIsMenuOpen(false);
-                          }}
-                          className="mt-1 flex min-h-[44px] items-center justify-between rounded-lg bg-[#faf2e1] px-3 py-2 text-[12px] font-bold text-[#b36a18] hover:bg-[#eab12c] hover:text-[#1c1308]"
-                        >
-                          <span>View All Pujas</span>
-                          <ArrowRight size={13} />
-                        </Link>
                       </div>
-                    )}
-                  </div>
-
-                  {/* Other Ritual Services */}
-                  {YAGYA_PUJA_OTHER_ITEMS.map((item) => (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      onClick={() => {
-                        setIsMobileYagyaPujaOpen(false);
-                        setIsMenuOpen(false);
-                      }}
-                      className="flex min-h-[44px] w-full items-center justify-between rounded-xl border border-[#ebd6ab] bg-[#fffdf9] px-4 py-2.5 text-left text-[13px] font-semibold text-[#241c15] transition-colors hover:bg-[#faf4e6]"
-                    >
-                      <span>{item.label}</span>
-                      <ArrowRight size={14} className="text-[#8a7c6b]" />
-                    </Link>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

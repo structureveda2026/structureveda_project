@@ -61,6 +61,13 @@ export const serializePublicYagyaServiceListing = (service) => {
     formattedPrice: formatIndianCurrency(service.startingPrice),
     isFeatured: Boolean(service.isFeatured),
     image: service.bannerImage || null,
+    category: service.categoryDetails
+      ? {
+          id: service.categoryDetails.id,
+          name: service.categoryDetails.name,
+          slug: service.categoryDetails.slug,
+        }
+      : null,
   };
 };
 
@@ -128,6 +135,14 @@ export const serializePublicYagyaServiceDetail = (service) => {
       ? service.procedureSteps
       : [],
     faqs: normalizeFaqs(service.faqs),
+    category: service.categoryDetails
+      ? {
+          id: service.categoryDetails.id,
+          name: service.categoryDetails.name,
+          slug: service.categoryDetails.slug,
+          description: service.categoryDetails.description || null,
+        }
+      : null,
   };
 };
 
@@ -142,6 +157,39 @@ export const serializePublicYagyaPurpose = (purpose) => {
     description: purpose.description || null,
     iconName: purpose.iconName,
     displayOrder: purpose.displayOrder,
+  };
+};
+
+/**
+ * Serializes category for public category list/detail
+ */
+export const serializePublicYagyaCategory = (category) => {
+  return {
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    description: category.description || null,
+    image: category.image || null,
+    iconName: category.iconName || null,
+    displayOrder: category.displayOrder,
+  };
+};
+
+/**
+ * Serializes category for Admin views
+ */
+export const serializeAdminYagyaCategory = (category) => {
+  return {
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    description: category.description || null,
+    image: category.image || null,
+    iconName: category.iconName || null,
+    displayOrder: category.displayOrder,
+    isActive: Boolean(category.isActive),
+    createdAt: category.createdAt || category.created_at,
+    updatedAt: category.updatedAt || category.updated_at,
   };
 };
 
@@ -166,6 +214,14 @@ export const serializeAdminYagyaServiceListing = (service) => {
     availableMode: service.availableMode,
     isFeatured: Boolean(service.isFeatured),
     isActive: Boolean(service.isActive),
+    categoryId: service.categoryId || null,
+    category: service.categoryDetails
+      ? {
+          id: service.categoryDetails.id,
+          name: service.categoryDetails.name,
+          slug: service.categoryDetails.slug,
+        }
+      : null,
     bannerImage: service.bannerImage || null,
     createdAt: service.createdAt || service.created_at,
     updatedAt: service.updatedAt || service.updated_at,
@@ -216,6 +272,17 @@ export const serializeAdminYagyaServiceDetail = (service) => {
     pricingTiers: Array.isArray(service.pricingTiers) ? service.pricingTiers : [],
     isFeatured: Boolean(service.isFeatured),
     isActive: Boolean(service.isActive),
+    categoryId: service.categoryId || null,
+    category: service.categoryDetails
+      ? {
+          id: service.categoryDetails.id,
+          name: service.categoryDetails.name,
+          slug: service.categoryDetails.slug,
+          description: service.categoryDetails.description || null,
+          displayOrder: service.categoryDetails.displayOrder,
+          isActive: service.categoryDetails.isActive,
+        }
+      : null,
     bannerImage: service.bannerImage || null,
     galleryImages: Array.isArray(service.galleryImages)
       ? service.galleryImages

@@ -10,6 +10,7 @@ import pathCatalogueService, {
 } from "../services/pathCatalogueService";
 import PathListingHero from "../components/PathListingHero";
 import PathConceptSection from "../components/PathConceptSection";
+import PathCategoryDiscovery from "../components/PathCategoryDiscovery";
 import PathPurposeSection from "../components/PathPurposeSection";
 import PathServiceCard from "../components/PathServiceCard";
 import PathPopularSection from "../components/PathPopularSection";
@@ -229,6 +230,9 @@ const PathCatalogueListing = () => {
 
       {/* 2. WHAT IS PATH / RECITATION? */}
       <PathConceptSection />
+
+      {/* PATH CATEGORY DISCOVERY */}
+      <PathCategoryDiscovery />
 
       {/* 3. EXPLORE SACRED PATH & RECITATION (Primary Catalogue) */}
       <section

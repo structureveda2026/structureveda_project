@@ -209,6 +209,15 @@ export const mapApiPathServiceToUi = (item) => {
     featured: isFeatured,
     isActive,
     active: isActive,
+    categoryId: item.categoryId || (item.category ? item.category.id : null),
+    category: item.category || (item.categoryDetails ? {
+      id: item.categoryDetails.id,
+      name: item.categoryDetails.name,
+      slug: item.categoryDetails.slug,
+      iconName: item.categoryDetails.iconName || "BookOpen",
+      image: item.categoryDetails.image || null,
+    } : null),
+    categoryDetails: item.categoryDetails || null,
     image: primaryImage,
     bannerImage: primaryImage,
     gallery,
@@ -237,16 +246,23 @@ export const getPathServices = async (filterParams = {}) => {
       query.search = String(filterParams.search).trim();
     }
 
-    const rawPurpose =
-      filterParams.purpose !== undefined ? filterParams.purpose : filterParams.category;
     if (
-      rawPurpose &&
-      rawPurpose !== "all" &&
-      rawPurpose !== "All" &&
-      rawPurpose !== "All Purposes" &&
-      rawPurpose !== "All Purpose Categories"
+      filterParams.purpose &&
+      filterParams.purpose !== "all" &&
+      filterParams.purpose !== "All" &&
+      filterParams.purpose !== "All Purposes" &&
+      filterParams.purpose !== "All Purpose Categories"
     ) {
-      query.purpose = String(rawPurpose).trim().toLowerCase();
+      query.purpose = String(filterParams.purpose).trim().toLowerCase();
+    }
+
+    if (
+      filterParams.category &&
+      filterParams.category !== "all" &&
+      filterParams.category !== "All" &&
+      filterParams.category !== "All Categories"
+    ) {
+      query.category = String(filterParams.category).trim().toLowerCase();
     }
 
     if (
@@ -370,10 +386,69 @@ export const getPathPurposes = async () => {
   return PATH_PURPOSE_CATEGORIES.map(normalizePathPurpose);
 };
 
+let cachedPathCategories = null;
+let pathCategoriesPromise = null;
+
+/**
+ * Fetches public Path categories from GET /api/path-categories with caching & deduplication
+ */
+export const getPathCategories = async (forceRefresh = false) => {
+  if (!forceRefresh && cachedPathCategories) {
+    return cachedPathCategories;
+  }
+
+  if (forceRefresh || !pathCategoriesPromise) {
+    pathCategoriesPromise = api
+      .get("/path-categories")
+      .then((response) => {
+        const payload = response.data;
+        if (payload && payload.success && Array.isArray(payload.data)) {
+          const sorted = [...payload.data].sort(
+            (a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)
+          );
+          cachedPathCategories = sorted;
+          return sorted;
+        }
+        return [];
+      })
+      .catch((error) => {
+        pathCategoriesPromise = null;
+        console.error("Failed to fetch Path categories:", error);
+        throw error;
+      });
+  }
+
+  return pathCategoriesPromise;
+};
+
+/**
+ * Fetches single public Path category by slug from GET /api/path-categories/:slug
+ */
+export const getPathCategoryBySlug = async (slug) => {
+  if (!slug) return null;
+  try {
+    const cleanSlug = String(slug).trim().toLowerCase();
+    const response = await api.get(`/path-categories/${cleanSlug}`);
+    const payload = response.data;
+    if (payload && payload.success && payload.data) {
+      return payload.data;
+    }
+    return null;
+  } catch (error) {
+    if (error.response?.status === 404) {
+      return null;
+    }
+    console.error(`Failed to fetch Path category for slug "${slug}":`, error);
+    throw error;
+  }
+};
+
 const pathCatalogueService = {
   getPathServices,
   getPathServiceBySlug,
   getPathPurposes,
+  getPathCategories,
+  getPathCategoryBySlug,
   mapApiPathServiceToUi,
   mapApiPathServiceDetailToUi,
   normalizeRequiredSkills,

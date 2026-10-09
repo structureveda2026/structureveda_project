@@ -1,5 +1,5 @@
 /**
- * Public Serializers for Path / Recitation Service Catalogue
+ * Public & Admin Serializers for Path / Recitation Service Catalogue & Categories
  */
 
 export const normalizeFaqs = (faqs) => {
@@ -50,6 +50,42 @@ export const serializePathPurpose = (purpose) => {
 export const serializePublicPathPurpose = serializePathPurpose;
 
 /**
+ * Serializes Path category for public category listing/details
+ */
+export const serializePublicPathCategory = (category) => {
+  if (!category) return null;
+  return {
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    description: category.description || null,
+    image: category.image || null,
+    iconName: category.iconName || "BookOpen",
+    displayOrder: category.displayOrder ?? 0,
+    isActive: Boolean(category.isActive),
+  };
+};
+
+/**
+ * Serializes Path category for Admin views
+ */
+export const serializeAdminPathCategory = (category) => {
+  if (!category) return null;
+  return {
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    description: category.description || null,
+    image: category.image || null,
+    iconName: category.iconName || "BookOpen",
+    displayOrder: category.displayOrder ?? 0,
+    isActive: Boolean(category.isActive),
+    createdAt: category.createdAt || category.created_at,
+    updatedAt: category.updatedAt || category.updated_at,
+  };
+};
+
+/**
  * Serializes Path service record for public catalogue listing
  */
 export const serializePublicPathServiceListing = (service) => {
@@ -70,6 +106,16 @@ export const serializePublicPathServiceListing = (service) => {
     purposeCategoryName: purposeName || null,
     purposeKey: purposeSlug || null,
     purposeCategories: Array.isArray(service.purposeCategories) ? service.purposeCategories : [],
+    categoryId: service.categoryId || null,
+    category: service.categoryDetails
+      ? {
+          id: service.categoryDetails.id,
+          name: service.categoryDetails.name,
+          slug: service.categoryDetails.slug,
+          iconName: service.categoryDetails.iconName || "BookOpen",
+          image: service.categoryDetails.image || null,
+        }
+      : null,
     availableFormats: Array.isArray(service.availableFormats) ? service.availableFormats : [],
     availableDurations: Array.isArray(service.availableDurations) ? service.availableDurations : [],
     chapterStructure: service.chapterStructure || null,
@@ -108,13 +154,11 @@ export const serializePublicPathServiceListing = (service) => {
     seo: service.seo || {},
     faq: normalizeFaqs(service.faqs),
     faqs: normalizeFaqs(service.faqs),
-    createdAt: service.createdAt || service.created_at,
-    updatedAt: service.updatedAt || service.updated_at,
   };
 };
 
 /**
- * Serializes Path service record for public service detail view
+ * Serializes Path service detail view with complete associations
  */
 export const serializePublicPathServiceDetail = (service) => {
   const listingData = serializePublicPathServiceListing(service);
@@ -123,6 +167,9 @@ export const serializePublicPathServiceDetail = (service) => {
     ...listingData,
     purposeDetails: service.purposeDetails
       ? serializePathPurpose(service.purposeDetails)
+      : null,
+    categoryDetails: service.categoryDetails
+      ? serializePublicPathCategory(service.categoryDetails)
       : null,
   };
 };
@@ -155,6 +202,18 @@ export const serializeAdminPathServiceListing = (service) => {
     purposeSummary: service.purposeSummary || null,
     purposeCategory: purposeSlug,
     purposeCategories: Array.isArray(service.purposeCategories) ? service.purposeCategories : [],
+    categoryId: service.categoryId || null,
+    category: service.categoryDetails
+      ? {
+          id: service.categoryDetails.id,
+          name: service.categoryDetails.name,
+          slug: service.categoryDetails.slug,
+          iconName: service.categoryDetails.iconName || "BookOpen",
+          image: service.categoryDetails.image || null,
+        }
+      : null,
+    categoryName: service.categoryDetails ? service.categoryDetails.name : null,
+    categorySlug: service.categoryDetails ? service.categoryDetails.slug : null,
     availableFormats: Array.isArray(service.availableFormats) ? service.availableFormats : [],
     availableDurations: Array.isArray(service.availableDurations) ? service.availableDurations : [],
     minimumDays: Number(service.minimumDays || 1),
@@ -207,6 +266,13 @@ export const serializeAdminPathServiceDetail = (service) => {
           isActive: service.purposeDetails.isActive,
         }
       : null,
+    categoryId: service.categoryId || null,
+    category: service.categoryDetails
+      ? serializeAdminPathCategory(service.categoryDetails)
+      : null,
+    categoryDetails: service.categoryDetails
+      ? serializeAdminPathCategory(service.categoryDetails)
+      : null,
     availableFormats: Array.isArray(service.availableFormats) ? service.availableFormats : [],
     availableDurations: Array.isArray(service.availableDurations) ? service.availableDurations : [],
     chapterStructure: service.chapterStructure || null,
@@ -248,6 +314,8 @@ export default {
   formatIndianCurrency,
   serializePathPurpose,
   serializePublicPathPurpose,
+  serializePublicPathCategory,
+  serializeAdminPathCategory,
   serializePathService,
   serializePublicPathServiceListing,
   serializePublicPathServiceDetail,

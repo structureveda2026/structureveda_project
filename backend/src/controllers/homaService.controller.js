@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import { HomaService, HomaPurpose } from "../models/index.js";
+import { HomaService, HomaPurpose, HomaCategory } from "../models/index.js";
 import {
   serializePublicHomaServiceListing,
   serializePublicHomaServiceDetail,
@@ -18,6 +18,7 @@ export const getPublicHomaServices = async (req, res) => {
     const {
       search,
       purpose,
+      category,
       count: requestedCount,
       havanCount,
       days: requestedDays,
@@ -149,6 +150,21 @@ export const getPublicHomaServices = async (req, res) => {
       }
     }
 
+    // Category filter
+    if (category && String(category).trim() && String(category).trim().toLowerCase() !== "all") {
+      const cleanCategory = String(category).trim().toLowerCase();
+      const matchedCategory = await HomaCategory.findOne({
+        where: { slug: cleanCategory, isActive: true },
+      });
+
+      if (matchedCategory) {
+        where.categoryId = matchedCategory.id;
+      } else {
+        // Non-existent or inactive category returns 0 services cleanly
+        where.categoryId = "00000000-0000-0000-0000-000000000000";
+      }
+    }
+
     // 3. Sorting Resolution
     if (!VALID_SORTS.includes(sortBy)) {
       return res.status(400).json({
@@ -193,6 +209,20 @@ export const getPublicHomaServices = async (req, res) => {
           model: HomaPurpose,
           as: "purposeDetails",
           attributes: ["id", "name", "slug", "description", "iconName"],
+        },
+        {
+          model: HomaCategory,
+          as: "categoryDetails",
+          attributes: [
+            "id",
+            "name",
+            "slug",
+            "description",
+            "image",
+            "iconName",
+            "displayOrder",
+            "isActive",
+          ],
         },
       ],
       distinct: true,
@@ -273,6 +303,20 @@ export const getPublicHomaServiceBySlug = async (req, res) => {
           model: HomaPurpose,
           as: "purposeDetails",
           attributes: ["id", "name", "slug", "description", "iconName", "displayOrder", "isActive"],
+        },
+        {
+          model: HomaCategory,
+          as: "categoryDetails",
+          attributes: [
+            "id",
+            "name",
+            "slug",
+            "description",
+            "image",
+            "iconName",
+            "displayOrder",
+            "isActive",
+          ],
         },
       ],
     });

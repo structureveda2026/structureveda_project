@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { useSearchParams, useParams, useNavigate } from "react-router-dom";
 import { JAPA_CATALOGUE_LIST, JAPA_PURPOSE_CATEGORIES } from "../data/japaCatalogueData";
 import japaCatalogueService, {
   mapApiJapaServiceToUi,
@@ -6,6 +7,7 @@ import japaCatalogueService, {
 import JapaListingHero from "../components/JapaListingHero";
 import JapaConceptSection from "../components/JapaConceptSection";
 import JapaPurposeSection from "../components/JapaPurposeSection";
+import JapaCategoryDiscovery from "../components/JapaCategoryDiscovery";
 import JapaServiceCard from "../components/JapaServiceCard";
 import JapaCountSection from "../components/JapaCountSection";
 import JapaScheduleSection from "../components/JapaScheduleSection";
@@ -21,9 +23,9 @@ import JapaWhyVedaStructure from "../components/JapaWhyVedaStructure";
 import JapaWorkflowSection from "../components/JapaWorkflowSection";
 import JapaFaqSection from "../components/JapaFaqSection";
 import JapaFinalCta from "../components/JapaFinalCta";
-import { Sparkles, Search, SlidersHorizontal, X } from "lucide-react";
+import { Sparkles, Search, X, RefreshCw, FolderX } from "lucide-react";
 
-export const JAPA_COUNT_FILTER_OPTIONS = [
+const JAPA_COUNT_FILTER_OPTIONS = [
   { label: "All Counts", value: "All" },
   { label: "11,000 Japa", value: 11000 },
   { label: "21,000 Japa", value: 21000 },
@@ -31,7 +33,7 @@ export const JAPA_COUNT_FILTER_OPTIONS = [
   { label: "1,25,000 Japa", value: 125000 },
 ];
 
-export const JAPA_SORT_OPTIONS = [
+const JAPA_SORT_OPTIONS = [
   { label: "Featured First", value: "featured" },
   { label: "Price: Low to High", value: "price-asc" },
   { label: "Price: High to Low", value: "price-desc" },
@@ -39,24 +41,58 @@ export const JAPA_SORT_OPTIONS = [
 ];
 
 const JapaCatalogueListing = () => {
+  const { categorySlug } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+
   // Set SEO Title
   useEffect(() => {
     document.title = "Vedic Mantra Japa & Chanting Services | Veda Structure";
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  const [selectedPurpose, setSelectedPurpose] = useState("All");
-  const [selectedCount, setSelectedCount] = useState("All");
-  const [selectedMode, setSelectedMode] = useState("All");
-  const [isFeaturedOnly, setIsFeaturedOnly] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedSort, setSelectedSort] = useState("featured");
+  // Filter state synchronized with URL search params and route params
+  const currentCategory = categorySlug || searchParams.get("category") || "All";
+  const currentPurpose = searchParams.get("purpose") || "All";
+  const currentCount = searchParams.get("count") || "All";
+  const currentMode = searchParams.get("mode") || "All";
+  const currentSearch = searchParams.get("search") || "";
+  const currentSort = searchParams.get("sortBy") || "featured";
+  const isFeaturedOnly = searchParams.get("featured") === "true";
+
+  // Local Search Input state for responsive typing
+  const [searchInput, setSearchInput] = useState(currentSearch);
+  const [prevSearch, setPrevSearch] = useState(currentSearch);
+  if (prevSearch !== currentSearch) {
+    setPrevSearch(currentSearch);
+    setSearchInput(currentSearch);
+  }
 
   // Dynamic API state
   const [services, setServices] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [purposes, setPurposes] = useState(JAPA_PURPOSE_CATEGORIES);
   const [loading, setLoading] = useState(true);
   const [isFallback, setIsFallback] = useState(false);
+  const [retryTrigger, setRetryTrigger] = useState(0);
+
+  // Load category pills dynamically on mount
+  useEffect(() => {
+    let isCancelled = false;
+    japaCatalogueService
+      .getJapaCategories()
+      .then((data) => {
+        if (!isCancelled && Array.isArray(data)) {
+          setCategories(data);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load Japa categories:", err);
+      });
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
 
   // Load purpose categories on mount
   useEffect(() => {
@@ -76,18 +112,56 @@ const JapaCatalogueListing = () => {
     };
   }, []);
 
+  // Helper to update query params
+  const updateParams = useCallback(
+    (newParams) => {
+      setLoading(true);
+      const merged = new URLSearchParams(searchParams);
+      Object.entries(newParams).forEach(([k, v]) => {
+        if (
+          v === null ||
+          v === undefined ||
+          v === "" ||
+          v === "All" ||
+          v === "All Categories" ||
+          v === "All Purposes" ||
+          (k === "sortBy" && v === "featured") ||
+          (k === "featured" && !v)
+        ) {
+          merged.delete(k);
+        } else {
+          merged.set(k, String(v));
+        }
+      });
+      setSearchParams(merged, { replace: true });
+    },
+    [searchParams, setSearchParams]
+  );
+
+  const handleCategorySelect = (slug) => {
+    if (categorySlug) {
+      if (slug === "All" || slug === "All Categories") {
+        navigate("/yagya-puja/japa");
+      } else {
+        navigate(`/yagya-puja/japa/category/${slug}`);
+      }
+    } else {
+      updateParams({ category: slug });
+    }
+  };
+
   // Fetch Japa services from authoritative API with query filters, with fallback on error
   useEffect(() => {
     let isCancelled = false;
-    setLoading(true);
 
     const filterParams = {
-      search: searchQuery.trim(),
-      purpose: selectedPurpose,
-      count: selectedCount,
-      mode: selectedMode,
+      search: currentSearch.trim(),
+      category: currentCategory !== "All" && currentCategory !== "All Categories" ? currentCategory : undefined,
+      purpose: currentPurpose !== "All" && currentPurpose !== "All Purposes" ? currentPurpose : undefined,
+      count: currentCount !== "All" && currentCount !== "All Counts" ? currentCount : undefined,
+      mode: currentMode !== "All" && currentMode !== "All Modes" ? currentMode : undefined,
       isFeatured: isFeaturedOnly,
-      sortBy: selectedSort,
+      sortBy: currentSort,
       limit: 50,
     };
 
@@ -111,24 +185,30 @@ const JapaCatalogueListing = () => {
           const localFallback = JAPA_CATALOGUE_LIST.filter((japa) => {
             if (!japa.active) return false;
 
-            if (selectedPurpose !== "All") {
-              const matchesCat = japa.purposeCategory === selectedPurpose;
-              const matchesList = (japa.purposeCategories || []).includes(selectedPurpose);
+            if (currentCategory !== "All" && currentCategory !== "All Categories") {
+              const matchesCatSlug = japa.category?.slug === currentCategory;
+              const matchesCatId = japa.categoryId && categories.find((c) => c.slug === currentCategory)?.id === japa.categoryId;
+              if (!matchesCatSlug && !matchesCatId) return false;
+            }
+
+            if (currentPurpose !== "All" && currentPurpose !== "All Purposes") {
+              const matchesCat = japa.purposeCategory === currentPurpose;
+              const matchesList = (japa.purposeCategories || []).includes(currentPurpose);
               if (!matchesCat && !matchesList) return false;
             }
 
-            if (selectedCount !== "All") {
-              const countNum = Number(selectedCount);
+            if (currentCount !== "All" && currentCount !== "All Counts") {
+              const countNum = Number(currentCount);
               if (!(japa.availableCounts || []).includes(countNum)) return false;
             }
 
-            if (selectedMode === "kashi" && !japa.kashiAvailable) return false;
-            if (selectedMode === "remote" && !japa.remoteAvailable) return false;
+            if (currentMode === "kashi" && !japa.kashiAvailable) return false;
+            if (currentMode === "remote" && !japa.remoteAvailable) return false;
 
             if (isFeaturedOnly && !japa.featured) return false;
 
-            if (searchQuery.trim() !== "") {
-              const q = searchQuery.toLowerCase().trim();
+            if (currentSearch.trim() !== "") {
+              const q = currentSearch.toLowerCase().trim();
               const matchesName = (japa.name || "").toLowerCase().includes(q);
               const matchesDesc = (japa.description || "").toLowerCase().includes(q);
               const matchesMantra = (japa.mantra || "").toLowerCase().includes(q);
@@ -141,13 +221,13 @@ const JapaCatalogueListing = () => {
             return true;
           })
             .sort((a, b) => {
-              if (selectedSort === "price-asc") {
+              if (currentSort === "price-asc") {
                 return (a.startingPrice || 0) - (b.startingPrice || 0);
               }
-              if (selectedSort === "price-desc") {
+              if (currentSort === "price-desc") {
                 return (b.startingPrice || 0) - (a.startingPrice || 0);
               }
-              if (selectedSort === "name-asc") {
+              if (currentSort === "name-asc") {
                 return a.name.localeCompare(b.name);
               }
               if (a.featured && !b.featured) return -1;
@@ -167,25 +247,42 @@ const JapaCatalogueListing = () => {
       isCancelled = true;
       clearTimeout(timer);
     };
-  }, [selectedPurpose, selectedCount, selectedMode, isFeaturedOnly, searchQuery, selectedSort]);
+  }, [
+    currentCategory,
+    currentPurpose,
+    currentCount,
+    currentMode,
+    isFeaturedOnly,
+    currentSearch,
+    currentSort,
+    retryTrigger,
+    categories,
+  ]);
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
-    if (selectedPurpose !== "All") count++;
-    if (selectedCount !== "All") count++;
-    if (selectedMode !== "All") count++;
+    if (currentCategory !== "All" && currentCategory !== "All Categories") count++;
+    if (currentPurpose !== "All" && currentPurpose !== "All Purposes") count++;
+    if (currentCount !== "All" && currentCount !== "All Counts") count++;
+    if (currentMode !== "All" && currentMode !== "All Modes") count++;
     if (isFeaturedOnly) count++;
-    if (searchQuery.trim() !== "") count++;
+    if (currentSearch.trim() !== "") count++;
     return count;
-  }, [selectedPurpose, selectedCount, selectedMode, isFeaturedOnly, searchQuery]);
+  }, [currentCategory, currentPurpose, currentCount, currentMode, isFeaturedOnly, currentSearch]);
 
   const handleResetFilters = () => {
-    setSelectedPurpose("All");
-    setSelectedCount("All");
-    setSelectedMode("All");
-    setIsFeaturedOnly(false);
-    setSearchQuery("");
-    setSelectedSort("featured");
+    setLoading(true);
+    setSearchInput("");
+    if (categorySlug) {
+      navigate("/yagya-puja/japa");
+    } else {
+      setSearchParams(new URLSearchParams(), { replace: true });
+    }
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    updateParams({ search: searchInput.trim() });
   };
 
   const scrollToCatalogue = () => {
@@ -212,14 +309,17 @@ const JapaCatalogueListing = () => {
 
       {/* 3. WHY JAPA? (6 Purpose Cards) */}
       <JapaPurposeSection
-        selectedPurpose={selectedPurpose}
+        selectedPurpose={currentPurpose}
         onSelectPurpose={(p) => {
-          setSelectedPurpose(p);
+          updateParams({ purpose: p });
           scrollToCatalogue();
         }}
       />
 
-      {/* 4. EXPLORE MANTRA JAPA (Primary Catalogue) */}
+      {/* 4. DYNAMIC JAPA CATEGORY DISCOVERY SECTION */}
+      <JapaCategoryDiscovery />
+
+      {/* 5. EXPLORE MANTRA JAPA (Primary Catalogue) */}
       <section
         id="japa-catalogue-heading"
         className="scroll-mt-16 border-b border-[#ebdcc4] bg-[#fffdf9] px-5 py-14 sm:px-8 sm:py-20 lg:px-12"
@@ -241,36 +341,76 @@ const JapaCatalogueListing = () => {
 
           {/* Search & Filter Bar */}
           <div className="mt-10 rounded-[24px] border border-[#e6d3ba] bg-[#fffaf1] p-5 shadow-xs">
+            {/* Category Filter Pills (Dynamic from API) */}
+            <div className="mb-4 flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+              <button
+                type="button"
+                onClick={() => handleCategorySelect("All")}
+                className={`rounded-full px-4 py-2 text-[12.5px] font-semibold transition cursor-pointer whitespace-nowrap ${
+                  currentCategory === "All" || currentCategory === "All Categories"
+                    ? "bg-[#eab12c] text-[#1c1308] shadow-xs"
+                    : "border border-[#e5d8c0] bg-white text-[#5c4f42] hover:border-[#c77722]"
+                }`}
+              >
+                All Categories
+              </button>
+              {categories.map((cat) => {
+                const isSelected = currentCategory === cat.slug;
+                return (
+                  <button
+                    key={cat.id || cat.slug}
+                    type="button"
+                    onClick={() => handleCategorySelect(cat.slug)}
+                    className={`rounded-full px-4 py-2 text-[12.5px] font-semibold transition cursor-pointer whitespace-nowrap ${
+                      isSelected
+                        ? "bg-[#eab12c] text-[#1c1308] shadow-xs"
+                        : "border border-[#e5d8c0] bg-white text-[#5c4f42] hover:border-[#c77722]"
+                    }`}
+                  >
+                    {cat.name}
+                  </button>
+                );
+              })}
+            </div>
+
             <div className="grid gap-4 md:grid-cols-12 md:items-center">
               {/* Search Bar */}
-              <div className="relative md:col-span-5">
+              <form onSubmit={handleSearchSubmit} className="relative md:col-span-5">
                 <Search
                   size={17}
                   className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8c7e6c]"
                 />
                 <input
                   type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onBlur={() => {
+                    if (searchInput !== currentSearch) {
+                      updateParams({ search: searchInput.trim() });
+                    }
+                  }}
                   placeholder="Search by Mantra, deity, or intention..."
-                  className="w-full rounded-full border border-[#d6b8a0] bg-white py-2.5 pl-10 pr-4 text-[13.5px] text-[#2b241d] placeholder-[#8c7e6c] transition focus:border-[#c77722] focus:outline-none"
+                  className="w-full rounded-full border border-[#d6b8a0] bg-white py-2.5 pl-10 pr-10 text-[13.5px] text-[#2b241d] placeholder-[#8c7e6c] transition focus:border-[#c77722] focus:outline-none"
                 />
-                {searchQuery && (
+                {searchInput && (
                   <button
                     type="button"
-                    onClick={() => setSearchQuery("")}
+                    onClick={() => {
+                      setSearchInput("");
+                      updateParams({ search: "" });
+                    }}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8c7e6c] hover:text-[#2b241d] cursor-pointer"
                   >
                     <X size={15} />
                   </button>
                 )}
-              </div>
+              </form>
 
               {/* Purpose Category Select */}
               <div className="md:col-span-3">
                 <select
-                  value={selectedPurpose}
-                  onChange={(e) => setSelectedPurpose(e.target.value)}
+                  value={currentPurpose}
+                  onChange={(e) => updateParams({ purpose: e.target.value })}
                   className="w-full rounded-full border border-[#d6b8a0] bg-white px-4 py-2.5 text-[13px] font-medium text-[#2b241d] transition focus:border-[#c77722] focus:outline-none"
                 >
                   <option value="All">All Purposes</option>
@@ -285,8 +425,8 @@ const JapaCatalogueListing = () => {
               {/* Japa Count Filter (Strictly matches service availableCounts) */}
               <div className="md:col-span-2">
                 <select
-                  value={selectedCount}
-                  onChange={(e) => setSelectedCount(e.target.value)}
+                  value={currentCount}
+                  onChange={(e) => updateParams({ count: e.target.value })}
                   className="w-full rounded-full border border-[#d6b8a0] bg-white px-3 py-2.5 text-[13px] font-medium text-[#2b241d] transition focus:border-[#c77722] focus:outline-none"
                 >
                   {JAPA_COUNT_FILTER_OPTIONS.map((opt) => (
@@ -300,8 +440,8 @@ const JapaCatalogueListing = () => {
               {/* Sort Dropdown */}
               <div className="md:col-span-2">
                 <select
-                  value={selectedSort}
-                  onChange={(e) => setSelectedSort(e.target.value)}
+                  value={currentSort}
+                  onChange={(e) => updateParams({ sortBy: e.target.value })}
                   className="w-full rounded-full border border-[#d6b8a0] bg-white px-3 py-2.5 text-[13px] font-medium text-[#2b241d] transition focus:border-[#c77722] focus:outline-none"
                 >
                   {JAPA_SORT_OPTIONS.map((opt) => (
@@ -321,9 +461,9 @@ const JapaCatalogueListing = () => {
                   <button
                     key={m}
                     type="button"
-                    onClick={() => setSelectedMode(m)}
+                    onClick={() => updateParams({ mode: m })}
                     className={`rounded-full px-3 py-1 font-medium transition cursor-pointer ${
-                      selectedMode === m
+                      currentMode === m
                         ? "bg-[#2b241d] text-[#f7ecd5]"
                         : "bg-white text-[#5c4e3f] hover:bg-[#f2e2cb]"
                     }`}
@@ -334,11 +474,11 @@ const JapaCatalogueListing = () => {
 
                 <button
                   type="button"
-                  onClick={() => setIsFeaturedOnly(!isFeaturedOnly)}
+                  onClick={() => updateParams({ featured: !isFeaturedOnly })}
                   className={`ml-1 rounded-full px-3 py-1 font-medium transition cursor-pointer ${
                     isFeaturedOnly
                       ? "bg-[#c77722] text-white"
-                      : "bg-white text-[#5c4e3f] hover:bg-[#f2e2cb]"
+                      : "bg-white text-[#5c4f42] hover:bg-[#f2e2cb]"
                   }`}
                 >
                   Featured Only
@@ -358,26 +498,55 @@ const JapaCatalogueListing = () => {
             </div>
           </div>
 
+          {/* Results Counter */}
+          <div className="mt-8 mb-6 flex flex-col gap-2 text-[13.5px] text-[#75695c] sm:flex-row sm:items-center sm:justify-between">
+            <span>
+              Showing{" "}
+              <strong className="text-[#2b241d]">
+                {loading ? "..." : services.length}
+              </strong>{" "}
+              Consecrated Japa Services
+              {currentCategory !== "All" && currentCategory !== "All Categories" && (
+                <span className="ml-2 font-medium text-[#b36c1e]">
+                  in {categories.find((c) => c.slug === currentCategory)?.name || currentCategory}
+                </span>
+              )}
+            </span>
+          </div>
+
           {/* Fallback Archive Notice (only if API failed) */}
           {isFallback && !loading && (
             <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-[12.5px] text-amber-800 flex items-center justify-between">
               <span>Displaying offline Vedic Japa archive. Traditional recitation parameters remain fully verified.</span>
+              <button
+                type="button"
+                onClick={() => setRetryTrigger((r) => r + 1)}
+                className="inline-flex items-center gap-1.5 font-bold text-[#c77722] hover:underline cursor-pointer"
+              >
+                <RefreshCw size={12} />
+                <span>Retry Live API</span>
+              </button>
             </div>
           )}
 
           {/* Catalogue Services Grid */}
           <div className="mt-10">
             {loading ? (
-              <div className="rounded-[24px] border border-[#e6d3ba] bg-[#fffaf1] py-16 text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#f8edd8] text-[#c77722] animate-spin">
-                  <Sparkles size={24} />
-                </div>
-                <h3 className="mt-3 font-serif text-[18px] font-semibold text-[#2b241d]">
-                  Loading Vedic Mantra Japa Services...
-                </h3>
-                <p className="mt-1 text-[13px] text-[#78644e]">
-                  Retrieving authoritative recitation parameters from sacred catalogue.
-                </p>
+              <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+                {[1, 2, 3, 4, 5, 6].map((n) => (
+                  <div
+                    key={n}
+                    className="flex flex-col overflow-hidden rounded-[24px] border border-[#e6caa0]/60 bg-[#fffdfa] animate-pulse"
+                  >
+                    <div className="h-[230px] w-full bg-[#ebdcc4]/60" />
+                    <div className="p-6 space-y-4">
+                      <div className="h-4 w-1/3 rounded bg-[#ebdcc4]/60" />
+                      <div className="h-6 w-3/4 rounded bg-[#ebdcc4]/80" />
+                      <div className="h-4 w-full rounded bg-[#ebdcc4]/40" />
+                      <div className="h-4 w-4/5 rounded bg-[#ebdcc4]/40" />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : services.length > 0 ? (
               <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
@@ -387,17 +556,17 @@ const JapaCatalogueListing = () => {
               </div>
             ) : (
               <div className="rounded-[24px] border border-[#e6d3ba] bg-[#fffaf1] py-16 text-center">
-                <Sparkles size={28} className="mx-auto text-[#c77722]" />
+                <FolderX size={28} className="mx-auto text-[#c77722]" />
                 <h3 className="mt-3 font-serif text-[20px] font-bold text-[#2b241d]">
                   No Japa Services Match Your Filters
                 </h3>
                 <p className="mt-1 text-[13.5px] text-[#78644e]">
-                  Try adjusting your count benchmark, purpose selection, or search keywords.
+                  Try adjusting your category selection, count benchmark, purpose, or search keywords.
                 </p>
                 <button
                   type="button"
                   onClick={handleResetFilters}
-                  className="mt-5 rounded-full bg-[#b56e20] px-6 py-2.5 text-[13px] font-semibold text-white transition hover:bg-[#8f5211]"
+                  className="mt-5 rounded-full bg-[#b56e20] px-6 py-2.5 text-[13px] font-semibold text-white transition hover:bg-[#8f5211] cursor-pointer"
                 >
                   Clear All Filters
                 </button>
@@ -409,9 +578,9 @@ const JapaCatalogueListing = () => {
 
       {/* 5. CHOOSE YOUR JAPA COUNT (Critical Section) */}
       <JapaCountSection
-        selectedCountFilter={selectedCount === "All" ? null : Number(selectedCount)}
+        selectedCountFilter={currentCount === "All" ? null : Number(currentCount)}
         onSelectCountFilter={(count) => {
-          setSelectedCount(count);
+          updateParams({ count });
           scrollToCatalogue();
         }}
       />
@@ -431,7 +600,7 @@ const JapaCatalogueListing = () => {
       {/* 10. JAPA IN KASHI (Visiting vs Remote) */}
       <JapaKashiSection
         onSelectMode={(mode) => {
-          setSelectedMode(mode);
+          updateParams({ mode });
           scrollToCatalogue();
         }}
       />

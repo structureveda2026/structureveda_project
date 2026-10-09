@@ -1,11 +1,37 @@
-import { useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Sparkles, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import yagyaCatalogueService from "../../../services/yagyaCatalogueService";
 import { getFeaturedYagyaServices } from "../data/yagyaCatalogueData";
 import YagyaServiceCard from "./YagyaServiceCard";
 
+/**
+ * YagyaPopularSection Component
+ * Displays a curated service preview of maximum 6 Yagya services using the canonical YagyaServiceCard.
+ * Retains "View All Yagya" navigating to /yagya-puja/yagya.
+ */
 const YagyaPopularSection = () => {
-  const popularServices = useMemo(() => {
-    return getFeaturedYagyaServices();
+  const [popularServices, setPopularServices] = useState(() => {
+    return getFeaturedYagyaServices().slice(0, 6);
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+
+    yagyaCatalogueService
+      .getYagyaServices({ isFeatured: true, limit: 6 })
+      .then((res) => {
+        if (isMounted && res?.services?.length > 0) {
+          setPopularServices(res.services.slice(0, 6));
+        }
+      })
+      .catch((err) => {
+        console.error("Could not load featured yagya preview:", err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   if (popularServices.length === 0) return null;
@@ -30,23 +56,23 @@ const YagyaPopularSection = () => {
             </p>
           </div>
 
-          <button
-            type="button"
+          <Link
+            to="/yagya-puja/yagya"
             onClick={() => {
               const el = document.getElementById("yagya-catalogue");
               if (el) el.scrollIntoView({ behavior: "smooth" });
             }}
             className="inline-flex items-center gap-1.5 text-[13px] font-bold text-[#b36c1e] hover:text-[#2b241d] cursor-pointer"
           >
-            <span>View all catalogue Yagyas</span>
+            <span>View All Yagya</span>
             <ArrowRight size={14} />
-          </button>
+          </Link>
         </div>
 
-        {/* Featured Cards Grid */}
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-7">
-          {popularServices.map((service) => (
-            <YagyaServiceCard key={`popular-yagya-${service.id}`} service={service} />
+        {/* Featured Cards Grid (Maximum 6 services) */}
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-7 items-stretch">
+          {popularServices.slice(0, 6).map((service) => (
+            <YagyaServiceCard key={`popular-yagya-${service.id || service.slug}`} service={service} />
           ))}
         </div>
       </div>

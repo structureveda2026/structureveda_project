@@ -47,6 +47,39 @@ export const serializePublicJapaPurpose = (purpose) => {
 };
 
 /**
+ * Serializes category for public category list/detail
+ */
+export const serializePublicJapaCategory = (category) => {
+  return {
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    description: category.description || null,
+    image: category.image || null,
+    iconName: category.iconName || null,
+    displayOrder: category.displayOrder,
+  };
+};
+
+/**
+ * Serializes category for Admin views
+ */
+export const serializeAdminJapaCategory = (category) => {
+  return {
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    description: category.description || null,
+    image: category.image || null,
+    iconName: category.iconName || null,
+    displayOrder: category.displayOrder,
+    isActive: Boolean(category.isActive),
+    createdAt: category.createdAt || category.created_at,
+    updatedAt: category.updatedAt || category.updated_at,
+  };
+};
+
+/**
  * Serializes Japa service record for public catalogue listing
  */
 export const serializePublicJapaServiceListing = (service) => {
@@ -66,6 +99,17 @@ export const serializePublicJapaServiceListing = (service) => {
     purposeCategoryName: purposeName || null,
     purposeKey: purposeSlug || null,
     purposeCategories: Array.isArray(service.purposeCategories) ? service.purposeCategories : [],
+    categoryId: service.categoryId || null,
+    category: service.categoryDetails
+      ? {
+          id: service.categoryDetails.id,
+          name: service.categoryDetails.name,
+          slug: service.categoryDetails.slug,
+          description: service.categoryDetails.description || null,
+          image: service.categoryDetails.image || null,
+          iconName: service.categoryDetails.iconName || null,
+        }
+      : null,
     availableCounts: Array.isArray(service.availableCounts) ? service.availableCounts : [],
     variants: Array.isArray(service.variants) ? service.variants : [],
     dailyCapacityPerPandit: service.dailyCapacityPerPandit || 2000,
@@ -134,6 +178,15 @@ export const serializeAdminJapaServiceListing = (service) => {
     purposeSummary: service.purposeSummary || null,
     purposeCategory: purposeSlug,
     purposeCategories: Array.isArray(service.purposeCategories) ? service.purposeCategories : [],
+    categoryId: service.categoryId || null,
+    category: service.categoryDetails
+      ? {
+          id: service.categoryDetails.id,
+          name: service.categoryDetails.name,
+          slug: service.categoryDetails.slug,
+          iconName: service.categoryDetails.iconName || null,
+        }
+      : null,
     availableCounts: Array.isArray(service.availableCounts) ? service.availableCounts : [],
     dailyCapacityPerPandit: service.dailyCapacityPerPandit || 2000,
     minimumPandits: service.minimumPandits || 2,
@@ -180,6 +233,27 @@ export const serializeAdminJapaServiceDetail = (service) => {
           iconName: service.purposeDetails.iconName,
           displayOrder: service.purposeDetails.displayOrder,
           isActive: service.purposeDetails.isActive,
+        }
+      : null,
+    categoryId: service.categoryId || null,
+    category: service.categoryDetails
+      ? {
+          id: service.categoryDetails.id,
+          name: service.categoryDetails.name,
+          slug: service.categoryDetails.slug,
+          iconName: service.categoryDetails.iconName || null,
+        }
+      : null,
+    categoryDetails: service.categoryDetails
+      ? {
+          id: service.categoryDetails.id,
+          name: service.categoryDetails.name,
+          slug: service.categoryDetails.slug,
+          description: service.categoryDetails.description || null,
+          image: service.categoryDetails.image || null,
+          iconName: service.categoryDetails.iconName || null,
+          displayOrder: service.categoryDetails.displayOrder,
+          isActive: service.categoryDetails.isActive,
         }
       : null,
     availableCounts: Array.isArray(service.availableCounts) ? service.availableCounts : [],

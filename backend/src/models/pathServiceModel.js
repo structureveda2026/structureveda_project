@@ -67,6 +67,11 @@ const PathService = sequelize.define(
       defaultValue: [],
       field: "purpose_categories",
     },
+    categoryId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      field: "category_id",
+    },
     availableFormats: {
       type: DataTypes.JSONB,
       allowNull: false,

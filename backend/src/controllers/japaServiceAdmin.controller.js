@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import { JapaService, JapaPurpose } from "../models/index.js";
+import { JapaService, JapaPurpose, JapaCategory } from "../models/index.js";
 import {
   serializeAdminJapaServiceListing,
   serializeAdminJapaServiceDetail,
@@ -160,6 +160,7 @@ export const getAdminJapaServices = async (req, res) => {
     const {
       search,
       purpose,
+      category,
       isActive,
       isFeatured,
       sortBy = "created-newest",
@@ -240,6 +241,23 @@ export const getAdminJapaServices = async (req, res) => {
       }
     }
 
+    const categoryInclude = {
+      model: JapaCategory,
+      as: "categoryDetails",
+      required: false,
+    };
+
+    if (category && String(category).trim()) {
+      const cVal = String(category).trim();
+      if (isValidUUID(cVal)) {
+        categoryInclude.where = { id: cVal };
+        categoryInclude.required = true;
+      } else {
+        categoryInclude.where = { slug: cVal.toLowerCase() };
+        categoryInclude.required = true;
+      }
+    }
+
     let order = [["created_at", "DESC"]];
     switch (sortBy) {
       case "created-oldest":
@@ -262,7 +280,7 @@ export const getAdminJapaServices = async (req, res) => {
     const offset = (pageNum - 1) * limitNum;
     const { count, rows } = await JapaService.findAndCountAll({
       where,
-      include: [purposeInclude],
+      include: [purposeInclude, categoryInclude],
       order,
       limit: limitNum,
       offset,
@@ -305,7 +323,10 @@ export const getAdminJapaServiceById = async (req, res) => {
     }
 
     const service = await JapaService.findByPk(id, {
-      include: [{ model: JapaPurpose, as: "purposeDetails", required: false }],
+      include: [
+        { model: JapaPurpose, as: "purposeDetails", required: false },
+        { model: JapaCategory, as: "categoryDetails", required: false },
+      ],
     });
 
     if (!service) {
@@ -342,6 +363,7 @@ export const createAdminJapaService = async (req, res) => {
       shortDescription,
       description,
       purposeId,
+      categoryId,
       purposeSummary,
       purposeCategory,
       purposeCategories,
@@ -432,6 +454,23 @@ export const createAdminJapaService = async (req, res) => {
       }
     }
 
+    // 4b. Category Validation
+    if (categoryId) {
+      if (!isValidUUID(categoryId)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid categoryId format. Must be a valid UUID.",
+        });
+      }
+      const category = await JapaCategory.findByPk(categoryId);
+      if (!category) {
+        return res.status(400).json({
+          success: false,
+          message: "Specified categoryId does not exist in Japa categories.",
+        });
+      }
+    }
+
     // 5. Japa availableCounts Validation
     let resolvedCounts = [11000, 21000, 51000, 125000];
     if (typeof availableCounts !== "undefined" && availableCounts !== null) {
@@ -512,6 +551,7 @@ export const createAdminJapaService = async (req, res) => {
       shortDescription: shortDescription ? String(shortDescription).trim() : null,
       description: description ? String(description).trim() : null,
       purposeId: purposeId || null,
+      categoryId: categoryId || null,
       purposeSummary: purposeSummary ? String(purposeSummary).trim() : null,
       purposeCategory: purposeCategory ? String(purposeCategory).trim() : null,
       purposeCategories: Array.isArray(purposeCategories) ? purposeCategories : [],
@@ -538,7 +578,10 @@ export const createAdminJapaService = async (req, res) => {
     });
 
     const detailedService = await JapaService.findByPk(newService.id, {
-      include: [{ model: JapaPurpose, as: "purposeDetails", required: false }],
+      include: [
+        { model: JapaPurpose, as: "purposeDetails", required: false },
+        { model: JapaCategory, as: "categoryDetails", required: false },
+      ],
     });
 
     return res.status(201).json({
@@ -585,6 +628,7 @@ export const updateAdminJapaService = async (req, res) => {
       shortDescription,
       description,
       purposeId,
+      categoryId,
       purposeSummary,
       purposeCategory,
       purposeCategories,
@@ -691,6 +735,28 @@ export const updateAdminJapaService = async (req, res) => {
       }
     }
 
+    // 4b. Category Validation
+    if (typeof categoryId !== "undefined") {
+      if (categoryId === null || categoryId === "") {
+        service.categoryId = null;
+      } else {
+        if (!isValidUUID(categoryId)) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid categoryId format. Must be a valid UUID.",
+          });
+        }
+        const category = await JapaCategory.findByPk(categoryId);
+        if (!category) {
+          return res.status(400).json({
+            success: false,
+            message: "Specified categoryId does not exist in Japa categories.",
+          });
+        }
+        service.categoryId = categoryId;
+      }
+    }
+
     // 5. Japa availableCounts
     if (typeof availableCounts !== "undefined") {
       const countsValidation = validateAvailableCounts(availableCounts);
@@ -788,7 +854,10 @@ export const updateAdminJapaService = async (req, res) => {
     await service.save();
 
     const reloaded = await JapaService.findByPk(id, {
-      include: [{ model: JapaPurpose, as: "purposeDetails", required: false }],
+      include: [
+        { model: JapaPurpose, as: "purposeDetails", required: false },
+        { model: JapaCategory, as: "categoryDetails", required: false },
+      ],
     });
 
     return res.status(200).json({

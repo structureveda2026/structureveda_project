@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import { PathService, PathPurpose } from "../models/index.js";
+import { PathService, PathPurpose, PathCategory } from "../models/index.js";
 import {
   serializePublicPathServiceListing,
   serializePublicPathServiceDetail,
@@ -26,6 +26,7 @@ export const getPathServices = async (req, res) => {
     const {
       search,
       purpose,
+      category,
       format,
       duration,
       days,
@@ -167,6 +168,21 @@ export const getPathServices = async (req, res) => {
       }
     }
 
+    // Category filter
+    if (category && String(category).trim() && String(category).trim().toLowerCase() !== "all") {
+      const cleanCategory = String(category).trim().toLowerCase();
+      const matchedCategory = await PathCategory.findOne({
+        where: { slug: cleanCategory, isActive: true },
+      });
+
+      if (matchedCategory) {
+        where.categoryId = matchedCategory.id;
+      } else {
+        // Non-existent or inactive category returns 0 services cleanly
+        where.categoryId = "00000000-0000-0000-0000-000000000000";
+      }
+    }
+
     // 3. Sorting Resolution
     if (!VALID_SORTS.includes(sortBy)) {
       return res.status(400).json({
@@ -217,6 +233,20 @@ export const getPathServices = async (req, res) => {
           model: PathPurpose,
           as: "purposeDetails",
           attributes: ["id", "name", "slug", "description", "iconName", "displayOrder", "isActive"],
+        },
+        {
+          model: PathCategory,
+          as: "categoryDetails",
+          attributes: [
+            "id",
+            "name",
+            "slug",
+            "description",
+            "image",
+            "iconName",
+            "displayOrder",
+            "isActive",
+          ],
         },
       ],
       distinct: true,
@@ -307,6 +337,20 @@ export const getPathServiceBySlug = async (req, res) => {
           model: PathPurpose,
           as: "purposeDetails",
           attributes: ["id", "name", "slug", "description", "iconName", "displayOrder", "isActive"],
+        },
+        {
+          model: PathCategory,
+          as: "categoryDetails",
+          attributes: [
+            "id",
+            "name",
+            "slug",
+            "description",
+            "image",
+            "iconName",
+            "displayOrder",
+            "isActive",
+          ],
         },
       ],
     });

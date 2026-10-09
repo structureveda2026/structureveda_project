@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import { JapaService, JapaPurpose } from "../models/index.js";
+import { JapaService, JapaPurpose, JapaCategory } from "../models/index.js";
 import {
   serializePublicJapaServiceListing,
   serializePublicJapaServiceDetail,
@@ -18,6 +18,7 @@ export const getPublicJapaServices = async (req, res) => {
     const {
       search,
       purpose,
+      category,
       count: requestedCount,
       mode,
       isFeatured,
@@ -125,6 +126,19 @@ export const getPublicJapaServices = async (req, res) => {
       purposeInclude.required = false;
     }
 
+    // Category filter (resolved via active JapaCategory association)
+    const categoryInclude = {
+      model: JapaCategory,
+      as: "categoryDetails",
+      where: { isActive: true },
+      required: false,
+    };
+
+    if (category && String(category).trim() && category !== "All" && category !== "All Categories") {
+      categoryInclude.where.slug = String(category).trim().toLowerCase();
+      categoryInclude.required = true;
+    }
+
     // 3. Sorting Whitelist Validation & Construction
     const trimmedSort = String(sortBy).trim().toLowerCase();
     if (!VALID_SORTS.includes(trimmedSort)) {
@@ -164,7 +178,7 @@ export const getPublicJapaServices = async (req, res) => {
     const offset = (pageNum - 1) * limitNum;
     const { count, rows } = await JapaService.findAndCountAll({
       where,
-      include: [purposeInclude],
+      include: [purposeInclude, categoryInclude],
       order,
       limit: limitNum,
       offset,
@@ -216,6 +230,12 @@ export const getPublicJapaServiceBySlug = async (req, res) => {
         {
           model: JapaPurpose,
           as: "purposeDetails",
+          where: { isActive: true },
+          required: false,
+        },
+        {
+          model: JapaCategory,
+          as: "categoryDetails",
           where: { isActive: true },
           required: false,
         },
