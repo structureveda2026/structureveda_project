@@ -57,27 +57,39 @@ const RITUAL_SECTIONS: RitualSection[] = [
   {
     id: "yagya",
     label: "Yagya",
-    basePath: "/admin/yagya-services",
-    items: [{ label: "All Yagya", path: "/admin/yagya-services" }],
+    basePath: "/admin/yagya",
+    items: [
+      { label: "Yagya Categories", path: "/admin/yagya/categories" },
+      { label: "All Yagya", path: "/admin/yagya-services" },
+    ],
   },
   {
     id: "japa",
     label: "Japa / Chanting",
-    basePath: "/admin/japa-services",
-    items: [{ label: "All Japa", path: "/admin/japa-services" }],
+    basePath: "/admin/japa",
+    items: [
+      { label: "Japa Categories", path: "/admin/japa/categories" },
+      { label: "All Japa", path: "/admin/japa-services" },
+    ],
   },
   {
     id: "path",
-    label: "Path / Recitation", // Path Catalogue
+    label: "Path / Recitation",
     aliasComment: "Path Catalogue",
-    basePath: "/admin/path-services",
-    items: [{ label: "All Path", path: "/admin/path-services" }],
+    basePath: "/admin/path",
+    items: [
+      { label: "Path Categories", path: "/admin/path/categories" },
+      { label: "All Path", path: "/admin/path-services" },
+    ],
   },
   {
     id: "homa",
     label: "Homa / Havan",
-    basePath: "/admin/homa-services",
-    items: [{ label: "All Homa", path: "/admin/homa-services" }],
+    basePath: "/admin/homa",
+    items: [
+      { label: "Homa Categories", path: "/admin/homa/categories" },
+      { label: "All Homa", path: "/admin/homa-services" },
+    ],
   },
   {
     id: "kashi",
@@ -115,9 +127,17 @@ export default function Sidebar({
     location.pathname.startsWith("/admin/puja/categories") ||
     location.pathname.startsWith("/admin/puja-categories") ||
     location.pathname.startsWith("/admin/yagya-services") ||
+    location.pathname.startsWith("/admin/yagya/categories") ||
+    location.pathname.startsWith("/admin/yagya-categories") ||
+    location.pathname.startsWith("/admin/japa/categories") ||
+    location.pathname.startsWith("/admin/japa-categories") ||
     location.pathname.startsWith("/admin/japa-services") ||
+    location.pathname.startsWith("/admin/homa/categories") ||
+    location.pathname.startsWith("/admin/homa-categories") ||
     location.pathname.startsWith("/admin/homa-services") ||
-    location.pathname.startsWith("/admin/path-services");
+    location.pathname.startsWith("/admin/path-services") ||
+    location.pathname.startsWith("/admin/path/categories") ||
+    location.pathname.startsWith("/admin/path-categories");
 
   // Route matches for Library
   const isLibraryActive =
@@ -160,9 +180,17 @@ export default function Sidebar({
         setOpenSubSections((prev) => ({ ...prev, yagya: true }));
       } else if (location.pathname.startsWith("/admin/japa-services")) {
         setOpenSubSections((prev) => ({ ...prev, japa: true }));
-      } else if (location.pathname.startsWith("/admin/path-services")) {
+      } else if (
+        location.pathname.startsWith("/admin/path-services") ||
+        location.pathname.startsWith("/admin/path/categories") ||
+        location.pathname.startsWith("/admin/path-categories")
+      ) {
         setOpenSubSections((prev) => ({ ...prev, path: true }));
-      } else if (location.pathname.startsWith("/admin/homa-services")) {
+      } else if (
+        location.pathname.startsWith("/admin/homa-services") ||
+        location.pathname.startsWith("/admin/homa/categories") ||
+        location.pathname.startsWith("/admin/homa-categories")
+      ) {
         setOpenSubSections((prev) => ({ ...prev, homa: true }));
       }
     }
@@ -191,6 +219,24 @@ export default function Sidebar({
       return (
         location.pathname.startsWith("/admin/upcoming-pujas") ||
         location.pathname.startsWith("/admin/upcoming-puja")
+      );
+    }
+    if (
+      basePath === "/admin/homa/categories" ||
+      basePath === "/admin/homa-categories"
+    ) {
+      return (
+        location.pathname.startsWith("/admin/homa/categories") ||
+        location.pathname.startsWith("/admin/homa-categories")
+      );
+    }
+    if (
+      basePath === "/admin/path/categories" ||
+      basePath === "/admin/path-categories"
+    ) {
+      return (
+        location.pathname.startsWith("/admin/path/categories") ||
+        location.pathname.startsWith("/admin/path-categories")
       );
     }
     return (

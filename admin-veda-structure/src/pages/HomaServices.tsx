@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   Plus,
   Eye,
@@ -23,12 +23,16 @@ import StatusBadge from "@/components/StatusBadge";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import EmptyState from "@/components/EmptyState";
 import Pagination from "@/components/Pagination";
+import HomaCategoryIcon from "@/components/HomaCategoryIcon";
 import { useToast } from "@/context/ToastContext";
 import homaServiceCatalogueService, {
   AdminHomaServiceListingItem,
   HomaPurpose,
   HomaServiceFilters,
 } from "@/services/homaServiceCatalogueService";
+import homaCategoryAdminService, {
+  AdminHomaCategory,
+} from "@/services/homaCategoryAdminService";
 
 const STATUS_FILTER_OPTIONS = [
   { label: "All Statuses", value: "" },
@@ -84,15 +88,20 @@ function ServiceThumbnail({
 
 export default function HomaServices() {
   const toast = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [services, setServices] = useState<AdminHomaServiceListingItem[]>([]);
   const [purposes, setPurposes] = useState<HomaPurpose[]>([]);
+  const [categories, setCategories] = useState<AdminHomaCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isAdminAccessError, setIsAdminAccessError] = useState(false);
 
   // Filters state
   const [search, setSearch] = useState("");
+  const [categorySlug, setCategorySlug] = useState<string>(
+    searchParams.get("category") || ""
+  );
   const [purposeSlug, setPurposeSlug] = useState("");
   const [status, setStatus] = useState("");
   const [featured, setFeatured] = useState("");
@@ -105,7 +114,16 @@ export default function HomaServices() {
   const [deactivateTarget, setDeactivateTarget] = useState<AdminHomaServiceListingItem | null>(null);
   const [deactivating, setDeactivating] = useState(false);
 
-  // Load dynamic purpose categories from API
+  // Sync category state if URL parameter changes externally
+  useEffect(() => {
+    const urlCategory = searchParams.get("category") || "";
+    if (urlCategory !== categorySlug) {
+      setCategorySlug(urlCategory);
+      setPage(1);
+    }
+  }, [searchParams, categorySlug]);
+
+  // Load dynamic purpose categories and homa categories from API
   useEffect(() => {
     let isMounted = true;
     const fetchPurposes = async () => {
@@ -118,7 +136,18 @@ export default function HomaServices() {
         console.warn("Could not load Homa purposes:", err);
       }
     };
+    const fetchCategories = async () => {
+      try {
+        const res = await homaCategoryAdminService.getCategories({ isActive: "true" });
+        if (isMounted) {
+          setCategories(res || []);
+        }
+      } catch (err) {
+        console.warn("Could not load Homa categories:", err);
+      }
+    };
     fetchPurposes();
+    fetchCategories();
     return () => {
       isMounted = false;
     };
@@ -131,6 +160,7 @@ export default function HomaServices() {
     try {
       const filters: HomaServiceFilters = { page, limit: 15, sortBy };
       if (search.trim()) filters.search = search.trim();
+      if (categorySlug) filters.category = categorySlug;
       if (purposeSlug) filters.purpose = purposeSlug;
       if (status !== "") filters.isActive = status;
       if (featured !== "") filters.isFeatured = featured;
@@ -154,7 +184,7 @@ export default function HomaServices() {
     } finally {
       setLoading(false);
     }
-  }, [search, purposeSlug, status, featured, sortBy, page, toast]);
+  }, [search, categorySlug, purposeSlug, status, featured, sortBy, page, toast]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -163,17 +193,34 @@ export default function HomaServices() {
     return () => clearTimeout(timer);
   }, [loadServices]);
 
+  const handleCategoryChange = (val: string) => {
+    setCategorySlug(val);
+    setPage(1);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (val) {
+        next.set("category", val);
+      } else {
+        next.delete("category");
+      }
+      return next;
+    });
+  };
+
   const handleResetFilters = () => {
     setSearch("");
+    setCategorySlug("");
     setPurposeSlug("");
     setStatus("");
     setFeatured("");
     setSortBy("created-newest");
     setPage(1);
+    setSearchParams({});
   };
 
   const hasActiveFilters =
     Boolean(search) ||
+    Boolean(categorySlug) ||
     Boolean(purposeSlug) ||
     status !== "" ||
     featured !== "" ||
@@ -225,6 +272,25 @@ export default function HomaServices() {
     ],
     [purposes],
   );
+
+  // Category options dynamically built from API
+  const categoryOptions = useMemo(
+    () => [
+      { label: "All Categories", value: "" },
+      ...categories.map((c) => ({ label: c.name, value: c.slug })),
+    ],
+    [categories],
+  );
+
+  // Category map for fast lookup by ID
+  const categoryMap = useMemo(() => {
+    const map = new Map<string, AdminHomaCategory>();
+    for (const c of categories) {
+      map.set(c.id, c);
+      map.set(c.slug, c);
+    }
+    return map;
+  }, [categories]);
 
   return (
     <div className="space-y-6">
@@ -288,6 +354,12 @@ export default function HomaServices() {
               placeholder="Search by name, homa type, slug, or purpose..."
             />
           </div>
+          <FilterDropdown
+            value={categorySlug}
+            onChange={handleCategoryChange}
+            options={categoryOptions}
+            label="Category"
+          />
           <FilterDropdown
             value={purposeSlug}
             onChange={(v) => {
@@ -415,6 +487,7 @@ export default function HomaServices() {
                 <tr className="bg-cream-50 text-charcoal-400 text-xs uppercase tracking-wider border-b border-cream-200">
                   <th className="text-left px-5 py-3.5 font-semibold">Image</th>
                   <th className="text-left px-5 py-3.5 font-semibold">Service</th>
+                  <th className="text-left px-5 py-3.5 font-semibold">Category</th>
                   <th className="text-left px-5 py-3.5 font-semibold">Homa Type</th>
                   <th className="text-left px-5 py-3.5 font-semibold">Purpose</th>
                   <th className="text-left px-5 py-3.5 font-semibold">Havan Counts</th>
@@ -428,7 +501,10 @@ export default function HomaServices() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-cream-100">
-                {services.map((s) => (
+                {services.map((s) => {
+                  const assignedCat = s.category || (s.categoryId ? categoryMap.get(s.categoryId) : null);
+                  const iconName = (s.categoryId ? categoryMap.get(s.categoryId)?.iconName : null) || s.category?.iconName || "Flame";
+                  return (
                   <tr key={s.id} className="hover:bg-cream-50/50 transition-colors">
                     {/* 1. Image */}
                     <td className="px-5 py-3.5">
@@ -456,6 +532,24 @@ export default function HomaServices() {
                       </div>
                     </td>
 
+                    {/* Category */}
+                    <td className="px-5 py-3.5 whitespace-nowrap">
+                      {assignedCat ? (
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-5 h-5 rounded-md bg-saffron-50 border border-saffron-100 flex items-center justify-center text-saffron-600 flex-shrink-0">
+                            <HomaCategoryIcon iconName={iconName} className="w-3 h-3 text-saffron-600" />
+                          </span>
+                          <span className="font-medium text-xs text-charcoal-800">
+                            {assignedCat.name}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-charcoal-100 text-charcoal-500">
+                          Uncategorized
+                        </span>
+                      )}
+                    </td>
+
                     {/* 2. Homa Type */}
                     <td className="px-5 py-3.5 whitespace-nowrap">
                       <span className="inline-flex items-center gap-1 text-xs text-charcoal-600 font-medium">
@@ -463,6 +557,7 @@ export default function HomaServices() {
                         {s.homaType || "Vedic Homa"}
                       </span>
                     </td>
+
 
                     {/* 3. Purpose */}
                     <td className="px-5 py-3.5 whitespace-nowrap">
@@ -598,7 +693,8 @@ export default function HomaServices() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                );
+              })}
               </tbody>
             </table>
           </div>

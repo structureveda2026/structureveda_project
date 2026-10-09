@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   Plus,
   Eye,
@@ -19,7 +19,11 @@ import StatusBadge from "@/components/StatusBadge";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import EmptyState from "@/components/EmptyState";
 import Pagination from "@/components/Pagination";
+import YagyaCategoryIcon from "@/components/YagyaCategoryIcon";
 import { useToast } from "@/context/ToastContext";
+import yagyaCategoryAdminService, {
+  AdminYagyaCategory,
+} from "@/services/yagyaCategoryAdminService";
 import yagyaServiceCatalogueService, {
   AdminYagyaServiceListingItem,
   YagyaPurpose,
@@ -56,15 +60,18 @@ const SORT_OPTIONS: { label: string; value: YagyaServiceFilters["sortBy"] }[] = 
 
 export default function YagyaServices() {
   const toast = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [services, setServices] = useState<AdminYagyaServiceListingItem[]>([]);
   const [purposes, setPurposes] = useState<YagyaPurpose[]>([]);
+  const [categories, setCategories] = useState<AdminYagyaCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isAdminAccessError, setIsAdminAccessError] = useState(false);
 
   // Filters
   const [search, setSearch] = useState("");
+  const [categorySlug, setCategorySlug] = useState<string>(() => searchParams.get("category") || "");
   const [purposeSlug, setPurposeSlug] = useState("");
   const [mode, setMode] = useState<string>("");
   const [status, setStatus] = useState("");
@@ -78,7 +85,16 @@ export default function YagyaServices() {
   const [deactivateTarget, setDeactivateTarget] = useState<AdminYagyaServiceListingItem | null>(null);
   const [deactivating, setDeactivating] = useState(false);
 
-  // Load purposes
+  // Sync category state if URL parameter changes externally
+  useEffect(() => {
+    const urlCategory = searchParams.get("category") || "";
+    if (urlCategory !== categorySlug) {
+      setCategorySlug(urlCategory);
+      setPage(1);
+    }
+  }, [searchParams, categorySlug]);
+
+  // Load purposes and categories
   useEffect(() => {
     const fetchPurposes = async () => {
       try {
@@ -88,7 +104,16 @@ export default function YagyaServices() {
         console.warn("Could not load Yagya purposes:", err);
       }
     };
+    const fetchCategories = async () => {
+      try {
+        const res = await yagyaCategoryAdminService.getCategories({ isActive: "true" });
+        setCategories(res.data || []);
+      } catch (err) {
+        console.warn("Could not load Yagya categories:", err);
+      }
+    };
     fetchPurposes();
+    fetchCategories();
   }, []);
 
   const loadServices = useCallback(async () => {
@@ -98,8 +123,9 @@ export default function YagyaServices() {
     try {
       const filters: YagyaServiceFilters = { page, limit: 15, sortBy };
       if (search.trim()) filters.search = search.trim();
+      if (categorySlug) filters.category = categorySlug;
       if (purposeSlug) filters.purpose = purposeSlug;
-      if (mode) filters.mode = mode as any;
+      if (mode) filters.mode = mode as YagyaServiceFilters["mode"];
       if (status !== "") filters.isActive = status;
       if (featured !== "") filters.isFeatured = featured;
 
@@ -107,8 +133,8 @@ export default function YagyaServices() {
       setServices(res.data || []);
       setTotalCount(res.total || 0);
       setTotalPages(res.totalPages || 1);
-    } catch (err: any) {
-      const msg = err?.message || "Failed to load Yagya services.";
+    } catch (err: unknown) {
+      const msg = (err as Error)?.message || "Failed to load Yagya services.";
       if (
         msg.toLowerCase().includes("admin access required") ||
         msg.toLowerCase().includes("unauthorized") ||
@@ -121,25 +147,45 @@ export default function YagyaServices() {
     } finally {
       setLoading(false);
     }
-  }, [search, purposeSlug, mode, status, featured, sortBy, page]);
+  }, [search, categorySlug, purposeSlug, mode, status, featured, sortBy, page, toast]);
 
   useEffect(() => {
     const timer = setTimeout(() => { loadServices(); }, 200);
     return () => clearTimeout(timer);
   }, [loadServices]);
 
+  const handleCategoryChange = (v: string) => {
+    setCategorySlug(v);
+    setPage(1);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (v) {
+        next.set("category", v);
+      } else {
+        next.delete("category");
+      }
+      return next;
+    });
+  };
+
   const handleResetFilters = () => {
     setSearch("");
+    setCategorySlug("");
     setPurposeSlug("");
     setMode("");
     setStatus("");
     setFeatured("");
     setSortBy("created-newest");
     setPage(1);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete("category");
+      return next;
+    });
   };
 
   const hasActiveFilters =
-    search || purposeSlug || mode || status !== "" || featured !== "" || sortBy !== "created-newest";
+    search || categorySlug || purposeSlug || mode || status !== "" || featured !== "" || sortBy !== "created-newest";
 
   const handleDeactivateConfirm = async () => {
     if (!deactivateTarget) return;
@@ -149,8 +195,8 @@ export default function YagyaServices() {
       toast.success(`"${deactivateTarget.name}" deactivated successfully.`);
       setDeactivateTarget(null);
       await loadServices();
-    } catch (err: any) {
-      toast.error(err?.message || "Unable to deactivate Yagya service.");
+    } catch (err: unknown) {
+      toast.error((err as Error)?.message || "Unable to deactivate Yagya service.");
     } finally {
       setDeactivating(false);
     }
@@ -164,8 +210,8 @@ export default function YagyaServices() {
         await yagyaServiceCatalogueService.updateYagyaService(service.id, { isActive: true });
         toast.success(`"${service.name}" activated successfully.`);
         await loadServices();
-      } catch (err: any) {
-        toast.error(err?.message || "Unable to activate Yagya service.");
+      } catch (err: unknown) {
+        toast.error((err as Error)?.message || "Unable to activate Yagya service.");
       }
     }
   };
@@ -182,6 +228,22 @@ export default function YagyaServices() {
     ],
     [purposes],
   );
+
+  // Category filter options
+  const categoryOptions = useMemo(
+    () => [
+      { label: "All Categories", value: "" },
+      ...categories.map((c) => ({ label: c.name, value: c.slug })),
+    ],
+    [categories],
+  );
+
+  // Category Map by ID for lookup
+  const categoryMap = useMemo(() => {
+    const map = new Map<string, AdminYagyaCategory>();
+    categories.forEach((c) => map.set(c.id, c));
+    return map;
+  }, [categories]);
 
   return (
     <div className="space-y-6">
@@ -226,6 +288,12 @@ export default function YagyaServices() {
               placeholder="Search Yagya services..."
             />
           </div>
+          <FilterDropdown
+            value={categorySlug}
+            onChange={handleCategoryChange}
+            options={categoryOptions}
+            label="Category"
+          />
           <FilterDropdown
             value={purposeSlug}
             onChange={(v) => { setPurposeSlug(v); setPage(1); }}
@@ -331,6 +399,7 @@ export default function YagyaServices() {
                 <tr className="bg-cream-50 text-charcoal-400 text-xs uppercase tracking-wider border-b border-cream-200">
                   <th className="text-left px-5 py-3.5 font-semibold">Image</th>
                   <th className="text-left px-5 py-3.5 font-semibold">Yagya Ritual</th>
+                  <th className="text-left px-5 py-3.5 font-semibold">Category</th>
                   <th className="text-left px-5 py-3.5 font-semibold">Purpose</th>
                   <th className="text-left px-5 py-3.5 font-semibold">Duration</th>
                   <th className="text-left px-5 py-3.5 font-semibold">Price</th>
@@ -341,7 +410,9 @@ export default function YagyaServices() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-cream-100">
-                {services.map((s) => (
+                {services.map((s) => {
+                  const assignedCat = s.category || (s.categoryId ? categoryMap.get(s.categoryId) : null);
+                  return (
                   <tr key={s.id} className="table-row-hover">
                     {/* Image */}
                     <td className="px-5 py-3.5">
@@ -372,6 +443,24 @@ export default function YagyaServices() {
                           /{s.slug}
                         </span>
                       </div>
+                    </td>
+
+                    {/* Category */}
+                    <td className="px-5 py-3.5 whitespace-nowrap">
+                      {assignedCat ? (
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-5 h-5 rounded-md bg-saffron-50 border border-saffron-100 flex items-center justify-center text-saffron-600 flex-shrink-0">
+                            <YagyaCategoryIcon iconName={assignedCat.iconName || "Flame"} className="w-3 h-3" />
+                          </span>
+                          <span className="font-medium text-xs text-charcoal-800">
+                            {assignedCat.name}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-charcoal-100 text-charcoal-500">
+                          Uncategorized
+                        </span>
+                      )}
                     </td>
 
                     {/* Purpose */}
@@ -460,7 +549,7 @@ export default function YagyaServices() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                );})}
               </tbody>
             </table>
           </div>

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   Plus,
   Eye,
@@ -22,7 +22,11 @@ import StatusBadge from "@/components/StatusBadge";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import EmptyState from "@/components/EmptyState";
 import Pagination from "@/components/Pagination";
+import JapaCategoryIcon from "@/components/JapaCategoryIcon";
 import { useToast } from "@/context/ToastContext";
+import japaCategoryAdminService, {
+  AdminJapaCategory,
+} from "@/services/japaCategoryAdminService";
 import japaServiceCatalogueService, {
   AdminJapaServiceListingItem,
   JapaPurpose,
@@ -52,15 +56,18 @@ const SORT_OPTIONS: { label: string; value: JapaServiceFilters["sortBy"] }[] = [
 
 export default function JapaServices() {
   const toast = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [services, setServices] = useState<AdminJapaServiceListingItem[]>([]);
   const [purposes, setPurposes] = useState<JapaPurpose[]>([]);
+  const [categories, setCategories] = useState<AdminJapaCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isAdminAccessError, setIsAdminAccessError] = useState(false);
 
   // Filters state
   const [search, setSearch] = useState("");
+  const [categorySlug, setCategorySlug] = useState<string>(() => searchParams.get("category") || "");
   const [purposeSlug, setPurposeSlug] = useState("");
   const [status, setStatus] = useState("");
   const [featured, setFeatured] = useState("");
@@ -73,7 +80,16 @@ export default function JapaServices() {
   const [deactivateTarget, setDeactivateTarget] = useState<AdminJapaServiceListingItem | null>(null);
   const [deactivating, setDeactivating] = useState(false);
 
-  // Load dynamic purpose categories from API
+  // Sync category state if URL parameter changes externally
+  useEffect(() => {
+    const urlCategory = searchParams.get("category") || "";
+    if (urlCategory !== categorySlug) {
+      setCategorySlug(urlCategory);
+      setPage(1);
+    }
+  }, [searchParams, categorySlug]);
+
+  // Load dynamic purpose categories and japa categories from API
   useEffect(() => {
     let isMounted = true;
     const fetchPurposes = async () => {
@@ -86,7 +102,18 @@ export default function JapaServices() {
         console.warn("Could not load Japa purposes:", err);
       }
     };
+    const fetchCategories = async () => {
+      try {
+        const res = await japaCategoryAdminService.getCategories({ isActive: "true" });
+        if (isMounted) {
+          setCategories(res.data || []);
+        }
+      } catch (err) {
+        console.warn("Could not load Japa categories:", err);
+      }
+    };
     fetchPurposes();
+    fetchCategories();
     return () => {
       isMounted = false;
     };
@@ -99,6 +126,7 @@ export default function JapaServices() {
     try {
       const filters: JapaServiceFilters = { page, limit: 15, sortBy };
       if (search.trim()) filters.search = search.trim();
+      if (categorySlug) filters.category = categorySlug;
       if (purposeSlug) filters.purpose = purposeSlug;
       if (status !== "") filters.isActive = status;
       if (featured !== "") filters.isFeatured = featured;
@@ -122,7 +150,7 @@ export default function JapaServices() {
     } finally {
       setLoading(false);
     }
-  }, [search, purposeSlug, status, featured, sortBy, page, toast]);
+  }, [search, categorySlug, purposeSlug, status, featured, sortBy, page, toast]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -131,17 +159,38 @@ export default function JapaServices() {
     return () => clearTimeout(timer);
   }, [loadServices]);
 
+  const handleCategoryChange = (v: string) => {
+    setCategorySlug(v);
+    setPage(1);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (v) {
+        next.set("category", v);
+      } else {
+        next.delete("category");
+      }
+      return next;
+    });
+  };
+
   const handleResetFilters = () => {
     setSearch("");
+    setCategorySlug("");
     setPurposeSlug("");
     setStatus("");
     setFeatured("");
     setSortBy("created-newest");
     setPage(1);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete("category");
+      return next;
+    });
   };
 
   const hasActiveFilters =
     Boolean(search) ||
+    Boolean(categorySlug) ||
     Boolean(purposeSlug) ||
     status !== "" ||
     featured !== "" ||
@@ -193,6 +242,22 @@ export default function JapaServices() {
     ],
     [purposes],
   );
+
+  // Category filter options dynamically built from API
+  const categoryOptions = useMemo(
+    () => [
+      { label: "All Categories", value: "" },
+      ...categories.map((c) => ({ label: c.name, value: c.slug })),
+    ],
+    [categories],
+  );
+
+  // Category Map by ID for lookup
+  const categoryMap = useMemo(() => {
+    const map = new Map<string, AdminJapaCategory>();
+    categories.forEach((c) => map.set(c.id, c));
+    return map;
+  }, [categories]);
 
   return (
     <div className="space-y-6">
@@ -259,6 +324,12 @@ export default function JapaServices() {
               placeholder="Search by name, mantra, or slug..."
             />
           </div>
+          <FilterDropdown
+            value={categorySlug}
+            onChange={handleCategoryChange}
+            options={categoryOptions}
+            label="Category"
+          />
           <FilterDropdown
             value={purposeSlug}
             onChange={(v) => {
@@ -386,6 +457,7 @@ export default function JapaServices() {
                 <tr className="bg-cream-50 text-charcoal-400 text-xs uppercase tracking-wider border-b border-cream-200">
                   <th className="text-left px-5 py-3.5 font-semibold">Image</th>
                   <th className="text-left px-5 py-3.5 font-semibold">Japa Service</th>
+                  <th className="text-left px-5 py-3.5 font-semibold">Category</th>
                   <th className="text-left px-5 py-3.5 font-semibold">Mantra</th>
                   <th className="text-left px-5 py-3.5 font-semibold">Purpose</th>
                   <th className="text-left px-5 py-3.5 font-semibold">Available Counts</th>
@@ -398,7 +470,10 @@ export default function JapaServices() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-cream-100">
-                {services.map((s) => (
+                {services.map((s) => {
+                  const assignedCat = s.category || (s.categoryId ? categoryMap.get(s.categoryId) : null);
+                  const iconName = (s.categoryId ? categoryMap.get(s.categoryId)?.iconName : null) || s.category?.iconName || "Sparkles";
+                  return (
                   <tr key={s.id} className="hover:bg-cream-50/50 transition-colors">
                     {/* Banner Image */}
                     <td className="px-5 py-3.5">
@@ -420,14 +495,35 @@ export default function JapaServices() {
 
                     {/* Service Name & Slug */}
                     <td className="px-5 py-3.5 max-w-xs">
-                      <span className="font-semibold text-charcoal-800 block truncate">
+                      <Link
+                        to={`/admin/japa-services/${s.id}`}
+                        className="font-semibold text-charcoal-800 hover:text-saffron-600 transition block truncate"
+                      >
                         {s.name}
-                      </span>
+                      </Link>
                       <div className="flex items-center gap-2 mt-0.5">
                         <span className="text-[11px] font-mono text-charcoal-400 truncate max-w-[180px]">
                           /{s.slug}
                         </span>
                       </div>
+                    </td>
+
+                    {/* Category */}
+                    <td className="px-5 py-3.5 whitespace-nowrap">
+                      {assignedCat ? (
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-5 h-5 rounded-md bg-saffron-50 border border-saffron-100 flex items-center justify-center text-saffron-600 flex-shrink-0">
+                            <JapaCategoryIcon iconName={iconName} className="w-3 h-3 text-saffron-600" />
+                          </span>
+                          <span className="font-medium text-xs text-charcoal-800">
+                            {assignedCat.name}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-charcoal-100 text-charcoal-500">
+                          Uncategorized
+                        </span>
+                      )}
                     </td>
 
                     {/* Mantra Preview */}
@@ -565,7 +661,8 @@ export default function JapaServices() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                );
+              })}
               </tbody>
             </table>
           </div>

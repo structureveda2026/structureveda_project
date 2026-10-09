@@ -5,25 +5,19 @@ import {
   ArrowLeft,
   Power,
   Sparkles,
-  Clock,
   Users,
-  CheckCircle2,
   DollarSign,
-  BookOpen,
   HelpCircle,
   Layers,
   Star,
   Image as ImageIcon,
-  ChevronRight,
-  Hash,
   Globe,
   MapPin,
-  Tag,
-  Shield,
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import JapaCategoryIcon from "@/components/JapaCategoryIcon";
 import { useToast } from "@/context/ToastContext";
 import japaServiceCatalogueService, {
   AdminJapaServiceDetail,
@@ -62,11 +56,9 @@ function InfoRow({
 }) {
   if (value === undefined || value === null || value === "") return null;
   let displayValue: React.ReactNode = value;
-  if (typeof value === "object" && !React.isValidElement(value)) {
-    displayValue =
-      (value as any)?.name ||
-      (value as any)?.label ||
-      JSON.stringify(value);
+  if (typeof value === "object" && !React.isValidElement(value) && value !== null) {
+    const obj = value as { name?: string; label?: string };
+    displayValue = obj.name || obj.label || JSON.stringify(value);
   }
   return (
     <div className="flex flex-col sm:flex-row gap-1 sm:gap-3 py-1.5 border-b border-cream-50 last:border-0">
@@ -82,7 +74,7 @@ function TagList({
   items,
   colorClass = "bg-cream-100 text-charcoal-700",
 }: {
-  items: any[];
+  items: Array<string | { name?: string; item?: string }>;
   colorClass?: string;
 }) {
   if (!items?.length)
@@ -134,12 +126,12 @@ export default function JapaServiceDetail() {
     japaServiceCatalogueService
       .getJapaService(id)
       .then((data) => setService(data))
-      .catch((err: any) => {
-        toast.error(err?.message || "Unable to load Japa service.");
+      .catch((err: unknown) => {
+        toast.error((err as Error)?.message || "Unable to load Japa service.");
         navigate("/admin/japa-services");
       })
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, navigate, toast]);
 
   const handleToggleStatus = async () => {
     if (!service || !id) return;
@@ -154,8 +146,8 @@ export default function JapaServiceDetail() {
       });
       setService((prev) => (prev ? { ...prev, isActive: true } : prev));
       toast.success(`"${service.name}" activated.`);
-    } catch (err: any) {
-      toast.error(err?.message || "Unable to activate service.");
+    } catch (err: unknown) {
+      toast.error((err as Error)?.message || "Unable to activate service.");
     } finally {
       setToggling(false);
     }
@@ -169,8 +161,8 @@ export default function JapaServiceDetail() {
       setService((prev) => (prev ? { ...prev, isActive: false } : prev));
       toast.success(`"${service.name}" deactivated.`);
       setDeactivateOpen(false);
-    } catch (err: any) {
-      toast.error(err?.message || "Unable to deactivate service.");
+    } catch (err: unknown) {
+      toast.error((err as Error)?.message || "Unable to deactivate service.");
     } finally {
       setToggling(false);
     }
@@ -295,30 +287,48 @@ export default function JapaServiceDetail() {
             )}
           </SectionCard>
 
-          {/* Purpose */}
-          {(service.purpose || service.purposeSummary || service.purposeDetails) && (
-            <SectionCard title="Purpose" icon={Star}>
-              <InfoRow
-                label="Purpose"
-                value={service.purposeDetails?.name || service.purpose}
-              />
-              <InfoRow
-                label="Purpose Summary"
-                value={service.purposeSummary}
-              />
-              {service.purposeCategories?.length > 0 && (
-                <div className="py-1.5">
-                  <span className="text-xs font-semibold text-charcoal-400 uppercase tracking-wider block mb-1">
-                    Purpose Categories
+          {/* Category & Purpose */}
+          <SectionCard title="Category & Purpose" icon={Star}>
+            <InfoRow
+              label="Category"
+              value={
+                service.category || service.categoryDetails ? (
+                  <span className="inline-flex items-center gap-1.5 font-medium text-charcoal-800">
+                    <JapaCategoryIcon
+                      iconName={
+                        service.categoryDetails?.iconName ||
+                        service.category?.iconName ||
+                        "Sparkles"
+                      }
+                      className="w-3.5 h-3.5 text-saffron-600"
+                    />
+                    {service.categoryDetails?.name || service.category?.name}
                   </span>
-                  <TagList
-                    items={service.purposeCategories}
-                    colorClass="bg-saffron-50 text-saffron-800 border border-saffron-200"
-                  />
-                </div>
-              )}
-            </SectionCard>
-          )}
+                ) : (
+                  <span className="text-charcoal-400 italic">Uncategorized</span>
+                )
+              }
+            />
+            <InfoRow
+              label="Purpose"
+              value={service.purposeDetails?.name || service.purpose}
+            />
+            <InfoRow
+              label="Purpose Summary"
+              value={service.purposeSummary}
+            />
+            {service.purposeCategories?.length > 0 && (
+              <div className="py-1.5">
+                <span className="text-xs font-semibold text-charcoal-400 uppercase tracking-wider block mb-1">
+                  Purpose Categories
+                </span>
+                <TagList
+                  items={service.purposeCategories}
+                  colorClass="bg-saffron-50 text-saffron-800 border border-saffron-200"
+                />
+              </div>
+            )}
+          </SectionCard>
 
           {/* Pandit Configuration */}
           <SectionCard title="Pandit Configuration" icon={Users}>
