@@ -164,15 +164,11 @@ const PathCategoryDiscovery = ({ limit, showViewAll = true }) => {
                 ))}
               </div>
 
-              {/* ── Standardized View All Path CTA ── */}
-              {showViewAll && (
+              {/* ── View All Path CTA (Shown when categories exceed limit) ── */}
+              {showViewAll && hasMore && (
                 <div className="mt-12 text-center border-t border-[#ebdcc4] pt-8">
                   <Link
-                    to="/yagya-puja/path"
-                    onClick={() => {
-                      const el = document.getElementById("path-catalogue-heading");
-                      if (el) el.scrollIntoView({ behavior: "smooth" });
-                    }}
+                    to="/yagya-puja/path/all"
                     className="group inline-flex items-center gap-2 rounded-full border border-[#c77722] bg-[#fffdfa] px-8 py-3.5 text-[13.5px] font-bold text-[#b36c1e] shadow-2xs transition-all duration-200 hover:border-[#eab12c] hover:bg-[#eab12c] hover:text-[#1c1308] hover:shadow-[0_4px_14px_rgba(234,177,44,0.25)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#eab12c]"
                   >
                     <span>View All Path</span>

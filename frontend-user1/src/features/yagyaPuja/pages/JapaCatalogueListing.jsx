@@ -317,7 +317,7 @@ const JapaCatalogueListing = () => {
       />
 
       {/* 4. DYNAMIC JAPA CATEGORY DISCOVERY SECTION */}
-      <JapaCategoryDiscovery />
+      <JapaCategoryDiscovery limit={6} showViewAll={true} />
 
       {/* 5. EXPLORE MANTRA JAPA (Primary Catalogue) */}
       <section

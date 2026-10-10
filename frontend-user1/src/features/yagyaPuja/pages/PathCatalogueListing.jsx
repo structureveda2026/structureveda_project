@@ -232,7 +232,7 @@ const PathCatalogueListing = () => {
       <PathConceptSection />
 
       {/* PATH CATEGORY DISCOVERY */}
-      <PathCategoryDiscovery />
+      <PathCategoryDiscovery limit={6} showViewAll={true} />
 
       {/* 3. EXPLORE SACRED PATH & RECITATION (Primary Catalogue) */}
       <section

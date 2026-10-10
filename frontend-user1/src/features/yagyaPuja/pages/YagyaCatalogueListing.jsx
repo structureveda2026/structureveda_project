@@ -229,7 +229,7 @@ const YagyaCatalogueListing = () => {
       />
 
       {/* 4. DYNAMIC CATEGORY DISCOVERY SECTION */}
-      <YagyaCategoryDiscovery />
+      <YagyaCategoryDiscovery limit={6} showViewAll={true} />
 
       {/* 5. EXPLORE VEDIC YAGYA (API-FIRST PRIMARY CATALOGUE WITH SERVER PAGINATION) */}
       <section

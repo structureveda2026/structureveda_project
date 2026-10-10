@@ -231,7 +231,7 @@ export default function HomaCatalogueListing() {
       />
 
       {/* HOMA CATEGORY DISCOVERY */}
-      <HomaCategoryDiscovery />
+      <HomaCategoryDiscovery limit={6} showViewAll={true} />
 
       {/* 4. EXPLORE HOMA & HAVAN */}
       <section className="py-20 bg-[#fffdf9] border-b border-[#e8dfd1]" id="explore">
