@@ -1,13 +1,64 @@
 import api from "@/services/api";
 import type { Veda, VedaNode } from "../types/veda.types";
 
+export interface VedaQueryParams {
+  status?: string;
+  category?: string;
+  search?: string;
+}
+
 export const VedaAdminService = {
   /**
-   * Get list of all Vedas with node & mantra count statistics
+   * Get list of all Vedas / Granthas with node & mantra count statistics
+   * Passes category, status, and search in query params
    */
-  async getVedas(): Promise<Veda[]> {
-    const res = await api.get("/admin/library/vedas");
-    return res.data || [];
+  async getAllVedas(params?: VedaQueryParams): Promise<Veda[]> {
+    const query = new URLSearchParams();
+    if (params?.category && params.category !== "all") {
+      query.append("category", params.category);
+    }
+    if (params?.status && params.status !== "ALL") {
+      query.append("status", params.status);
+    }
+    if (params?.search && params.search.trim()) {
+      query.append("search", params.search.trim());
+    }
+
+    const qs = query.toString() ? `?${query.toString()}` : "";
+
+    try {
+      const res = await api.get(`/admin/library/vedas${qs}`);
+      const list = res?.data || (Array.isArray(res) ? res : []);
+      if (Array.isArray(list) && list.length > 0) {
+        return list;
+      }
+      if (params?.category) {
+        try {
+          const fallbackRes = await api.get(`/api/library/vedas${qs}`);
+          const fallbackList = fallbackRes?.data || (Array.isArray(fallbackRes) ? fallbackRes : []);
+          if (Array.isArray(fallbackList) && fallbackList.length > 0) {
+            return fallbackList;
+          }
+        } catch (_) {
+          // ignore fallback error
+        }
+      }
+      return list;
+    } catch (err: any) {
+      try {
+        const fallbackRes = await api.get(`/api/library/vedas${qs}`);
+        return fallbackRes?.data || (Array.isArray(fallbackRes) ? fallbackRes : []);
+      } catch {
+        return [];
+      }
+    }
+  },
+
+  /**
+   * Get list of all Vedas with node & mantra count statistics (backward-compatible)
+   */
+  async getVedas(params?: VedaQueryParams): Promise<Veda[]> {
+    return this.getAllVedas(params);
   },
 
   /**

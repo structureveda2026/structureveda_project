@@ -7,17 +7,45 @@ import {
   INITIAL_VEDA_NODES,
   INITIAL_VEDA_MANTRAS,
 } from "../data/initialVedicHeritageData.js";
+import {
+  INITIAL_PURANAS,
+  INITIAL_ITIHASAS,
+  INITIAL_UPANISHADS,
+  INITIAL_DARSHANAS,
+  INITIAL_GRANTHA_NODES,
+  INITIAL_GRANTHA_MANTRAS,
+} from "../data/initialGranthaHeritageData.js";
 
 export class VedaService {
   /**
-   * Get all active Vedas (Public)
+   * Helper: Get merged initial dataset of all Vedas and Granthas
+   */
+  static getAllInitialGranthas(category) {
+    const all = [
+      ...INITIAL_VEDAS.map((v) => ({ ...v, category: v.category || "veda" })),
+      ...INITIAL_PURANAS,
+      ...INITIAL_ITIHASAS,
+      ...INITIAL_UPANISHADS,
+      ...INITIAL_DARSHANAS,
+    ];
+    if (!category || category === "ALL") {
+      return all;
+    }
+    return all.filter((item) => item.category === category);
+  }
+
+  /**
+   * Get all active Vedas & Granthas (Public)
    */
   static async getAllVedas(params = {}) {
-    const { status = "ACTIVE" } = params;
+    const { status = "ACTIVE", category } = params;
     try {
       const where = {};
       if (status && status !== "ALL") {
         where.status = status;
+      }
+      if (category && category !== "ALL") {
+        where.category = category;
       }
 
       const vedas = await Veda.findAll({
@@ -26,17 +54,31 @@ export class VedaService {
       });
 
       if (vedas && vedas.length > 0) {
-        return vedas;
+        if (category && category !== "ALL") {
+          return vedas;
+        }
+        const hasGranthas = vedas.some((v) => v.category && v.category !== "veda");
+        if (hasGranthas) {
+          return vedas;
+        }
+        const granthas = [
+          ...INITIAL_PURANAS,
+          ...INITIAL_ITIHASAS,
+          ...INITIAL_UPANISHADS,
+          ...INITIAL_DARSHANAS,
+        ].filter((g) => status === "ALL" || g.status === status);
+        return [...vedas, ...granthas];
       }
     } catch (err) {
       console.warn("DB query for Vedas fallback to initial dataset:", err.message);
     }
 
-    return INITIAL_VEDAS.filter((v) => status === "ALL" || v.status === status);
+    const allInitial = this.getAllInitialGranthas(category);
+    return allInitial.filter((v) => status === "ALL" || v.status === status);
   }
 
   /**
-   * Get Veda by ID or Slug with its full hierarchy tree
+   * Get Veda or Grantha by ID or Slug with its full hierarchy tree
    */
   static async getVedaBySlug(identifier) {
     if (!identifier) return null;
@@ -57,7 +99,18 @@ export class VedaService {
           order: [["orderIndex", "ASC"], ["createdAt", "ASC"]],
         });
 
-        const tree = this.buildNodeTree(nodes);
+        if (nodes && nodes.length > 0) {
+          const tree = this.buildNodeTree(nodes);
+          return {
+            ...veda.toJSON(),
+            tree,
+          };
+        }
+
+        // Fallback to initial tree nodes if DB nodes not yet populated
+        const allNodes = [...INITIAL_VEDA_NODES, ...INITIAL_GRANTHA_NODES];
+        const initialNodes = allNodes.filter((n) => n.vedaId === veda.id);
+        const tree = this.buildNodeTree(initialNodes);
         return {
           ...veda.toJSON(),
           tree,
@@ -67,13 +120,15 @@ export class VedaService {
       console.warn("DB query for Veda by slug fallback:", err.message);
     }
 
-    // Fallback to authentic initial Vedic dataset
-    const initialVeda = INITIAL_VEDAS.find(
+    // Fallback across all Vedas and Granthas
+    const allInitial = this.getAllInitialGranthas();
+    const initialVeda = allInitial.find(
       (v) => v.id === identifier || v.slug === identifier
     );
     if (!initialVeda) return null;
 
-    const initialNodes = INITIAL_VEDA_NODES.filter(
+    const allNodes = [...INITIAL_VEDA_NODES, ...INITIAL_GRANTHA_NODES];
+    const initialNodes = allNodes.filter(
       (n) => n.vedaId === initialVeda.id
     );
     const tree = this.buildNodeTree(initialNodes);
@@ -117,30 +172,63 @@ export class VedaService {
    * Get single Node with its child mantras and breadcrumb path
    */
   static async getNodeById(nodeId) {
-    const node = await VedaNode.findByPk(nodeId);
-    if (!node) return null;
+    try {
+      const node = await VedaNode.findByPk(nodeId);
+      if (node) {
+        const mantras = await VedaMantra.findAll({
+          where: {
+            nodeId: node.id,
+            status: "ACTIVE",
+          },
+          order: [["orderIndex", "ASC"], ["createdAt", "ASC"]],
+        });
 
-    const mantras = await VedaMantra.findAll({
-      where: {
-        nodeId: node.id,
-        status: "ACTIVE",
-      },
-      order: [["orderIndex", "ASC"], ["createdAt", "ASC"]],
-    });
+        const children = await VedaNode.findAll({
+          where: {
+            parentId: node.id,
+            status: "ACTIVE",
+          },
+          order: [["orderIndex", "ASC"], ["createdAt", "ASC"]],
+        });
 
-    const children = await VedaNode.findAll({
-      where: {
-        parentId: node.id,
-        status: "ACTIVE",
-      },
-      order: [["orderIndex", "ASC"], ["createdAt", "ASC"]],
-    });
+        // Build ancestor breadcrumb path
+        const breadcrumb = [];
+        let curr = node;
+        while (curr.parentId) {
+          const parent = await VedaNode.findByPk(curr.parentId);
+          if (parent) {
+            breadcrumb.unshift(parent);
+            curr = parent;
+          } else {
+            break;
+          }
+        }
 
-    // Build ancestor breadcrumb path
+        return {
+          ...node.toJSON(),
+          mantras,
+          children,
+          breadcrumb,
+        };
+      }
+    } catch (err) {
+      console.warn("DB query for Node by id fallback:", err.message);
+    }
+
+    // Static fallback across all Veda & Grantha nodes and mantras
+    const allNodes = [...INITIAL_VEDA_NODES, ...INITIAL_GRANTHA_NODES];
+    const allMantras = [...INITIAL_VEDA_MANTRAS, ...INITIAL_GRANTHA_MANTRAS];
+
+    const staticNode = allNodes.find((n) => n.id === nodeId || n.slug === nodeId);
+    if (!staticNode) return null;
+
+    const mantras = allMantras.filter((m) => m.nodeId === staticNode.id);
+    const children = allNodes.filter((n) => n.parentId === staticNode.id);
+
     const breadcrumb = [];
-    let curr = node;
+    let curr = staticNode;
     while (curr.parentId) {
-      const parent = await VedaNode.findByPk(curr.parentId);
+      const parent = allNodes.find((n) => n.id === curr.parentId);
       if (parent) {
         breadcrumb.unshift(parent);
         curr = parent;
@@ -150,7 +238,7 @@ export class VedaService {
     }
 
     return {
-      ...node.toJSON(),
+      ...staticNode,
       mantras,
       children,
       breadcrumb,
@@ -162,34 +250,62 @@ export class VedaService {
   // ==========================================
 
   /**
-   * Admin: List all Vedas with counts
+   * Admin: List all Vedas / Granthas with counts
    */
-  /**
-   * Admin: List all Vedas with counts
-   */
-  static async getAdminVedas() {
+  static async getAdminVedas(params = {}) {
+    const { category } = params;
+    const allNodes = [...INITIAL_VEDA_NODES, ...INITIAL_GRANTHA_NODES];
+    const allMantras = [...INITIAL_VEDA_MANTRAS, ...INITIAL_GRANTHA_MANTRAS];
+    const allInitial = this.getAllInitialGranthas(category);
+
     try {
+      const where = {};
+      if (category && category !== "ALL") {
+        where.category = category;
+      }
+
       const vedas = await Veda.findAll({
+        where,
         order: [["orderIndex", "ASC"], ["createdAt", "ASC"]],
       });
 
       if (vedas && vedas.length > 0) {
-        // Augment with live counts & authentic initial fallback
-        const result = await Promise.all(
-          vedas.map(async (v) => {
-            let nodeCount = await VedaNode.count({ where: { vedaId: v.id } });
-            let mantraCount = await VedaMantra.count({ where: { vedaId: v.id } });
+        let items = vedas;
+        if (!category || category === "ALL") {
+          const hasGranthas = vedas.some((v) => v.category && v.category !== "veda");
+          if (!hasGranthas) {
+            const nonVedaInitial = [
+              ...INITIAL_PURANAS,
+              ...INITIAL_ITIHASAS,
+              ...INITIAL_UPANISHADS,
+              ...INITIAL_DARSHANAS,
+            ];
+            items = [...vedas, ...nonVedaInitial];
+          }
+        }
 
-            // If 0 (e.g. newly added Samaveda or Atharvaveda pending DB seed), compute authentic fallback
+        const result = await Promise.all(
+          items.map(async (v) => {
+            const plain = typeof v.toJSON === "function" ? v.toJSON() : { ...v };
+            let nodeCount = 0;
+            let mantraCount = 0;
+
+            try {
+              nodeCount = await VedaNode.count({ where: { vedaId: plain.id } });
+              mantraCount = await VedaMantra.count({ where: { vedaId: plain.id } });
+            } catch (cErr) {
+              // Ignore count error
+            }
+
             if (nodeCount === 0) {
-              nodeCount = INITIAL_VEDA_NODES.filter((n) => n.vedaId === v.id).length;
+              nodeCount = allNodes.filter((n) => n.vedaId === plain.id).length;
             }
             if (mantraCount === 0) {
-              mantraCount = INITIAL_VEDA_MANTRAS.filter((m) => m.vedaId === v.id).length;
+              mantraCount = allMantras.filter((m) => m.vedaId === plain.id).length;
             }
 
             return {
-              ...v.toJSON(),
+              ...plain,
               statsMeta: {
                 nodeCount,
                 mantraCount,
@@ -204,11 +320,11 @@ export class VedaService {
     }
 
     // Static fallback if DB is initializing or offline
-    return INITIAL_VEDAS.map((v) => ({
+    return allInitial.map((v) => ({
       ...v,
       statsMeta: {
-        nodeCount: INITIAL_VEDA_NODES.filter((n) => n.vedaId === v.id).length,
-        mantraCount: INITIAL_VEDA_MANTRAS.filter((m) => m.vedaId === v.id).length,
+        nodeCount: allNodes.filter((n) => n.vedaId === v.id).length,
+        mantraCount: allMantras.filter((m) => m.vedaId === v.id).length,
       },
     }));
   }
@@ -306,7 +422,7 @@ export class VedaService {
   }
 
   /**
-   * Admin: Seed default authentic Rigveda and Yajurveda datasets
+   * Admin: Seed default authentic Vedas, Puranas, Itihasas, Upanishads, and Darshanas
    */
   static async seedDefaultVedicHeritage(overwrite = false) {
     const seeded = {
@@ -315,21 +431,25 @@ export class VedaService {
       mantrasCount: 0,
     };
 
+    const allVedasAndGranthas = this.getAllInitialGranthas();
+    const allNodes = [...INITIAL_VEDA_NODES, ...INITIAL_GRANTHA_NODES];
+    const allMantras = [...INITIAL_VEDA_MANTRAS, ...INITIAL_GRANTHA_MANTRAS];
+
     try {
-      // 1. Seed Vedas
-      for (const vedaData of INITIAL_VEDAS) {
-        const existing = await Veda.findByPk(vedaData.id);
+      // 1. Seed Vedas & Granthas
+      for (const itemData of allVedasAndGranthas) {
+        const existing = await Veda.findByPk(itemData.id);
         if (!existing) {
-          await Veda.create(vedaData);
+          await Veda.create(itemData);
           seeded.vedasCount++;
         } else if (overwrite) {
-          await existing.update(vedaData);
+          await existing.update(itemData);
           seeded.vedasCount++;
         }
       }
 
       // 2. Seed Nodes
-      for (const nodeData of INITIAL_VEDA_NODES) {
+      for (const nodeData of allNodes) {
         const existing = await VedaNode.findByPk(nodeData.id);
         if (!existing) {
           await VedaNode.create(nodeData);
@@ -341,7 +461,7 @@ export class VedaService {
       }
 
       // 3. Seed Mantras
-      for (const mantraData of INITIAL_VEDA_MANTRAS) {
+      for (const mantraData of allMantras) {
         const existing = await VedaMantra.findByPk(mantraData.id);
         if (!existing) {
           await VedaMantra.create(mantraData);
@@ -353,9 +473,9 @@ export class VedaService {
       }
     } catch (err) {
       console.warn("DB seeding warning, falling back to static authentic count:", err.message);
-      seeded.vedasCount = INITIAL_VEDAS.length;
-      seeded.nodesCount = INITIAL_VEDA_NODES.length;
-      seeded.mantrasCount = INITIAL_VEDA_MANTRAS.length;
+      seeded.vedasCount = allVedasAndGranthas.length;
+      seeded.nodesCount = allNodes.length;
+      seeded.mantrasCount = allMantras.length;
     }
 
     return seeded;

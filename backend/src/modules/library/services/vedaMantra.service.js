@@ -3,6 +3,9 @@ import VedaMantra from "../models/vedaMantra.model.js";
 import VedaNode from "../models/vedaNode.model.js";
 import Veda from "../models/veda.model.js";
 import { INITIAL_VEDA_MANTRAS } from "../data/initialVedicHeritageData.js";
+import { INITIAL_GRANTHA_MANTRAS } from "../data/initialGranthaHeritageData.js";
+
+const ALL_INITIAL_MANTRAS = [...INITIAL_VEDA_MANTRAS, ...INITIAL_GRANTHA_MANTRAS];
 
 export class VedaMantraService {
   /**
@@ -48,11 +51,11 @@ export class VedaMantraService {
       console.warn("DB query for mantra by ID fallback:", err.message);
     }
 
-    // Fallback to authentic initial Vedic dataset
-    const found = INITIAL_VEDA_MANTRAS.find((m) => m.id === id || m.slug === id);
+    // Fallback to authentic initial Vedic & Grantha dataset
+    const found = ALL_INITIAL_MANTRAS.find((m) => m.id === id || m.slug === id);
     if (!found) return null;
 
-    const siblings = INITIAL_VEDA_MANTRAS.filter(
+    const siblings = ALL_INITIAL_MANTRAS.filter(
       (m) =>
         (found.nodeId && m.nodeId === found.nodeId) ||
         (found.chapterMantraIds && found.chapterMantraIds.includes(m.id))
@@ -152,8 +155,8 @@ export class VedaMantraService {
       console.warn("DB query for mantras fallback:", err.message);
     }
 
-    // Fallback search over authentic INITIAL_VEDA_MANTRAS
-    let filtered = INITIAL_VEDA_MANTRAS.filter((m) => {
+    // Fallback search over authentic INITIAL_VEDA_MANTRAS & INITIAL_GRANTHA_MANTRAS
+    let filtered = ALL_INITIAL_MANTRAS.filter((m) => {
       if (status && status !== "ALL" && m.status !== status) return false;
       if (vedaId && vedaId !== "all" && m.vedaId !== vedaId) return false;
       if (nodeId && m.nodeId !== nodeId) return false;

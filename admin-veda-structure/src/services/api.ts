@@ -29,9 +29,11 @@ const request = async (path: string, options: RequestInit = {}) => {
     headers.Authorization = `Bearer ${token}`;
   }
 
+  const cleanPath = path.startsWith("/api/") ? path.slice(4) : path;
+
   let response: Response;
   try {
-    response = await fetch(`${BASE_URL}${path}`, {
+    response = await fetch(`${BASE_URL}${cleanPath}`, {
       ...options,
       headers,
     });

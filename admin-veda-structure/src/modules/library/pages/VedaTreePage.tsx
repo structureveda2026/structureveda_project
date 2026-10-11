@@ -429,16 +429,43 @@ export const VedaTreePage: React.FC = () => {
       {/* Breadcrumb Navigation & Top Action Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-1.5 text-xs text-charcoal-500 font-medium">
-          <Link
-            to="/admin/library/vedas"
-            className="hover:text-saffron-700 transition-colors flex items-center gap-1 font-bold"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>वेद सूची (All Vedas)</span>
-          </Link>
+          {(() => {
+            const categoryPath = (veda?.category || "").toLowerCase();
+            const backRoute =
+              categoryPath === "purana"
+                ? "/admin/library/puranas"
+                : categoryPath === "itihasa"
+                ? "/admin/library/itihasas"
+                : categoryPath === "upanishad"
+                ? "/admin/library/upanishads"
+                : categoryPath === "darshana"
+                ? "/admin/library/darshanas"
+                : "/admin/library/vedas";
+
+            const backLabel =
+              categoryPath === "purana"
+                ? "पुराण सूची (All Puranas)"
+                : categoryPath === "itihasa"
+                ? "इतिहास सूची (All Itihasas)"
+                : categoryPath === "upanishad"
+                ? "उपनिषद सूची (All Upanishads)"
+                : categoryPath === "darshana"
+                ? "दर्शन सूची (All Darshanas)"
+                : "वेद सूची (All Vedas)";
+
+            return (
+              <Link
+                to={backRoute}
+                className="hover:text-saffron-700 transition-colors flex items-center gap-1 font-bold"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>{backLabel}</span>
+              </Link>
+            );
+          })()}
           <span className="text-charcoal-300">/</span>
           <span className="font-bold text-charcoal-800 font-devanagari">
-            {veda?.name || "वेद"}
+            {veda?.name || "ग्रंथ"}
           </span>
           <span className="text-charcoal-300">/</span>
           <span className="text-saffron-700 font-semibold">संरचना ट्री</span>

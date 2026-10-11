@@ -17,6 +17,14 @@ const Veda = sequelize.define(
         notEmpty: true,
       },
     },
+    category: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      defaultValue: "veda",
+      validate: {
+        isIn: [["veda", "purana", "itihasa", "upanishad", "darshana"]],
+      },
+    },
     name: {
       type: DataTypes.STRING(200),
       allowNull: false,

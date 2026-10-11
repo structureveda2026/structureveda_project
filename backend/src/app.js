@@ -99,14 +99,20 @@ app.use("/api/admin/blogs", blogAdminRoutes);
 app.use("/api/library/blogs", blogPublicRoutes);
 app.use("/api/blogs", blogPublicRoutes);
 
-// Veda & Mantra Library Endpoints
+// Veda, Mantra & Grantha Library Endpoints
 app.use("/api/admin/library/vedas", vedaAdminRoutes);
 app.use("/api/admin/vedas", vedaAdminRoutes);
 app.use("/api/admin/library/mantras", vedaMantraAdminRoutes);
 app.use("/api/admin/mantras", vedaMantraAdminRoutes);
+app.use("/api/admin/library", vedaAdminRoutes);
 
 app.use("/api/library", vedaPublicRoutes);
 app.use("/api/vedas", vedaPublicRoutes);
 app.use("/api/mantras", vedaPublicRoutes);
+app.use("/api/granthas", vedaPublicRoutes);
+app.use("/api/puranas", vedaPublicRoutes);
+app.use("/api/itihasas", vedaPublicRoutes);
+app.use("/api/upanishads", vedaPublicRoutes);
+app.use("/api/darshanas", vedaPublicRoutes);
 
 export default app;
