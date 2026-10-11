@@ -121,7 +121,7 @@ export default function PathServiceForm() {
   const isEdit = Boolean(id);
 
   const [purposes, setPurposes] = useState<PathPurpose[]>([]);
-  const [categories, setCategories] = useState<AdminPathCategory[]>([]);
+  const [categories, setCategories] = useState<Array<{ id: string; name: string; slug?: string }>>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [categoriesError, setCategoriesError] = useState("");
   const [loading, setLoading] = useState(isEdit);
@@ -207,10 +207,20 @@ export default function PathServiceForm() {
     };
     const fetchCategories = async () => {
       setCategoriesLoading(true);
+      setCategoriesError("");
       try {
-        const data = await pathCategoryAdminService.getCategories();
+        let list: any[] = [];
+        try {
+          const res: any = await pathServiceCatalogueService.getCategories();
+          list = Array.isArray(res) ? res : (res?.data || []);
+        } catch (catErr) {
+          console.warn("Could not load Path categories from catalogue, trying admin service:", catErr);
+          const res: any = await pathCategoryAdminService.getCategories({ isActive: "true" });
+          list = Array.isArray(res) ? res : (res?.data || []);
+        }
         if (isMounted) {
-          setCategories(data);
+          setCategories(list);
+          setCategoriesError("");
         }
       } catch (err: unknown) {
         console.warn("Could not load Path categories:", err);
@@ -799,7 +809,9 @@ export default function PathServiceForm() {
               disabled={submitting || categoriesLoading}
               className="input-field w-full text-sm bg-white"
             >
-              <option value="">-- Select Category (Optional) --</option>
+              <option value="">
+                {categoriesLoading ? "-- Loading categories... --" : "-- Select Category (Optional) --"}
+              </option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name} ({c.slug})

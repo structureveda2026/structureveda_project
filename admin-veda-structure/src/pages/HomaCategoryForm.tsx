@@ -124,8 +124,8 @@ export default function HomaCategoryForm() {
 
     setImageUploading(true);
     try {
-      const url = await mediaUploadService.uploadImage(file);
-      setForm((prev) => ({ ...prev, image: url }));
+      const uploadRes = await mediaUploadService.uploadImage(file);
+      setForm((prev) => ({ ...prev, image: uploadRes.url }));
       toast.success("Image uploaded successfully.");
     } catch (err: unknown) {
       toast.error((err as Error)?.message || "Failed to upload image.");

@@ -271,6 +271,16 @@ export const getHomaPurposes = async (): Promise<HomaPurpose[]> => {
   return (response.data || []) as HomaPurpose[];
 };
 
+/**
+ * Fetch list of active Homa categories from public API for dynamic category selector.
+ */
+export const getCategories = async (): Promise<
+  { id: string; name: string; slug: string }[]
+> => {
+  const response = await api.get("/homa-categories");
+  return (response.data || []) as { id: string; name: string; slug: string }[];
+};
+
 export default {
   getHomaServices,
   getHomaService,
@@ -278,4 +288,6 @@ export default {
   updateHomaService,
   deleteHomaService,
   getHomaPurposes,
+  getCategories,
 };
+

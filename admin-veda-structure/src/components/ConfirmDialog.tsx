@@ -2,7 +2,8 @@ import { AlertTriangle } from 'lucide-react';
 import Modal from './Modal';
 
 interface ConfirmDialogProps {
-  isOpen: boolean;
+  isOpen?: boolean;
+  open?: boolean;
   onClose?: () => void;
   onCancel?: () => void;
   onConfirm: () => void | Promise<void>;
@@ -11,13 +12,16 @@ interface ConfirmDialogProps {
   confirmText?: string;
   confirmLabel?: string;
   cancelText?: string;
+  cancelLabel?: string;
   danger?: boolean;
   type?: string;
   variant?: string;
+  loading?: boolean;
 }
 
 export default function ConfirmDialog({
   isOpen,
+  open,
   onClose,
   onCancel,
   onConfirm,
@@ -25,17 +29,21 @@ export default function ConfirmDialog({
   message,
   confirmText,
   confirmLabel,
-  cancelText = 'Cancel',
+  cancelText,
+  cancelLabel,
   danger = false,
   type,
   variant,
+  loading = false,
 }: ConfirmDialogProps) {
+  const showOpen = Boolean(typeof isOpen !== 'undefined' ? isOpen : open);
   const handleClose = onClose || onCancel || (() => {});
   const isDanger = danger || type === 'danger' || variant === 'danger';
   const actionText = confirmText || confirmLabel || 'Confirm';
+  const resolvedCancelText = cancelText || cancelLabel || 'Cancel';
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title={title} size="sm">
+    <Modal isOpen={showOpen} onClose={handleClose} title={title} size="sm">
       <div className="flex gap-4">
         <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${isDanger ? 'bg-red-50' : 'bg-saffron-50'}`}>
           <AlertTriangle className={`w-6 h-6 ${isDanger ? 'text-red-500' : 'text-saffron-500'}`} />

@@ -101,7 +101,7 @@ export default function JapaServiceForm() {
   const isEdit = Boolean(id);
 
   const [purposes, setPurposes] = useState<JapaPurpose[]>([]);
-  const [categories, setCategories] = useState<AdminJapaCategory[]>([]);
+  const [categories, setCategories] = useState<Array<{ id: string; name: string; slug?: string }>>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [categoriesError, setCategoriesError] = useState("");
   const [loading, setLoading] = useState(isEdit);
@@ -202,12 +202,24 @@ export default function JapaServiceForm() {
   useEffect(() => {
     let isMounted = true;
     setCategoriesLoading(true);
-    japaCategoryAdminService
-      .getCategories({ isActive: "true" })
-      .then((res) => {
+    setCategoriesError("");
+    japaServiceCatalogueService
+      .getCategories()
+      .then((res: any) => {
         if (isMounted) {
-          setCategories(res.data || []);
+          const list = Array.isArray(res) ? res : (res?.data || []);
+          setCategories(list);
         }
+      })
+      .catch((err) => {
+        console.warn("Could not load Japa categories from catalogue, trying admin service:", err);
+        return japaCategoryAdminService.getCategories({ isActive: "true" })
+          .then((res: any) => {
+            if (isMounted) {
+              const list = Array.isArray(res) ? res : (res?.data || []);
+              setCategories(list);
+            }
+          });
       })
       .catch((err) => {
         console.warn("Could not load Japa categories:", err);

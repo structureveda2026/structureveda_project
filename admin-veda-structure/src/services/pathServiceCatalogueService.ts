@@ -320,6 +320,16 @@ export const getPathPurposes = async (): Promise<PathPurpose[]> => {
   return (response.data || []) as PathPurpose[];
 };
 
+/**
+ * Fetch list of active Path categories from public API for dynamic category selector.
+ */
+export const getCategories = async (): Promise<
+  { id: string; name: string; slug: string }[]
+> => {
+  const response = await api.get("/path-categories");
+  return (response.data || []) as { id: string; name: string; slug: string }[];
+};
+
 export default {
   getPathServices,
   getPathService,
@@ -327,4 +337,6 @@ export default {
   updatePathService,
   deletePathService,
   getPathPurposes,
+  getCategories,
 };
+
