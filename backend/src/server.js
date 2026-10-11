@@ -12,15 +12,25 @@ import upcomingPujaRoutes from "./routes/upcomingPuja.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 import pujaServiceRoutes from "./routes/pujaService.routes.js";
 import pujaServiceAdminRoutes from "./routes/pujaServiceAdmin.routes.js";
+import pujaCategoryRoutes from "./routes/pujaCategory.routes.js";
+import pujaCategoryAdminRoutes from "./routes/pujaCategoryAdmin.routes.js";
 import ritualBookingRoutes from "./routes/ritualBooking.routes.js";
 import yagyaServiceRoutes from "./routes/yagyaService.routes.js";
 import yagyaServiceAdminRoutes from "./routes/yagyaServiceAdmin.routes.js";
+import yagyaCategoryRoutes from "./routes/yagyaCategory.routes.js";
+import yagyaCategoryAdminRoutes from "./routes/yagyaCategoryAdmin.routes.js";
 import japaServiceRoutes from "./routes/japaService.routes.js";
 import japaServiceAdminRoutes from "./routes/japaServiceAdmin.routes.js";
+import japaCategoryRoutes from "./routes/japaCategory.routes.js";
+import japaCategoryAdminRoutes from "./routes/japaCategoryAdmin.routes.js";
 import homaServiceRoutes from "./routes/homaService.routes.js";
 import homaServiceAdminRoutes from "./routes/homaServiceAdmin.routes.js";
+import homaCategoryRoutes from "./routes/homaCategory.routes.js";
+import homaCategoryAdminRoutes from "./routes/homaCategoryAdmin.routes.js";
 import pathServiceRoutes from "./routes/pathService.routes.js";
 import pathServiceAdminRoutes from "./routes/pathServiceAdmin.routes.js";
+import pathCategoryRoutes from "./routes/pathCategory.routes.js";
+import pathCategoryAdminRoutes from "./routes/pathCategoryAdmin.routes.js";
 import {
   blogAdminRoutes,
   blogPublicRoutes,
@@ -64,15 +74,25 @@ app.use("/api/upcoming-pujas", upcomingPujaRoutes);
 app.use("/api/admin/uploads", uploadRoutes);
 app.use("/api/puja-services", pujaServiceRoutes);
 app.use("/api/admin/puja-services", pujaServiceAdminRoutes);
+app.use("/api/puja-categories", pujaCategoryRoutes);
+app.use("/api/admin/puja-categories", pujaCategoryAdminRoutes);
 app.use("/api/ritual-bookings", ritualBookingRoutes);
 app.use("/api/yagya-services", yagyaServiceRoutes);
 app.use("/api/admin/yagya-services", yagyaServiceAdminRoutes);
+app.use("/api/yagya-categories", yagyaCategoryRoutes);
+app.use("/api/admin/yagya-categories", yagyaCategoryAdminRoutes);
 app.use("/api/japa-services", japaServiceRoutes);
 app.use("/api/admin/japa-services", japaServiceAdminRoutes);
+app.use("/api/japa-categories", japaCategoryRoutes);
+app.use("/api/admin/japa-categories", japaCategoryAdminRoutes);
 app.use("/api/homa-services", homaServiceRoutes);
 app.use("/api/admin/homa-services", homaServiceAdminRoutes);
+app.use("/api/homa-categories", homaCategoryRoutes);
+app.use("/api/admin/homa-categories", homaCategoryAdminRoutes);
 app.use("/api/path-services", pathServiceRoutes);
 app.use("/api/admin/path-services", pathServiceAdminRoutes);
+app.use("/api/path-categories", pathCategoryRoutes);
+app.use("/api/admin/path-categories", pathCategoryAdminRoutes);
 
 // Library Module Endpoints (Blogs, Vedas, Mantras)
 app.use("/api/admin/library/blogs", blogAdminRoutes);

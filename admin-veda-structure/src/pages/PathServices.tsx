@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   Plus,
   Eye,
@@ -15,7 +15,6 @@ import {
   Globe,
   Users,
   Calendar,
-  Clock,
   Scroll,
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
@@ -25,7 +24,11 @@ import StatusBadge from "@/components/StatusBadge";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import EmptyState from "@/components/EmptyState";
 import Pagination from "@/components/Pagination";
+import PathCategoryIcon from "@/components/PathCategoryIcon";
 import { useToast } from "@/context/ToastContext";
+import pathCategoryAdminService, {
+  AdminPathCategory,
+} from "@/services/pathCategoryAdminService";
 import pathServiceCatalogueService, {
   AdminPathServiceListingItem,
   PathPurpose,
@@ -96,15 +99,20 @@ function ServiceThumbnail({
 
 export default function PathServices() {
   const toast = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [services, setServices] = useState<AdminPathServiceListingItem[]>([]);
   const [purposes, setPurposes] = useState<PathPurpose[]>([]);
+  const [categories, setCategories] = useState<AdminPathCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isAdminAccessError, setIsAdminAccessError] = useState(false);
 
   // Filters state
   const [search, setSearch] = useState("");
+  const [categorySlug, setCategorySlug] = useState<string>(
+    searchParams.get("category") || ""
+  );
   const [purposeSlug, setPurposeSlug] = useState("");
   const [status, setStatus] = useState("");
   const [featured, setFeatured] = useState("");
@@ -117,7 +125,16 @@ export default function PathServices() {
   const [deactivateTarget, setDeactivateTarget] = useState<AdminPathServiceListingItem | null>(null);
   const [deactivating, setDeactivating] = useState(false);
 
-  // Load dynamic purpose categories from API
+  // Sync category state if URL parameter changes externally
+  useEffect(() => {
+    const urlCategory = searchParams.get("category") || "";
+    if (urlCategory !== categorySlug) {
+      setCategorySlug(urlCategory);
+      setPage(1);
+    }
+  }, [searchParams, categorySlug]);
+
+  // Load dynamic purpose categories and Path categories from API
   useEffect(() => {
     let isMounted = true;
     const fetchPurposes = async () => {
@@ -130,7 +147,18 @@ export default function PathServices() {
         console.warn("Could not load Path purposes:", err);
       }
     };
+    const fetchCategories = async () => {
+      try {
+        const data = await pathCategoryAdminService.getCategories();
+        if (isMounted) {
+          setCategories(data);
+        }
+      } catch (err) {
+        console.warn("Could not load Path categories:", err);
+      }
+    };
     fetchPurposes();
+    fetchCategories();
     return () => {
       isMounted = false;
     };
@@ -143,6 +171,7 @@ export default function PathServices() {
     try {
       const filters: PathServiceFilters = { page, limit: 15, sortBy };
       if (search.trim()) filters.search = search.trim();
+      if (categorySlug) filters.category = categorySlug;
       if (purposeSlug) filters.purpose = purposeSlug;
       if (status !== "") filters.isActive = status;
       if (featured !== "") filters.isFeatured = featured;
@@ -166,7 +195,7 @@ export default function PathServices() {
     } finally {
       setLoading(false);
     }
-  }, [search, purposeSlug, status, featured, sortBy, page, toast]);
+  }, [search, categorySlug, purposeSlug, status, featured, sortBy, page, toast]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -175,8 +204,22 @@ export default function PathServices() {
     return () => clearTimeout(timer);
   }, [loadServices]);
 
+  // Category change handler with URL sync
+  const handleCategoryChange = (slug: string) => {
+    setCategorySlug(slug);
+    setPage(1);
+    const newParams = new URLSearchParams(searchParams);
+    if (slug) {
+      newParams.set("category", slug);
+    } else {
+      newParams.delete("category");
+    }
+    setSearchParams(newParams, { replace: true });
+  };
+
   const handleResetFilters = () => {
     setSearch("");
+    handleCategoryChange("");
     setPurposeSlug("");
     setStatus("");
     setFeatured("");
@@ -186,6 +229,7 @@ export default function PathServices() {
 
   const hasActiveFilters =
     Boolean(search) ||
+    Boolean(categorySlug) ||
     Boolean(purposeSlug) ||
     status !== "" ||
     featured !== "" ||
@@ -237,6 +281,25 @@ export default function PathServices() {
     ],
     [purposes],
   );
+
+  // Category options dynamically built from API
+  const categoryOptions = useMemo(
+    () => [
+      { label: "All Categories", value: "" },
+      ...categories.map((c) => ({ label: c.name, value: c.slug })),
+    ],
+    [categories],
+  );
+
+  // Category map for fast lookup by ID or slug
+  const categoryMap = useMemo(() => {
+    const map = new Map<string, AdminPathCategory>();
+    for (const c of categories) {
+      map.set(c.id, c);
+      map.set(c.slug, c);
+    }
+    return map;
+  }, [categories]);
 
   return (
     <div className="space-y-6">
@@ -300,6 +363,12 @@ export default function PathServices() {
               placeholder="Search by name, scripture, slug, or purpose..."
             />
           </div>
+          <FilterDropdown
+            value={categorySlug}
+            onChange={handleCategoryChange}
+            options={categoryOptions}
+            label="Category"
+          />
           <FilterDropdown
             value={purposeSlug}
             onChange={(v) => {
@@ -427,6 +496,7 @@ export default function PathServices() {
                 <tr className="bg-cream-50 text-charcoal-400 text-xs uppercase tracking-wider border-b border-cream-200">
                   <th className="text-left px-5 py-3.5 font-semibold">Image</th>
                   <th className="text-left px-5 py-3.5 font-semibold">Service</th>
+                  <th className="text-left px-5 py-3.5 font-semibold">Category</th>
                   <th className="text-left px-5 py-3.5 font-semibold">Scripture</th>
                   <th className="text-left px-5 py-3.5 font-semibold">Purpose</th>
                   <th className="text-left px-5 py-3.5 font-semibold">Formats & Schedule</th>
@@ -470,6 +540,33 @@ export default function PathServices() {
                       <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded bg-cream-100 text-charcoal-600 font-medium">
                         {item.pathType || "Vedic Path"}
                       </span>
+                    </td>
+
+                    {/* Category */}
+                    <td className="px-5 py-3.5 whitespace-nowrap">
+                      {(() => {
+                        const assignedCat =
+                          (item.categoryId && categoryMap.get(item.categoryId)) ||
+                          (item.categorySlug && categoryMap.get(item.categorySlug)) ||
+                          item.category;
+                        return assignedCat ? (
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-5 h-5 rounded-md bg-saffron-50 border border-saffron-100 flex items-center justify-center text-saffron-600 flex-shrink-0">
+                              <PathCategoryIcon
+                                iconName={assignedCat.iconName}
+                                className="w-3 h-3 text-saffron-600"
+                              />
+                            </span>
+                            <span className="font-medium text-xs text-charcoal-800">
+                              {assignedCat.name}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-charcoal-100 text-charcoal-500">
+                            Uncategorized
+                          </span>
+                        );
+                      })()}
                     </td>
 
                     {/* 3. Scripture */}

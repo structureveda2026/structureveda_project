@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import {
   Clock,
   Calendar,
@@ -77,15 +77,18 @@ const mapToCanonicalMode = (rawMode) => {
 
 /**
  * Calculates Yagya completion date (start date + days - 1)
+ * Uses strict UTC date calculation to eliminate browser timezone shift.
  */
 const calculateCompletionDate = (startDateStr, daysCount) => {
-  if (!startDateStr || !daysCount || daysCount < 1) return "";
+  if (!startDateStr || !daysCount || Number(daysCount) < 1) return "";
   try {
-    const start = new Date(startDateStr);
-    if (isNaN(start.getTime())) return "";
-    const end = new Date(start);
-    end.setDate(start.getDate() + (Number(daysCount) - 1));
-    return end.toISOString().split("T")[0];
+    const parts = String(startDateStr).split("-").map(Number);
+    if (parts.length !== 3 || parts.some(isNaN)) return "";
+    const [year, month, day] = parts;
+    const d = new Date(Date.UTC(year, month - 1, day));
+    if (isNaN(d.getTime())) return "";
+    d.setUTCDate(d.getUTCDate() + (Number(daysCount) - 1));
+    return d.toISOString().split("T")[0];
   } catch {
     return "";
   }
@@ -133,6 +136,31 @@ const StepConfigurationYagya = () => {
     return list.length > 0 ? list : ["kashi", "remote"];
   }, [service]);
 
+  const selectedDays = Number(configuration.days) || availableDurations[0] || 3;
+
+  // Active pricing tier for currently selected duration
+  const currentTier = useMemo(() => {
+    if (Array.isArray(service?.pricingTiers)) {
+      return service.pricingTiers.find((t) => Number(t.days) === selectedDays) || null;
+    }
+    return null;
+  }, [service, selectedDays]);
+
+  // The package/tier dictates the authoritative pandit count
+  const currentTierPandits = useMemo(() => {
+    if (currentTier?.panditCount) {
+      return Number(currentTier.panditCount);
+    }
+    return minPandits;
+  }, [currentTier, minPandits]);
+
+  // Keep panditCount bounded to currentTierPandits if stale or exceeds tier
+  useEffect(() => {
+    if (currentTierPandits && Number(configuration.panditCount) > currentTierPandits) {
+      updateConfiguration({ panditCount: currentTierPandits });
+    }
+  }, [currentTierPandits, configuration.panditCount, updateConfiguration]);
+
   // Handle duration selection
   const handleDurationSelect = (daysCount) => {
     const numDays = Number(daysCount);
@@ -144,9 +172,9 @@ const StepConfigurationYagya = () => {
       matchedTier = service.pricingTiers.find((t) => Number(t.days) === numDays) || null;
     }
 
-    const currentPandits = Number(configuration.panditCount) || minPandits;
     const tierPandits = matchedTier?.panditCount ? Number(matchedTier.panditCount) : minPandits;
-    const targetPandits = Math.max(currentPandits, tierPandits, minPandits);
+    // Selected duration's pricing tier is authoritative for pandit count
+    const targetPandits = tierPandits;
 
     const compDate = configuration.bookingDate
       ? calculateCompletionDate(configuration.bookingDate, numDays)
@@ -173,10 +201,12 @@ const StepConfigurationYagya = () => {
     });
   };
 
-  // Handle pandit count adjustment
+  // Handle pandit count adjustment (bounded strictly by package tier and minimum)
   const handlePanditIncrement = () => {
     const current = Number(configuration.panditCount) || minPandits;
-    updateConfiguration({ panditCount: current + 1 });
+    if (current < currentTierPandits) {
+      updateConfiguration({ panditCount: current + 1 });
+    }
   };
 
   const handlePanditDecrement = () => {
@@ -194,23 +224,26 @@ const StepConfigurationYagya = () => {
     });
   };
 
-  // Format date helper for completion preview
+  // Format date helper for completion preview (timezone-safe)
   const formatFriendlyDate = (dateStr) => {
     if (!dateStr) return "";
     try {
-      const d = new Date(dateStr);
+      const parts = String(dateStr).split("-").map(Number);
+      if (parts.length !== 3 || parts.some(isNaN)) return dateStr;
+      const [year, month, day] = parts;
+      const d = new Date(Date.UTC(year, month - 1, day));
       return d.toLocaleDateString("en-IN", {
         weekday: "short",
         day: "numeric",
         month: "short",
         year: "numeric",
+        timeZone: "UTC",
       });
     } catch {
       return dateStr;
     }
   };
 
-  const selectedDays = Number(configuration.days) || availableDurations[0] || 3;
   const currentTotalHours = selectedDays * dailyHours;
 
   return (
@@ -443,7 +476,7 @@ const StepConfigurationYagya = () => {
             <span className="text-red-500">*</span>
           </label>
           <span className="rounded-full bg-[#f8edd8] px-2.5 py-0.5 text-[11px] font-bold text-[#b36c1e]">
-            Min {minPandits} Required
+            {currentTierPandits} Scholars for {selectedDays}-Day Package
           </span>
         </div>
 
@@ -453,17 +486,20 @@ const StepConfigurationYagya = () => {
               type="button"
               onClick={handlePanditDecrement}
               disabled={(Number(configuration.panditCount) || minPandits) <= minPandits}
+              aria-label="Decrease Vedic scholar count"
               className="flex h-11 w-11 items-center justify-center rounded-l-xl text-[18px] font-bold text-[#5c4e3f] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#faf4e8] transition"
             >
               −
             </button>
             <div className="flex h-11 w-14 items-center justify-center font-serif text-[18px] font-bold text-[#2b241d]">
-              {configuration.panditCount || minPandits}
+              {configuration.panditCount || currentTierPandits}
             </div>
             <button
               type="button"
               onClick={handlePanditIncrement}
-              className="flex h-11 w-11 items-center justify-center rounded-r-xl text-[18px] font-bold text-[#5c4e3f] hover:bg-[#faf4e8] transition cursor-pointer"
+              disabled={(Number(configuration.panditCount) || minPandits) >= currentTierPandits}
+              aria-label="Increase Vedic scholar count"
+              className="flex h-11 w-11 items-center justify-center rounded-r-xl text-[18px] font-bold text-[#5c4e3f] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#faf4e8] transition cursor-pointer"
             >
               +
             </button>
@@ -471,12 +507,11 @@ const StepConfigurationYagya = () => {
 
           <div className="flex-1 text-[12.5px] text-[#685c4f]">
             <p className="font-semibold text-[#2b241d]">
-              {configuration.panditCount || minPandits} Learned Vedic Scholars
+              {configuration.panditCount || currentTierPandits} Learned Vedic Scholars
               {service?.panditRequirement?.leadAcharya ? " (Includes 1 Presiding Acharya)" : ""}
             </p>
             <p className="mt-0.5 text-[#8a7c6b]">
-              Minimum {minPandits} Acharyas required to maintain continuous four-veda recital
-              and simultaneous Ahuti offering.
+              Fixed {currentTierPandits} Acharyas prescribed for the {selectedDays}-day package to maintain continuous four-veda recital and simultaneous Ahuti offering.
             </p>
             {Array.isArray(service?.panditRequirement?.roles) &&
               service.panditRequirement.roles.length > 0 && (

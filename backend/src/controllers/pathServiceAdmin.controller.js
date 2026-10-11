@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import { PathService, PathPurpose } from "../models/index.js";
+import { PathService, PathPurpose, PathCategory } from "../models/index.js";
 import {
   serializeAdminPathServiceListing,
   serializeAdminPathServiceDetail,
@@ -202,6 +202,7 @@ export const getAdminPathServices = async (req, res) => {
     const {
       search,
       purpose,
+      category,
       isActive,
       status,
       isFeatured,
@@ -296,6 +297,27 @@ export const getAdminPathServices = async (req, res) => {
       }
     }
 
+    const categoryInclude = {
+      model: PathCategory,
+      as: "categoryDetails",
+      required: false,
+    };
+
+    if (category && String(category).trim() && String(category).trim().toLowerCase() !== "all") {
+      const catParam = String(category).trim();
+      if (isValidUUID(catParam)) {
+        where.categoryId = catParam;
+      } else {
+        const lowerSlug = catParam.toLowerCase();
+        const matchedCategory = await PathCategory.findOne({ where: { slug: lowerSlug } });
+        if (matchedCategory) {
+          where.categoryId = matchedCategory.id;
+        } else {
+          where.categoryId = "00000000-0000-0000-0000-000000000000";
+        }
+      }
+    }
+
     let order = [["created_at", "DESC"]];
     switch (sortBy) {
       case "created-oldest":
@@ -324,7 +346,7 @@ export const getAdminPathServices = async (req, res) => {
     const offset = (pageNum - 1) * limitNum;
     const { count, rows } = await PathService.findAndCountAll({
       where,
-      include: [purposeInclude],
+      include: [purposeInclude, categoryInclude],
       order,
       limit: limitNum,
       offset,
@@ -375,6 +397,11 @@ export const getAdminPathServiceById = async (req, res) => {
           as: "purposeDetails",
           required: false,
         },
+        {
+          model: PathCategory,
+          as: "categoryDetails",
+          required: false,
+        },
       ],
     });
 
@@ -417,6 +444,7 @@ export const createAdminPathService = async (req, res) => {
       purposeSummary,
       purposeCategory,
       purposeCategories = [],
+      categoryId,
       availableFormats,
       availableDurations = [],
       chapterStructure,
@@ -519,6 +547,25 @@ export const createAdminPathService = async (req, res) => {
       if (!resolvedPurposeCategories.includes(purposeRecord.slug)) {
         resolvedPurposeCategories.unshift(purposeRecord.slug);
       }
+    }
+
+    // 3b. Category Resolution
+    let resolvedCategoryId = null;
+    if (typeof categoryId !== "undefined" && categoryId !== null && categoryId !== "") {
+      if (!isValidUUID(categoryId)) {
+        return res.status(400).json({
+          success: false,
+          message: "categoryId must be a valid UUID.",
+        });
+      }
+      const categoryRecord = await PathCategory.findByPk(categoryId);
+      if (!categoryRecord) {
+        return res.status(404).json({
+          success: false,
+          message: `Category with id '${categoryId}' does not exist.`,
+        });
+      }
+      resolvedCategoryId = categoryRecord.id;
     }
 
     // 4. Formats Validation
@@ -686,6 +733,7 @@ export const createAdminPathService = async (req, res) => {
       purposeSummary: purposeSummary ? String(purposeSummary).trim() : null,
       purposeCategory: resolvedPurposeCategory,
       purposeCategories: resolvedPurposeCategories,
+      categoryId: resolvedCategoryId,
       availableFormats,
       availableDurations: Array.isArray(availableDurations) ? availableDurations : [],
       chapterStructure: chapterStructure ? String(chapterStructure).trim() : null,
@@ -723,6 +771,11 @@ export const createAdminPathService = async (req, res) => {
         {
           model: PathPurpose,
           as: "purposeDetails",
+          required: false,
+        },
+        {
+          model: PathCategory,
+          as: "categoryDetails",
           required: false,
         },
       ],
@@ -778,6 +831,7 @@ export const updateAdminPathService = async (req, res) => {
       purposeSummary,
       purposeCategory,
       purposeCategories,
+      categoryId,
       availableFormats,
       availableDurations,
       chapterStructure,
@@ -875,6 +929,25 @@ export const updateAdminPathService = async (req, res) => {
         if (Array.isArray(service.purposeCategories) && !service.purposeCategories.includes(purposeRecord.slug)) {
           service.purposeCategories = [purposeRecord.slug, ...service.purposeCategories];
         }
+      }
+    }
+
+    // 3b. Category Resolution
+    if (typeof categoryId !== "undefined") {
+      if (categoryId === null || categoryId === "") {
+        service.categoryId = null;
+      } else {
+        if (!isValidUUID(categoryId)) {
+          return res.status(400).json({ success: false, message: "categoryId must be a valid UUID." });
+        }
+        const categoryRecord = await PathCategory.findByPk(categoryId);
+        if (!categoryRecord) {
+          return res.status(404).json({
+            success: false,
+            message: `Category with id '${categoryId}' does not exist.`,
+          });
+        }
+        service.categoryId = categoryRecord.id;
       }
     }
 
@@ -1062,7 +1135,10 @@ export const updateAdminPathService = async (req, res) => {
     await service.save();
 
     const reloaded = await PathService.findByPk(id, {
-      include: [{ model: PathPurpose, as: "purposeDetails", required: false }],
+      include: [
+        { model: PathPurpose, as: "purposeDetails", required: false },
+        { model: PathCategory, as: "categoryDetails", required: false },
+      ],
     });
 
     return res.status(200).json({

@@ -25,13 +25,15 @@ import {
   Package,
   Gift,
 } from "lucide-react";
-import PageHeader from "@/components/PageHeader";
 import { useToast } from "@/context/ToastContext";
 import mediaUploadService from "@/services/mediaUploadService";
 import homaServiceCatalogueService, {
   HomaPurpose,
   HomaServicePayload,
 } from "@/services/homaServiceCatalogueService";
+import homaCategoryAdminService, {
+  AdminHomaCategory,
+} from "@/services/homaCategoryAdminService";
 
 const slugify = (str: string): string =>
   str
@@ -61,6 +63,7 @@ interface FormState {
   homaType: string;
   shortDescription: string;
   description: string;
+  categoryId: string;
   purposeId: string;
   purposeSummary: string;
   purposeCategory: string;
@@ -108,6 +111,9 @@ export default function HomaServiceForm() {
   const isEdit = Boolean(id);
 
   const [purposes, setPurposes] = useState<HomaPurpose[]>([]);
+  const [categories, setCategories] = useState<AdminHomaCategory[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+  const [categoriesError, setCategoriesError] = useState("");
   const [loading, setLoading] = useState(isEdit);
   const [submitting, setSubmitting] = useState(false);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
@@ -131,6 +137,7 @@ export default function HomaServiceForm() {
     homaType: "Vedic Homa",
     shortDescription: "",
     description: "",
+    categoryId: "",
     purposeId: "",
     purposeSummary: "",
     purposeCategory: "",
@@ -176,7 +183,7 @@ export default function HomaServiceForm() {
     ],
   });
 
-  // 1. Load Purpose classifications dynamically
+  // 1. Load Purpose and Category classifications dynamically
   useEffect(() => {
     let isMounted = true;
     homaServiceCatalogueService
@@ -204,6 +211,26 @@ export default function HomaServiceForm() {
       .catch((err) => {
         console.warn("Could not load Homa purposes:", err);
       });
+
+    setCategoriesLoading(true);
+    homaCategoryAdminService
+      .getCategories({ isActive: "true" })
+      .then((catData) => {
+        if (isMounted) {
+          setCategories(catData || []);
+          setCategoriesError("");
+        }
+      })
+      .catch((catErr) => {
+        console.warn("Could not load Homa categories:", catErr);
+        if (isMounted) {
+          setCategoriesError("Failed to load Homa categories.");
+        }
+      })
+      .finally(() => {
+        if (isMounted) setCategoriesLoading(false);
+      });
+
     return () => {
       isMounted = false;
     };
@@ -223,6 +250,7 @@ export default function HomaServiceForm() {
           homaType: data.homaType || "Vedic Homa",
           shortDescription: data.shortDescription || "",
           description: data.description || "",
+          categoryId: data.categoryId || "",
           purposeId: data.purposeId || "",
           purposeSummary: data.purposeSummary || "",
           purposeCategory: data.purposeCategory || "",
@@ -591,6 +619,7 @@ export default function HomaServiceForm() {
         shortDescription: form.shortDescription.trim() || null,
         description: form.description.trim() || null,
         purposeId: form.purposeId || null,
+        categoryId: form.categoryId ? form.categoryId : null,
         purposeSummary: form.purposeSummary.trim() || null,
         purposeCategory: form.purposeCategory.trim() || null,
         purposeCategories: form.purposeCategories,
@@ -795,16 +824,42 @@ export default function HomaServiceForm() {
           </div>
         </div>
 
-        {/* Section 2: Purpose & Classification */}
+        {/* Section 2: Category & Purpose Classification */}
         <div className="card p-5">
           <h3 className="text-base font-semibold text-charcoal-800 flex items-center gap-2 mb-4 pb-2 border-b border-cream-100">
-            <Tag className="w-4 h-4 text-saffron-600" /> 2. Purpose & Spiritual Benefits
+            <Tag className="w-4 h-4 text-saffron-600" /> 2. Category & Purpose Classification
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
+              <label htmlFor="homa-category" className="label-field">
+                Homa Category (Deity / Tradition)
+              </label>
+              <select
+                id="homa-category"
+                className="input-field"
+                value={form.categoryId}
+                onChange={(e) => setForm((p) => ({ ...p, categoryId: e.target.value }))}
+                disabled={submitting || categoriesLoading}
+              >
+                <option value="">Select Category (Optional)</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name} ({c.slug})
+                  </option>
+                ))}
+              </select>
+              {categoriesError && (
+                <p className="text-xs text-red-500 mt-1">{categoriesError}</p>
+              )}
+              <p className="text-xs text-charcoal-500 mt-1">
+                Assigns this service to a canonical Vedic fire tradition/deity category.
+              </p>
+            </div>
+
+            <div>
               <label htmlFor="homa-purpose" className="label-field">
-                Primary Purpose Category
+                Primary Purpose (Spiritual Intention / Sankalpa)
               </label>
               <select
                 id="homa-purpose"
@@ -820,6 +875,9 @@ export default function HomaServiceForm() {
                   </option>
                 ))}
               </select>
+              <p className="text-xs text-charcoal-500 mt-1">
+                Spiritual goal/intention (independent from Category).
+              </p>
             </div>
 
             <div>

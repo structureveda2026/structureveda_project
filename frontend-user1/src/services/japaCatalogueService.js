@@ -1,6 +1,5 @@
 import api from "./api.js";
 import {
-  JAPA_CATALOGUE_LIST,
   JAPA_PURPOSE_CATEGORIES,
 } from "../features/yagyaPuja/data/japaCatalogueData.js";
 
@@ -16,7 +15,6 @@ import pujaKashiImg from "../assets/images/puja-kashi.jpg";
 import malaImg from "../assets/images/p-mala.jpg";
 import mantraImg from "../assets/images/c-mantra.jpg";
 import rudrakshaImg from "../assets/images/p-rudraksha.jpg";
-import samagriImg from "../assets/images/p-samagri.jpg";
 
 /**
  * Slug to fallback image lookup
@@ -96,6 +94,13 @@ export const mapApiJapaServiceToUi = (item) => {
     purposeCategories: Array.isArray(item.purposeCategories) && item.purposeCategories.length > 0
       ? item.purposeCategories
       : [item.purposeCategory || "shanti-wellbeing"],
+    categoryId: item.categoryId || null,
+    category: item.category || (item.categoryDetails ? {
+      id: item.categoryDetails.id,
+      name: item.categoryDetails.name,
+      slug: item.categoryDetails.slug,
+      description: item.categoryDetails.description || null,
+    } : null),
     availableCounts,
     variants,
     dailyCapacityPerPandit: Number(item.dailyCapacityPerPandit) || 2000,
@@ -149,6 +154,10 @@ export const getJapaServices = async (filterParams = {}) => {
 
     if (filterParams.search && String(filterParams.search).trim()) {
       query.search = String(filterParams.search).trim();
+    }
+
+    if (filterParams.category && filterParams.category !== "All" && filterParams.category !== "All Categories") {
+      query.category = String(filterParams.category).trim().toLowerCase();
     }
 
     if (filterParams.purpose && filterParams.purpose !== "All" && filterParams.purpose !== "All Purposes") {
@@ -229,6 +238,65 @@ export const getJapaServiceBySlug = async (slug) => {
   }
 };
 
+let cachedJapaCategories = null;
+let japaCategoriesPromise = null;
+
+/**
+ * Fetches active Japa categories from GET /api/japa-categories with in-memory session caching
+ */
+export const getJapaCategories = async (forceRefresh = false) => {
+  if (cachedJapaCategories && !forceRefresh) {
+    return cachedJapaCategories;
+  }
+
+  if (!japaCategoriesPromise || forceRefresh) {
+    japaCategoriesPromise = api
+      .get("/japa-categories")
+      .then((response) => {
+        const payload = response.data;
+        if (payload && payload.success && Array.isArray(payload.data)) {
+          const sorted = [...payload.data].sort(
+            (a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)
+          );
+          cachedJapaCategories = sorted;
+          return sorted;
+        }
+        return [];
+      })
+      .catch((error) => {
+        japaCategoriesPromise = null;
+        console.error("Failed to fetch japa categories:", error);
+        throw error;
+      });
+  }
+
+  return japaCategoriesPromise;
+};
+
+/**
+ * Fetches a single public Japa category by slug from GET /api/japa-categories/:slug
+ */
+export const getJapaCategoryBySlug = async (slug) => {
+  if (!slug) return null;
+
+  try {
+    const cleanSlug = String(slug).trim().toLowerCase();
+    const response = await api.get(`/japa-categories/${encodeURIComponent(cleanSlug)}`);
+    const payload = response.data;
+
+    if (payload && payload.success && payload.data) {
+      return payload.data;
+    }
+    return null;
+  } catch (error) {
+    if (error.response?.status === 404) {
+      return null;
+    }
+    console.error(`Failed to fetch japa category by slug (${slug}):`, error);
+    throw error;
+  }
+};
+
 /**
  * Fetches public Japa purpose categories from GET /api/japa-services/purposes
  */
@@ -249,6 +317,8 @@ export const getJapaPurposes = async () => {
 const japaCatalogueService = {
   getJapaServices,
   getJapaServiceBySlug,
+  getJapaCategories,
+  getJapaCategoryBySlug,
   getJapaPurposes,
   mapApiJapaServiceToUi,
   mapApiJapaServiceDetailToUi,

@@ -54,6 +54,11 @@ const PujaService = sequelize.define(
       allowNull: true,
       field: "purpose_id",
     },
+    categoryId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      field: "category_id",
+    },
     purposeSummary: {
       type: DataTypes.STRING(255),
       allowNull: true,

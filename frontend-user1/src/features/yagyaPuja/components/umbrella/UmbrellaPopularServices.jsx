@@ -1,7 +1,9 @@
-import { ArrowRight, Clock, Sparkles, MapPin } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowRight, Clock, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { PUJA_CATALOGUE_LIST } from "../../data/pujaCatalogueData";
 import { YAGYA_CATALOGUE_LIST } from "../../data/yagyaCatalogueData";
+import yagyaCatalogueService from "../../../../services/yagyaCatalogueService";
 
 /**
  * SECTION 5: POPULAR PUJA + POPULAR YAGYA
@@ -11,8 +13,28 @@ const UmbrellaPopularServices = () => {
   // Derive popular pujas (first 4 items with isFeatured or active)
   const popularPujas = PUJA_CATALOGUE_LIST.slice(0, 4);
 
-  // Derive popular yagyas (first 4 items)
-  const popularYagyas = YAGYA_CATALOGUE_LIST.slice(0, 4);
+  // Derive popular yagyas (maximum 6 items)
+  const [popularYagyas, setPopularYagyas] = useState(() =>
+    YAGYA_CATALOGUE_LIST.slice(0, 6)
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+    yagyaCatalogueService
+      .getYagyaServices({ isFeatured: true, limit: 6 })
+      .then((res) => {
+        if (isMounted && res?.services?.length > 0) {
+          setPopularYagyas(res.services.slice(0, 6));
+        }
+      })
+      .catch((err) => {
+        console.error("Could not load popular yagyas for umbrella landing:", err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <section className="relative border-b border-[#ebdcc4] bg-[#fffcf7] px-5 py-16 sm:px-8 sm:py-20 lg:px-12">

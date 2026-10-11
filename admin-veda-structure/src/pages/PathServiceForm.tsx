@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   Save,
@@ -9,7 +9,6 @@ import {
   X,
   Clock,
   Users,
-  Sparkles,
   Scroll,
   BookOpen,
   Globe,
@@ -21,10 +20,8 @@ import {
   Calendar,
   Layers,
   HelpCircle,
-  Shield,
   Tag,
   Package,
-  Gift,
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { useToast } from "@/context/ToastContext";
@@ -35,6 +32,9 @@ import pathServiceCatalogueService, {
   PATH_FORMAT_LABELS,
   PathFormatType,
 } from "@/services/pathServiceCatalogueService";
+import pathCategoryAdminService, {
+  AdminPathCategory,
+} from "@/services/pathCategoryAdminService";
 
 const slugify = (str: string): string =>
   str
@@ -62,6 +62,7 @@ interface FormState {
   slug: string;
   pathType: string;
   scripture: string;
+  categoryId: string;
   shortDescription: string;
   description: string;
   purposeId: string;
@@ -120,6 +121,9 @@ export default function PathServiceForm() {
   const isEdit = Boolean(id);
 
   const [purposes, setPurposes] = useState<PathPurpose[]>([]);
+  const [categories, setCategories] = useState<AdminPathCategory[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+  const [categoriesError, setCategoriesError] = useState("");
   const [loading, setLoading] = useState(isEdit);
   const [submitting, setSubmitting] = useState(false);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
@@ -141,6 +145,7 @@ export default function PathServiceForm() {
     slug: "",
     pathType: "Vedic Path",
     scripture: "",
+    categoryId: "",
     shortDescription: "",
     description: "",
     purposeId: "",
@@ -200,7 +205,22 @@ export default function PathServiceForm() {
         console.warn("Could not load Path purposes:", err);
       }
     };
+    const fetchCategories = async () => {
+      setCategoriesLoading(true);
+      try {
+        const data = await pathCategoryAdminService.getCategories();
+        if (isMounted) {
+          setCategories(data);
+        }
+      } catch (err: unknown) {
+        console.warn("Could not load Path categories:", err);
+        if (isMounted) setCategoriesError("Unable to load Path categories.");
+      } finally {
+        if (isMounted) setCategoriesLoading(false);
+      }
+    };
     fetchPurposes();
+    fetchCategories();
     return () => {
       isMounted = false;
     };
@@ -218,6 +238,7 @@ export default function PathServiceForm() {
           slug: data.slug || "",
           pathType: data.pathType || "Vedic Path",
           scripture: data.scripture || "",
+          categoryId: data.categoryId || (data.categoryDetails ? data.categoryDetails.id : "") || "",
           shortDescription: data.shortDescription || "",
           description: data.description || "",
           purposeId: data.purposeId || "",
@@ -581,6 +602,7 @@ export default function PathServiceForm() {
         name: form.name.trim(),
         scripture: form.scripture.trim(),
         pathType: form.pathType.trim() || "Vedic Path",
+        categoryId: form.categoryId ? form.categoryId : null,
         slug: form.slug.trim() || undefined,
         shortDescription: form.shortDescription.trim() || null,
         description: form.description.trim() || null,
@@ -760,16 +782,42 @@ export default function PathServiceForm() {
         </div>
       </div>
 
-      {/* 2. Purpose & Intention */}
+      {/* 2. Category & Purpose Classification */}
       <div className="card p-6 space-y-4">
         <h3 className="text-base font-semibold text-charcoal-800 flex items-center gap-2 border-b border-cream-100 pb-2">
           <Tag className="w-4 h-4 text-saffron-600" />
-          2. Purpose & Intention
+          2. Category & Purpose Classification
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-semibold text-charcoal-700 uppercase mb-1">
-              Primary Purpose Category
+              Liturgical Category (Deity / Tradition)
+            </label>
+            <select
+              value={form.categoryId}
+              onChange={(e) => setForm((p) => ({ ...p, categoryId: e.target.value }))}
+              disabled={submitting || categoriesLoading}
+              className="input-field w-full text-sm bg-white"
+            >
+              <option value="">-- Select Category (Optional) --</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name} ({c.slug})
+                </option>
+              ))}
+            </select>
+            {categoriesError ? (
+              <p className="text-[11px] text-red-500 mt-1">{categoriesError}</p>
+            ) : (
+              <p className="text-[11px] text-charcoal-400 mt-1">
+                Assigns this recitation to a dedicated liturgical category (e.g. Ramayana, Shiva Rudri).
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-charcoal-700 uppercase mb-1">
+              Sankalpa Purpose Category
             </label>
             <select
               value={form.purposeId}
@@ -787,19 +835,19 @@ export default function PathServiceForm() {
               Links this service to a canonical spiritual purpose.
             </p>
           </div>
+        </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-charcoal-700 uppercase mb-1">
-              Purpose Summary / Intention
-            </label>
-            <input
-              type="text"
-              value={form.purposeSummary}
-              onChange={(e) => setForm((p) => ({ ...p, purposeSummary: e.target.value }))}
-              placeholder="e.g. Overcoming obstacles, mental strength, and family peace"
-              className="input-field w-full text-sm"
-            />
-          </div>
+        <div>
+          <label className="block text-xs font-semibold text-charcoal-700 uppercase mb-1">
+            Purpose Summary / Intention
+          </label>
+          <input
+            type="text"
+            value={form.purposeSummary}
+            onChange={(e) => setForm((p) => ({ ...p, purposeSummary: e.target.value }))}
+            placeholder="e.g. Overcoming obstacles, mental strength, and family peace"
+            className="input-field w-full text-sm"
+          />
         </div>
 
         {/* Secondary categories */}

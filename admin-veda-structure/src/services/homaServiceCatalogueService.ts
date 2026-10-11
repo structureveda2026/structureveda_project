@@ -47,6 +47,14 @@ export interface AdminHomaServiceListingItem {
   slug: string;
   name: string;
   homaType: string;
+  categoryId?: string | null;
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+    iconName?: string | null;
+    image?: string | null;
+  } | null;
   purposeId: string | null;
   purpose: string | null;
   purposeSummary: string | null;
@@ -91,6 +99,14 @@ export interface AdminHomaServiceDetail {
   homaType: string;
   shortDescription: string | null;
   description: string | null;
+  categoryId: string | null;
+  category: {
+    id: string;
+    name: string;
+    slug: string;
+    iconName: string;
+    image: string | null;
+  } | null;
   purposeId: string | null;
   purpose: string | null;
   purposeSummary: string | null;
@@ -149,6 +165,7 @@ export type HomaSortBy =
 
 export interface HomaServiceFilters {
   search?: string;
+  category?: string;
   purpose?: string;
   status?: "all" | "active" | "inactive" | string;
   isActive?: string | boolean;
@@ -167,6 +184,7 @@ export interface HomaServicePayload {
   availableHavanCounts: number[];
   availableDays: number[];
   slug?: string;
+  categoryId?: string | null;
   homaType?: string;
   shortDescription?: string | null;
   description?: string | null;
@@ -203,6 +221,7 @@ export const getHomaServices = async (
 ): Promise<AdminHomaServiceListingResponse> => {
   const query = new URLSearchParams();
   if (filters.search && filters.search.trim()) query.append("search", filters.search.trim());
+  if (filters.category && filters.category.trim()) query.append("category", filters.category.trim());
   if (filters.purpose && filters.purpose.trim()) query.append("purpose", filters.purpose.trim());
   if (typeof filters.isActive !== "undefined" && filters.isActive !== "")
     query.append("isActive", String(filters.isActive));

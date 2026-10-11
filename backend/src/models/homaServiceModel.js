@@ -60,6 +60,11 @@ const HomaService = sequelize.define(
       defaultValue: [],
       field: "purpose_categories",
     },
+    categoryId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      field: "category_id",
+    },
     availableHavanCounts: {
       type: DataTypes.JSONB,
       allowNull: false,

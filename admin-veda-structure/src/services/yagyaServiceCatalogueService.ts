@@ -1,4 +1,4 @@
-﻿import api from "@/services/api";
+import api from "@/services/api";
 
 // --- Shared Types ---
 
@@ -73,6 +73,12 @@ export interface AdminYagyaServiceListingItem {
   availableMode: YagyaAvailableMode;
   isFeatured: boolean;
   isActive: boolean;
+  categoryId?: string | null;
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+  } | null;
   bannerImage: string | null;
   createdAt: string;
   updatedAt: string;
@@ -126,6 +132,15 @@ export interface AdminYagyaServiceDetail {
   pricingTiers: YagyaPricingTier[];
   isFeatured: boolean;
   isActive: boolean;
+  categoryId?: string | null;
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+    description?: string | null;
+    displayOrder?: number;
+    isActive?: boolean;
+  } | null;
   bannerImage: string | null;
   galleryImages: string[];
   samagri: YagyaSamagriItem[];
@@ -145,6 +160,8 @@ export interface AdminYagyaServiceDetail {
 export interface YagyaServiceFilters {
   search?: string;
   purpose?: string;
+  category?: string;
+  categoryId?: string;
   duration?: string;
   isActive?: string | boolean;
   isFeatured?: string | boolean;
@@ -175,6 +192,7 @@ export interface YagyaServicePayload {
   fullDescription?: string | null;
   purposeId?: string | null;
   purposeSummary?: string | null;
+  categoryId?: string | null;
   availableDurations?: number[];
   durationDisplay?: string | null;
   dailyRitualHours?: number;
@@ -207,6 +225,8 @@ const getYagyaServices = async (
   const query = new URLSearchParams();
   if (filters.search && filters.search.trim()) query.append("search", filters.search.trim());
   if (filters.purpose && filters.purpose.trim()) query.append("purpose", filters.purpose.trim());
+  if (filters.category && filters.category.trim()) query.append("category", filters.category.trim());
+  if (filters.categoryId && filters.categoryId.trim()) query.append("categoryId", filters.categoryId.trim());
   if (filters.duration && filters.duration.trim()) query.append("duration", filters.duration.trim());
   if (typeof filters.isActive !== "undefined" && filters.isActive !== "")
     query.append("isActive", String(filters.isActive));

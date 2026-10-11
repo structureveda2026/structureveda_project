@@ -4,16 +4,14 @@ import {
   getPublicHomaPurposes,
   getPublicHomaServiceBySlug,
 } from "../controllers/homaService.controller.js";
+import { getPublicHomaCategories } from "../controllers/homaCategory.controller.js";
 
 const router = express.Router();
 
-// GET /api/homa-services/purposes (MUST precede /:slug to avoid collision)
+// Specific subpaths must be registered BEFORE dynamic parameter ":slug"
 router.get("/purposes", getPublicHomaPurposes);
-
-// GET /api/homa-services
+router.get("/categories", getPublicHomaCategories);
 router.get("/", getPublicHomaServices);
-
-// GET /api/homa-services/:slug
 router.get("/:slug", getPublicHomaServiceBySlug);
 
 export default router;

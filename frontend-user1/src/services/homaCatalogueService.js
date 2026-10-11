@@ -239,16 +239,38 @@ export const getHomaServices = async (filterParams = {}) => {
       query.search = String(filterParams.search).trim();
     }
 
-    const rawPurpose =
-      filterParams.purpose !== undefined ? filterParams.purpose : filterParams.category;
+    const KNOWN_PURPOSES = [
+      "shanti-wellbeing",
+      "wealth-prosperity",
+      "protection-victory",
+      "planetary-dosha",
+      "health-longevity",
+      "spiritual-growth",
+      "education-career",
+    ];
+
     if (
-      rawPurpose &&
-      rawPurpose !== "all" &&
-      rawPurpose !== "All" &&
-      rawPurpose !== "All Purposes" &&
-      rawPurpose !== "All Purpose Categories"
+      filterParams.category &&
+      filterParams.category !== "all" &&
+      filterParams.category !== "All" &&
+      filterParams.category !== "All Categories"
     ) {
-      query.purpose = String(rawPurpose).trim().toLowerCase();
+      const catVal = String(filterParams.category).trim().toLowerCase();
+      if (KNOWN_PURPOSES.includes(catVal) && !filterParams.purpose) {
+        query.purpose = catVal;
+      } else {
+        query.category = catVal;
+      }
+    }
+
+    if (
+      filterParams.purpose &&
+      filterParams.purpose !== "all" &&
+      filterParams.purpose !== "All" &&
+      filterParams.purpose !== "All Purposes" &&
+      filterParams.purpose !== "All Purpose Categories"
+    ) {
+      query.purpose = String(filterParams.purpose).trim().toLowerCase();
     }
 
     const rawCount =
@@ -381,9 +403,70 @@ export const getHomaPurposes = async () => {
   return HOMA_PURPOSE_CATEGORIES.map(normalizeHomaPurpose);
 };
 
+let cachedHomaCategories = null;
+let homaCategoriesPromise = null;
+
+/**
+ * Fetches active Homa categories from GET /api/homa-categories with in-memory caching
+ */
+export const getHomaCategories = async (forceRefresh = false) => {
+  if (cachedHomaCategories && !forceRefresh) {
+    return cachedHomaCategories;
+  }
+
+  if (!homaCategoriesPromise || forceRefresh) {
+    homaCategoriesPromise = api
+      .get("/homa-categories")
+      .then((response) => {
+        const payload = response.data;
+        if (payload && payload.success && Array.isArray(payload.data)) {
+          const sorted = [...payload.data].sort(
+            (a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)
+          );
+          cachedHomaCategories = sorted;
+          return sorted;
+        }
+        return [];
+      })
+      .catch((error) => {
+        homaCategoriesPromise = null;
+        console.error("Failed to fetch homa categories:", error);
+        throw error;
+      });
+  }
+
+  return homaCategoriesPromise;
+};
+
+/**
+ * Fetches a single public Homa category by slug from GET /api/homa-categories/:slug
+ */
+export const getHomaCategoryBySlug = async (slug) => {
+  if (!slug) return null;
+
+  try {
+    const cleanSlug = String(slug).trim().toLowerCase();
+    const response = await api.get(`/homa-categories/${encodeURIComponent(cleanSlug)}`);
+    const payload = response.data;
+
+    if (payload && payload.success && payload.data) {
+      return payload.data;
+    }
+    return null;
+  } catch (error) {
+    if (error.response?.status === 404) {
+      return null;
+    }
+    console.error(`Failed to fetch homa category by slug (${slug}):`, error);
+    throw error;
+  }
+};
+
 const homaCatalogueService = {
   getHomaServices,
   getHomaServiceBySlug,
+  getHomaCategories,
+  getHomaCategoryBySlug,
   getHomaPurposes,
   mapApiHomaServiceToUi,
   mapApiHomaServiceDetailToUi,

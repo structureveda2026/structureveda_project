@@ -1,0 +1,63 @@
+import { DataTypes } from "sequelize";
+import sequelize from "../config/database.js";
+
+const JapaCategory = sequelize.define(
+  "JapaCategory",
+  {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
+    name: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+      unique: true,
+      validate: {
+        notEmpty: true,
+      },
+    },
+    slug: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+      unique: true,
+      validate: {
+        notEmpty: true,
+      },
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    image: {
+      type: DataTypes.STRING(500),
+      allowNull: true,
+    },
+    iconName: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      defaultValue: "Sparkles",
+      field: "icon_name",
+    },
+    displayOrder: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+      field: "display_order",
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
+      field: "is_active",
+    },
+  },
+  {
+    tableName: "japa_categories",
+    timestamps: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at",
+  }
+);
+
+export default JapaCategory;

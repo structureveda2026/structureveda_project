@@ -51,6 +51,14 @@ export interface AdminJapaServiceListingItem {
   purposeSummary: string | null;
   purposeCategory: string | null;
   purposeCategories: string[];
+  categoryId?: string | null;
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+    description?: string | null;
+    iconName?: string | null;
+  } | null;
   availableCounts: number[];
   dailyCapacityPerPandit: number;
   minimumPandits: number;
@@ -101,6 +109,24 @@ export interface AdminJapaServiceDetail {
     displayOrder: number;
     isActive: boolean;
   } | null;
+  categoryId?: string | null;
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+    description?: string | null;
+    iconName?: string | null;
+  } | null;
+  categoryDetails?: {
+    id: string;
+    name: string;
+    slug: string;
+    description?: string | null;
+    image?: string | null;
+    iconName?: string | null;
+    displayOrder?: number;
+    isActive?: boolean;
+  } | null;
   availableCounts: number[];
   variants: JapaCountVariant[];
   dailyCapacityPerPandit: number;
@@ -140,6 +166,7 @@ export type JapaSortBy =
 export interface JapaServiceFilters {
   search?: string;
   purpose?: string;
+  category?: string;
   isActive?: string | boolean;
   isFeatured?: string | boolean;
   sortBy?: JapaSortBy;
@@ -161,6 +188,7 @@ export interface JapaServicePayload {
   purposeSummary?: string | null;
   purposeCategory?: string | null;
   purposeCategories?: string[];
+  categoryId?: string | null;
   availableCounts?: number[];
   variants?: JapaCountVariant[];
   dailyCapacityPerPandit?: number;
@@ -190,6 +218,7 @@ export const getJapaServices = async (
   const query = new URLSearchParams();
   if (filters.search && filters.search.trim()) query.append("search", filters.search.trim());
   if (filters.purpose && filters.purpose.trim()) query.append("purpose", filters.purpose.trim());
+  if (filters.category && filters.category.trim()) query.append("category", filters.category.trim());
   if (typeof filters.isActive !== "undefined" && filters.isActive !== "")
     query.append("isActive", String(filters.isActive));
   if (typeof filters.isFeatured !== "undefined" && filters.isFeatured !== "")

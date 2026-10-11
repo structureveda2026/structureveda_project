@@ -1,5 +1,5 @@
 /**
- * Public Serializers for Homa Service Catalogue
+ * Public & Admin Serializers for Homa Service Catalogue & Categories
  */
 
 export const normalizeFaqs = (faqs) => {
@@ -47,6 +47,40 @@ export const serializePublicHomaPurpose = (purpose) => {
 };
 
 /**
+ * Serializes category for public category list/detail
+ */
+export const serializePublicHomaCategory = (category) => {
+  return {
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    description: category.description || null,
+    image: category.image || null,
+    iconName: category.iconName || "Flame",
+    displayOrder: category.displayOrder,
+    isActive: Boolean(category.isActive),
+  };
+};
+
+/**
+ * Serializes category for Admin views
+ */
+export const serializeAdminHomaCategory = (category) => {
+  return {
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    description: category.description || null,
+    image: category.image || null,
+    iconName: category.iconName || "Flame",
+    displayOrder: category.displayOrder,
+    isActive: Boolean(category.isActive),
+    createdAt: category.createdAt || category.created_at,
+    updatedAt: category.updatedAt || category.updated_at,
+  };
+};
+
+/**
  * Serializes Homa service record for public catalogue listing
  */
 export const serializePublicHomaServiceListing = (service) => {
@@ -65,6 +99,16 @@ export const serializePublicHomaServiceListing = (service) => {
     purposeCategoryName: purposeName || null,
     purposeKey: purposeSlug || null,
     purposeCategories: Array.isArray(service.purposeCategories) ? service.purposeCategories : [],
+    categoryId: service.categoryId || null,
+    category: service.categoryDetails
+      ? {
+          id: service.categoryDetails.id,
+          name: service.categoryDetails.name,
+          slug: service.categoryDetails.slug,
+          iconName: service.categoryDetails.iconName || "Flame",
+          image: service.categoryDetails.image || null,
+        }
+      : null,
     availableHavanCounts: Array.isArray(service.availableHavanCounts) ? service.availableHavanCounts.map(Number) : [],
     availableDays: Array.isArray(service.availableDays) ? service.availableDays.map(Number) : [],
     minimumPandits: service.minimumPandits || 2,
@@ -131,6 +175,16 @@ export const serializeAdminHomaServiceListing = (service) => {
     purposeSummary: service.purposeSummary || null,
     purposeCategory: purposeSlug,
     purposeCategories: Array.isArray(service.purposeCategories) ? service.purposeCategories : [],
+    categoryId: service.categoryId || null,
+    category: service.categoryDetails
+      ? {
+          id: service.categoryDetails.id,
+          name: service.categoryDetails.name,
+          slug: service.categoryDetails.slug,
+          iconName: service.categoryDetails.iconName || "Flame",
+          image: service.categoryDetails.image || null,
+        }
+      : null,
     availableHavanCounts: Array.isArray(service.availableHavanCounts) ? service.availableHavanCounts.map(Number) : [],
     availableDays: Array.isArray(service.availableDays) ? service.availableDays.map(Number) : [],
     minimumPandits: service.minimumPandits || 2,
@@ -182,6 +236,16 @@ export const serializeAdminHomaServiceDetail = (service) => {
           isActive: service.purposeDetails.isActive,
         }
       : null,
+    categoryId: service.categoryId || null,
+    category: service.categoryDetails
+      ? {
+          id: service.categoryDetails.id,
+          name: service.categoryDetails.name,
+          slug: service.categoryDetails.slug,
+          iconName: service.categoryDetails.iconName || "Flame",
+          image: service.categoryDetails.image || null,
+        }
+      : null,
     availableHavanCounts: Array.isArray(service.availableHavanCounts) ? service.availableHavanCounts.map(Number) : [],
     availableDays: Array.isArray(service.availableDays) ? service.availableDays.map(Number) : [],
     minimumPandits: service.minimumPandits || 2,
@@ -216,9 +280,10 @@ export default {
   normalizeFaqs,
   formatIndianCurrency,
   serializePublicHomaPurpose,
+  serializePublicHomaCategory,
+  serializeAdminHomaCategory,
   serializePublicHomaServiceListing,
   serializePublicHomaServiceDetail,
   serializeAdminHomaServiceListing,
   serializeAdminHomaServiceDetail,
 };
-

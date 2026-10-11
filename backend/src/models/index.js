@@ -6,15 +6,20 @@ import UpcomingPuja from "./upcomingPujaModel.js";
 import PujaPackage from "./pujaPackageModel.js";
 import PujaBooking from "./pujaBookingModel.js";
 import PujaPurpose from "./pujaPurposeModel.js";
+import PujaCategory from "./pujaCategoryModel.js";
 import PujaService from "./pujaServiceModel.js";
 import RitualBooking from "./ritualBookingModel.js";
 import YagyaPurpose from "./yagyaPurposeModel.js";
+import YagyaCategory from "./yagyaCategoryModel.js";
 import YagyaService from "./yagyaServiceModel.js";
 import JapaPurpose from "./japaPurposeModel.js";
+import JapaCategory from "./japaCategoryModel.js";
 import JapaService from "./japaServiceModel.js";
 import HomaPurpose from "./homaPurposeModel.js";
+import HomaCategory from "./homaCategoryModel.js";
 import HomaService from "./homaServiceModel.js";
 import PathPurpose from "./pathPurposeModel.js";
+import PathCategory from "./pathCategoryModel.js";
 import PathService from "./pathServiceModel.js";
 import BlogPost from "./blogPostModel.js";
 import Veda from "./vedaModel.js";
@@ -125,6 +130,16 @@ PujaService.belongsTo(PujaPurpose, {
   as: "purposeDetails",
 });
 
+PujaCategory.hasMany(PujaService, {
+  foreignKey: "categoryId",
+  as: "services",
+});
+
+PujaService.belongsTo(PujaCategory, {
+  foreignKey: "categoryId",
+  as: "categoryDetails",
+});
+
 // Yagya Service Catalogue Associations
 YagyaPurpose.hasMany(YagyaService, {
   foreignKey: "purposeId",
@@ -134,6 +149,16 @@ YagyaPurpose.hasMany(YagyaService, {
 YagyaService.belongsTo(YagyaPurpose, {
   foreignKey: "purposeId",
   as: "purposeDetails",
+});
+
+YagyaCategory.hasMany(YagyaService, {
+  foreignKey: "categoryId",
+  as: "services",
+});
+
+YagyaService.belongsTo(YagyaCategory, {
+  foreignKey: "categoryId",
+  as: "categoryDetails",
 });
 
 // Japa Service Catalogue Associations
@@ -147,6 +172,16 @@ JapaService.belongsTo(JapaPurpose, {
   as: "purposeDetails",
 });
 
+JapaCategory.hasMany(JapaService, {
+  foreignKey: "categoryId",
+  as: "services",
+});
+
+JapaService.belongsTo(JapaCategory, {
+  foreignKey: "categoryId",
+  as: "categoryDetails",
+});
+
 // Homa Service Catalogue Associations
 HomaPurpose.hasMany(HomaService, {
   foreignKey: "purposeId",
@@ -158,6 +193,16 @@ HomaService.belongsTo(HomaPurpose, {
   as: "purposeDetails",
 });
 
+HomaCategory.hasMany(HomaService, {
+  foreignKey: "categoryId",
+  as: "services",
+});
+
+HomaService.belongsTo(HomaCategory, {
+  foreignKey: "categoryId",
+  as: "categoryDetails",
+});
+
 // Path Service Catalogue Associations
 PathPurpose.hasMany(PathService, {
   foreignKey: "purposeId",
@@ -167,6 +212,16 @@ PathPurpose.hasMany(PathService, {
 PathService.belongsTo(PathPurpose, {
   foreignKey: "purposeId",
   as: "purposeDetails",
+});
+
+PathCategory.hasMany(PathService, {
+  foreignKey: "categoryId",
+  as: "services",
+});
+
+PathService.belongsTo(PathCategory, {
+  foreignKey: "categoryId",
+  as: "categoryDetails",
 });
 
 // Generic Ritual Booking Associations
@@ -189,15 +244,20 @@ const db = {
   PujaPackage,
   PujaBooking,
   PujaPurpose,
+  PujaCategory,
   PujaService,
   RitualBooking,
   YagyaPurpose,
+  YagyaCategory,
   YagyaService,
   JapaPurpose,
+  JapaCategory,
   JapaService,
   HomaPurpose,
+  HomaCategory,
   HomaService,
   PathPurpose,
+  PathCategory,
   PathService,
   BlogPost,
   Veda,
@@ -213,15 +273,20 @@ export {
   PujaPackage,
   PujaBooking,
   PujaPurpose,
+  PujaCategory,
   PujaService,
   RitualBooking,
   YagyaPurpose,
+  YagyaCategory,
   YagyaService,
   JapaPurpose,
+  JapaCategory,
   JapaService,
   HomaPurpose,
+  HomaCategory,
   HomaService,
   PathPurpose,
+  PathCategory,
   PathService,
   BlogPost,
   Veda,

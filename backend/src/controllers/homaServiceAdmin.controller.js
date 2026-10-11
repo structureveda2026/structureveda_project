@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import { HomaService, HomaPurpose } from "../models/index.js";
+import { HomaService, HomaPurpose, HomaCategory } from "../models/index.js";
 import {
   serializeAdminHomaServiceListing,
   serializeAdminHomaServiceDetail,
@@ -216,6 +216,7 @@ export const getAdminHomaServices = async (req, res) => {
     const {
       search,
       purpose,
+      category,
       isActive,
       status,
       isFeatured,
@@ -309,6 +310,27 @@ export const getAdminHomaServices = async (req, res) => {
       }
     }
 
+    const categoryInclude = {
+      model: HomaCategory,
+      as: "categoryDetails",
+      required: false,
+    };
+
+    if (category && String(category).trim() && String(category).trim().toLowerCase() !== "all") {
+      const catParam = String(category).trim();
+      if (isValidUUID(catParam)) {
+        where.categoryId = catParam;
+      } else {
+        const lowerSlug = catParam.toLowerCase();
+        const matchedCategory = await HomaCategory.findOne({ where: { slug: lowerSlug } });
+        if (matchedCategory) {
+          where.categoryId = matchedCategory.id;
+        } else {
+          where.categoryId = "00000000-0000-0000-0000-000000000000";
+        }
+      }
+    }
+
     let order = [["created_at", "DESC"]];
     switch (sortBy) {
       case "created-oldest":
@@ -337,7 +359,7 @@ export const getAdminHomaServices = async (req, res) => {
     const offset = (pageNum - 1) * limitNum;
     const { count, rows } = await HomaService.findAndCountAll({
       where,
-      include: [purposeInclude],
+      include: [purposeInclude, categoryInclude],
       order,
       limit: limitNum,
       offset,
@@ -380,7 +402,10 @@ export const getAdminHomaServiceById = async (req, res) => {
     }
 
     const service = await HomaService.findByPk(id, {
-      include: [{ model: HomaPurpose, as: "purposeDetails", required: false }],
+      include: [
+        { model: HomaPurpose, as: "purposeDetails", required: false },
+        { model: HomaCategory, as: "categoryDetails", required: false },
+      ],
     });
 
     if (!service) {
@@ -419,6 +444,7 @@ export const createAdminHomaService = async (req, res) => {
       purposeSummary,
       purposeCategory,
       purposeCategories,
+      categoryId,
       availableHavanCounts,
       availableDays,
       minimumPandits = 2,
@@ -482,6 +508,23 @@ export const createAdminHomaService = async (req, res) => {
         return res.status(400).json({
           success: false,
           message: "Specified purposeId does not exist in Homa purposes.",
+        });
+      }
+    }
+
+    // 3b. Category Validation
+    if (categoryId) {
+      if (!isValidUUID(categoryId)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid categoryId format. Must be a valid UUID.",
+        });
+      }
+      const category = await HomaCategory.findByPk(categoryId);
+      if (!category) {
+        return res.status(400).json({
+          success: false,
+          message: "Specified categoryId does not exist in Homa categories.",
         });
       }
     }
@@ -605,6 +648,7 @@ export const createAdminHomaService = async (req, res) => {
       purposeSummary: purposeSummary ? String(purposeSummary).trim() : null,
       purposeCategory: purposeCategory ? String(purposeCategory).trim() : null,
       purposeCategories: Array.isArray(purposeCategories) ? purposeCategories : [],
+      categoryId: categoryId || null,
       availableHavanCounts: resolvedHavanCounts,
       availableDays: resolvedDays,
       minimumPandits: parseInt(minimumPandits, 10) || 2,
@@ -632,7 +676,10 @@ export const createAdminHomaService = async (req, res) => {
     });
 
     const detailedService = await HomaService.findByPk(newService.id, {
-      include: [{ model: HomaPurpose, as: "purposeDetails", required: false }],
+      include: [
+        { model: HomaPurpose, as: "purposeDetails", required: false },
+        { model: HomaCategory, as: "categoryDetails", required: false },
+      ],
     });
 
     return res.status(201).json({
@@ -681,6 +728,7 @@ export const updateAdminHomaService = async (req, res) => {
       purposeSummary,
       purposeCategory,
       purposeCategories,
+      categoryId,
       availableHavanCounts,
       availableDays,
       minimumPandits,
@@ -766,6 +814,28 @@ export const updateAdminHomaService = async (req, res) => {
           });
         }
         service.purposeId = purposeId;
+      }
+    }
+
+    // 3b. Category Validation
+    if (typeof categoryId !== "undefined") {
+      if (categoryId === null || categoryId === "") {
+        service.categoryId = null;
+      } else {
+        if (!isValidUUID(categoryId)) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid categoryId format. Must be a valid UUID.",
+          });
+        }
+        const category = await HomaCategory.findByPk(categoryId);
+        if (!category) {
+          return res.status(400).json({
+            success: false,
+            message: "Specified categoryId does not exist in Homa categories.",
+          });
+        }
+        service.categoryId = categoryId;
       }
     }
 
@@ -915,7 +985,10 @@ export const updateAdminHomaService = async (req, res) => {
     await service.save();
 
     const reloaded = await HomaService.findByPk(id, {
-      include: [{ model: HomaPurpose, as: "purposeDetails", required: false }],
+      include: [
+        { model: HomaPurpose, as: "purposeDetails", required: false },
+        { model: HomaCategory, as: "categoryDetails", required: false },
+      ],
     });
 
     return res.status(200).json({

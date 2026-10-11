@@ -4,11 +4,15 @@ import {
   getPathPurposes,
   getPathServiceBySlug,
 } from "../controllers/pathService.controller.js";
+import { getPublicPathCategories } from "../controllers/pathCategory.controller.js";
 
 const router = express.Router();
 
 // GET /api/path-services/purposes (MUST precede /:slug to avoid collision)
 router.get("/purposes", getPathPurposes);
+
+// GET /api/path-services/categories (MUST precede /:slug to avoid collision)
+router.get("/categories", getPublicPathCategories);
 
 // GET /api/path-services
 router.get("/", getPathServices);

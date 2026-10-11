@@ -2,15 +2,20 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   Edit, ArrowLeft, Power, Sparkles, Clock, Users, MapPin,
-  CheckCircle2, DollarSign, Calendar, BookOpen, HelpCircle,
+  DollarSign, Calendar, BookOpen, HelpCircle,
   Flame, Layers, Star, Image as ImageIcon, ChevronRight,
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import YagyaCategoryIcon from "@/components/YagyaCategoryIcon";
 import { useToast } from "@/context/ToastContext";
 import yagyaServiceCatalogueService, {
   AdminYagyaServiceDetail,
+  YagyaDailyScheduleItem,
+  YagyaProcedureStep,
+  YagyaSamagriItem,
+  YagyaWhyPerformItem,
 } from "@/services/yagyaServiceCatalogueService";
 
 function SectionCard({ title, icon: Icon, children }: { title: string; icon: React.ElementType; children: React.ReactNode }) {
@@ -28,8 +33,9 @@ function SectionCard({ title, icon: Icon, children }: { title: string; icon: Rea
 function InfoRow({ label, value }: { label: string; value?: string | number | null | React.ReactNode }) {
   if (value === undefined || value === null || value === "") return null;
   let displayValue: React.ReactNode = value;
-  if (typeof value === "object" && !React.isValidElement(value)) {
-    displayValue = (value as any)?.name || (value as any)?.label || JSON.stringify(value);
+  if (typeof value === "object" && !React.isValidElement(value) && value !== null) {
+    const obj = value as { name?: string; label?: string };
+    displayValue = obj.name || obj.label || JSON.stringify(value);
   }
   return (
     <div className="flex flex-col sm:flex-row gap-1 sm:gap-3 py-1.5 border-b border-cream-50 last:border-0">
@@ -39,12 +45,12 @@ function InfoRow({ label, value }: { label: string; value?: string | number | nu
   );
 }
 
-function TagList({ items, colorClass = "bg-cream-100 text-charcoal-700" }: { items: any[]; colorClass?: string }) {
+function TagList({ items, colorClass = "bg-cream-100 text-charcoal-700" }: { items: Array<string | YagyaSamagriItem | { name?: string; item?: string; status?: string }>; colorClass?: string }) {
   if (!items?.length) return <span className="text-sm text-charcoal-400 italic">None specified</span>;
   return (
     <div className="flex flex-wrap gap-1.5 mt-1">
       {items.map((item, idx) => {
-        const text = typeof item === "string" ? item : item?.name || item?.item || (typeof item === "object" ? JSON.stringify(item) : String(item));
+        const text = typeof item === "string" ? item : item?.name || item?.item || JSON.stringify(item);
         const status = typeof item === "object" && item?.status && item.status !== "included" ? ` (${item.status})` : "";
         return (
           <span key={idx} className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}`}>
@@ -56,7 +62,7 @@ function TagList({ items, colorClass = "bg-cream-100 text-charcoal-700" }: { ite
   );
 }
 
-function NumberedList({ items }: { items: any[] }) {
+function NumberedList({ items }: { items: Array<string | YagyaProcedureStep | { step?: string; stepNumber?: string | number; title?: string; description?: string }> }) {
   if (!items?.length) return <span className="text-sm text-charcoal-400 italic">None specified</span>;
   return (
     <ol className="space-y-2.5 mt-1">
@@ -88,7 +94,7 @@ function NumberedList({ items }: { items: any[] }) {
   );
 }
 
-function BulletList({ items }: { items: any[] }) {
+function BulletList({ items }: { items: Array<string | YagyaWhyPerformItem | { title?: string; description?: string; text?: string }> }) {
   if (!items?.length) return <span className="text-sm text-charcoal-400 italic">None specified</span>;
   return (
     <ul className="space-y-2 mt-1">
@@ -130,12 +136,12 @@ export default function YagyaServiceDetail() {
     setLoading(true);
     yagyaServiceCatalogueService.getYagyaService(id)
       .then((data) => setService(data))
-      .catch((err: any) => {
-        toast.error(err?.message || "Unable to load Yagya service.");
+      .catch((err: unknown) => {
+        toast.error((err as Error)?.message || "Unable to load Yagya service.");
         navigate("/admin/yagya-services");
       })
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, navigate, toast]);
 
   const handleToggleStatus = async () => {
     if (!service || !id) return;
@@ -145,8 +151,8 @@ export default function YagyaServiceDetail() {
       await yagyaServiceCatalogueService.updateYagyaService(id, { isActive: true });
       setService((prev) => prev ? { ...prev, isActive: true } : prev);
       toast.success(`"${service.name}" activated.`);
-    } catch (err: any) {
-      toast.error(err?.message || "Unable to activate service.");
+    } catch (err: unknown) {
+      toast.error((err as Error)?.message || "Unable to activate service.");
     } finally { setToggling(false); }
   };
 
@@ -158,8 +164,8 @@ export default function YagyaServiceDetail() {
       setService((prev) => prev ? { ...prev, isActive: false } : prev);
       toast.success(`"${service.name}" deactivated.`);
       setDeactivateOpen(false);
-    } catch (err: any) {
-      toast.error(err?.message || "Unable to deactivate service.");
+    } catch (err: unknown) {
+      toast.error((err as Error)?.message || "Unable to deactivate service.");
     } finally { setToggling(false); }
   };
 
@@ -242,8 +248,24 @@ export default function YagyaServiceDetail() {
             )}
           </SectionCard>
 
-          {/* Purpose */}
-          <SectionCard title="Purpose" icon={Star}>
+          {/* Category & Purpose */}
+          <SectionCard title="Category & Purpose" icon={Star}>
+            <InfoRow
+              label="Category"
+              value={
+                service.category ? (
+                  <span className="inline-flex items-center gap-1.5 font-medium text-charcoal-800">
+                    <YagyaCategoryIcon
+                      iconName="Flame"
+                      className="w-3.5 h-3.5 text-saffron-600"
+                    />
+                    {service.category.name}
+                  </span>
+                ) : (
+                  <span className="text-charcoal-400 italic">Uncategorized</span>
+                )
+              }
+            />
             <InfoRow label="Purpose" value={service.purpose || (service.purposeDetails?.name)} />
             <InfoRow label="Purpose Summary" value={service.purposeSummary} />
           </SectionCard>
@@ -258,12 +280,13 @@ export default function YagyaServiceDetail() {
             <InfoRow label="Daily Ritual Hours" value={service.dailyRitualHours ? `${service.dailyRitualHours} hours` : null} />
             <InfoRow label="Daily Hours Display" value={service.dailyHoursDisplay} />
           </SectionCard>
-
           {/* Pandit Requirement */}
           <SectionCard title="Pandit Requirement" icon={Users}>
-            <InfoRow label="Minimum Pandits" value={(req as any).minPandits} />
-            <InfoRow label="Senior Pandits" value={(req as any).seniorPandits} />
-            <InfoRow label="Description" value={(req as any).description} />
+            <InfoRow label="Minimum Pandits" value={req.minimumPandits} />
+            <InfoRow label="Recommended Pandits" value={req.recommendedPandits} />
+            <InfoRow label="Maximum Pandits" value={req.maximumPandits} />
+            <InfoRow label="Skill Requirements" value={req.skillRequirements} />
+            <InfoRow label="Daily Hours" value={req.dailyHours ? `${req.dailyHours} hours` : null} />
           </SectionCard>
 
           {/* Pricing */}
@@ -284,7 +307,7 @@ export default function YagyaServiceDetail() {
                     <tbody className="divide-y divide-cream-100">
                       {service.pricingTiers.map((tier, idx) => (
                         <tr key={idx} className="hover:bg-cream-25">
-                          <td className="px-4 py-2.5 font-medium text-charcoal-700">{tier.label || "�"}</td>
+                          <td className="px-4 py-2.5 font-medium text-charcoal-700">{tier.label || "—"}</td>
                           <td className="px-4 py-2.5 text-charcoal-600">{tier.days} Days</td>
                           <td className="px-4 py-2.5 font-semibold text-charcoal-800">₹{Number(tier.price).toLocaleString("en-IN")}</td>
                         </tr>
@@ -300,10 +323,10 @@ export default function YagyaServiceDetail() {
           {Array.isArray(service.dailySchedule) && service.dailySchedule.length > 0 && (
             <SectionCard title="Daily Schedule" icon={Calendar}>
               <div className="space-y-2.5 mt-1">
-                {service.dailySchedule.map((slot: any, idx: number) => {
-                  const dayBadge = slot.time || (slot.day ? `Day ${slot.day}` : `Day ${idx + 1}`);
+                {service.dailySchedule.map((slot: YagyaDailyScheduleItem | { day?: string | number; time?: string | number; title?: string; activity?: string; details?: string }, idx: number) => {
+                  const dayBadge = ("time" in slot && slot.time ? slot.time : "day" in slot && slot.day ? `Day ${slot.day}` : `Day ${idx + 1}`);
                   const title = slot.title;
-                  const text = slot.activity || slot.details || "";
+                  const text = ("activity" in slot && slot.activity ? slot.activity : slot.details || "");
                   return (
                     <div key={idx} className="flex items-start gap-3 py-2 border-b border-cream-50 last:border-0">
                       <span className="text-xs font-semibold text-saffron-700 bg-saffron-50 border border-saffron-200 px-2 py-0.5 rounded flex-shrink-0 mt-0.5">

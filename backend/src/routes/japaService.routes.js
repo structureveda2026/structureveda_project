@@ -4,11 +4,13 @@ import {
   getPublicJapaPurposes,
   getPublicJapaServiceBySlug,
 } from "../controllers/japaService.controller.js";
+import { getPublicJapaCategories } from "../controllers/japaCategory.controller.js";
 
 const router = express.Router();
 
-// Specific subpath "/purposes" MUST be registered BEFORE dynamic parameter ":slug"
+// Specific subpaths must be registered BEFORE dynamic parameter ":slug"
 router.get("/purposes", getPublicJapaPurposes);
+router.get("/categories", getPublicJapaCategories);
 router.get("/", getPublicJapaServices);
 router.get("/:slug", getPublicJapaServiceBySlug);
 

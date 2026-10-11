@@ -54,6 +54,7 @@ interface FormState {
   slug: string;
   deity: string;
   purposeId: string;
+  categoryId: string;
   eyebrow: string;
   tagline: string;
   shortDescription: string;
@@ -85,6 +86,7 @@ export default function PujaServiceForm() {
   const isEdit = !!id;
 
   const [purposes, setPurposes] = useState<PujaPurpose[]>([]);
+  const [categories, setCategories] = useState<{ id: string; name: string; slug: string }[]>([]);
   const [loading, setLoading] = useState(isEdit);
   const [submitting, setSubmitting] = useState(false);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
@@ -103,6 +105,7 @@ export default function PujaServiceForm() {
     slug: "",
     deity: "",
     purposeId: "",
+    categoryId: "",
     eyebrow: "",
     tagline: "",
     shortDescription: "",
@@ -127,21 +130,25 @@ export default function PujaServiceForm() {
     faqs: [{ question: "Can I participate virtually?", answer: "Yes, high-definition live stream is provided." }],
   });
 
-  // Load purposes
+  // Load purposes and categories
   useEffect(() => {
-    const fetchPurposes = async () => {
+    const fetchDropdownData = async () => {
       try {
-        const data = await pujaServiceCatalogueService.getPurposes();
-        setPurposes(data);
+        const [purposesData, categoriesData] = await Promise.all([
+          pujaServiceCatalogueService.getPurposes(),
+          pujaServiceCatalogueService.getCategories(),
+        ]);
+        setPurposes(purposesData);
+        setCategories(categoriesData);
         // Default purpose if none selected
-        if (!isEdit && data.length > 0 && !form.purposeId) {
-          setForm((prev) => ({ ...prev, purposeId: data[0].id }));
+        if (!isEdit && purposesData.length > 0 && !form.purposeId) {
+          setForm((prev) => ({ ...prev, purposeId: purposesData[0].id }));
         }
       } catch (err) {
-        console.warn("Unable to load purposes:", err);
+        console.warn("Unable to load purposes or categories:", err);
       }
     };
-    fetchPurposes();
+    fetchDropdownData();
   }, [isEdit]);
 
   // Load existing service if edit
@@ -157,6 +164,7 @@ export default function PujaServiceForm() {
           slug: data.slug || "",
           deity: data.deity || "",
           purposeId: data.purposeId || "",
+          categoryId: data.categoryId || "",
           eyebrow: data.eyebrow || "",
           tagline: data.tagline || "",
           shortDescription: data.shortDescription || "",
@@ -399,6 +407,7 @@ export default function PujaServiceForm() {
       startingPrice: priceNum,
       availableMode: form.availableMode,
       purposeId: form.purposeId,
+      categoryId: form.categoryId ? form.categoryId : null,
       eyebrow: form.eyebrow.trim() || null,
       tagline: form.tagline.trim() || null,
       shortDescription: form.shortDescription.trim() || null,
@@ -574,6 +583,29 @@ export default function PujaServiceForm() {
                 ))}
               </select>
               {errors.purposeId && <p className="text-xs text-red-500 mt-1">{errors.purposeId}</p>}
+            </div>
+
+            <div>
+              <label className="label-field">
+                Puja Category (Tradition)
+              </label>
+              <select
+                className="input-field"
+                value={form.categoryId}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, categoryId: e.target.value }))
+                }
+              >
+                <option value="">No Category / General</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-charcoal-400 mt-1">
+                Assigns this service to a tradition (e.g. Shiva Puja) for mega menu & category pages.
+              </p>
             </div>
 
             <div>

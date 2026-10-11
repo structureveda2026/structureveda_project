@@ -17,6 +17,7 @@ import homaCatalogueService, {
 import HomaListingHero from '../components/HomaListingHero'; // 1. Hero
 import HomaConceptSection from '../components/HomaConceptSection'; // 2. What is Homa / Havan?
 import HomaPurposeSection from '../components/HomaPurposeSection'; // 3. Homa by Purpose
+import HomaCategoryDiscovery from '../components/HomaCategoryDiscovery'; // Category Discovery
 import HomaServiceCard from '../components/HomaServiceCard'; // 4. Explore Cards
 import HomaConfiguratorDemo from '../components/HomaConfiguratorDemo'; // 5. Configure Your Homa
 import HomaCountSection from '../components/HomaCountSection'; // 6. Number of Havan
@@ -228,6 +229,9 @@ export default function HomaCatalogueListing() {
         onSelectPurpose={handleSelectPurposeCategory}
         onSelectCategory={handleSelectPurposeCategory}
       />
+
+      {/* HOMA CATEGORY DISCOVERY */}
+      <HomaCategoryDiscovery limit={6} showViewAll={true} />
 
       {/* 4. EXPLORE HOMA & HAVAN */}
       <section className="py-20 bg-[#fffdf9] border-b border-[#e8dfd1]" id="explore">

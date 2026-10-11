@@ -63,6 +63,7 @@ export const mapApiYagyaServiceToUi = (item) => {
     image: primaryImage,
     bannerImage: primaryImage,
     formattedPrice,
+    category: item.category || null,
     purposeCategory: item.purposeCategory || (item.purposeDetails ? item.purposeDetails.name : null),
     purposeKey: item.purposeKey || (item.purposeDetails ? item.purposeDetails.slug : null),
     purposeSummary: item.purposeSummary || item.purpose || null,
@@ -140,6 +141,7 @@ export const mapApiYagyaServiceDetailToUi = (item) => {
     procedureSteps: normalizedProcedureSteps,
     faqs: normalizedFaqs,
     purposeDetails: item.purposeDetails || null,
+    category: item.category || null,
   };
 };
 
@@ -156,6 +158,10 @@ export const getYagyaServices = async (filterParams = {}) => {
 
     if (filterParams.purpose && filterParams.purpose !== "All Purposes") {
       query.purpose = String(filterParams.purpose).trim().toLowerCase();
+    }
+
+    if (filterParams.category && filterParams.category !== "All" && filterParams.category !== "All Categories") {
+      query.category = String(filterParams.category).trim().toLowerCase();
     }
 
     if (filterParams.duration && filterParams.duration !== "All" && filterParams.duration !== "All Durations") {
@@ -190,9 +196,9 @@ export const getYagyaServices = async (filterParams = {}) => {
       query.page = parseInt(filterParams.page, 10) || 1;
     }
     if (filterParams.limit) {
-      query.limit = parseInt(filterParams.limit, 10) || 20;
+      query.limit = parseInt(filterParams.limit, 10) || 6;
     } else {
-      query.limit = 50;
+      query.limit = 6;
     }
 
     const response = await api.get("/yagya-services", { params: query });
@@ -257,10 +263,70 @@ export const getYagyaPurposes = async () => {
   }
 };
 
+let cachedYagyaCategories = null;
+let yagyaCategoriesPromise = null;
+
+/**
+ * Fetches active Yagya categories from GET /api/yagya-categories with in-memory session caching
+ */
+export const getYagyaCategories = async (forceRefresh = false) => {
+  if (cachedYagyaCategories && !forceRefresh) {
+    return cachedYagyaCategories;
+  }
+
+  if (!yagyaCategoriesPromise || forceRefresh) {
+    yagyaCategoriesPromise = api
+      .get("/yagya-categories")
+      .then((response) => {
+        const payload = response.data;
+        if (payload && payload.success && Array.isArray(payload.data)) {
+          const sorted = [...payload.data].sort(
+            (a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)
+          );
+          cachedYagyaCategories = sorted;
+          return sorted;
+        }
+        return [];
+      })
+      .catch((error) => {
+        yagyaCategoriesPromise = null;
+        console.error("Failed to fetch yagya categories:", error);
+        throw error;
+      });
+  }
+
+  return yagyaCategoriesPromise;
+};
+
+/**
+ * Fetches a single public Yagya category by slug from GET /api/yagya-categories/:slug
+ */
+export const getYagyaCategoryBySlug = async (slug) => {
+  if (!slug) return null;
+
+  try {
+    const response = await api.get(`/yagya-categories/${encodeURIComponent(slug)}`);
+    const payload = response.data;
+
+    if (payload && payload.success && payload.data) {
+      return payload.data;
+    }
+    return null;
+  } catch (error) {
+    if (error.response?.status === 404) {
+      return null;
+    }
+    console.error(`Failed to fetch yagya category by slug (${slug}):`, error);
+    throw error;
+  }
+};
+
 export default {
   getYagyaServices,
   getYagyaServiceBySlug,
   getYagyaPurposes,
+  getYagyaCategories,
+  getYagyaCategoryBySlug,
   mapApiYagyaServiceToUi,
   mapApiYagyaServiceDetailToUi,
   getYagyaFallbackImage,

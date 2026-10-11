@@ -1,6 +1,6 @@
 import { Op } from "sequelize";
 import sequelize from "../config/database.js";
-import { YagyaService, YagyaPurpose } from "../models/index.js";
+import { YagyaService, YagyaPurpose, YagyaCategory } from "../models/index.js";
 import {
   serializeAdminYagyaServiceListing,
   serializeAdminYagyaServiceDetail,
@@ -39,6 +39,7 @@ export const getAdminYagyaServices = async (req, res) => {
     const {
       search,
       purpose,
+      category,
       isActive,
       isFeatured,
       mode,
@@ -124,16 +125,26 @@ export const getAdminYagyaServices = async (req, res) => {
       purposeInclude.required = true;
     }
 
+    const categoryInclude = {
+      model: YagyaCategory,
+      as: "categoryDetails",
+      required: false,
+    };
+
+    if (category && String(category).trim()) {
+      const cVal = String(category).trim();
+      if (isValidUUID(cVal)) {
+        categoryInclude.where = { id: cVal };
+      } else {
+        categoryInclude.where = { slug: cVal.toLowerCase() };
+      }
+      categoryInclude.required = true;
+    }
+
     let order = [["created_at", "DESC"]];
     switch (sortBy) {
       case "created-oldest":
         order = [["created_at", "ASC"]];
-        break;
-      case "price-asc":
-        order = [["startingPrice", "ASC"], ["name", "ASC"]];
-        break;
-      case "price-desc":
-        order = [["startingPrice", "DESC"], ["name", "ASC"]];
         break;
       case "name-asc":
         order = [["name", "ASC"]];
@@ -141,12 +152,22 @@ export const getAdminYagyaServices = async (req, res) => {
       case "name-desc":
         order = [["name", "DESC"]];
         break;
+      case "price-asc":
+        order = [["startingPrice", "ASC"], ["name", "ASC"]];
+        break;
+      case "price-desc":
+        order = [["startingPrice", "DESC"], ["name", "ASC"]];
+        break;
+      case "created-newest":
+      default:
+        order = [["created_at", "DESC"]];
+        break;
     }
 
     const offset = (pageNum - 1) * limitNum;
     const { count, rows } = await YagyaService.findAndCountAll({
       where,
-      include: [purposeInclude],
+      include: [purposeInclude, categoryInclude],
       order,
       limit: limitNum,
       offset,
@@ -183,18 +204,27 @@ export const getAdminYagyaServiceById = async (req, res) => {
     if (!isValidUUID(id)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid Yagya service ID format. Must be a valid UUID.",
+        message: "Invalid Yagya service ID format.",
       });
     }
 
     const service = await YagyaService.findByPk(id, {
-      include: [{ model: YagyaPurpose, as: "purposeDetails", required: false }],
+      include: [
+        {
+          model: YagyaPurpose,
+          as: "purposeDetails",
+        },
+        {
+          model: YagyaCategory,
+          as: "categoryDetails",
+        },
+      ],
     });
 
     if (!service) {
       return res.status(404).json({
         success: false,
-        message: "Yagya service not found",
+        message: "Yagya service not found.",
       });
     }
 
@@ -225,6 +255,7 @@ export const createAdminYagyaService = async (req, res) => {
       fullDescription,
       deity,
       purposeId,
+      categoryId,
       purposeSummary,
       availableDurations,
       durationDisplay,
@@ -282,6 +313,40 @@ export const createAdminYagyaService = async (req, res) => {
       });
     }
 
+    // Category Validation
+    if (categoryId) {
+      if (!isValidUUID(categoryId)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid categoryId format. Must be a valid UUID.",
+        });
+      }
+      const category = await YagyaCategory.findByPk(categoryId);
+      if (!category) {
+        return res.status(400).json({
+          success: false,
+          message: "Specified categoryId does not exist.",
+        });
+      }
+    }
+
+    // Purpose Validation
+    if (purposeId) {
+      if (!isValidUUID(purposeId)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid purposeId format. Must be a valid UUID.",
+        });
+      }
+      const purpose = await YagyaPurpose.findByPk(purposeId);
+      if (!purpose) {
+        return res.status(400).json({
+          success: false,
+          message: "Specified purposeId does not exist.",
+        });
+      }
+    }
+
     const newService = await YagyaService.create({
       name: String(name).trim(),
       slug: finalSlug,
@@ -291,6 +356,7 @@ export const createAdminYagyaService = async (req, res) => {
       fullDescription: fullDescription ? String(fullDescription).trim() : null,
       deity: String(deity).trim(),
       purposeId: purposeId || null,
+      categoryId: categoryId || null,
       purposeSummary: purposeSummary ? String(purposeSummary).trim() : null,
       availableDurations: Array.isArray(availableDurations) ? availableDurations : [3, 5, 7],
       durationDisplay: durationDisplay ? String(durationDisplay).trim() : "3 / 5 / 7 Days",
@@ -316,6 +382,13 @@ export const createAdminYagyaService = async (req, res) => {
       significance: Array.isArray(significance) ? significance : [],
       procedureSteps: Array.isArray(procedureSteps) ? procedureSteps : [],
       faqs: normalizeFaqs(faqs),
+    });
+
+    await newService.reload({
+      include: [
+        { model: YagyaPurpose, as: "purposeDetails" },
+        { model: YagyaCategory, as: "categoryDetails" },
+      ],
     });
 
     return res.status(201).json({
@@ -362,6 +435,7 @@ export const updateAdminYagyaService = async (req, res) => {
       fullDescription,
       deity,
       purposeId,
+      categoryId,
       purposeSummary,
       availableDurations,
       durationDisplay,
@@ -408,7 +482,49 @@ export const updateAdminYagyaService = async (req, res) => {
     if (typeof shortDescription !== "undefined") service.shortDescription = shortDescription ? String(shortDescription).trim() : null;
     if (typeof fullDescription !== "undefined") service.fullDescription = fullDescription ? String(fullDescription).trim() : null;
     if (deity) service.deity = String(deity).trim();
-    if (typeof purposeId !== "undefined") service.purposeId = purposeId || null;
+
+    if (typeof purposeId !== "undefined") {
+      if (purposeId) {
+        if (!isValidUUID(purposeId)) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid purposeId format. Must be a valid UUID.",
+          });
+        }
+        const purpose = await YagyaPurpose.findByPk(purposeId);
+        if (!purpose) {
+          return res.status(400).json({
+            success: false,
+            message: "Specified purposeId does not exist.",
+          });
+        }
+        service.purposeId = purposeId;
+      } else {
+        service.purposeId = null;
+      }
+    }
+
+    if (typeof categoryId !== "undefined") {
+      if (categoryId) {
+        if (!isValidUUID(categoryId)) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid categoryId format. Must be a valid UUID.",
+          });
+        }
+        const category = await YagyaCategory.findByPk(categoryId);
+        if (!category) {
+          return res.status(400).json({
+            success: false,
+            message: "Specified categoryId does not exist.",
+          });
+        }
+        service.categoryId = categoryId;
+      } else {
+        service.categoryId = null;
+      }
+    }
+
     if (typeof purposeSummary !== "undefined") service.purposeSummary = purposeSummary ? String(purposeSummary).trim() : null;
     if (Array.isArray(availableDurations)) service.availableDurations = availableDurations;
     if (typeof durationDisplay !== "undefined") service.durationDisplay = durationDisplay ? String(durationDisplay).trim() : null;
@@ -436,6 +552,13 @@ export const updateAdminYagyaService = async (req, res) => {
     if (Array.isArray(faqs)) service.faqs = normalizeFaqs(faqs);
 
     await service.save();
+
+    await service.reload({
+      include: [
+        { model: YagyaPurpose, as: "purposeDetails" },
+        { model: YagyaCategory, as: "categoryDetails" },
+      ],
+    });
 
     return res.status(200).json({
       success: true,

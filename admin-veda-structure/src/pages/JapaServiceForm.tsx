@@ -26,6 +26,9 @@ import {
 import PageHeader from "@/components/PageHeader";
 import { useToast } from "@/context/ToastContext";
 import mediaUploadService from "@/services/mediaUploadService";
+import japaCategoryAdminService, {
+  AdminJapaCategory,
+} from "@/services/japaCategoryAdminService";
 import japaServiceCatalogueService, {
   JapaPurpose,
   JapaCountVariant,
@@ -60,6 +63,7 @@ interface FormState {
   mantraMeaning: string;
   shortDescription: string;
   description: string;
+  categoryId: string;
   purposeId: string;
   purposeSummary: string;
   purposeCategory: string;
@@ -97,6 +101,9 @@ export default function JapaServiceForm() {
   const isEdit = Boolean(id);
 
   const [purposes, setPurposes] = useState<JapaPurpose[]>([]);
+  const [categories, setCategories] = useState<AdminJapaCategory[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+  const [categoriesError, setCategoriesError] = useState("");
   const [loading, setLoading] = useState(isEdit);
   const [submitting, setSubmitting] = useState(false);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
@@ -120,6 +127,7 @@ export default function JapaServiceForm() {
     mantraMeaning: "",
     shortDescription: "",
     description: "",
+    categoryId: "",
     purposeId: "",
     purposeSummary: "",
     purposeCategory: "",
@@ -190,7 +198,34 @@ export default function JapaServiceForm() {
     ],
   });
 
-  // 1. Fetch available purposes dynamically
+  // 1. Fetch available categories dynamically
+  useEffect(() => {
+    let isMounted = true;
+    setCategoriesLoading(true);
+    japaCategoryAdminService
+      .getCategories({ isActive: "true" })
+      .then((res) => {
+        if (isMounted) {
+          setCategories(res.data || []);
+        }
+      })
+      .catch((err) => {
+        console.warn("Could not load Japa categories:", err);
+        if (isMounted) {
+          setCategoriesError("Failed to load categories");
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setCategoriesLoading(false);
+        }
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // 2. Fetch available purposes dynamically
   useEffect(() => {
     let isMounted = true;
     japaServiceCatalogueService
@@ -223,7 +258,7 @@ export default function JapaServiceForm() {
     };
   }, [isEdit]);
 
-  // 2. Fetch existing service in EDIT mode
+  // 3. Fetch existing service in EDIT mode
   useEffect(() => {
     if (!isEdit || !id) return;
     setLoading(true);
@@ -238,6 +273,7 @@ export default function JapaServiceForm() {
           mantraMeaning: data.mantraMeaning || "",
           shortDescription: data.shortDescription || "",
           description: data.description || "",
+          categoryId: data.categoryId || "",
           purposeId: data.purposeId || "",
           purposeSummary: data.purposeSummary || "",
           purposeCategory: data.purposeCategory || "",
@@ -636,6 +672,7 @@ export default function JapaServiceForm() {
         mantraMeaning: form.mantraMeaning.trim() || null,
         shortDescription: form.shortDescription.trim() || null,
         description: form.description.trim() || null,
+        categoryId: form.categoryId.trim() || null,
         purposeId: form.purposeId || null,
         purposeSummary: form.purposeSummary.trim() || null,
         purposeCategory: form.purposeCategory.trim() || null,
@@ -858,12 +895,42 @@ export default function JapaServiceForm() {
           </div>
         </div>
 
-        {/* Section 2: Purpose & Classification */}
+        {/* Section 2: Category & Purpose */}
         <div className="card p-5">
           <h3 className="text-base font-semibold text-charcoal-800 flex items-center gap-2 mb-4 pb-2 border-b border-cream-100">
-            <BookOpen className="w-4 h-4 text-saffron-600" /> 2. Purpose & Classification
+            <BookOpen className="w-4 h-4 text-saffron-600" /> 2. Category & Purpose
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="japa-category-select" className="label-field">
+                Japa Category
+              </label>
+              <select
+                id="japa-category-select"
+                className="input-field"
+                value={form.categoryId}
+                onChange={(e) => setForm((p) => ({ ...p, categoryId: e.target.value }))}
+                disabled={submitting || categoriesLoading}
+              >
+                <option value="">
+                  {categoriesLoading
+                    ? "Loading categories..."
+                    : "— Select Japa Category (Optional) —"}
+                </option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+              {categoriesError && (
+                <p className="text-xs text-red-500 mt-1">{categoriesError}</p>
+              )}
+              <p className="text-xs text-charcoal-400 mt-1">
+                Associates this service with a customer discovery category.
+              </p>
+            </div>
+
             <div>
               <label htmlFor="japa-purpose" className="label-field">
                 Primary Purpose
@@ -884,7 +951,7 @@ export default function JapaServiceForm() {
               </select>
             </div>
 
-            <div>
+            <div className="md:col-span-2">
               <label htmlFor="japa-purpose-summary" className="label-field">
                 Purpose Summary
               </label>

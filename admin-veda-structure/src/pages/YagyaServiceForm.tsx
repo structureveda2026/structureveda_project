@@ -8,6 +8,9 @@ import {
 import PageHeader from "@/components/PageHeader";
 import { useToast } from "@/context/ToastContext";
 import * as mediaUploadService from "@/services/mediaUploadService";
+import yagyaCategoryAdminService, {
+  AdminYagyaCategory,
+} from "@/services/yagyaCategoryAdminService";
 import yagyaServiceCatalogueService, {
   YagyaPurpose, YagyaFaqItem, YagyaPricingTier, YagyaDailyScheduleItem,
   YagyaSamagriItem, YagyaWhyPerformItem, YagyaProcedureStep,
@@ -22,7 +25,9 @@ const slugify = (str: string) =>
 
 interface FormState {
   name: string; slug: string; deity: string; eyebrow: string; tagline: string;
-  shortDescription: string; fullDescription: string; purposeId: string; purposeSummary: string;
+  shortDescription: string; fullDescription: string;
+  categoryId: string;
+  purposeId: string; purposeSummary: string;
   availableDurationsText: string; durationDisplay: string; dailyRitualHours: string; dailyHoursDisplay: string;
   minimumPandits: string; recommendedPandits: string; maximumPandits: string;
   skillRequirements: string; panditDailyHours: string;
@@ -46,6 +51,9 @@ export default function YagyaServiceForm() {
   const toast = useToast();
   const isEdit = !!id;
 
+  const [categories, setCategories] = useState<AdminYagyaCategory[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+  const [categoriesError, setCategoriesError] = useState("");
   const [purposes, setPurposes] = useState<YagyaPurpose[]>([]);
   const [loading, setLoading] = useState(isEdit);
   const [submitting, setSubmitting] = useState(false);
@@ -59,7 +67,9 @@ export default function YagyaServiceForm() {
 
   const [form, setForm] = useState<FormState>({
     name: "", slug: "", deity: "", eyebrow: "", tagline: "",
-    shortDescription: "", fullDescription: "", purposeId: "", purposeSummary: "",
+    shortDescription: "", fullDescription: "",
+    categoryId: "",
+    purposeId: "", purposeSummary: "",
     availableDurationsText: "3, 5, 7", durationDisplay: "3 / 5 / 7 Days",
     dailyRitualHours: "5", dailyHoursDisplay: "5 Hours / Day",
     minimumPandits: "3", recommendedPandits: "5", maximumPandits: "11",
@@ -79,6 +89,20 @@ export default function YagyaServiceForm() {
   });
 
   useEffect(() => {
+    setCategoriesLoading(true);
+    yagyaCategoryAdminService
+      .getCategories({ isActive: "true" })
+      .then((res) => {
+        setCategories(res.data || []);
+      })
+      .catch((err) => {
+        console.warn("Could not load Yagya categories:", err);
+        setCategoriesError("Failed to load categories");
+      })
+      .finally(() => setCategoriesLoading(false));
+  }, []);
+
+  useEffect(() => {
     yagyaServiceCatalogueService.getYagyaPurposes()
       .then((data) => {
         setPurposes(data);
@@ -92,11 +116,12 @@ export default function YagyaServiceForm() {
     setLoading(true);
     yagyaServiceCatalogueService.getYagyaService(id)
       .then((data) => {
-        const req = (data.panditRequirement || {}) as any;
+        const req = data.panditRequirement || {};
         setForm({
           name: data.name || "", slug: data.slug || "", deity: data.deity || "",
           eyebrow: data.eyebrow || "", tagline: data.tagline || "",
           shortDescription: data.shortDescription || "", fullDescription: data.fullDescription || "",
+          categoryId: data.categoryId || "",
           purposeId: data.purposeId || "", purposeSummary: data.purposeSummary || "",
           availableDurationsText: Array.isArray(data.availableDurations) ? data.availableDurations.join(", ") : "",
           durationDisplay: data.durationDisplay || "", dailyRitualHours: String(data.dailyRitualHours || 5),
@@ -113,41 +138,44 @@ export default function YagyaServiceForm() {
           isKashiAvailable: Boolean(data.isKashiAvailable), isRemoteAvailable: Boolean(data.isRemoteAvailable),
           bannerImage: data.bannerImage || "", galleryImages: Array.isArray(data.galleryImages) ? data.galleryImages : [],
           samagri: Array.isArray(data.samagri)
-            ? (data.samagri as any[]).map((s: any) =>
+            ? (data.samagri as Array<YagyaSamagriItem | string>).map((s) =>
                 typeof s === "string" ? { name: s, status: "included" as const } : { name: s.name || "", status: s.status || "included" }
               )
             : [],
           prasad: data.prasad || "",
           dailySchedule: Array.isArray(data.dailySchedule)
-            ? (data.dailySchedule as any[]).map((s: any) => ({
-                day: s.day ?? s.time ?? "",
-                title: s.title ?? s.activity ?? "",
+            ? (data.dailySchedule as Array<YagyaDailyScheduleItem | { day?: string | number; time?: string | number; title?: string; activity?: string; details?: string }>).map((s) => ({
+                day: ("day" in s && s.day !== undefined ? s.day : "time" in s ? s.time : "") ?? "",
+                title: ("title" in s && s.title !== undefined ? s.title : "activity" in s ? s.activity : "") ?? "",
                 details: s.details ?? "",
               }))
             : [],
           whatsIncluded: Array.isArray(data.whatsIncluded) ? data.whatsIncluded : [],
           whyPerform: Array.isArray(data.whyPerform)
-            ? (data.whyPerform as any[]).map((w: any) =>
+            ? (data.whyPerform as Array<YagyaWhyPerformItem | string>).map((w) =>
                 typeof w === "string" ? { title: w, description: "" } : { title: w.title || "", description: w.description || "" }
               )
             : [],
           significance: Array.isArray(data.significance) ? data.significance as string[] : [],
           procedureSteps: Array.isArray(data.procedureSteps)
-            ? (data.procedureSteps as any[]).map((p: any, i: number) =>
+            ? (data.procedureSteps as Array<YagyaProcedureStep | string>).map((p, i: number) =>
                 typeof p === "string" ? { step: String(i + 1).padStart(2, "0"), title: p, description: "" }
                   : { step: p.step || String(i + 1).padStart(2, "0"), title: p.title || "", description: p.description || "" }
               )
             : [],
           faqs: Array.isArray(data.faqs)
-            ? data.faqs.map((f: any) => ({ question: f.question || f.q || "", answer: f.answer || f.a || "" }))
+            ? (data.faqs as Array<YagyaFaqItem | { question?: string; q?: string; answer?: string; a?: string }>).map((f) => ({
+                question: ("question" in f && f.question !== undefined ? f.question : "q" in f ? f.q : "") || "",
+                answer: ("answer" in f && f.answer !== undefined ? f.answer : "a" in f ? f.a : "") || "",
+              }))
             : [],
           isFeatured: Boolean(data.isFeatured), isActive: Boolean(data.isActive),
         });
         setSlugManuallyEdited(true);
       })
-      .catch((err: any) => toast.error(err?.message || "Unable to load Yagya service."))
+      .catch((err: unknown) => toast.error((err as Error)?.message || "Unable to load Yagya service."))
       .finally(() => setLoading(false));
-  }, [id, isEdit]);
+  }, [id, isEdit, toast]);
 
   const handleNameChange = (v: string) => {
     setForm((p) => ({ ...p, name: v, slug: slugManuallyEdited ? p.slug : slugify(v) }));
@@ -258,6 +286,7 @@ export default function YagyaServiceForm() {
         name: form.name.trim(), slug: form.slug.trim(), deity: form.deity.trim(),
         eyebrow: form.eyebrow.trim() || null, tagline: form.tagline.trim() || null,
         shortDescription: form.shortDescription.trim() || null, fullDescription: form.fullDescription.trim() || null,
+        categoryId: form.categoryId.trim() || null,
         purposeId: form.purposeId || null, purposeSummary: form.purposeSummary.trim() || null,
         availableDurations: durNums, durationDisplay: form.durationDisplay.trim() || null,
         dailyRitualHours: parseInt(form.dailyRitualHours, 10) || 5,
@@ -381,12 +410,39 @@ export default function YagyaServiceForm() {
           </div>
         </div>
 
-        {/* S2: Purpose */}
+        {/* S2: Purpose & Category */}
         <div className="card p-5">
           <h3 className="text-base font-semibold text-charcoal-800 flex items-center gap-2 mb-4 pb-2 border-b border-cream-100">
-            <Star className="w-4 h-4 text-saffron-600" /> 2. Purpose
+            <Star className="w-4 h-4 text-saffron-600" /> 2. Category & Purpose
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="label-field" htmlFor="yagya-category-select">
+                Yagya Category
+              </label>
+              <select
+                id="yagya-category-select"
+                className="input-field"
+                value={form.categoryId}
+                onChange={(e) => setForm((p) => ({ ...p, categoryId: e.target.value }))}
+                disabled={categoriesLoading}
+              >
+                <option value="">
+                  {categoriesLoading ? "Loading categories..." : "— Select Yagya Category (Optional) —"}
+                </option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+              {categoriesError && (
+                <p className="text-xs text-red-500 mt-1">{categoriesError}</p>
+              )}
+              <p className="text-xs text-charcoal-400 mt-1">
+                Associates this service with a customer discovery category.
+              </p>
+            </div>
             <div>
               <label className="label-field">Purpose Category</label>
               <select className="input-field" value={form.purposeId}
@@ -395,7 +451,7 @@ export default function YagyaServiceForm() {
                 {purposes.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
             </div>
-            <div>
+            <div className="md:col-span-2">
               <label className="label-field">Purpose Summary</label>
               <input className="input-field" value={form.purposeSummary}
                 onChange={(e) => setForm((p) => ({ ...p, purposeSummary: e.target.value }))}

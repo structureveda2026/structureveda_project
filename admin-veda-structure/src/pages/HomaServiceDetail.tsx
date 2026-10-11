@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   Edit,
@@ -35,6 +35,7 @@ import homaServiceCatalogueService, {
   AdminHomaServiceDetail,
   HomaSamagriItem,
 } from "@/services/homaServiceCatalogueService";
+import HomaCategoryIcon from "@/components/HomaCategoryIcon";
 
 // ---------------------------------------------------------------------------
 // Sub-components
@@ -95,7 +96,7 @@ export default function HomaServiceDetail() {
   const [deactivateOpen, setDeactivateOpen] = useState(false);
   const [toggling, setToggling] = useState(false);
 
-  const fetchService = () => {
+  const fetchService = useCallback(() => {
     if (!id) {
       navigate("/admin/homa-services");
       return;
@@ -125,11 +126,11 @@ export default function HomaServiceDetail() {
         setError(msg);
       })
       .finally(() => setLoading(false));
-  };
+  }, [id, navigate]);
 
   useEffect(() => {
     fetchService();
-  }, [id]);
+  }, [fetchService]);
 
   const handleToggleStatus = async () => {
     if (!service || !id) return;
@@ -302,6 +303,15 @@ export default function HomaServiceDetail() {
               <Flame className="w-3 h-3 text-saffron-600" />
               {service.homaType || "Vedic Homa"}
             </span>
+            {service.category && (
+              <Link
+                to={`/admin/homa/categories/${service.categoryId || service.category.id}`}
+                className="inline-flex items-center gap-1 text-xs font-medium text-saffron-800 bg-saffron-50 border border-saffron-200 px-2 py-0.5 rounded hover:bg-saffron-100 transition"
+              >
+                <HomaCategoryIcon iconName={service.category.iconName} className="w-3 h-3 text-saffron-600" />
+                {service.category.name}
+              </Link>
+            )}
             {service.isFeatured && (
               <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
                 <Sparkles className="w-3 h-3 text-amber-500" /> Featured
@@ -381,6 +391,25 @@ export default function HomaServiceDetail() {
               }
             />
             <InfoRow label="Homa Classification" value={service.homaType || "Vedic Homa"} />
+            <InfoRow
+              label="Homa Category"
+              value={
+                service.category ? (
+                  <Link
+                    to={`/admin/homa/categories/${service.categoryId || service.category.id}`}
+                    className="inline-flex items-center gap-1.5 font-semibold text-saffron-800 bg-saffron-50 border border-saffron-200 px-2.5 py-1 rounded text-xs hover:bg-saffron-100 transition"
+                  >
+                    <HomaCategoryIcon iconName={service.category.iconName} className="w-3.5 h-3.5 text-saffron-600" />
+                    <span>{service.category.name}</span>
+                    <span className="font-mono text-[10px] text-charcoal-400">({service.category.slug})</span>
+                  </Link>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-xs text-charcoal-400 bg-cream-100 px-2 py-0.5 rounded">
+                    Uncategorized
+                  </span>
+                )
+              }
+            />
             {service.shortDescription && (
               <div className="py-2 border-b border-cream-50">
                 <span className="text-xs font-semibold text-charcoal-400 uppercase tracking-wider block mb-1">

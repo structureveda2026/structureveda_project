@@ -127,10 +127,17 @@ export default function YagyaServiceDetails() {
   const images = Array.isArray(service.images) && service.images.length > 0 ? service.images : [fallbackImg];
   const activeImage = images[activeImageIndex] || fallbackImg;
 
+  const selectedTier = Array.isArray(service.pricingTiers)
+    ? service.pricingTiers.find((t) => Number(t.days) === Number(selectedDuration))
+    : null;
+  const displayedPrice = selectedTier?.price
+    ? `₹${Number(selectedTier.price).toLocaleString("en-IN")}`
+    : service.formattedPrice;
+
   return (
     <div className="min-h-screen bg-[#fffaf0] text-[#2b241d]">
       {/* 1. BREADCRUMBS & TOP NAV */}
-      <div className="border-b border-[#ead8b8] bg-[#fffdfa] px-4 py-3 sm:px-6 lg:px-8">
+      <nav aria-label="Breadcrumb" className="border-b border-[#ead8b8] bg-[#fffdfa] px-4 py-3 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-[1360px] items-center gap-2 text-[12px] font-medium text-[#75695c]">
           <Link to="/" className="hover:text-[#c77722]">
             Home
@@ -143,10 +150,21 @@ export default function YagyaServiceDetails() {
           <Link to="/yagya-puja/yagya" className="hover:text-[#c77722]">
             Vedic Yagya
           </Link>
+          {service.category?.slug && (
+            <>
+              <ChevronRight size={13} className="text-[#c5b59f]" />
+              <Link
+                to={`/yagya-puja/yagya/category/${service.category.slug}`}
+                className="hover:text-[#c77722]"
+              >
+                {service.category.name}
+              </Link>
+            </>
+          )}
           <ChevronRight size={13} className="text-[#c5b59f]" />
           <span className="truncate font-semibold text-[#2b241d]">{service.name}</span>
         </div>
-      </div>
+      </nav>
 
       {/* 2. HERO / SHOWCASE SECTION */}
       <section className="relative overflow-hidden border-b border-[#ead8b8] bg-gradient-to-b from-[#fbf4e8] via-[#fffaf0] to-[#fffdfa] px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
@@ -160,16 +178,30 @@ export default function YagyaServiceDetails() {
                   <img
                     src={activeImage}
                     alt={service.name}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = fallbackImg;
+                    }}
                     className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
                   
                   {/* Category Pill */}
                   <div className="absolute top-4 left-4">
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/75 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#f5ce6f] backdrop-blur-md">
-                      <Sparkles size={11} className="text-[#eab12c]" />
-                      Multi-Day Yagya
-                    </span>
+                    {service.category?.slug ? (
+                      <Link
+                        to={`/yagya-puja/yagya/category/${service.category.slug}`}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/75 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#f5ce6f] backdrop-blur-md hover:bg-black/90 transition"
+                      >
+                        <Sparkles size={11} className="text-[#eab12c]" />
+                        {service.category.name}
+                      </Link>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/75 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#f5ce6f] backdrop-blur-md">
+                        <Sparkles size={11} className="text-[#eab12c]" />
+                        Multi-Day Yagya
+                      </span>
+                    )}
                   </div>
 
                   {/* Kashi Tag */}
@@ -191,7 +223,15 @@ export default function YagyaServiceDetails() {
                           activeImageIndex === idx ? "border-[#c77722] shadow-xs" : "border-transparent opacity-75 hover:opacity-100"
                         }`}
                       >
-                        <img src={img} alt={`view-${idx}`} className="h-full w-full object-cover" />
+                        <img
+                          src={img}
+                          alt={`${service.name} view ${idx + 1}`}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = fallbackImg;
+                          }}
+                          className="h-full w-full object-cover"
+                        />
                       </button>
                     ))}
                   </div>
@@ -299,16 +339,21 @@ export default function YagyaServiceDetails() {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
                     <span className="text-[11px] font-bold uppercase tracking-wider text-[#8c6d48]">
-                      Starting Dakshina
+                      {selectedTier && Number(selectedTier.days) !== Number(service.availableDurations?.[0])
+                        ? `Estimated Dakshina (${selectedDuration} Days)`
+                        : "Starting Dakshina"}
                     </span>
                     <div className="flex items-baseline gap-2">
                       <span className="font-serif text-[28px] font-bold text-[#2b241d]">
-                        {service.formattedPrice}
+                        {displayedPrice}
                       </span>
                       <span className="text-[12px] text-[#705e4b]">
                         ({selectedDuration || service.availableDurations?.[0] || 3} Days Ceremony)
                       </span>
                     </div>
+                    <span className="mt-1 block text-[11px] text-[#8c7e6c]">
+                      * Final Dakshina calculated authoritatively during booking configuration.
+                    </span>
                   </div>
 
                   <button

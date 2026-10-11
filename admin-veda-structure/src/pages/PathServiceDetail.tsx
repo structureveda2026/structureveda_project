@@ -1,38 +1,32 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   Edit,
   ArrowLeft,
   Power,
   Sparkles,
-  Clock,
   Users,
   MapPin,
-  CheckCircle2,
   DollarSign,
   Calendar,
   HelpCircle,
   Scroll,
   Layers,
   Tag,
-  Shield,
-  Globe,
   Package,
-  Gift,
   ShieldAlert,
   LogIn,
   RefreshCw,
   Image as ImageIcon,
   BookOpen,
 } from "lucide-react";
-import PageHeader from "@/components/PageHeader";
 import StatusBadge from "@/components/StatusBadge";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import EmptyState from "@/components/EmptyState";
+import PathCategoryIcon from "@/components/PathCategoryIcon";
 import { useToast } from "@/context/ToastContext";
 import pathServiceCatalogueService, {
   AdminPathServiceDetail,
-  PathSamagriItem,
   PATH_FORMAT_LABELS,
   PathFormatType,
 } from "@/services/pathServiceCatalogueService";
@@ -88,7 +82,7 @@ export default function PathServiceDetail() {
   const [deactivateOpen, setDeactivateOpen] = useState(false);
   const [toggling, setToggling] = useState(false);
 
-  const fetchService = () => {
+  const fetchService = useCallback(() => {
     if (!id) {
       navigate("/admin/path-services");
       return;
@@ -118,11 +112,11 @@ export default function PathServiceDetail() {
         setError(msg);
       })
       .finally(() => setLoading(false));
-  };
+  }, [id, navigate]);
 
   useEffect(() => {
     fetchService();
-  }, [id]);
+  }, [fetchService]);
 
   const handleToggleStatus = async () => {
     if (!service || !id) return;
@@ -188,7 +182,7 @@ export default function PathServiceDetail() {
       <div className="card p-8 text-center max-w-lg mx-auto">
         <EmptyState
           title="Path Service Not Found"
-          description="The requested Path recitation service does not exist or may have been permanently removed."
+          message={error || "The requested Path recitation service does not exist or may have been permanently removed."}
           action={
             <Link to="/admin/path-services" className="btn-primary text-sm inline-flex items-center gap-1.5">
               <ArrowLeft className="w-4 h-4" /> Back to Path Services
@@ -310,6 +304,34 @@ export default function PathServiceDetail() {
       <SectionCard title="Basic Information" icon={BookOpen}>
         <InfoRow label="Service Name" value={service.name} />
         <InfoRow label="Slug Identifier" value={<code className="font-mono text-xs">{service.slug}</code>} />
+        <InfoRow
+          label="Liturgical Category"
+          value={
+            service.categoryDetails || service.categoryName || service.category ? (
+              <div className="flex items-center gap-2">
+                <span className="w-5 h-5 rounded-md bg-saffron-50 border border-saffron-100 flex items-center justify-center text-saffron-600 flex-shrink-0">
+                  <PathCategoryIcon
+                    iconName={service.categoryDetails?.iconName || service.category?.iconName}
+                    className="w-3.5 h-3.5 text-saffron-600"
+                  />
+                </span>
+                <Link
+                  to={`/admin/path/categories/${service.categoryDetails?.id || service.categoryId}`}
+                  className="font-medium text-xs text-saffron-700 hover:underline"
+                >
+                  {service.categoryDetails?.name || service.categoryName || service.category?.name}
+                </Link>
+                {(service.categoryDetails?.slug || service.categorySlug || service.category?.slug) && (
+                  <span className="text-[11px] font-mono text-charcoal-400">
+                    (/{service.categoryDetails?.slug || service.categorySlug || service.category?.slug})
+                  </span>
+                )}
+              </div>
+            ) : (
+              <span className="text-xs text-charcoal-400 italic">Uncategorized</span>
+            )
+          }
+        />
         <InfoRow label="Scripture / Sacred Text" value={service.scripture} />
         <InfoRow label="Classification" value={service.pathType || "Vedic Path"} />
         <InfoRow
@@ -499,7 +521,7 @@ export default function PathServiceDetail() {
           value={
             <div className="flex flex-wrap gap-1.5">
               {Object.entries(service.sankalpaFields || {})
-                .filter(([_, v]) => Boolean(v))
+                .filter(([, v]) => Boolean(v))
                 .map(([k]) => (
                   <span
                     key={k}

@@ -65,6 +65,16 @@ export interface AdminPathServiceListingItem {
   name: string;
   pathType: string;
   scripture: string;
+  categoryId?: string | null;
+  categoryName?: string | null;
+  categorySlug?: string | null;
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+    iconName?: string | null;
+    image?: string | null;
+  } | null;
   purposeId: string | null;
   purpose: string | null;
   purposeSummary: string | null;
@@ -110,6 +120,24 @@ export interface AdminPathServiceDetail {
   scripture: string;
   shortDescription: string | null;
   description: string | null;
+  categoryId?: string | null;
+  categoryName?: string | null;
+  categorySlug?: string | null;
+  categoryDetails?: {
+    id: string;
+    name: string;
+    slug: string;
+    description?: string | null;
+    iconName?: string | null;
+    image?: string | null;
+  } | null;
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+    iconName?: string | null;
+    image?: string | null;
+  } | null;
   purposeId: string | null;
   purpose: string | null;
   purposeSummary: string | null;
@@ -174,6 +202,8 @@ export type PathSortBy =
 
 export interface PathServiceFilters {
   search?: string;
+  category?: string;
+  categoryId?: string;
   purpose?: string;
   purposeId?: string;
   status?: "all" | "active" | "inactive" | string;
@@ -194,6 +224,7 @@ export interface PathServicePayload {
   availableFormats: string[];
   slug?: string;
   pathType?: string;
+  categoryId?: string | null;
   shortDescription?: string | null;
   description?: string | null;
   purposeId?: string | null;
@@ -237,6 +268,8 @@ export const getPathServices = async (
 ): Promise<AdminPathServiceListingResponse> => {
   const query = new URLSearchParams();
   if (filters.search && filters.search.trim()) query.append("search", filters.search.trim());
+  if (filters.category && filters.category.trim()) query.append("category", filters.category.trim());
+  if (filters.categoryId && filters.categoryId.trim()) query.append("categoryId", filters.categoryId.trim());
   if (filters.purpose && filters.purpose.trim()) query.append("purpose", filters.purpose.trim());
   if (filters.purposeId && filters.purposeId.trim()) query.append("purposeId", filters.purposeId.trim());
   if (typeof filters.isActive !== "undefined" && filters.isActive !== "")

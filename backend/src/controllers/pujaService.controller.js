@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import { PujaService, PujaPurpose } from "../models/index.js";
+import { PujaService, PujaPurpose, PujaCategory } from "../models/index.js";
 import {
   serializePublicPujaServiceListing,
   serializePublicPujaServiceDetail,
@@ -18,6 +18,7 @@ export const getPublicPujaServices = async (req, res) => {
     const {
       search,
       purpose,
+      category,
       duration,
       mode,
       isFeatured,
@@ -112,6 +113,19 @@ export const getPublicPujaServices = async (req, res) => {
       purposeInclude.required = true; // Inner join when filtering by purpose
     }
 
+    // Category filter (resolved via active PujaCategory association)
+    const categoryInclude = {
+      model: PujaCategory,
+      as: "categoryDetails",
+      where: { isActive: true },
+      required: false,
+    };
+
+    if (category && String(category).trim()) {
+      categoryInclude.where.slug = String(category).trim().toLowerCase();
+      categoryInclude.required = true; // Inner join when filtering by category
+    }
+
     // 3. Sorting Whitelist Validation & Construction
     const trimmedSort = String(sortBy).trim().toLowerCase();
     if (!VALID_SORTS.includes(trimmedSort)) {
@@ -151,7 +165,7 @@ export const getPublicPujaServices = async (req, res) => {
     const offset = (pageNum - 1) * limitNum;
     const { count, rows } = await PujaService.findAndCountAll({
       where,
-      include: [purposeInclude],
+      include: [purposeInclude, categoryInclude],
       order,
       limit: limitNum,
       offset,
@@ -203,6 +217,12 @@ export const getPublicPujaServiceBySlug = async (req, res) => {
         {
           model: PujaPurpose,
           as: "purposeDetails",
+          where: { isActive: true },
+          required: false,
+        },
+        {
+          model: PujaCategory,
+          as: "categoryDetails",
           where: { isActive: true },
           required: false,
         },
