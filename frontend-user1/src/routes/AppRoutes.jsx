@@ -52,6 +52,10 @@ import HomaBookingStatus from "../features/yagyaPuja/pages/HomaBookingStatus";
 
 import { LibraryPage, LibraryTreePage, LibraryTopicPage } from "../library";
 
+import CommunityLandingPage from "../features/community/pages/CommunityLandingPage";
+import CommunityCreateProfilePage from "../features/community/pages/CommunityCreateProfilePage";
+import CommunityProfileDetailPage from "../features/community/pages/CommunityProfileDetailPage";
+
 const AppRoutes = () => {
   return (
     <Routes>
@@ -83,6 +87,13 @@ const AppRoutes = () => {
         <Route path="/veda-library/tree" element={<LibraryTreePage />} />
         <Route path="/library/:topicSlug" element={<LibraryTopicPage />} />
         <Route path="/veda-library" element={<LibraryPage />} />
+
+        {/* Veda Structure Community Module (Frontend-Only Directory & Profiles) */}
+        <Route path="/community" element={<CommunityLandingPage />} />
+        <Route path="/community/create-profile" element={<CommunityCreateProfilePage />} />
+        <Route path="/community/edit-profile" element={<CommunityCreateProfilePage isEditing={true} />} />
+        <Route path="/community/edit-profile/:slug" element={<CommunityCreateProfilePage isEditing={true} />} />
+        <Route path="/community/profile/:slug" element={<CommunityProfileDetailPage />} />
 
         <Route path="/book-consultation" element={<Consultation />} />
 

@@ -11,6 +11,7 @@ import {
   Sparkles,
   Scroll,
   ShoppingBag,
+  Users,
 } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { logoutUser } from "../../features/auth/authSlice";
@@ -758,15 +759,27 @@ const Navbar = () => {
             Veda Library
           </a>
 
-            {/* Shop Link */}
-            <a
-              href="https://veda-shop.vercel.app/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full px-3.5 py-2 whitespace-nowrap text-[13.5px] 2xl:text-[14px] font-semibold text-[#2c2217] transition-all hover:bg-amber-500/10 hover:text-[#b36a18]"
-            >
-              Shop
-            </a>
+          {/* Community Link */}
+          <Link
+            to="/community"
+            className={`rounded-full px-3.5 py-2 whitespace-nowrap text-[13.5px] 2xl:text-[14px] font-semibold transition-all ${
+              location.pathname.startsWith("/community")
+                ? "bg-amber-500/15 text-[#b36a18] font-bold"
+                : "text-[#2c2217] hover:bg-amber-500/10 hover:text-[#b36a18]"
+            }`}
+          >
+            Community
+          </Link>
+
+          {/* Shop Link */}
+          <a
+            href="https://veda-shop.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-full px-3.5 py-2 whitespace-nowrap text-[13.5px] 2xl:text-[14px] font-semibold text-[#2c2217] transition-all hover:bg-amber-500/10 hover:text-[#b36a18]"
+          >
+            Shop
+          </a>
           </div>
         </div>
       </nav>
@@ -986,6 +999,21 @@ const Navbar = () => {
               </div>
               <ArrowRight size={14} className="text-[#8a7c6b]" />
             </a>
+
+            {/* Community */}
+            <Link
+              to="/community"
+              onClick={() => setIsMenuOpen(false)}
+              className={`border-b border-[#ebdcc2] py-3 text-[14px] font-bold flex items-center justify-between ${
+                location.pathname.startsWith("/community") ? "text-[#b36a18]" : "text-[#241c15]"
+              }`}
+            >
+              <div className="flex items-center gap-1.5">
+                <Users size={15} className="text-[#b36a18]" />
+                <span>Community</span>
+              </div>
+              <ArrowRight size={14} className="text-[#8a7c6b]" />
+            </Link>
 
             {/* Shop */}
             <a
