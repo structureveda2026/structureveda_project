@@ -327,18 +327,6 @@ export const MantraDetailPage: React.FC = () => {
           </p>
         </div>
 
-        {/* IAST Roman Transliteration */}
-        {mantra.transliteration && (
-          <div className="pt-4 border-t border-amber-200/70 max-w-2xl mx-auto space-y-1">
-            <span className="text-[10px] uppercase font-bold tracking-widest text-amber-800/80 block">
-              IAST Transliteration (रोमन लिपि)
-            </span>
-            <p className="font-serif italic text-base sm:text-lg text-amber-950/85 whitespace-pre-line leading-relaxed tracking-wider">
-              {mantra.transliteration}
-            </p>
-          </div>
-        )}
-
         {/* Bottom Filigree Mark */}
         <div className="pt-2 text-xs text-amber-700/70 font-devanagari font-bold">
           ॥ इति {mantra.textName} {mantra.mantraNumber} समाप्तम् ॥

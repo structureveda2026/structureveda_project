@@ -215,11 +215,6 @@ const LibraryTopicPage = () => {
                 {topic.keyVerse.sanskrit}
               </p>
 
-              {/* Transliteration (Centered) */}
-              <p className="mt-3 font-mono text-[13px] italic tracking-wide text-[#7d6c59] sm:text-[14px]">
-                {topic.keyVerse.transliteration}
-              </p>
-
               {/* Traditional Decorative Symmetrical Divider */}
               <div className="my-5 flex items-center justify-center gap-3">
                 <div className="h-[1px] w-12 bg-gradient-to-r from-transparent to-[#d9be89]" />
