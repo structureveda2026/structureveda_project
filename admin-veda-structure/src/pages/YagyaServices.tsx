@@ -106,8 +106,9 @@ export default function YagyaServices() {
     };
     const fetchCategories = async () => {
       try {
-        const res = await yagyaCategoryAdminService.getCategories({ isActive: "true" });
-        setCategories(res.data || []);
+        const res: any = await yagyaCategoryAdminService.getCategories({ isActive: "true" });
+        const list = Array.isArray(res) ? res : (res?.data || []);
+        setCategories(list);
       } catch (err) {
         console.warn("Could not load Yagya categories:", err);
       }
@@ -450,7 +451,7 @@ export default function YagyaServices() {
                       {assignedCat ? (
                         <div className="flex items-center gap-1.5">
                           <span className="w-5 h-5 rounded-md bg-saffron-50 border border-saffron-100 flex items-center justify-center text-saffron-600 flex-shrink-0">
-                            <YagyaCategoryIcon iconName={assignedCat.iconName || "Flame"} className="w-3 h-3" />
+                            <YagyaCategoryIcon iconName={(assignedCat as any).iconName || "Flame"} className="w-3 h-3" />
                           </span>
                           <span className="font-medium text-xs text-charcoal-800">
                             {assignedCat.name}

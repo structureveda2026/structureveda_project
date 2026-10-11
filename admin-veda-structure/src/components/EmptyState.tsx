@@ -5,6 +5,7 @@ interface ActionConfig {
   label: string;
   onClick?: () => void;
   href?: string;
+  to?: string;
 }
 
 interface EmptyStateProps {
@@ -48,6 +49,17 @@ export default function EmptyState({
     }
     if (typeof action === "object" && action !== null && "label" in action) {
       const actionObj = action as ActionConfig;
+      if (actionObj.to || actionObj.href) {
+        return (
+          <a
+            href={actionObj.to || actionObj.href}
+            onClick={actionObj.onClick}
+            className="btn-primary inline-flex items-center"
+          >
+            {actionObj.label}
+          </a>
+        );
+      }
       return (
         <button
           type="button"

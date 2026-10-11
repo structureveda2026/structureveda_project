@@ -51,7 +51,7 @@ export default function YagyaServiceForm() {
   const toast = useToast();
   const isEdit = !!id;
 
-  const [categories, setCategories] = useState<AdminYagyaCategory[]>([]);
+  const [categories, setCategories] = useState<Array<{ id: string; name: string; slug?: string }>>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [categoriesError, setCategoriesError] = useState("");
   const [purposes, setPurposes] = useState<YagyaPurpose[]>([]);
@@ -90,10 +90,20 @@ export default function YagyaServiceForm() {
 
   useEffect(() => {
     setCategoriesLoading(true);
-    yagyaCategoryAdminService
-      .getCategories({ isActive: "true" })
-      .then((res) => {
-        setCategories(res.data || []);
+    setCategoriesError("");
+    yagyaServiceCatalogueService
+      .getCategories()
+      .then((res: any) => {
+        const list = Array.isArray(res) ? res : (res?.data || []);
+        setCategories(list);
+      })
+      .catch((err) => {
+        console.warn("Could not load Yagya categories from catalogue, falling back to admin service:", err);
+        return yagyaCategoryAdminService.getCategories({ isActive: "true" })
+          .then((res: any) => {
+            const list = Array.isArray(res) ? res : (res?.data || []);
+            setCategories(list);
+          });
       })
       .catch((err) => {
         console.warn("Could not load Yagya categories:", err);

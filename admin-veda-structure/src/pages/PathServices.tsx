@@ -149,9 +149,10 @@ export default function PathServices() {
     };
     const fetchCategories = async () => {
       try {
-        const data = await pathCategoryAdminService.getCategories();
+        const data: any = await pathCategoryAdminService.getCategories();
         if (isMounted) {
-          setCategories(data);
+          const list = Array.isArray(data) ? data : (data?.data || []);
+          setCategories(list);
         }
       } catch (err) {
         console.warn("Could not load Path categories:", err);

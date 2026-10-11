@@ -138,9 +138,10 @@ export default function HomaServices() {
     };
     const fetchCategories = async () => {
       try {
-        const res = await homaCategoryAdminService.getCategories({ isActive: "true" });
+        const res: any = await homaCategoryAdminService.getCategories({ isActive: "true" });
         if (isMounted) {
-          setCategories(res || []);
+          const list = Array.isArray(res) ? res : (res?.data || []);
+          setCategories(list);
         }
       } catch (err) {
         console.warn("Could not load Homa categories:", err);

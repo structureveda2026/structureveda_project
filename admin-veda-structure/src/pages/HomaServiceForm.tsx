@@ -111,7 +111,7 @@ export default function HomaServiceForm() {
   const isEdit = Boolean(id);
 
   const [purposes, setPurposes] = useState<HomaPurpose[]>([]);
-  const [categories, setCategories] = useState<AdminHomaCategory[]>([]);
+  const [categories, setCategories] = useState<Array<{ id: string; name: string; slug?: string }>>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [categoriesError, setCategoriesError] = useState("");
   const [loading, setLoading] = useState(isEdit);
@@ -213,13 +213,25 @@ export default function HomaServiceForm() {
       });
 
     setCategoriesLoading(true);
-    homaCategoryAdminService
-      .getCategories({ isActive: "true" })
-      .then((catData) => {
+    homaServiceCatalogueService
+      .getCategories()
+      .then((res: any) => {
         if (isMounted) {
-          setCategories(catData || []);
+          const list = Array.isArray(res) ? res : (res?.data || []);
+          setCategories(list);
           setCategoriesError("");
         }
+      })
+      .catch((catErr) => {
+        console.warn("Could not load Homa categories from catalogue, trying admin service:", catErr);
+        return homaCategoryAdminService.getCategories({ isActive: "true" })
+          .then((res: any) => {
+            if (isMounted) {
+              const list = Array.isArray(res) ? res : (res?.data || []);
+              setCategories(list);
+              setCategoriesError("");
+            }
+          });
       })
       .catch((catErr) => {
         console.warn("Could not load Homa categories:", catErr);

@@ -263,6 +263,16 @@ export const getJapaPurposes = async (): Promise<JapaPurpose[]> => {
   return (response.data || []) as JapaPurpose[];
 };
 
+/**
+ * Fetch list of active Japa categories from public API for dynamic category selector.
+ */
+export const getCategories = async (): Promise<
+  { id: string; name: string; slug: string }[]
+> => {
+  const response = await api.get("/japa-categories");
+  return (response.data || []) as { id: string; name: string; slug: string }[];
+};
+
 export default {
   getJapaServices,
   getJapaService,
@@ -270,4 +280,6 @@ export default {
   updateJapaService,
   deleteJapaService,
   getJapaPurposes,
+  getCategories,
 };
+

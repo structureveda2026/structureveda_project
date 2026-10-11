@@ -273,6 +273,16 @@ const getYagyaPurposes = async (): Promise<YagyaPurpose[]> => {
   return (response.data || []) as YagyaPurpose[];
 };
 
+/**
+ * Fetch list of active Yagya categories from public API for dynamic category selector.
+ */
+const getCategories = async (): Promise<
+  { id: string; name: string; slug: string }[]
+> => {
+  const response = await api.get("/yagya-categories");
+  return (response.data || []) as { id: string; name: string; slug: string }[];
+};
+
 export default {
   getYagyaServices,
   getYagyaService,
@@ -280,4 +290,6 @@ export default {
   updateYagyaService,
   deleteYagyaService,
   getYagyaPurposes,
+  getCategories,
 };
+

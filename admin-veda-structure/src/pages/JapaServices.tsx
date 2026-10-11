@@ -104,9 +104,10 @@ export default function JapaServices() {
     };
     const fetchCategories = async () => {
       try {
-        const res = await japaCategoryAdminService.getCategories({ isActive: "true" });
+        const res: any = await japaCategoryAdminService.getCategories({ isActive: "true" });
         if (isMounted) {
-          setCategories(res.data || []);
+          const list = Array.isArray(res) ? res : (res?.data || []);
+          setCategories(list);
         }
       } catch (err) {
         console.warn("Could not load Japa categories:", err);

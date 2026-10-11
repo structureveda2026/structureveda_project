@@ -50,7 +50,7 @@ function TagList({ items, colorClass = "bg-cream-100 text-charcoal-700" }: { ite
   return (
     <div className="flex flex-wrap gap-1.5 mt-1">
       {items.map((item, idx) => {
-        const text = typeof item === "string" ? item : item?.name || item?.item || JSON.stringify(item);
+        const text = typeof item === "string" ? item : item?.name || (item as any)?.item || JSON.stringify(item);
         const status = typeof item === "object" && item?.status && item.status !== "included" ? ` (${item.status})` : "";
         return (
           <span key={idx} className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}`}>
@@ -68,7 +68,7 @@ function NumberedList({ items }: { items: Array<string | YagyaProcedureStep | { 
     <ol className="space-y-2.5 mt-1">
       {items.map((item, idx) => {
         if (typeof item === "object" && item !== null) {
-          const stepNumber = item.step || item.stepNumber || idx + 1;
+          const stepNumber = item.step || (item as any).stepNumber || idx + 1;
           return (
             <li key={idx} className="flex items-start gap-2.5 text-sm text-charcoal-700">
               <span className="flex-shrink-0 w-6 h-6 rounded-full bg-saffron-50 border border-saffron-200 text-saffron-700 text-xs font-bold flex items-center justify-center mt-0.5">
@@ -105,7 +105,7 @@ function BulletList({ items }: { items: Array<string | YagyaWhyPerformItem | { t
               <ChevronRight className="w-4 h-4 text-saffron-500 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 {item.title && <span className="font-semibold text-charcoal-800">{item.title}: </span>}
-                <span className="text-charcoal-600">{item.description || item.text || (typeof item.title === "undefined" ? JSON.stringify(item) : "")}</span>
+                <span className="text-charcoal-600">{item.description || (item as any).text || (typeof item.title === "undefined" ? JSON.stringify(item) : "")}</span>
               </div>
             </li>
           );
