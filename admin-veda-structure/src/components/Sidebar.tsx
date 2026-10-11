@@ -25,14 +25,20 @@ interface RitualSection {
   items: RitualSubItem[];
 }
 
+interface LibrarySubItem {
+  label: string;
+  path: string;
+  aliases?: string[];
+}
+
 /**
  * Disciplines grouped under Yagya & Puja:
  * - Upcoming Puja (/admin/upcoming-pujas)
  * - Puja Catalogue (/admin/puja-services, /admin/puja/categories)
- * - Yagya Catalogue (/admin/yagya-services)
- * - Japa Catalogue (/admin/japa-services)
- * - Path Catalogue (/admin/path-services)
- * - Homa Catalogue (/admin/homa-services)
+ * - Yagya Catalogue (/admin/yagya-services, /admin/yagya/categories)
+ * - Japa Catalogue (/admin/japa-services, /admin/japa/categories)
+ * - Path Catalogue (/admin/path-services, /admin/path/categories)
+ * - Homa Catalogue (/admin/homa-services, /admin/homa/categories)
  * - Puja in Kashi (Disabled / Coming Soon)
  */
 const RITUAL_SECTIONS: RitualSection[] = [
@@ -104,6 +110,27 @@ const RITUAL_SECTIONS: RitualSection[] = [
   },
 ];
 
+/**
+ * Library navigation items with active path & supported route aliases
+ */
+const LIBRARY_ITEMS: LibrarySubItem[] = [
+  {
+    label: "Ved (Vedas)",
+    path: "/admin/library/vedas",
+    aliases: ["/admin/vedas"],
+  },
+  {
+    label: "Mantras & Suktas",
+    path: "/admin/library/mantras",
+    aliases: ["/admin/mantras"],
+  },
+  {
+    label: "Blog Posts",
+    path: "/admin/library/blogs",
+    aliases: ["/admin/blogs"],
+  },
+];
+
 interface SidebarProps {
   collapsed: boolean;
   mobileOpen: boolean;
@@ -139,9 +166,11 @@ export default function Sidebar({
     location.pathname.startsWith("/admin/path/categories") ||
     location.pathname.startsWith("/admin/path-categories");
 
-  // Route matches for Library
+  // Route matches for Library umbrella (recognizes Vedas, Mantras, Blogs & direct aliases)
   const isLibraryActive =
-    location.pathname.startsWith("/admin/library/blogs") ||
+    location.pathname.startsWith("/admin/library") ||
+    location.pathname.startsWith("/admin/vedas") ||
+    location.pathname.startsWith("/admin/mantras") ||
     location.pathname.startsWith("/admin/blogs");
 
   // Accordion state for Yagya & Puja parent
@@ -161,7 +190,7 @@ export default function Sidebar({
   // Accordion state for Library
   const [isLibraryOpen, setIsLibraryOpen] = useState(true);
 
-  // Auto-expand Yagya & Puja and active sub-section whenever route changes
+  // Auto-expand Yagya & Puja and active sub-section whenever route changes or page refreshes
   useEffect(() => {
     if (isYagyaPujaActive) {
       setIsYagyaPujaOpen(true);
@@ -176,9 +205,17 @@ export default function Sidebar({
         location.pathname.startsWith("/admin/puja-categories")
       ) {
         setOpenSubSections((prev) => ({ ...prev, puja: true }));
-      } else if (location.pathname.startsWith("/admin/yagya-services")) {
+      } else if (
+        location.pathname.startsWith("/admin/yagya-services") ||
+        location.pathname.startsWith("/admin/yagya/categories") ||
+        location.pathname.startsWith("/admin/yagya-categories")
+      ) {
         setOpenSubSections((prev) => ({ ...prev, yagya: true }));
-      } else if (location.pathname.startsWith("/admin/japa-services")) {
+      } else if (
+        location.pathname.startsWith("/admin/japa-services") ||
+        location.pathname.startsWith("/admin/japa/categories") ||
+        location.pathname.startsWith("/admin/japa-categories")
+      ) {
         setOpenSubSections((prev) => ({ ...prev, japa: true }));
       } else if (
         location.pathname.startsWith("/admin/path-services") ||
@@ -195,6 +232,13 @@ export default function Sidebar({
       }
     }
   }, [location.pathname, isYagyaPujaActive]);
+
+  // Auto-expand Library accordion whenever a Library route is visited directly or refreshed
+  useEffect(() => {
+    if (isLibraryActive) {
+      setIsLibraryOpen(true);
+    }
+  }, [location.pathname, isLibraryActive]);
 
   const toggleSubSection = (id: string) => {
     setOpenSubSections((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -219,6 +263,24 @@ export default function Sidebar({
       return (
         location.pathname.startsWith("/admin/upcoming-pujas") ||
         location.pathname.startsWith("/admin/upcoming-puja")
+      );
+    }
+    if (
+      basePath === "/admin/yagya/categories" ||
+      basePath === "/admin/yagya-categories"
+    ) {
+      return (
+        location.pathname.startsWith("/admin/yagya/categories") ||
+        location.pathname.startsWith("/admin/yagya-categories")
+      );
+    }
+    if (
+      basePath === "/admin/japa/categories" ||
+      basePath === "/admin/japa-categories"
+    ) {
+      return (
+        location.pathname.startsWith("/admin/japa/categories") ||
+        location.pathname.startsWith("/admin/japa-categories")
       );
     }
     if (
@@ -259,7 +321,52 @@ export default function Sidebar({
         location.pathname.startsWith("/admin/puja-categories")
       );
     }
+    if (section.id === "yagya") {
+      return (
+        location.pathname.startsWith("/admin/yagya-services") ||
+        location.pathname.startsWith("/admin/yagya/categories") ||
+        location.pathname.startsWith("/admin/yagya-categories")
+      );
+    }
+    if (section.id === "japa") {
+      return (
+        location.pathname.startsWith("/admin/japa-services") ||
+        location.pathname.startsWith("/admin/japa/categories") ||
+        location.pathname.startsWith("/admin/japa-categories")
+      );
+    }
+    if (section.id === "path") {
+      return (
+        location.pathname.startsWith("/admin/path-services") ||
+        location.pathname.startsWith("/admin/path/categories") ||
+        location.pathname.startsWith("/admin/path-categories")
+      );
+    }
+    if (section.id === "homa") {
+      return (
+        location.pathname.startsWith("/admin/homa-services") ||
+        location.pathname.startsWith("/admin/homa/categories") ||
+        location.pathname.startsWith("/admin/homa-categories")
+      );
+    }
     return section.items.some((item) => isSubItemActive(item.path));
+  };
+
+  const isLibraryItemActive = (item: LibrarySubItem) => {
+    if (
+      location.pathname === item.path ||
+      location.pathname.startsWith(item.path + "/")
+    ) {
+      return true;
+    }
+    if (item.aliases) {
+      return item.aliases.some(
+        (alias) =>
+          location.pathname === alias ||
+          location.pathname.startsWith(alias + "/")
+      );
+    }
+    return false;
   };
 
   const handleLinkClick = () => {
@@ -271,8 +378,9 @@ export default function Sidebar({
   const sidebarContent = (
     <>
       <div
-        className={`flex items-center px-4 py-5 border-b border-cream-200 ${collapsed ? "justify-center" : "justify-between"
-          }`}
+        className={`flex items-center px-4 py-5 border-b border-cream-200 ${
+          collapsed ? "justify-center" : "justify-between"
+        }`}
       >
         {collapsed ? <Logo collapsed /> : <Logo />}
         <button
@@ -290,9 +398,10 @@ export default function Sidebar({
           <NavLink
             to="/admin/dashboard"
             className={({ isActive }) =>
-              `flex items-center justify-center w-10 h-10 mx-auto rounded-lg transition group relative ${isActive
-                ? "bg-saffron-500 text-white"
-                : "text-charcoal-500 hover:bg-cream-100"
+              `flex items-center justify-center w-10 h-10 mx-auto rounded-lg transition group relative ${
+                isActive
+                  ? "bg-saffron-500 text-white"
+                  : "text-charcoal-500 hover:bg-cream-100"
               }`
             }
             title="Dashboard"
@@ -307,17 +416,19 @@ export default function Sidebar({
             to="/admin/dashboard"
             onClick={handleLinkClick}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${isActive
-                ? "bg-saffron-50 text-saffron-700"
-                : "text-charcoal-600 hover:bg-cream-100"
+              `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${
+                isActive
+                  ? "bg-saffron-50 text-saffron-700 font-semibold"
+                  : "text-charcoal-600 hover:bg-cream-100"
               }`
             }
           >
             <LayoutDashboard
-              className={`w-[18px] h-[18px] ${location.pathname === "/admin/dashboard"
-                ? "text-saffron-600"
-                : "text-charcoal-400"
-                }`}
+              className={`w-[18px] h-[18px] ${
+                location.pathname === "/admin/dashboard"
+                  ? "text-saffron-600"
+                  : "text-charcoal-400"
+              }`}
             />
             <span className="flex-1">Dashboard</span>
           </NavLink>
@@ -327,10 +438,11 @@ export default function Sidebar({
         {collapsed ? (
           <NavLink
             to="/admin/upcoming-pujas"
-            className={`flex items-center justify-center w-10 h-10 mx-auto rounded-lg transition group relative ${isYagyaPujaActive
-              ? "bg-saffron-500 text-white"
-              : "text-charcoal-500 hover:bg-cream-100"
-              }`}
+            className={`flex items-center justify-center w-10 h-10 mx-auto rounded-lg transition group relative ${
+              isYagyaPujaActive
+                ? "bg-saffron-500 text-white"
+                : "text-charcoal-500 hover:bg-cream-100"
+            }`}
             title="Yagya & Puja"
           >
             <Flame className="w-5 h-5" />
@@ -343,20 +455,23 @@ export default function Sidebar({
             <button
               type="button"
               onClick={() => setIsYagyaPujaOpen((prev) => !prev)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition cursor-pointer ${isYagyaPujaActive
-                ? "bg-saffron-50 text-saffron-700 font-semibold"
-                : "text-charcoal-600 hover:bg-cream-100"
-                }`}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition cursor-pointer ${
+                isYagyaPujaActive
+                  ? "bg-saffron-50 text-saffron-700 font-semibold"
+                  : "text-charcoal-600 hover:bg-cream-100"
+              }`}
               aria-expanded={isYagyaPujaOpen}
             >
               <Flame
-                className={`w-[18px] h-[18px] ${isYagyaPujaActive ? "text-saffron-600" : "text-charcoal-400"
-                  }`}
+                className={`w-[18px] h-[18px] ${
+                  isYagyaPujaActive ? "text-saffron-600" : "text-charcoal-400"
+                }`}
               />
               <span className="flex-1 text-left font-semibold">Yagya & Puja</span>
               <ChevronDown
-                className={`w-4 h-4 text-charcoal-400 transition-transform ${isYagyaPujaOpen ? "rotate-180" : ""
-                  }`}
+                className={`w-4 h-4 text-charcoal-400 transition-transform ${
+                  isYagyaPujaOpen ? "rotate-180" : ""
+                }`}
               />
             </button>
 
@@ -373,16 +488,18 @@ export default function Sidebar({
                       <button
                         type="button"
                         onClick={() => toggleSubSection(section.id)}
-                        className={`w-full flex items-center justify-between px-2 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-[0.14em] transition cursor-pointer ${sectionActive
-                          ? "text-saffron-700 bg-saffron-50/60 font-bold"
-                          : "text-charcoal-500 hover:text-charcoal-800 hover:bg-cream-50"
-                          }`}
+                        className={`w-full flex items-center justify-between px-2 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-[0.14em] transition cursor-pointer ${
+                          sectionActive
+                            ? "text-saffron-700 bg-saffron-50/60 font-bold"
+                            : "text-charcoal-500 hover:text-charcoal-800 hover:bg-cream-50"
+                        }`}
                         aria-expanded={isOpen}
                       >
                         <span>{section.label}</span>
                         <ChevronDown
-                          className={`w-3.5 h-3.5 text-charcoal-400 transition-transform ${isOpen ? "rotate-180 text-saffron-600" : ""
-                            }`}
+                          className={`w-3.5 h-3.5 text-charcoal-400 transition-transform ${
+                            isOpen ? "rotate-180 text-saffron-600" : ""
+                          }`}
                         />
                       </button>
 
@@ -414,10 +531,11 @@ export default function Sidebar({
                                 key={`${item.label}-${idx}`}
                                 to={item.path || "#"}
                                 onClick={handleLinkClick}
-                                className={`block px-2.5 py-1.5 rounded-md text-[13px] transition ${active
-                                  ? "text-saffron-700 font-semibold bg-saffron-50/70"
-                                  : "text-charcoal-500 hover:text-charcoal-700 hover:bg-cream-50 font-normal"
-                                  }`}
+                                className={`block px-2.5 py-1.5 rounded-md text-[13px] transition ${
+                                  active
+                                    ? "text-saffron-700 font-semibold bg-saffron-50/70"
+                                    : "text-charcoal-500 hover:text-charcoal-700 hover:bg-cream-50 font-normal"
+                                }`}
                               >
                                 {item.label}
                               </NavLink>
@@ -433,14 +551,15 @@ export default function Sidebar({
           </div>
         )}
 
-        {/* 3. Library */}
+        {/* 3. Library (Vedas, Mantras & Suktas, Blog Posts) */}
         {collapsed ? (
           <NavLink
-            to="/admin/library/blogs"
-            className={`flex items-center justify-center w-10 h-10 mx-auto rounded-lg transition group relative ${isLibraryActive
-              ? "bg-saffron-500 text-white"
-              : "text-charcoal-500 hover:bg-cream-100"
-              }`}
+            to="/admin/library/vedas"
+            className={`flex items-center justify-center w-10 h-10 mx-auto rounded-lg transition group relative ${
+              isLibraryActive
+                ? "bg-saffron-500 text-white"
+                : "text-charcoal-500 hover:bg-cream-100"
+            }`}
             title="Library"
           >
             <BookOpen className="w-5 h-5" />
@@ -453,34 +572,44 @@ export default function Sidebar({
             <button
               type="button"
               onClick={() => setIsLibraryOpen((prev) => !prev)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition cursor-pointer ${isLibraryActive
-                ? "bg-saffron-50 text-saffron-700 font-semibold"
-                : "text-charcoal-600 hover:bg-cream-100"
-                }`}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition cursor-pointer ${
+                isLibraryActive
+                  ? "bg-saffron-50 text-saffron-700 font-semibold"
+                  : "text-charcoal-600 hover:bg-cream-100"
+              }`}
               aria-expanded={isLibraryOpen}
             >
               <BookOpen
-                className={`w-[18px] h-[18px] ${isLibraryActive ? "text-saffron-600" : "text-charcoal-400"
-                  }`}
+                className={`w-[18px] h-[18px] ${
+                  isLibraryActive ? "text-saffron-600" : "text-charcoal-400"
+                }`}
               />
-              <span className="flex-1 text-left">Library</span>
+              <span className="flex-1 text-left font-semibold">Library</span>
               <ChevronDown
-                className={`w-4 h-4 text-charcoal-400 transition-transform ${isLibraryOpen ? "rotate-180" : ""
-                  }`}
+                className={`w-4 h-4 text-charcoal-400 transition-transform ${
+                  isLibraryOpen ? "rotate-180" : ""
+                }`}
               />
             </button>
             {isLibraryOpen && (
               <div className="mt-1 ml-6 pl-3 border-l border-cream-200 space-y-0.5">
-                <NavLink
-                  to="/admin/library/blogs"
-                  onClick={handleLinkClick}
-                  className={`block px-3 py-1.5 rounded-lg text-[13px] transition ${isLibraryActive
-                    ? "text-saffron-700 font-semibold bg-saffron-50/60"
-                    : "text-charcoal-500 hover:text-charcoal-700 hover:bg-cream-50"
-                    }`}
-                >
-                  Blog Posts
-                </NavLink>
+                {LIBRARY_ITEMS.map((item) => {
+                  const active = isLibraryItemActive(item);
+                  return (
+                    <NavLink
+                      key={item.label}
+                      to={item.path}
+                      onClick={handleLinkClick}
+                      className={`block px-3 py-1.5 rounded-lg text-[13px] transition ${
+                        active
+                          ? "text-saffron-700 font-semibold bg-saffron-50/70"
+                          : "text-charcoal-500 hover:text-charcoal-700 hover:bg-cream-50 font-normal"
+                      }`}
+                    >
+                      {item.label}
+                    </NavLink>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -491,8 +620,9 @@ export default function Sidebar({
       <div className="px-3 py-4 border-t border-cream-200">
         <button
           onClick={onLogout}
-          className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition w-full cursor-pointer ${collapsed ? "justify-center" : ""
-            }`}
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition w-full cursor-pointer ${
+            collapsed ? "justify-center" : ""
+          }`}
           title="Logout"
         >
           <LogOut className="w-[18px] h-[18px]" />
@@ -506,8 +636,9 @@ export default function Sidebar({
     <>
       {/* Desktop sidebar */}
       <aside
-        className={`hidden lg:flex flex-col fixed left-0 top-0 h-screen bg-white border-r border-cream-200 transition-all duration-300 z-30 ${collapsed ? "w-20" : "w-64"
-          }`}
+        className={`hidden lg:flex flex-col fixed left-0 top-0 h-screen bg-white border-r border-cream-200 transition-all duration-300 z-30 ${
+          collapsed ? "w-20" : "w-64"
+        }`}
       >
         {sidebarContent}
       </aside>
