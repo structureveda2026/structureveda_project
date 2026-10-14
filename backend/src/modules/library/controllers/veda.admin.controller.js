@@ -7,7 +7,14 @@ export class VedaAdminController {
    */
   static async getVedas(req, res) {
     try {
-      const vedas = await VedaService.getAdminVedas(req.query);
+      let category = req.query.category;
+      if (!category) {
+        if (req.baseUrl.includes("darshan")) category = "darshana";
+        else if (req.baseUrl.includes("upanishad")) category = "upanishad";
+        else if (req.baseUrl.includes("purana")) category = "purana";
+        else if (req.baseUrl.includes("itihasa")) category = "itihasa";
+      }
+      const vedas = await VedaService.getAdminVedas({ ...req.query, category });
       return res.status(200).json({
         success: true,
         data: vedas,

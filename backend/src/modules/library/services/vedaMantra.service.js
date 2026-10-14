@@ -194,8 +194,10 @@ export class VedaMantraService {
   /**
    * Admin: Create Mantra
    */
-  static async createMantra(data) {
-    const id = data.id || `${data.vedaId || "mantra"}-${Date.now()}`;
+  static async createMantra(data = {}) {
+    const vedaId = data.vedaId || "veda-library";
+    const mantraNumber = String(data.mantraNumber || data.shlokaNumber || data.sutraNumber || data.number || Date.now());
+    const id = data.id || `${vedaId}-${mantraNumber}`;
     const slug = data.slug || id;
 
     try {
@@ -204,11 +206,19 @@ export class VedaMantraService {
         throw new Error(`Mantra with id "${id}" already exists.`);
       }
 
+      let vedaName = data.vedaName;
+      let textName = data.textName;
+
       // Auto-fill vedaName if not provided
-      if (!data.vedaName && data.vedaId) {
-        const veda = await Veda.findByPk(data.vedaId);
-        if (veda) {
-          data.vedaName = `${veda.name} (${veda.enName})`;
+      if (!vedaName && vedaId) {
+        try {
+          const veda = await Veda.findByPk(vedaId);
+          if (veda) {
+            vedaName = `${veda.name} (${veda.enName})`;
+            if (!textName) textName = veda.name;
+          }
+        } catch {
+          // ignore
         }
       }
 
@@ -216,6 +226,13 @@ export class VedaMantraService {
         ...data,
         id,
         slug,
+        vedaId,
+        vedaName: vedaName || textName || "वैदिक धरोहर",
+        textName: textName || vedaName || "वैदिक मंत्र",
+        sectionRef: data.sectionRef || "प्रथम सूक्त / अध्याय",
+        mantraNumber,
+        sanskrit: data.sanskrit || "ॐ",
+        hindiTranslation: data.hindiTranslation || "हिन्दी अनुवाद शीघ्र उपलब्ध कराया जाएगा।",
       });
     } catch (err) {
       if (err.message.includes("already exists")) throw err;
@@ -227,7 +244,7 @@ export class VedaMantraService {
   /**
    * Admin: Update Mantra
    */
-  static async updateMantra(id, data) {
+  static async updateMantra(id, data = {}) {
     const mantra = await VedaMantra.findByPk(id);
     if (!mantra) {
       throw new Error(`Mantra with id "${id}" not found.`);
@@ -269,26 +286,31 @@ export class VedaMantraService {
     for (let i = 0; i < mantrasList.length; i++) {
       const item = mantrasList[i];
       try {
-        if (!item.id && !item.mantraNumber) {
-          throw new Error(`Item #${i + 1} missing required id or mantraNumber`);
-        }
-        if (!item.sanskrit || !item.hindiTranslation) {
-          throw new Error(`Item #${i + 1} missing required sanskrit or hindiTranslation`);
-        }
+        const vedaId = item.vedaId || "veda-library";
+        const mantraNumber = String(item.mantraNumber || item.shlokaNumber || item.sutraNumber || item.number || i + 1);
+        const id = item.id || `${vedaId}-${mantraNumber.replace(/\./g, "-")}`;
 
-        const id = item.id || `${item.vedaId || "mantra"}-${item.mantraNumber.replace(/\./g, "-")}`;
+        const payload = {
+          ...item,
+          id,
+          slug: item.slug || id,
+          vedaId,
+          vedaName: item.vedaName || item.textName || "वैदिक धरोहर",
+          textName: item.textName || item.vedaName || "वैदिक मंत्र",
+          sectionRef: item.sectionRef || "प्रथम सूक्त",
+          mantraNumber,
+          sanskrit: item.sanskrit || "ॐ",
+          hindiTranslation: item.hindiTranslation || "हिन्दी अनुवाद शीघ्र उपलब्ध कराया जाएगा।",
+        };
+
         try {
           const existing = await VedaMantra.findByPk(id);
 
           if (existing) {
-            await existing.update(item);
+            await existing.update(payload);
             results.updated++;
           } else {
-            await VedaMantra.create({
-              ...item,
-              id,
-              slug: item.slug || id,
-            });
+            await VedaMantra.create(payload);
             results.created++;
           }
         } catch {

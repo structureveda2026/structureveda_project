@@ -332,19 +332,31 @@ export class VedaService {
   /**
    * Admin: Create Veda
    */
-  static async createVeda(data) {
-    const slug = data.slug || data.id || data.enName?.toLowerCase().replace(/\s+/g, "-");
+  static async createVeda(data = {}) {
+    const name = data.name || data.enName || "वैदिक ग्रन्थ";
+    const enName = data.enName || data.name || "Vedic Text";
+    let rawCategory = (data.category || "veda").toLowerCase().trim();
+    if (rawCategory === "darshan" || rawCategory === "darshans") rawCategory = "darshana";
+    if (rawCategory === "upanishads") rawCategory = "upanishad";
+    if (rawCategory === "puranas") rawCategory = "purana";
+    if (rawCategory === "itihasas") rawCategory = "itihasa";
+
+    const baseSlug = (data.slug || data.id || enName.toLowerCase().replace(/[^a-z0-9]+/g, "-")).replace(/^-+|-+$/g, "") || `veda-${Date.now()}`;
+    const slug = baseSlug;
     const id = data.id || slug;
 
     const existing = await Veda.findOne({ where: { [Op.or]: [{ id }, { slug }] } });
     if (existing) {
-      throw new Error(`Veda with id or slug "${slug}" already exists.`);
+      throw new Error(`Text with id or slug "${slug}" already exists.`);
     }
 
     return await Veda.create({
       ...data,
       id,
       slug,
+      name,
+      enName,
+      category: rawCategory,
     });
   }
 

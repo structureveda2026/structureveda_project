@@ -8,7 +8,14 @@ export class VedaPublicController {
    */
   static async getVedas(req, res) {
     try {
-      const category = req.query.category || "veda";
+      let category = req.query.category;
+      if (!category) {
+        if (req.baseUrl.includes("darshan")) category = "darshana";
+        else if (req.baseUrl.includes("upanishad")) category = "upanishad";
+        else if (req.baseUrl.includes("purana")) category = "purana";
+        else if (req.baseUrl.includes("itihasa")) category = "itihasa";
+        else category = "veda";
+      }
       const vedas = await VedaService.getAllVedas({
         ...req.query,
         category,

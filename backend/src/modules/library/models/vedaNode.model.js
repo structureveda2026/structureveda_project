@@ -12,6 +12,14 @@ const VedaNode = sequelize.define(
     slug: {
       type: DataTypes.STRING(120),
       allowNull: false,
+      defaultValue: "node",
+      set(val) {
+        if (!val || typeof val !== "string" || !val.trim()) {
+          this.setDataValue("slug", `node-${Date.now()}`);
+        } else {
+          this.setDataValue("slug", val.trim());
+        }
+      },
       validate: {
         notEmpty: true,
       },

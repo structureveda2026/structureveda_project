@@ -21,8 +21,20 @@ const Veda = sequelize.define(
       type: DataTypes.STRING(50),
       allowNull: false,
       defaultValue: "veda",
+      set(val) {
+        if (typeof val === "string") {
+          let normalized = val.trim().toLowerCase();
+          if (normalized === "darshan" || normalized === "darshans") normalized = "darshana";
+          if (normalized === "upanishads") normalized = "upanishad";
+          if (normalized === "puranas") normalized = "purana";
+          if (normalized === "itihasas") normalized = "itihasa";
+          this.setDataValue("category", normalized);
+        } else {
+          this.setDataValue("category", val);
+        }
+      },
       validate: {
-        isIn: [["veda", "purana", "itihasa", "upanishad", "darshana"]],
+        isIn: [["veda", "purana", "itihasa", "upanishad", "darshana", "darshan", "upanishads", "darshans", "puranas", "itihasas"]],
       },
     },
     name: {
@@ -84,28 +96,83 @@ const Veda = sequelize.define(
       allowNull: true,
       defaultValue: {},
       field: "quick_info",
+      set(val) {
+        if (typeof val === "string") {
+          try {
+            this.setDataValue("quickInfo", JSON.parse(val));
+          } catch {
+            this.setDataValue("quickInfo", {});
+          }
+        } else {
+          this.setDataValue("quickInfo", val || {});
+        }
+      },
     },
     rishis: {
       type: DataTypes.JSONB,
       allowNull: true,
       defaultValue: [],
+      set(val) {
+        if (typeof val === "string") {
+          try {
+            this.setDataValue("rishis", JSON.parse(val));
+          } catch {
+            this.setDataValue("rishis", []);
+          }
+        } else {
+          this.setDataValue("rishis", Array.isArray(val) ? val : []);
+        }
+      },
     },
     deities: {
       type: DataTypes.JSONB,
       allowNull: true,
       defaultValue: [],
+      set(val) {
+        if (typeof val === "string") {
+          try {
+            this.setDataValue("deities", JSON.parse(val));
+          } catch {
+            this.setDataValue("deities", []);
+          }
+        } else {
+          this.setDataValue("deities", Array.isArray(val) ? val : []);
+        }
+      },
     },
     availableTexts: {
       type: DataTypes.JSONB,
       allowNull: true,
       defaultValue: [],
       field: "available_texts",
+      set(val) {
+        if (typeof val === "string") {
+          try {
+            this.setDataValue("availableTexts", JSON.parse(val));
+          } catch {
+            this.setDataValue("availableTexts", []);
+          }
+        } else {
+          this.setDataValue("availableTexts", Array.isArray(val) ? val : []);
+        }
+      },
     },
     relatedGranthas: {
       type: DataTypes.JSONB,
       allowNull: true,
       defaultValue: [],
       field: "related_granthas",
+      set(val) {
+        if (typeof val === "string") {
+          try {
+            this.setDataValue("relatedGranthas", JSON.parse(val));
+          } catch {
+            this.setDataValue("relatedGranthas", []);
+          }
+        } else {
+          this.setDataValue("relatedGranthas", Array.isArray(val) ? val : []);
+        }
+      },
     },
     orderIndex: {
       type: DataTypes.INTEGER,

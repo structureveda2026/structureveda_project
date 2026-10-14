@@ -30,4 +30,9 @@ router.get("/darshanas/:slug", VedaPublicController.getVedaBySlug);
 router.get("/mantras", VedaPublicController.getMantras);
 router.get("/mantras/:id", VedaPublicController.getMantraById);
 
+// Root text endpoints (when mounted directly as /api/vedas, /api/granthas, etc.)
+router.get("/", VedaPublicController.getVedas);
+router.get("/:slug", VedaPublicController.getVedaBySlug);
+router.get("/:slug/tree", VedaPublicController.getVedaBySlug);
+
 export default router;
