@@ -268,19 +268,27 @@ export const getPujaCategories = async (forceRefresh = false) => {
     return cachedCategories;
   }
 
-  if (!categoriesPromise || forceRefresh) {
+  if (forceRefresh) {
+    cachedCategories = null;
+    categoriesPromise = null;
+  }
+
+  if (!categoriesPromise) {
     categoriesPromise = api
       .get("/puja-categories")
       .then((response) => {
         const payload = response.data;
-        if (payload && payload.success && Array.isArray(payload.data)) {
-          const sorted = [...payload.data].sort(
-            (a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)
-          );
-          cachedCategories = sorted;
-          return sorted;
-        }
-        return [];
+        const list = Array.isArray(payload?.data)
+          ? payload.data
+          : Array.isArray(payload)
+          ? payload
+          : [];
+
+        const sorted = [...list].sort(
+          (a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)
+        );
+        cachedCategories = sorted;
+        return sorted;
       })
       .catch((error) => {
         categoriesPromise = null;
