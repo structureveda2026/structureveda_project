@@ -4,11 +4,22 @@ import VedaMantraService from "../services/vedaMantra.service.js";
 export class VedaPublicController {
   /**
    * GET /api/library/vedas
-   * List all active Vedas
+   * List all active Vedas (defaults category to 'veda' unless specified)
    */
   static async getVedas(req, res) {
     try {
-      const vedas = await VedaService.getAllVedas(req.query);
+      let category = req.query.category;
+      if (!category) {
+        if (req.baseUrl.includes("darshan")) category = "darshana";
+        else if (req.baseUrl.includes("upanishad")) category = "upanishad";
+        else if (req.baseUrl.includes("purana")) category = "purana";
+        else if (req.baseUrl.includes("itihasa")) category = "itihasa";
+        else category = "veda";
+      }
+      const vedas = await VedaService.getAllVedas({
+        ...req.query,
+        category,
+      });
       return res.status(200).json({
         success: true,
         data: vedas,
@@ -18,6 +29,123 @@ export class VedaPublicController {
       return res.status(500).json({
         success: false,
         message: "Failed to fetch Vedas",
+        error: error.message,
+      });
+    }
+  }
+
+  /**
+   * GET /api/library/granthas
+   * List all Granthas (optionally filtered by query category)
+   */
+  static async getGranthas(req, res) {
+    try {
+      const granthas = await VedaService.getAllVedas(req.query);
+      return res.status(200).json({
+        success: true,
+        data: granthas,
+      });
+    } catch (error) {
+      console.error("VedaPublicController.getGranthas error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch Granthas",
+        error: error.message,
+      });
+    }
+  }
+
+  /**
+   * GET /api/library/puranas
+   * List all Mahapuranas
+   */
+  static async getPuranas(req, res) {
+    try {
+      const puranas = await VedaService.getAllVedas({
+        ...req.query,
+        category: "purana",
+      });
+      return res.status(200).json({
+        success: true,
+        data: puranas,
+      });
+    } catch (error) {
+      console.error("VedaPublicController.getPuranas error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch Puranas",
+        error: error.message,
+      });
+    }
+  }
+
+  /**
+   * GET /api/library/itihasas
+   * List all Itihasas (Ramayana, Mahabharata, Gita)
+   */
+  static async getItihasas(req, res) {
+    try {
+      const itihasas = await VedaService.getAllVedas({
+        ...req.query,
+        category: "itihasa",
+      });
+      return res.status(200).json({
+        success: true,
+        data: itihasas,
+      });
+    } catch (error) {
+      console.error("VedaPublicController.getItihasas error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch Itihasas",
+        error: error.message,
+      });
+    }
+  }
+
+  /**
+   * GET /api/library/upanishads
+   * List all Mukhya Upanishads
+   */
+  static async getUpanishads(req, res) {
+    try {
+      const upanishads = await VedaService.getAllVedas({
+        ...req.query,
+        category: "upanishad",
+      });
+      return res.status(200).json({
+        success: true,
+        data: upanishads,
+      });
+    } catch (error) {
+      console.error("VedaPublicController.getUpanishads error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch Upanishads",
+        error: error.message,
+      });
+    }
+  }
+
+  /**
+   * GET /api/library/darshanas
+   * List all Shad-Darshanas
+   */
+  static async getDarshanas(req, res) {
+    try {
+      const darshanas = await VedaService.getAllVedas({
+        ...req.query,
+        category: "darshana",
+      });
+      return res.status(200).json({
+        success: true,
+        data: darshanas,
+      });
+    } catch (error) {
+      console.error("VedaPublicController.getDarshanas error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch Darshanas",
         error: error.message,
       });
     }

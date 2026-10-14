@@ -176,6 +176,34 @@ export default function App() {
               <Route path="library/vedas/:id/edit" element={<VedaFormPage />} />
               <Route path="library/vedas/:id/structure" element={<VedaTreePage />} />
 
+              {/* Veda Library Module - Puranas (पुराण) */}
+              <Route path="library/puranas" element={<VedaListPage category="purana" title="Puranas (पुराण)" />} />
+              <Route path="library/puranas/new" element={<VedaFormPage />} />
+              <Route path="library/puranas/:id" element={<VedaTreePage />} />
+              <Route path="library/puranas/:id/edit" element={<VedaFormPage />} />
+              <Route path="library/puranas/:id/structure" element={<VedaTreePage />} />
+
+              {/* Veda Library Module - Itihasa (इतिहास) */}
+              <Route path="library/itihasas" element={<VedaListPage category="itihasa" title="Itihasa (इतिहास)" />} />
+              <Route path="library/itihasas/new" element={<VedaFormPage />} />
+              <Route path="library/itihasas/:id" element={<VedaTreePage />} />
+              <Route path="library/itihasas/:id/edit" element={<VedaFormPage />} />
+              <Route path="library/itihasas/:id/structure" element={<VedaTreePage />} />
+
+              {/* Veda Library Module - Upanishads (उपनिषद्) */}
+              <Route path="library/upanishads" element={<VedaListPage category="upanishad" title="Upanishads (उपनिषद्)" />} />
+              <Route path="library/upanishads/new" element={<VedaFormPage />} />
+              <Route path="library/upanishads/:id" element={<VedaTreePage />} />
+              <Route path="library/upanishads/:id/edit" element={<VedaFormPage />} />
+              <Route path="library/upanishads/:id/structure" element={<VedaTreePage />} />
+
+              {/* Veda Library Module - Darshana (दर्शन शास्त्र) */}
+              <Route path="library/darshanas" element={<VedaListPage category="darshana" title="Darshana (दर्शन शास्त्र)" />} />
+              <Route path="library/darshanas/new" element={<VedaFormPage />} />
+              <Route path="library/darshanas/:id" element={<VedaTreePage />} />
+              <Route path="library/darshanas/:id/edit" element={<VedaFormPage />} />
+              <Route path="library/darshanas/:id/structure" element={<VedaTreePage />} />
+
               {/* Veda Library Module - Mantras & Suktas */}
               <Route path="library/mantras" element={<MantraListPage />} />
               <Route path="library/mantras/new" element={<MantraFormPage />} />
@@ -188,6 +216,31 @@ export default function App() {
               <Route path="vedas/:id" element={<VedaTreePage />} />
               <Route path="vedas/:id/edit" element={<VedaFormPage />} />
               <Route path="vedas/:id/structure" element={<VedaTreePage />} />
+
+              <Route path="puranas" element={<VedaListPage category="purana" title="Puranas (पुराण)" />} />
+              <Route path="puranas/new" element={<VedaFormPage />} />
+              <Route path="puranas/:id" element={<VedaTreePage />} />
+              <Route path="puranas/:id/edit" element={<VedaFormPage />} />
+              <Route path="puranas/:id/structure" element={<VedaTreePage />} />
+
+              <Route path="itihasas" element={<VedaListPage category="itihasa" title="Itihasa (इतिहास)" />} />
+              <Route path="itihasas/new" element={<VedaFormPage />} />
+              <Route path="itihasas/:id" element={<VedaTreePage />} />
+              <Route path="itihasas/:id/edit" element={<VedaFormPage />} />
+              <Route path="itihasas/:id/structure" element={<VedaTreePage />} />
+
+              <Route path="upanishads" element={<VedaListPage category="upanishad" title="Upanishads (उपनिषद्)" />} />
+              <Route path="upanishads/new" element={<VedaFormPage />} />
+              <Route path="upanishads/:id" element={<VedaTreePage />} />
+              <Route path="upanishads/:id/edit" element={<VedaFormPage />} />
+              <Route path="upanishads/:id/structure" element={<VedaTreePage />} />
+
+              <Route path="darshanas" element={<VedaListPage category="darshana" title="Darshana (दर्शन शास्त्र)" />} />
+              <Route path="darshanas/new" element={<VedaFormPage />} />
+              <Route path="darshanas/:id" element={<VedaTreePage />} />
+              <Route path="darshanas/:id/edit" element={<VedaFormPage />} />
+              <Route path="darshanas/:id/structure" element={<VedaTreePage />} />
+
               <Route path="mantras" element={<MantraListPage />} />
               <Route path="mantras/new" element={<MantraFormPage />} />
               <Route path="mantras/:id" element={<MantraDetailPage />} />

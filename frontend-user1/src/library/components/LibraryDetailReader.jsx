@@ -315,18 +315,6 @@ const LibraryDetailReader = ({ node, path = [], onSelectNode }) => {
           </div>
         )}
 
-        {/* Roman Transliteration (IAST) */}
-        {content.transliteration && (
-          <div className="mb-6 sm:mb-8 rounded-2xl border border-[#ebdcc4] bg-[#faf6ed]/70 p-3.5 sm:p-5 text-center">
-            <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-[0.2em] text-[#9b6811] block mb-1">
-              Roman Transliteration (IAST)
-            </span>
-            <p className="font-mono text-[13px] sm:text-[15px] text-[#544637] leading-relaxed italic whitespace-pre-line break-words">
-              {content.transliteration}
-            </p>
-          </div>
-        )}
-
         {/* Vedic Canonical Metadata (2x2 grid on mobile) */}
         {content.metadata && (
           <div className="mb-6 sm:mb-8 rounded-2xl border border-[#ebdcc4] bg-[#fffdf9] p-4 sm:p-5">
@@ -418,6 +406,17 @@ const LibraryDetailReader = ({ node, path = [], onSelectNode }) => {
                 >
                   English Translation
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveMeaningTab("hinglish")}
+                  className={`cursor-pointer px-3 py-1 rounded-md transition ${
+                    activeMeaningTab === "hinglish"
+                      ? "bg-[#c88918] text-white shadow-xs"
+                      : "text-[#6d5b48] hover:text-[#2b241d]"
+                  }`}
+                >
+                  सरल हिंग्लिश
+                </button>
               </div>
             </div>
 
@@ -431,6 +430,12 @@ const LibraryDetailReader = ({ node, path = [], onSelectNode }) => {
               {activeMeaningTab === "en" && (
                 <p className="leading-relaxed text-[#3f3529]">
                   {content.meaningEn || "English translation for this sacred revelation will be appended shortly."}
+                </p>
+              )}
+
+              {activeMeaningTab === "hinglish" && (
+                <p className="font-sans leading-[1.8] text-[#3a3025]">
+                  {content.meaningHinglish || content.meaningHi || "इस मंत्र की सरल हिंग्लिश व्याख्या शीघ्र अद्यतित की जाएगी।"}
                 </p>
               )}
             </div>

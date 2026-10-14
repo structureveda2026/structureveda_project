@@ -26,7 +26,11 @@ const VedaMantra = sequelize.define(
     vedaName: {
       type: DataTypes.STRING(200),
       allowNull: false,
+      defaultValue: "Vedic & Shastric Heritage",
       field: "veda_name",
+      set(val) {
+        this.setDataValue("vedaName", (val && typeof val === "string" && val.trim()) ? val.trim() : "Vedic & Shastric Heritage");
+      },
     },
     shakha: {
       type: DataTypes.STRING(200),
@@ -35,17 +39,29 @@ const VedaMantra = sequelize.define(
     textName: {
       type: DataTypes.STRING(250),
       allowNull: false,
+      defaultValue: "Sacred Text",
       field: "text_name",
+      set(val) {
+        this.setDataValue("textName", (val && typeof val === "string" && val.trim()) ? val.trim() : "Sacred Text");
+      },
     },
     sectionRef: {
       type: DataTypes.STRING(250),
       allowNull: false,
+      defaultValue: "Section 1",
       field: "section_ref",
+      set(val) {
+        this.setDataValue("sectionRef", (val && typeof val === "string" && val.trim()) ? val.trim() : "Section 1");
+      },
     },
     mantraNumber: {
       type: DataTypes.STRING(80),
       allowNull: false,
+      defaultValue: "1",
       field: "mantra_number",
+      set(val) {
+        this.setDataValue("mantraNumber", (val && (typeof val === "string" || typeof val === "number")) ? String(val).trim() : "1");
+      },
     },
     rishi: {
       type: DataTypes.STRING(200),
@@ -66,6 +82,10 @@ const VedaMantra = sequelize.define(
     sanskrit: {
       type: DataTypes.TEXT,
       allowNull: false,
+      defaultValue: "ॐ",
+      set(val) {
+        this.setDataValue("sanskrit", (val && typeof val === "string" && val.trim()) ? val.trim() : "ॐ");
+      },
       validate: {
         notEmpty: true,
       },
@@ -77,7 +97,11 @@ const VedaMantra = sequelize.define(
     hindiTranslation: {
       type: DataTypes.TEXT,
       allowNull: false,
+      defaultValue: "हिन्दी अनुवाद शीघ्र उपलब्ध कराया जाएगा।",
       field: "hindi_translation",
+      set(val) {
+        this.setDataValue("hindiTranslation", (val && typeof val === "string" && val.trim()) ? val.trim() : "हिन्दी अनुवाद शीघ्र उपलब्ध कराया जाएगा।");
+      },
       validate: {
         notEmpty: true,
       },
@@ -96,11 +120,27 @@ const VedaMantra = sequelize.define(
       type: DataTypes.JSONB,
       allowNull: true,
       defaultValue: [],
+      set(val) {
+        if (typeof val === "string") {
+          try {
+            this.setDataValue("padapatha", JSON.parse(val));
+          } catch {
+            this.setDataValue("padapatha", []);
+          }
+        } else {
+          this.setDataValue("padapatha", Array.isArray(val) ? val : []);
+        }
+      },
     },
     shastricContext: {
       type: DataTypes.TEXT,
       allowNull: true,
       field: "shastric_context",
+    },
+    purport: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: "purport",
     },
     audioUrl: {
       type: DataTypes.STRING(600),
@@ -122,6 +162,17 @@ const VedaMantra = sequelize.define(
       allowNull: true,
       defaultValue: [],
       field: "chapter_mantra_ids",
+      set(val) {
+        if (typeof val === "string") {
+          try {
+            this.setDataValue("chapterMantraIds", JSON.parse(val));
+          } catch {
+            this.setDataValue("chapterMantraIds", []);
+          }
+        } else {
+          this.setDataValue("chapterMantraIds", Array.isArray(val) ? val : []);
+        }
+      },
     },
     orderIndex: {
       type: DataTypes.INTEGER,
