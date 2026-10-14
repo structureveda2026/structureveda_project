@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 
-import UmbrellaTrustBar from "../components/umbrella/UmbrellaTrustBar";
 import UmbrellaHero from "../components/umbrella/UmbrellaHero";
 import UmbrellaTrustStrip from "../components/umbrella/UmbrellaTrustStrip";
 import UmbrellaRitualCategories from "../components/umbrella/UmbrellaRitualCategories";
@@ -26,10 +25,7 @@ const YagyaPujaLanding = () => {
 
   return (
     <div className="min-h-screen bg-[#fffaf0] text-[#2b241d]">
-      {/* SECTION 1: TOP TRUST BAR */}
-      <UmbrellaTrustBar />
-
-      {/* SECTION 2: HERO */}
+      {/* HERO SECTION */}
       <UmbrellaHero />
 
       {/* SECTION 3: TRUST STRIP */}

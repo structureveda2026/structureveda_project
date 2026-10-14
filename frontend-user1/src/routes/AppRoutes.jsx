@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import MainLayout from "../components/layout/MainLayout";
 import AuthLayout from "../layouts/AuthLayout";
 import VishalLayout from "../layouts/VishalLayout";
+import YagyaPujaLayout from "../layouts/YagyaPujaLayout";
 
 import Home from "../features/home/pages/Home";
 import Consultation from "../features/consultation/pages/Consultation";
@@ -75,43 +76,9 @@ const AppRoutes = () => {
       </Route>
 
       {/* =====================================================
-          MAIN WEBSITE
+          DEDICATED YAGYA & PUJA EXPERIENCE
       ====================================================== */}
-      <Route element={<MainLayout />}>
-        {/* Home */}
-        <Route path="/" element={<Home />} />
-
-        {/* Veda Library Module */}
-        <Route path="/library" element={<LibraryPage />} />
-        <Route path="/library/tree" element={<LibraryTreePage />} />
-        <Route path="/veda-library/tree" element={<LibraryTreePage />} />
-        <Route path="/library/:topicSlug" element={<LibraryTopicPage />} />
-        <Route path="/veda-library" element={<LibraryPage />} />
-
-        {/* Veda Structure Community Module (Frontend-Only Directory & Profiles) */}
-        <Route path="/community" element={<CommunityLandingPage />} />
-        <Route path="/community/create-profile" element={<CommunityCreateProfilePage />} />
-        <Route path="/community/edit-profile" element={<CommunityCreateProfilePage isEditing={true} />} />
-        <Route path="/community/edit-profile/:slug" element={<CommunityCreateProfilePage isEditing={true} />} />
-        <Route path="/community/profile/:slug" element={<CommunityProfileDetailPage />} />
-
-        <Route path="/book-consultation" element={<Consultation />} />
-
-        {/* Upcoming Puja Events (Preserved & Independent) */}
-        <Route path="/puja" element={<PujaListing />} />
-        <Route path="/puja/upcoming" element={<PujaListing />} />
-        <Route path="/puja/upcoming/all" element={<UpcomingPujaAll />} />
-        <Route path="/puja/:slug" element={<PujaDetails />} />
-
-        {/* Vedic Yagyas */}
-        <Route path="/yagya" element={<YagyaListing />} />
-        <Route path="/yagyas" element={<YagyaListing />} />
-        <Route path="/vedic-yagyas" element={<YagyaListing />} />
-        <Route path="/yagya/:slug" element={<YagyaDetails />} />
-        <Route path="/yagyas/:slug" element={<YagyaDetails />} />
-        <Route path="/vedic-yagya/:slug" element={<YagyaDetails />} />
-
-        {/* Yagya & Puja Module (Service Catalogue) */}
+      <Route element={<YagyaPujaLayout />}>
         <Route path="/yagya-puja" element={<YagyaPujaLanding />} />
         <Route path="/yagya-puja/puja" element={<PujaCatalogueListing />} />
         <Route path="/yagya-puja/puja/all" element={<PujaAllCatalogueListing />} />
@@ -143,6 +110,44 @@ const AppRoutes = () => {
         <Route path="/yagya-puja/homa/:slug/book" element={<RitualBookingWizard serviceType="HOMA" />} />
         <Route path="/yagya-puja/homa/:slug/booking-status" element={<HomaBookingStatus />} />
         <Route path="/yagya-puja/kashi" element={<PujaListing />} />
+      </Route>
+
+      {/* =====================================================
+          MAIN WEBSITE
+      ====================================================== */}
+      <Route element={<MainLayout />}>
+        {/* Home */}
+        <Route path="/" element={<Home />} />
+
+        {/* Veda Library Module */}
+        <Route path="/library" element={<LibraryPage />} />
+        <Route path="/library/tree" element={<LibraryTreePage />} />
+        <Route path="/veda-library/tree" element={<LibraryTreePage />} />
+        <Route path="/library/:topicSlug" element={<LibraryTopicPage />} />
+        <Route path="/veda-library" element={<LibraryPage />} />
+
+        {/* Veda Structure Community Module */}
+        <Route path="/community" element={<CommunityLandingPage />} />
+        <Route path="/community/create-profile" element={<CommunityCreateProfilePage />} />
+        <Route path="/community/edit-profile" element={<CommunityCreateProfilePage isEditing={true} />} />
+        <Route path="/community/edit-profile/:slug" element={<CommunityCreateProfilePage isEditing={true} />} />
+        <Route path="/community/profile/:slug" element={<CommunityProfileDetailPage />} />
+
+        <Route path="/book-consultation" element={<Consultation />} />
+
+        {/* Upcoming Puja Events */}
+        <Route path="/puja" element={<PujaListing />} />
+        <Route path="/puja/upcoming" element={<PujaListing />} />
+        <Route path="/puja/upcoming/all" element={<UpcomingPujaAll />} />
+        <Route path="/puja/:slug" element={<PujaDetails />} />
+
+        {/* Vedic Yagyas */}
+        <Route path="/yagya" element={<YagyaListing />} />
+        <Route path="/yagyas" element={<YagyaListing />} />
+        <Route path="/vedic-yagyas" element={<YagyaListing />} />
+        <Route path="/yagya/:slug" element={<YagyaDetails />} />
+        <Route path="/yagyas/:slug" element={<YagyaDetails />} />
+        <Route path="/vedic-yagya/:slug" element={<YagyaDetails />} />
 
         {/* Astrologers */}
         <Route path="/astrologers" element={<Astrologers />} />
