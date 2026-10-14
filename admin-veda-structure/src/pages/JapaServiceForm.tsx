@@ -841,7 +841,7 @@ export default function JapaServiceForm() {
 
             <div className="md:col-span-2">
               <label htmlFor="japa-mantra" className="label-field">
-                Vedic Mantra (Devanagari / IAST) <span className="text-red-500">*</span>
+                Vedic Mantra (देवनागरी मूल पाठ) <span className="text-red-500">*</span>
               </label>
               <textarea
                 id="japa-mantra"

@@ -44,6 +44,7 @@ export interface Veda {
   slug: string;
   name: string;
   enName: string;
+  category?: string;
   eyebrow?: string;
   intro?: string;
   overviewText?: string;

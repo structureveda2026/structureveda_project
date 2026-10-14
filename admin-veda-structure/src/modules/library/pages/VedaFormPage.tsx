@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
 import {
   ArrowLeft,
   Save,
@@ -22,6 +22,8 @@ import VedaAdminService from "../services/veda.service";
 export const VedaFormPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const queryCategory = searchParams.get("category") || "";
   const { showToast } = useToast();
   const isEditing = Boolean(id);
 
@@ -32,6 +34,7 @@ export const VedaFormPage: React.FC = () => {
     slug: "",
     name: "",
     enName: "",
+    category: queryCategory || "veda",
     eyebrow: "",
     intro: "",
     overviewText: "",
@@ -130,12 +133,18 @@ export const VedaFormPage: React.FC = () => {
 
       if (isEditing && id) {
         await VedaAdminService.updateVeda(id, payload);
-        showToast("वेद सफलतापूर्वक अपडेट किया गया", "success");
+        showToast("डेटा सफलतापूर्वक अपडेट किया गया", "success");
       } else {
         await VedaAdminService.createVeda(payload);
-        showToast("नया वेद सफलतापूर्वक जोड़ा गया", "success");
+        showToast("नया ग्रंथ सफलतापूर्वक जोड़ा गया", "success");
       }
-      navigate("/admin/library/vedas");
+
+      const categoryPath = (payload.category || queryCategory || "").toLowerCase();
+      if (categoryPath === "purana") navigate("/admin/library/puranas");
+      else if (categoryPath === "itihasa") navigate("/admin/library/itihasas");
+      else if (categoryPath === "upanishad") navigate("/admin/library/upanishads");
+      else if (categoryPath === "darshana") navigate("/admin/library/darshanas");
+      else navigate("/admin/library/vedas");
     } catch (err: any) {
       showToast(err.message || "सहेजने में विफल", "error");
     } finally {
@@ -143,11 +152,34 @@ export const VedaFormPage: React.FC = () => {
     }
   };
 
+  const resolvedCategory = (formData.category || queryCategory || "").toLowerCase();
+  const backRoute =
+    resolvedCategory === "purana"
+      ? "/admin/library/puranas"
+      : resolvedCategory === "itihasa"
+      ? "/admin/library/itihasas"
+      : resolvedCategory === "upanishad"
+      ? "/admin/library/upanishads"
+      : resolvedCategory === "darshana"
+      ? "/admin/library/darshanas"
+      : "/admin/library/vedas";
+
+  const categoryLabel =
+    resolvedCategory === "purana"
+      ? "पुराण"
+      : resolvedCategory === "itihasa"
+      ? "इतिहास ग्रंथ"
+      : resolvedCategory === "upanishad"
+      ? "उपनिषद्"
+      : resolvedCategory === "darshana"
+      ? "दर्शन शास्त्र"
+      : "वेद";
+
   if (loading) {
     return (
       <div className="p-16 text-center space-y-3">
         <div className="w-10 h-10 border-3 border-saffron-500 border-t-transparent rounded-full animate-spin mx-auto" />
-        <p className="text-xs text-charcoal-500 font-medium">वेद डेटा लोड हो रहा है...</p>
+        <p className="text-xs text-charcoal-500 font-medium">डेटा लोड हो रहा है...</p>
       </div>
     );
   }
@@ -156,15 +188,19 @@ export const VedaFormPage: React.FC = () => {
     <div className="space-y-6 max-w-5xl mx-auto pb-24">
       {/* Header with Back button */}
       <PageHeader
-        title={isEditing ? `वेद संपादन: ${formData.name}` : "नया वेद जोड़ें (Add New Veda)"}
-        subtitle="वैदिक संहिता, मुख्य ऋत्विक, परिचय, शास्त्रीय विवरण एवं दृश्य विन्यास"
+        title={
+          isEditing
+            ? `${categoryLabel} संपादन: ${formData.name}`
+            : `नया ${categoryLabel} जोड़ें (Add New)`
+        }
+        subtitle="शास्त्रीय संहिता, रचयिता/ऋत्विक, परिचय, विवरण एवं दृश्य विन्यास"
         actions={
           <Link
-            to="/admin/library/vedas"
+            to={backRoute}
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-cream-300 text-charcoal-700 text-xs font-bold hover:bg-cream-50 transition-colors shadow-2xs"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>वेद सूची पर वापस जाएं</span>
+            <span>सूची पर वापस जाएं</span>
           </Link>
         }
       />
@@ -260,7 +296,29 @@ export const VedaFormPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-charcoal-700 mb-1.5">
+                ग्रंथ श्रेणी (Category)
+              </label>
+              <select
+                value={formData.category || queryCategory || "veda"}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    category: e.target.value,
+                  })
+                }
+                className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 bg-white font-semibold focus:border-saffron-500 focus:outline-none"
+              >
+                <option value="veda">वेद (Vedas)</option>
+                <option value="purana">पुराण (Puranas)</option>
+                <option value="itihasa">इतिहास (Itihasa)</option>
+                <option value="upanishad">उपनिषद् (Upanishads)</option>
+                <option value="darshana">दर्शन शास्त्र (Darshanas)</option>
+              </select>
+            </div>
+
             <div>
               <label className="block text-xs font-bold text-charcoal-700 mb-1.5">
                 प्रदर्शन क्रम (Order Index)
@@ -593,13 +651,13 @@ export const VedaFormPage: React.FC = () => {
             <span className="hidden sm:inline">
               {isEditing
                 ? `संशोधन सहेजने के लिए तैयार (${formData.name})`
-                : "नया वेद पंजीकृत करने के लिए तैयार"}
+                : `नया ${categoryLabel} पंजीकृत करने के लिए तैयार`}
             </span>
           </div>
 
           <div className="flex items-center gap-2.5">
             <Link
-              to="/admin/library/vedas"
+              to={backRoute}
               className="px-4 py-2.5 rounded-xl text-xs font-bold text-charcoal-600 hover:bg-cream-100 transition-colors"
             >
               रद्द करें
@@ -610,7 +668,7 @@ export const VedaFormPage: React.FC = () => {
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-saffron-600 to-amber-600 hover:from-saffron-500 hover:to-amber-500 text-white text-xs font-bold shadow-md transition-all disabled:opacity-50 cursor-pointer"
             >
               <Save className="w-4 h-4" />
-              <span>{saving ? "सहेजा जा रहा है..." : isEditing ? "अपडेट सहेजें (Update Veda)" : "नया वेद जोड़ें (Save Veda)"}</span>
+              <span>{saving ? "सहेजा जा रहा है..." : isEditing ? `अपडेट सहेजें (Update ${categoryLabel})` : `नया ${categoryLabel} जोड़ें (Save)`}</span>
             </button>
           </div>
         </div>

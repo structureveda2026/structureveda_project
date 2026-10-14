@@ -37,6 +37,10 @@ import {
   vedaPublicRoutes,
   vedaAdminRoutes,
   vedaMantraAdminRoutes,
+  puranaItihasaAdminRoutes,
+  puranaItihasaPublicRoutes,
+  upanishadDarshanAdminRoutes,
+  upanishadDarshanPublicRoutes,
 } from "./modules/library/index.js";
 
 const app = express();
@@ -99,14 +103,46 @@ app.use("/api/admin/blogs", blogAdminRoutes);
 app.use("/api/library/blogs", blogPublicRoutes);
 app.use("/api/blogs", blogPublicRoutes);
 
-// Veda & Mantra Library Endpoints
+// Veda, Mantra & Grantha Library Endpoints
 app.use("/api/admin/library/vedas", vedaAdminRoutes);
 app.use("/api/admin/vedas", vedaAdminRoutes);
 app.use("/api/admin/library/mantras", vedaMantraAdminRoutes);
 app.use("/api/admin/mantras", vedaMantraAdminRoutes);
+app.use("/api/admin/library", vedaAdminRoutes);
 
 app.use("/api/library", vedaPublicRoutes);
 app.use("/api/vedas", vedaPublicRoutes);
 app.use("/api/mantras", vedaPublicRoutes);
+// Grantha & Shastra aliases
+app.use("/api/granthas", vedaPublicRoutes);
+app.use("/api/upanishads", vedaPublicRoutes);
+app.use("/api/darshanas", vedaPublicRoutes);
+
+// Purana & Itihasa Endpoints
+app.use("/api/admin/library/purana-itihasa", puranaItihasaAdminRoutes);
+app.use("/api/admin/purana-itihasa", puranaItihasaAdminRoutes);
+app.use("/api/admin/puranas", puranaItihasaAdminRoutes);
+app.use("/api/admin/itihasas", puranaItihasaAdminRoutes);
+
+app.use("/api/library/purana-itihasa", puranaItihasaPublicRoutes);
+app.use("/api/purana-itihasa", puranaItihasaPublicRoutes);
+app.use("/api/puranas", puranaItihasaPublicRoutes);
+app.use("/api/itihasas", puranaItihasaPublicRoutes);
+
+// Upanishad & Darshan Philosophy Endpoints
+app.use("/api/admin/library/upanishad-darshan", upanishadDarshanAdminRoutes);
+app.use("/api/admin/upanishad-darshan", upanishadDarshanAdminRoutes);
+app.use("/api/admin/library/upanishads", upanishadDarshanAdminRoutes);
+app.use("/api/admin/upanishads", upanishadDarshanAdminRoutes);
+app.use("/api/admin/library/darshanas", upanishadDarshanAdminRoutes);
+app.use("/api/admin/library/darshan", upanishadDarshanAdminRoutes);
+app.use("/api/admin/darshanas", upanishadDarshanAdminRoutes);
+app.use("/api/admin/darshan", upanishadDarshanAdminRoutes);
+
+app.use("/api/library/upanishad-darshan", upanishadDarshanPublicRoutes);
+app.use("/api/upanishad-darshan", upanishadDarshanPublicRoutes);
+app.use("/api/upanishads", upanishadDarshanPublicRoutes);
+app.use("/api/darshanas", upanishadDarshanPublicRoutes);
+app.use("/api/darshan", upanishadDarshanPublicRoutes);
 
 export default app;

@@ -7,7 +7,14 @@ export class VedaAdminController {
    */
   static async getVedas(req, res) {
     try {
-      const vedas = await VedaService.getAdminVedas();
+      let category = req.query.category;
+      if (!category) {
+        if (req.baseUrl.includes("darshan")) category = "darshana";
+        else if (req.baseUrl.includes("upanishad")) category = "upanishad";
+        else if (req.baseUrl.includes("purana")) category = "purana";
+        else if (req.baseUrl.includes("itihasa")) category = "itihasa";
+      }
+      const vedas = await VedaService.getAdminVedas({ ...req.query, category });
       return res.status(200).json({
         success: true,
         data: vedas,
@@ -17,6 +24,118 @@ export class VedaAdminController {
       return res.status(500).json({
         success: false,
         message: "Failed to fetch admin Vedas",
+        error: error.message,
+      });
+    }
+  }
+
+  /**
+   * GET /api/admin/library/granthas
+   */
+  static async getGranthas(req, res) {
+    try {
+      const granthas = await VedaService.getAdminVedas(req.query);
+      return res.status(200).json({
+        success: true,
+        data: granthas,
+      });
+    } catch (error) {
+      console.error("VedaAdminController.getGranthas error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch admin Granthas",
+        error: error.message,
+      });
+    }
+  }
+
+  /**
+   * GET /api/admin/library/puranas
+   */
+  static async getPuranas(req, res) {
+    try {
+      const puranas = await VedaService.getAdminVedas({
+        ...req.query,
+        category: "purana",
+      });
+      return res.status(200).json({
+        success: true,
+        data: puranas,
+      });
+    } catch (error) {
+      console.error("VedaAdminController.getPuranas error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch admin Puranas",
+        error: error.message,
+      });
+    }
+  }
+
+  /**
+   * GET /api/admin/library/itihasas
+   */
+  static async getItihasas(req, res) {
+    try {
+      const itihasas = await VedaService.getAdminVedas({
+        ...req.query,
+        category: "itihasa",
+      });
+      return res.status(200).json({
+        success: true,
+        data: itihasas,
+      });
+    } catch (error) {
+      console.error("VedaAdminController.getItihasas error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch admin Itihasas",
+        error: error.message,
+      });
+    }
+  }
+
+  /**
+   * GET /api/admin/library/upanishads
+   */
+  static async getUpanishads(req, res) {
+    try {
+      const upanishads = await VedaService.getAdminVedas({
+        ...req.query,
+        category: "upanishad",
+      });
+      return res.status(200).json({
+        success: true,
+        data: upanishads,
+      });
+    } catch (error) {
+      console.error("VedaAdminController.getUpanishads error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch admin Upanishads",
+        error: error.message,
+      });
+    }
+  }
+
+  /**
+   * GET /api/admin/library/darshanas
+   */
+  static async getDarshanas(req, res) {
+    try {
+      const darshanas = await VedaService.getAdminVedas({
+        ...req.query,
+        category: "darshana",
+      });
+      return res.status(200).json({
+        success: true,
+        data: darshanas,
+      });
+    } catch (error) {
+      console.error("VedaAdminController.getDarshanas error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch admin Darshanas",
         error: error.message,
       });
     }

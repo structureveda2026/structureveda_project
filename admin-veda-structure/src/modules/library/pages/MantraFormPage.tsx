@@ -416,7 +416,7 @@ export const MantraFormPage: React.FC = () => {
             <div className="bg-white p-6 rounded-2xl border border-cream-200 shadow-2xs space-y-4">
               <h3 className="font-serif text-sm font-bold text-charcoal-900 border-b border-cream-100 pb-2.5 flex items-center gap-2">
                 <Scroll className="w-4 h-4 text-saffron-600" />
-                <span>मूल संस्कृत एवं रोमन लिप्यंतरण (Sanskrit & IAST)</span>
+                <span>मूल संस्कृत पाठ (Sanskrit Text)</span>
               </h3>
 
               <div>
@@ -432,21 +432,6 @@ export const MantraFormPage: React.FC = () => {
                   }
                   placeholder="ॐ अ॒ग्निमी॑ळे पु॒रोहि॑तं य॒ज्ञस्य॑ दे॒वमृ॒त्विज॑म्।&#10;होता॑रं रत्न॒धात॑मम्॥१॥"
                   className="w-full p-4 rounded-xl text-base font-devanagari font-bold border border-cream-300 focus:border-saffron-500 focus:outline-none bg-[#fffaf0] text-[#2e1808] leading-loose shadow-inner"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                  IAST रोमन लिप्यंतरण (Roman Transliteration)
-                </label>
-                <textarea
-                  rows={2}
-                  value={formData.transliteration || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, transliteration: e.target.value })
-                  }
-                  placeholder="oṃ agnim īḷe purohitaṃ yajñasya devam ṛtvijam |&#10;hotāraṃ ratnadhātamam || 1 ||"
-                  className="w-full p-3 rounded-xl text-xs font-serif italic border border-cream-300 focus:border-saffron-500 focus:outline-none bg-[#fffdfa]"
                 />
               </div>
             </div>

@@ -27,6 +27,7 @@ export { default as VedaNodeModal } from "./components/VedaNodeModal";
 // Services
 export { blogService, default as BlogService } from "./services/blog.service";
 export { VedaAdminService, default as VedaService } from "./services/veda.service";
+export type { VedaQueryParams } from "./services/veda.service";
 export { VedaMantraAdminService, default as VedaMantraService } from "./services/vedaMantra.service";
 
 // Constants & Types

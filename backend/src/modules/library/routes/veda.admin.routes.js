@@ -23,6 +23,13 @@ router.post("/vedas", VedaAdminController.createVeda);
 router.put("/vedas/:id", VedaAdminController.updateVeda);
 router.delete("/vedas/:id", VedaAdminController.deleteVeda);
 
+// Grantha Categories
+router.get("/granthas", VedaAdminController.getGranthas);
+router.get("/puranas", VedaAdminController.getPuranas);
+router.get("/itihasas", VedaAdminController.getItihasas);
+router.get("/upanishads", VedaAdminController.getUpanishads);
+router.get("/darshanas", VedaAdminController.getDarshanas);
+
 // Direct root route mappings for /api/admin/library/vedas
 router.get("/", VedaAdminController.getVedas);
 router.post("/", VedaAdminController.createVeda);

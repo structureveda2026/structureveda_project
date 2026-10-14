@@ -141,16 +141,16 @@ async function seedBlogs() {
       });
 
       if (created) {
-        console.log(`✅ Created blog: ${blog.title}`);
+        console.log(`[CREATED] Blog: ${blog.title}`);
       } else {
-        console.log(`ℹ️ Blog already exists: ${blog.title}`);
+        console.log(`[EXISTS] Blog already exists: ${blog.title}`);
       }
     }
 
-    console.log("🎉 Blog seeding completed successfully!");
+    console.log("Blog seeding completed successfully!");
     process.exit(0);
   } catch (error) {
-    console.error("❌ Error seeding blogs:", error);
+    console.error("Error seeding blogs:", error);
     process.exit(1);
   }
 }
