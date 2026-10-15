@@ -16,6 +16,13 @@ export { default as MantraListPage } from "./pages/MantraListPage";
 export { default as MantraFormPage } from "./pages/MantraFormPage";
 export { default as MantraDetailPage } from "./pages/MantraDetailPage";
 
+// Purana & Itihasa Archive Pages
+export { default as PuranaItihasaListPage } from "./pages/PuranaItihasaListPage";
+export { default as PuranaItihasaFormPage } from "./pages/PuranaItihasaFormPage";
+export { default as PuranaItihasaStructureTreePage } from "./pages/PuranaItihasaStructureTreePage";
+export { default as PuranaItihasaShlokaListPage } from "./pages/PuranaItihasaShlokaListPage";
+export { default as PuranaItihasaShlokaFormPage } from "./pages/PuranaItihasaShlokaFormPage";
+
 // Components
 export { default as RichTextEditor } from "./components/RichTextEditor";
 export { default as BlogStatsCards } from "./components/BlogStatsCards";
@@ -29,8 +36,14 @@ export { blogService, default as BlogService } from "./services/blog.service";
 export { VedaAdminService, default as VedaService } from "./services/veda.service";
 export type { VedaQueryParams } from "./services/veda.service";
 export { VedaMantraAdminService, default as VedaMantraService } from "./services/vedaMantra.service";
+export {
+  PuranaItihasaAdminService,
+  puranaItihasaAdminService,
+  default as PuranaItihasaService,
+} from "./services/puranaItihasa.service";
 
 // Constants & Types
 export * from "./constants/blog.constants";
 export * from "./types/blog.types";
 export * from "./types/veda.types";
+export * from "./types/puranaItihasa.types";

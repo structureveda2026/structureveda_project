@@ -21,6 +21,10 @@ router.get("/shlokas/:shlokaId", PuranaItihasaAdminController.getShlokaById);
 router.put("/shlokas/:shlokaId", PuranaItihasaAdminController.updateShloka);
 router.delete("/shlokas/:shlokaId", PuranaItihasaAdminController.deleteShloka);
 
+// General Shloka search / list / creation (must precede /:id)
+router.get("/shlokas", PuranaItihasaAdminController.getShlokas);
+router.post("/shlokas", PuranaItihasaAdminController.createShloka);
+
 // Tree Node operations (Kandas, Parvas, Skandhas, Adhyayas)
 router.post("/nodes", PuranaItihasaAdminController.createNode);
 router.put("/nodes/:nodeId", PuranaItihasaAdminController.updateNode);

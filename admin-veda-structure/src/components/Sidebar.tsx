@@ -120,6 +120,11 @@ const LIBRARY_ITEMS: LibrarySubItem[] = [
     aliases: ["/admin/vedas"],
   },
   {
+    label: "Purana & Itihasa Archive",
+    path: "/admin/purana-itihasa",
+    aliases: ["/admin/puranas", "/admin/itihasas"],
+  },
+  {
     label: "Mantras & Suktas",
     path: "/admin/library/mantras",
     aliases: ["/admin/mantras"],
@@ -171,7 +176,10 @@ export default function Sidebar({
     location.pathname.startsWith("/admin/library") ||
     location.pathname.startsWith("/admin/vedas") ||
     location.pathname.startsWith("/admin/mantras") ||
-    location.pathname.startsWith("/admin/blogs");
+    location.pathname.startsWith("/admin/blogs") ||
+    location.pathname.startsWith("/admin/purana-itihasa") ||
+    location.pathname.startsWith("/admin/puranas") ||
+    location.pathname.startsWith("/admin/itihasas");
 
   // Accordion state for Yagya & Puja parent
   const [isYagyaPujaOpen, setIsYagyaPujaOpen] = useState(true);

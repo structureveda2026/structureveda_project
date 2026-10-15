@@ -120,11 +120,15 @@ app.use("/api/darshanas", vedaPublicRoutes);
 
 // Purana & Itihasa Endpoints
 app.use("/api/admin/library/purana-itihasa", puranaItihasaAdminRoutes);
+app.use("/api/admin/library/puranas", puranaItihasaAdminRoutes);
+app.use("/api/admin/library/itihasas", puranaItihasaAdminRoutes);
 app.use("/api/admin/purana-itihasa", puranaItihasaAdminRoutes);
 app.use("/api/admin/puranas", puranaItihasaAdminRoutes);
 app.use("/api/admin/itihasas", puranaItihasaAdminRoutes);
 
 app.use("/api/library/purana-itihasa", puranaItihasaPublicRoutes);
+app.use("/api/library/puranas", puranaItihasaPublicRoutes);
+app.use("/api/library/itihasas", puranaItihasaPublicRoutes);
 app.use("/api/purana-itihasa", puranaItihasaPublicRoutes);
 app.use("/api/puranas", puranaItihasaPublicRoutes);
 app.use("/api/itihasas", puranaItihasaPublicRoutes);
