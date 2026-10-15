@@ -258,213 +258,267 @@ export const PuranaItihasaListPage: React.FC = () => {
 
   return (
     <div className="space-y-4 pb-8">
-      {/* 1. Header with Breadcrumb & Global Action Buttons */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-gradient-to-r from-saffron-50 via-cream-50 to-purple-50 p-4 sm:p-5 rounded-xl border border-saffron-200/60 shadow-xs">
-        <div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-saffron-700 uppercase tracking-wider mb-1">
-            <Flame className="w-3.5 h-3.5 text-saffron-500" />
-            <span>वैदिक वाङ्मय अभिलेखागार • Puranic & Epic Corpus</span>
-          </div>
-          <h1 className="text-xl sm:text-2xl font-extrabold text-charcoal-900 font-serif tracking-tight">
-            पुराण एवं इतिहास महासंग्रह (Purana & Itihasa Archive)
-          </h1>
-          <p className="text-xs sm:text-sm text-charcoal-600 mt-0.5 max-w-2xl leading-normal">
-            अष्टादश महापुराण (१८), आदिकाव्य रामायण, महाभारत, १८ उपपुराण, १० दार्शनिक आख्यान रत्न एवं श्रीमद्भागवत प्रतिपादित दश लक्षणों का सर्वांगीण डिजिटल प्रबंधन।
-          </p>
+      {/* 1. Sacred Royal Hero Header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1a0f0a] via-[#2c1810] to-[#1c0d07] text-white p-4 sm:p-5 border border-amber-500/25 shadow-elevated">
+        {/* Sacred Ambient Glow & Watermark */}
+        <div className="absolute -right-12 -top-12 w-64 h-64 bg-saffron-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -left-12 -bottom-12 w-48 h-48 bg-purple-500/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute right-6 bottom-1 opacity-5 pointer-events-none select-none text-8xl font-serif font-black text-amber-200">
+          ॐ
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={handleSeedArchive}
-            disabled={seeding}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-saffron-300 text-saffron-700 font-semibold text-xs hover:bg-saffron-50 transition shadow-2xs disabled:opacity-50"
-            title="डेटाबेस में प्रामाणिक १८ महापुराण एवं इतिहास पुनः स्थापित करें"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${seeding ? "animate-spin text-saffron-600" : ""}`} />
-            <span>{seeding ? "सिंक हो रहा है..." : "डेटाबेस पुनः सिंक करें (Seed Archive)"}</span>
-          </button>
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div className="space-y-2 max-w-2xl">
+            {/* Sacred Shloka Badge */}
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[11px] font-semibold backdrop-blur-sm bg-amber-500/20 border-amber-400/30 text-amber-200 shadow-2xs">
+              <Sparkles className="w-3 h-3 text-amber-300 animate-pulse" />
+              <span className="tracking-wide">अष्टादशपुराणेषु व्यासस्य वचनद्वयम् • परोपकाराय पुण्याय पापाय परपीडनम्</span>
+            </div>
 
-          <Link
-            to="/admin/purana-itihasa/new"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-saffron-500 hover:bg-saffron-600 text-white font-semibold text-xs transition shadow-xs hover:shadow-sm"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>नया ग्रंथ जोड़ें (Add New Grantha)</span>
-          </Link>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-serif font-bold tracking-tight text-cream-50 leading-tight">
+              पुराण एवं इतिहास महासंग्रह (Purana & Itihasa Archive)
+            </h1>
+
+            <p className="text-xs text-cream-200/90 leading-relaxed font-devanagari max-w-xl">
+              अष्टादश महापुराण (१८), आदिकाव्य रामायण, महाभारत, १८ उपपुराण, १० दार्शनिक आख्यान रत्न एवं श्रीमद्भागवत प्रतिपादित दश लक्षणों का सर्वांगीण डिजिटल प्रबंधन।
+            </p>
+
+            {/* Quick Hero Highlights */}
+            <div className="flex flex-wrap items-center gap-2 pt-1 text-[10px] text-amber-200/90">
+              <span className="inline-flex items-center gap-1 bg-black/30 px-2 py-0.5 rounded-md border border-white/10 backdrop-blur-xs">
+                <BookOpen className="w-3 h-3 text-amber-400" />
+                <span>१८ महापुराण (सात्त्विक • राजस • तामस)</span>
+              </span>
+              <span className="inline-flex items-center gap-1 bg-black/30 px-2 py-0.5 rounded-md border border-white/10 backdrop-blur-xs">
+                <Scroll className="w-3 h-3 text-amber-400" />
+                <span>५ इतिहास व महाकाव्य (रामायण, महाभारत...)</span>
+              </span>
+              <span className="inline-flex items-center gap-1 bg-black/30 px-2 py-0.5 rounded-md border border-white/10 backdrop-blur-xs">
+                <ShieldCheck className="w-3 h-3 text-amber-400" />
+                <span>१० शास्त्रीय लक्षण व दार्शनिक रत्न</span>
+              </span>
+            </div>
+          </div>
+
+          {/* Banner Action Buttons */}
+          <div className="flex flex-wrap sm:flex-nowrap lg:flex-col gap-2 shrink-0">
+            <button
+              onClick={handleSeedArchive}
+              disabled={seeding}
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-saffron-500 hover:from-amber-400 hover:to-saffron-400 text-charcoal-900 font-bold text-xs shadow-2xs transition-all hover:scale-[1.01] cursor-pointer disabled:opacity-50"
+              title="डेटाबेस में प्रामाणिक १८ महापुराण एवं इतिहास पुनः स्थापित करें"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 text-charcoal-900 ${seeding ? "animate-spin" : ""}`} />
+              <span>{seeding ? "सिंक हो रहा है..." : "डेटाबेस पुनः सिंक करें (Seed Archive)"}</span>
+            </button>
+
+            <Link
+              to="/admin/purana-itihasa/new"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold border border-white/15 backdrop-blur-sm transition-all shadow-xs"
+            >
+              <Plus className="w-3.5 h-3.5 text-amber-300" />
+              <span>नया ग्रंथ जोड़ें (Add New Grantha)</span>
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* 2. Stat Cards at Top (Compact) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5">
+      {/* 2. Stat Cards at Top (Compact Bento-Luxury) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
         {/* Card 1: Total Texts */}
-        <div className="card p-2.5 sm:p-3 relative overflow-hidden group hover:border-saffron-300 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-charcoal-500">
-              कुल ग्रंथ (Total Texts)
-            </span>
-            <div className="w-7 h-7 rounded-lg bg-saffron-100 flex items-center justify-center text-saffron-600 group-hover:scale-105 transition-transform">
-              <BookOpen className="w-3.5 h-3.5" />
+        <div className="group relative overflow-hidden rounded-xl bg-white border border-cream-200/90 px-3 py-2.5 sm:px-3.5 sm:py-3 shadow-2xs hover:shadow-xs hover:border-saffron-300 transition-all duration-200 flex items-center justify-between gap-2.5">
+          <div className="min-w-0 flex-1 space-y-0.5">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-charcoal-500 truncate">
+                कुल ग्रंथ (Total Texts)
+              </span>
             </div>
-          </div>
-          <div className="mt-1.5">
-            <div className="text-base sm:text-lg font-bold text-charcoal-900 font-serif">
-              {statsSummary.totalTexts} <span className="text-[11px] font-normal text-charcoal-500">प्रमुख ग्रंथ</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-lg sm:text-xl font-extrabold text-charcoal-900 tracking-tight font-serif leading-none">
+                {statsSummary.totalTexts}
+              </span>
+              <span className="text-[10px] font-medium text-charcoal-500">
+                प्रमुख ग्रंथ
+              </span>
             </div>
-            <p className="text-[10px] text-charcoal-600 mt-0.5">
-              १८ महापुराण + ५ इतिहास एवं महाकाव्य
+            <p className="text-[10px] text-charcoal-500 truncate">
+              १८ महापुराण + ५ इतिहास
             </p>
           </div>
-          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-saffron-400 to-saffron-600" />
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-saffron-50 text-saffron-600 border border-saffron-200/60 group-hover:scale-105 transition-transform">
+            <BookOpen className="w-4 h-4" />
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-saffron-400 to-amber-500" />
         </div>
 
         {/* Card 2: Total Shlokas */}
-        <div className="card p-2.5 sm:p-3 relative overflow-hidden group hover:border-gold-400 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-charcoal-500">
-              कुल श्लोक संख्या (Total Shlokas)
-            </span>
-            <div className="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center text-amber-700 group-hover:scale-105 transition-transform">
-              <Scroll className="w-3.5 h-3.5" />
+        <div className="group relative overflow-hidden rounded-xl bg-white border border-cream-200/90 px-3 py-2.5 sm:px-3.5 sm:py-3 shadow-2xs hover:shadow-xs hover:border-gold-400 transition-all duration-200 flex items-center justify-between gap-2.5">
+          <div className="min-w-0 flex-1 space-y-0.5">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-charcoal-500 truncate">
+                कुल श्लोक (Total Shlokas)
+              </span>
             </div>
-          </div>
-          <div className="mt-1.5">
-            <div className="text-base sm:text-lg font-bold text-charcoal-900 font-serif text-amber-700">
-              ५,२५,०००+ <span className="text-[11px] font-normal text-charcoal-500">श्लोक</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-lg sm:text-xl font-extrabold text-amber-700 tracking-tight font-serif leading-none">
+                ५,२५,०००+
+              </span>
+              <span className="text-[10px] font-medium text-charcoal-500">
+                श्लोक
+              </span>
             </div>
-            <p className="text-[10px] text-charcoal-600 mt-0.5">
-              ४ लाख पुराण + १ लाख महाभारत + २४ हजार रामायण
+            <p className="text-[10px] text-charcoal-500 truncate">
+              ४ लाख पुराण + १.२४ लाख इतिहास
             </p>
           </div>
-          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-400 to-amber-600" />
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-amber-50 text-amber-700 border border-amber-200/60 group-hover:scale-105 transition-transform">
+            <Scroll className="w-4 h-4" />
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-400 to-gold-500" />
         </div>
 
         {/* Card 3: Triguna Classification */}
-        <div className="card p-2.5 sm:p-3 relative overflow-hidden group hover:border-emerald-300 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-charcoal-500">
-              त्रिगुण वर्गीकरण (Guna Breakdown)
-            </span>
-            <div className="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 group-hover:scale-105 transition-transform">
-              <ShieldCheck className="w-3.5 h-3.5" />
+        <div className="group relative overflow-hidden rounded-xl bg-white border border-cream-200/90 px-3 py-2.5 sm:px-3.5 sm:py-3 shadow-2xs hover:shadow-xs hover:border-emerald-300 transition-all duration-200 flex items-center justify-between gap-2.5">
+          <div className="min-w-0 flex-1 space-y-0.5">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-charcoal-500 truncate">
+                त्रिगुण वर्गीकरण (Gunas)
+              </span>
             </div>
-          </div>
-          <div className="mt-1.5">
-            <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-charcoal-800">
+            <div className="flex items-center gap-1 text-[11px] font-bold text-charcoal-800">
               <span className="text-emerald-700">६ सात्त्विक</span> •
               <span className="text-amber-700">६ राजस</span> •
               <span className="text-purple-700">६ तामस</span>
             </div>
-            <p className="text-[10px] text-charcoal-600 mt-0.5">
-              पद्म व मत्स्य पुराण अनुसार १८ महापुराणों का सन्तुलन
+            <p className="text-[10px] text-charcoal-500 truncate">
+              पद्म व मत्स्य पुराण अनुसार
             </p>
+          </div>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-emerald-50 text-emerald-700 border border-emerald-200/60 group-hover:scale-105 transition-transform">
+            <ShieldCheck className="w-4 h-4" />
           </div>
           <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500 via-amber-500 to-purple-600" />
         </div>
 
         {/* Card 4: 10 Akhyanas & Jewels */}
-        <div className="card p-2.5 sm:p-3 relative overflow-hidden group hover:border-purple-300 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-charcoal-500">
-              प्रमुख आख्यान व रत्न (Philosophical Jewels)
-            </span>
-            <div className="w-7 h-7 rounded-lg bg-purple-100 flex items-center justify-center text-purple-700 group-hover:scale-105 transition-transform">
-              <Award className="w-3.5 h-3.5" />
+        <div className="group relative overflow-hidden rounded-xl bg-white border border-cream-200/90 px-3 py-2.5 sm:px-3.5 sm:py-3 shadow-2xs hover:shadow-xs hover:border-purple-300 transition-all duration-200 flex items-center justify-between gap-2.5">
+          <div className="min-w-0 flex-1 space-y-0.5">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-charcoal-500 truncate">
+                दार्शनिक रत्न व उपपुराण
+              </span>
             </div>
-          </div>
-          <div className="mt-1.5">
-            <div className="text-base sm:text-lg font-bold text-charcoal-900 font-serif text-purple-800">
-              १० आख्यान <span className="text-[11px] font-normal text-charcoal-500">& १८ उपपुराण</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-lg sm:text-xl font-extrabold text-purple-800 tracking-tight font-serif leading-none">
+                १० रत्न
+              </span>
+              <span className="text-[10px] font-normal text-charcoal-500">
+                & १८ उपपुराण
+              </span>
             </div>
-            <p className="text-[10px] text-charcoal-600 mt-0.5">
-              गीता, दुर्गा सप्तशती, सहस्रनाम, गजेन्द्र मोक्ष
+            <p className="text-[10px] text-charcoal-500 truncate">
+              गीता, चण्डी, सहस्रनाम, मोक्ष
             </p>
+          </div>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-purple-50 text-purple-700 border border-purple-200/60 group-hover:scale-105 transition-transform">
+            <Award className="w-4 h-4" />
           </div>
           <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500 to-indigo-600" />
         </div>
       </div>
 
-      {/* 3. Tab Switcher (Compact 5 Tabs) */}
-      <div className="border-b border-cream-200">
-        <nav className="flex space-x-1 sm:space-x-1.5 overflow-x-auto pb-0.5 no-scrollbar">
+      {/* 3. Floating Segmented Tab Switcher */}
+      <div className="bg-cream-200/60 p-1 rounded-xl border border-cream-300/60 shadow-2xs">
+        <nav className="flex space-x-1 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveTab("mahapuranas")}
-            className={`flex items-center gap-1.5 py-1.5 px-2.5 font-semibold text-xs rounded-t-lg transition-all whitespace-nowrap border-b-2 ${
+            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg font-semibold text-xs transition-all whitespace-nowrap ${
               activeTab === "mahapuranas"
-                ? "border-saffron-500 text-saffron-700 bg-saffron-50/50"
-                : "border-transparent text-charcoal-600 hover:text-charcoal-900 hover:bg-cream-50"
+                ? "bg-white text-saffron-800 shadow-soft border border-cream-200/90 font-bold scale-[1.01]"
+                : "text-charcoal-600 hover:text-charcoal-900 hover:bg-white/60"
             }`}
           >
-            <BookOpen className="w-3.5 h-3.5" />
+            <BookOpen className="w-3.5 h-3.5 text-saffron-600" />
             <span>१. १८ महापुराण (18 Mahapuranas)</span>
-            <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-saffron-100 text-saffron-800 font-bold">
+            <span className={`ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+              activeTab === "mahapuranas" ? "bg-saffron-500 text-white" : "bg-saffron-100 text-saffron-800"
+            }`}>
               18
             </span>
           </button>
 
           <button
             onClick={() => setActiveTab("itihasas")}
-            className={`flex items-center gap-1.5 py-1.5 px-2.5 font-semibold text-xs rounded-t-lg transition-all whitespace-nowrap border-b-2 ${
+            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg font-semibold text-xs transition-all whitespace-nowrap ${
               activeTab === "itihasas"
-                ? "border-saffron-500 text-saffron-700 bg-saffron-50/50"
-                : "border-transparent text-charcoal-600 hover:text-charcoal-900 hover:bg-cream-50"
+                ? "bg-white text-saffron-800 shadow-soft border border-cream-200/90 font-bold scale-[1.01]"
+                : "text-charcoal-600 hover:text-charcoal-900 hover:bg-white/60"
             }`}
           >
-            <Scroll className="w-3.5 h-3.5" />
+            <Scroll className="w-3.5 h-3.5 text-amber-600" />
             <span>२. इतिहास एवं महाकाव्य (Itihasa & Epics)</span>
-            <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-cream-200 text-charcoal-800 font-bold">
+            <span className={`ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+              activeTab === "itihasas" ? "bg-amber-600 text-white" : "bg-cream-200 text-charcoal-800"
+            }`}>
               5
             </span>
           </button>
 
           <button
             onClick={() => setActiveTab("akhyanas")}
-            className={`flex items-center gap-1.5 py-1.5 px-2.5 font-semibold text-xs rounded-t-lg transition-all whitespace-nowrap border-b-2 ${
+            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg font-semibold text-xs transition-all whitespace-nowrap ${
               activeTab === "akhyanas"
-                ? "border-purple-600 text-purple-700 bg-purple-50/50"
-                : "border-transparent text-charcoal-600 hover:text-charcoal-900 hover:bg-cream-50"
+                ? "bg-white text-purple-800 shadow-soft border border-cream-200/90 font-bold scale-[1.01]"
+                : "text-charcoal-600 hover:text-charcoal-900 hover:bg-white/60"
             }`}
           >
-            <Award className="w-3.5 h-3.5" />
+            <Award className="w-3.5 h-3.5 text-purple-600" />
             <span>३. प्रमुख आख्यान व रत्न (10 Jewels)</span>
-            <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-purple-100 text-purple-800 font-bold">
+            <span className={`ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+              activeTab === "akhyanas" ? "bg-purple-600 text-white" : "bg-purple-100 text-purple-800"
+            }`}>
               10
             </span>
           </button>
 
           <button
             onClick={() => setActiveTab("upapuranas")}
-            className={`flex items-center gap-1.5 py-1.5 px-2.5 font-semibold text-xs rounded-t-lg transition-all whitespace-nowrap border-b-2 ${
+            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg font-semibold text-xs transition-all whitespace-nowrap ${
               activeTab === "upapuranas"
-                ? "border-amber-600 text-amber-800 bg-amber-50/50"
-                : "border-transparent text-charcoal-600 hover:text-charcoal-900 hover:bg-cream-50"
+                ? "bg-white text-amber-900 shadow-soft border border-cream-200/90 font-bold scale-[1.01]"
+                : "text-charcoal-600 hover:text-charcoal-900 hover:bg-white/60"
             }`}
           >
-            <Layers className="w-3.5 h-3.5" />
+            <Layers className="w-3.5 h-3.5 text-amber-700" />
             <span>४. १८ उपपुराण (18 Upapuranas)</span>
-            <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-amber-100 text-amber-800 font-bold">
+            <span className={`ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+              activeTab === "upapuranas" ? "bg-amber-600 text-white" : "bg-amber-100 text-amber-800"
+            }`}>
               18
             </span>
           </button>
 
           <button
             onClick={() => setActiveTab("lakshanas")}
-            className={`flex items-center gap-1.5 py-1.5 px-2.5 font-semibold text-xs rounded-t-lg transition-all whitespace-nowrap border-b-2 ${
+            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg font-semibold text-xs transition-all whitespace-nowrap ${
               activeTab === "lakshanas"
-                ? "border-emerald-600 text-emerald-800 bg-emerald-50/50"
-                : "border-transparent text-charcoal-600 hover:text-charcoal-900 hover:bg-cream-50"
+                ? "bg-white text-emerald-900 shadow-soft border border-cream-200/90 font-bold scale-[1.01]"
+                : "text-charcoal-600 hover:text-charcoal-900 hover:bg-white/60"
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
             <span>५. दश लक्षण (10 Characteristics)</span>
-            <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-bold">
+            <span className={`ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+              activeTab === "lakshanas" ? "bg-emerald-600 text-white" : "bg-emerald-100 text-emerald-800"
+            }`}>
               10
             </span>
           </button>
         </nav>
       </div>
 
-      {/* 4. Search and Filter Bar (Compact) */}
-      <div className="card p-2 sm:p-2.5 flex flex-col md:flex-row items-center justify-between gap-2 bg-white shadow-2xs">
+      {/* 4. Search and Filter Bar (Executive Control Center) */}
+      <div className="card p-2 sm:p-2.5 flex flex-col md:flex-row items-center justify-between gap-2.5 bg-white border border-cream-200/90 shadow-soft">
         {/* Search Input */}
         <div className="relative w-full md:w-80">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-charcoal-400" />
@@ -483,12 +537,12 @@ export const PuranaItihasaListPage: React.FC = () => {
                 ? "उपपुराण का नाम खोजें..."
                 : "दश लक्षण (सर्ग, विसर्ग, मन्वन्तर...) खोजें..."
             }
-            className="input-field pl-8 pr-3 py-1 text-xs w-full rounded-lg"
+            className="input-field pl-8 pr-12 py-1.5 text-xs w-full rounded-lg bg-cream-50/40 focus:bg-white border-cream-200"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-charcoal-400 hover:text-charcoal-700"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-charcoal-400 hover:text-saffron-600 transition-colors"
             >
               हटाएं
             </button>
@@ -504,7 +558,7 @@ export const PuranaItihasaListPage: React.FC = () => {
               <select
                 value={gunaFilter}
                 onChange={(e) => setGunaFilter(e.target.value)}
-                className="input-field py-1 px-2 text-xs w-auto rounded-lg"
+                className="input-field py-1 px-2.5 text-xs w-auto rounded-lg bg-cream-50/40 focus:bg-white border-cream-200"
               >
                 <option value="all">सभी गुण (All Gunas)</option>
                 <option value="sattvika">सात्त्विक (Sattvika)</option>
@@ -519,7 +573,7 @@ export const PuranaItihasaListPage: React.FC = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="input-field py-1 px-2 text-xs w-auto rounded-lg"
+                className="input-field py-1 px-2.5 text-xs w-auto rounded-lg bg-cream-50/40 focus:bg-white border-cream-200"
               >
                 <option value="ALL">सभी स्थितियाँ (All Status)</option>
                 <option value="ACTIVE">सक्रिय (Active)</option>
@@ -533,21 +587,21 @@ export const PuranaItihasaListPage: React.FC = () => {
 
       {/* 5. TAB CONTENTS */}
 
-      {/* TAB 1 & 2: Table for 18 Mahapuranas OR Itihasa & Epics (Compact) */}
+      {/* TAB 1 & 2: Table for 18 Mahapuranas OR Itihasa & Epics (Compact & Luxury) */}
       {(activeTab === "mahapuranas" || activeTab === "itihasas") && (
-        <div className="card overflow-hidden shadow-2xs">
+        <div className="card overflow-hidden shadow-soft border border-cream-200/90">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-cream-100/70 border-b border-cream-200 text-[10px] font-bold text-charcoal-700 uppercase tracking-wider">
-                  <th className="py-1.5 px-2 w-10 text-center">क्र०</th>
-                  <th className="py-1.5 px-2 min-w-[200px]">ग्रंथ का नाम (हिन्दी व English)</th>
-                  <th className="py-1.5 px-2">श्रेणी</th>
-                  <th className="py-1.5 px-2">गुण वर्गीकरण</th>
-                  <th className="py-1.5 px-2">प्रधान देव व वक्ता</th>
-                  <th className="py-1.5 px-2">श्लोक / अध्याय संख्या</th>
-                  <th className="py-1.5 px-2 text-center">स्थिति</th>
-                  <th className="py-1.5 px-2 text-right">कार्य (Admin Actions)</th>
+                <tr className="bg-gradient-to-r from-cream-100/90 via-cream-50 to-cream-100/90 border-b border-cream-200 text-[10.5px] font-bold text-charcoal-700 uppercase tracking-wider">
+                  <th className="py-2 px-2.5 w-10 text-center">क्र०</th>
+                  <th className="py-2 px-2.5 min-w-[200px]">ग्रंथ का नाम (हिन्दी व English)</th>
+                  <th className="py-2 px-2.5">श्रेणी</th>
+                  <th className="py-2 px-2.5">गुण वर्गीकरण</th>
+                  <th className="py-2 px-2.5">प्रधान देव व वक्ता</th>
+                  <th className="py-2 px-2.5">श्लोक / अध्याय संख्या</th>
+                  <th className="py-2 px-2.5 text-center">स्थिति</th>
+                  <th className="py-2 px-2.5 text-right">कार्य (Admin Actions)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-cream-100 text-xs">
@@ -574,27 +628,27 @@ export const PuranaItihasaListPage: React.FC = () => {
                   </tr>
                 ) : (
                   filteredTexts.map((item, index) => (
-                    <tr key={item.id} className="table-row-hover group">
+                    <tr key={item.id} className="hover:bg-amber-50/25 transition-colors group">
                       {/* Serial */}
-                      <td className="py-1.5 px-2 text-center text-[10px] font-semibold text-charcoal-400">
+                      <td className="py-1.5 px-2.5 text-center text-[10.5px] font-semibold text-charcoal-400 font-mono">
                         {index + 1}
                       </td>
 
                       {/* Name & English */}
-                      <td className="py-1.5 px-2">
+                      <td className="py-1.5 px-2.5">
                         <div className="flex items-start gap-2">
-                          <div className="w-6 h-6 rounded bg-saffron-100 text-saffron-700 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
+                          <div className="w-6 h-6 rounded-md bg-gradient-to-br from-saffron-100 to-amber-100 text-saffron-800 border border-saffron-200/70 flex items-center justify-center font-serif font-bold text-[11px] shadow-2xs shrink-0 mt-0.5">
                             {item.name.charAt(0)}
                           </div>
                           <div>
-                            <div className="font-bold text-charcoal-900 text-xs sm:text-[13px] font-devanagari group-hover:text-saffron-600 transition-colors">
+                            <div className="font-bold text-charcoal-900 text-xs sm:text-[13px] font-devanagari group-hover:text-saffron-700 transition-colors">
                               {item.name}
                             </div>
                             <div className="text-[10px] text-charcoal-500 font-medium">
                               {item.enName}
                             </div>
                             {item.eyebrow && (
-                              <div className="text-[9px] text-saffron-600 font-medium line-clamp-1">
+                              <div className="text-[9px] text-saffron-700 font-medium line-clamp-1 bg-saffron-50/70 px-1 py-0.2 rounded inline-block mt-0.5">
                                 {item.eyebrow}
                               </div>
                             )}
@@ -603,49 +657,49 @@ export const PuranaItihasaListPage: React.FC = () => {
                       </td>
 
                       {/* Category Badge */}
-                      <td className="py-1.5 px-2 whitespace-nowrap">
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold bg-saffron-50 text-saffron-800 border border-saffron-200 uppercase">
+                      <td className="py-1.5 px-2.5 whitespace-nowrap">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-saffron-50 text-saffron-800 border border-saffron-200/70">
                           {item.category === "purana" ? "महापुराण" : item.category === "itihasa" ? "इतिहास" : item.category}
                         </span>
                       </td>
 
                       {/* Guna Badge */}
-                      <td className="py-1.5 px-2 whitespace-nowrap">
+                      <td className="py-1.5 px-2.5 whitespace-nowrap">
                         {renderGunaBadge(item.guna)}
                       </td>
 
                       {/* Deity & Rishis */}
-                      <td className="py-1.5 px-2">
-                        <div className="text-[11px] font-medium text-charcoal-800">
+                      <td className="py-1.5 px-2.5">
+                        <div className="text-[11px] font-semibold text-charcoal-800">
                           {item.chiefDeity}
                         </div>
-                        <div className="text-[9px] text-charcoal-500 line-clamp-1">
+                        <div className="text-[9.5px] text-charcoal-500 line-clamp-1">
                           {item.primaryRishis}
                         </div>
                       </td>
 
                       {/* Shlokas / Stats */}
-                      <td className="py-1.5 px-2">
-                        <div className="text-[11px] font-bold text-charcoal-800">
+                      <td className="py-1.5 px-2.5">
+                        <div className="text-[11px] font-bold text-charcoal-900">
                           {item.shlokaCount || item.statsMeta?.mantraCount || "—"}
                         </div>
-                        <div className="text-[9px] text-charcoal-500">
+                        <div className="text-[9.5px] text-charcoal-500">
                           {item.adhyayaCount || `${item.statsMeta?.nodeCount || 6} खण्ड/अध्याय`}
                         </div>
                       </td>
 
                       {/* Status */}
-                      <td className="py-1.5 px-2 text-center whitespace-nowrap">
+                      <td className="py-1.5 px-2.5 text-center whitespace-nowrap">
                         {renderStatusBadge(item.status)}
                       </td>
 
                       {/* Action Buttons */}
-                      <td className="py-1.5 px-2 text-right whitespace-nowrap">
+                      <td className="py-1.5 px-2.5 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1">
                           {/* 1. Shlokas Management */}
                           <Link
                             to={`/admin/purana-itihasa/${item.id}/shlokas`}
-                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition shadow-2xs"
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-amber-50 hover:bg-amber-100/90 text-amber-800 border border-amber-200/80 transition shadow-2xs hover:scale-[1.02]"
                             title="श्लोक प्रबंधन (Manage Shlokas & Verses)"
                           >
                             <Scroll className="w-2.5 h-2.5 text-amber-700" />
@@ -655,7 +709,7 @@ export const PuranaItihasaListPage: React.FC = () => {
                           {/* 2. Structure Tree */}
                           <Link
                             to={`/admin/purana-itihasa/${item.id}/structure`}
-                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-800 border border-blue-200 hover:bg-blue-100 transition shadow-2xs"
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-blue-50 hover:bg-blue-100/90 text-blue-800 border border-blue-200/80 transition shadow-2xs hover:scale-[1.02]"
                             title="संरचना वृक्ष (Hierarchy Tree: Khandas, Parvas, Sargas, Adhyayas)"
                           >
                             <FolderTree className="w-2.5 h-2.5 text-blue-700" />
@@ -665,7 +719,7 @@ export const PuranaItihasaListPage: React.FC = () => {
                           {/* 3. Edit */}
                           <Link
                             to={`/admin/purana-itihasa/${item.id}/edit`}
-                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-cream-100 text-charcoal-700 border border-cream-300 hover:bg-cream-200 transition shadow-2xs"
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-cream-100 hover:bg-cream-200 text-charcoal-700 border border-cream-300 transition shadow-2xs hover:scale-[1.02]"
                             title="संपादन (Edit Grantha Metadata)"
                           >
                             <Edit className="w-2.5 h-2.5 text-charcoal-600" />
@@ -675,7 +729,7 @@ export const PuranaItihasaListPage: React.FC = () => {
                           {/* 4. Delete */}
                           <button
                             onClick={() => setDeleteTarget(item)}
-                            className="p-1 rounded text-red-600 hover:bg-red-50 hover:text-red-700 transition"
+                            className="p-1 rounded-md text-charcoal-400 hover:text-red-600 hover:bg-red-50 transition"
                             title="हटाएं (Delete)"
                           >
                             <Trash2 className="w-2.5 h-2.5" />
@@ -690,7 +744,7 @@ export const PuranaItihasaListPage: React.FC = () => {
           </div>
 
           {/* Table Footer info */}
-          <div className="py-1.5 px-2 bg-cream-50/70 border-t border-cream-200 flex flex-col sm:flex-row items-center justify-between text-[10px] text-charcoal-600 gap-1.5">
+          <div className="py-2 px-3 bg-cream-50/80 border-t border-cream-200 flex flex-col sm:flex-row items-center justify-between text-[10.5px] text-charcoal-600 gap-1.5">
             <div>
               प्रदर्शित ग्रंथ: <span className="font-bold text-charcoal-900">{filteredTexts.length}</span> / {granthas.length}
             </div>
@@ -712,10 +766,10 @@ export const PuranaItihasaListPage: React.FC = () => {
       {/* TAB 3: प्रमुख आख्यान व रत्न (10 Philosophical Jewels) - Compact */}
       {activeTab === "akhyanas" && (
         <div className="space-y-3">
-          <div className="bg-purple-50/70 border border-purple-200 p-2 sm:p-2.5 rounded-xl flex items-start gap-2">
-            <Award className="w-3.5 h-3.5 text-purple-700 shrink-0 mt-0.5" />
-            <div className="text-[10px] text-purple-900 leading-relaxed">
-              <span className="font-bold">पुराण व महाभारत के १० अमूल्य दार्शनिक रत्न:</span> ये वे स्वतंत्र व अमर आध्यात्मिक प्रकरण हैं, जो अपने मूल ग्रंथों से निकलकर सनातन धर्म के दैनिक स्वाध्याय, साधन, और मोक्ष के प्रधान स्तम्भ बन गए हैं। प्रत्येक रत्न के मूल श्लोक, भावार्थ एवं संरचना को सीधे प्रबंधित किया जा सकता है।
+          <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-[#210d33] via-[#2f1247] to-[#1a0a29] text-purple-100 p-3 sm:p-3.5 border border-purple-700/40 shadow-soft flex items-start gap-2.5">
+            <Award className="w-4 h-4 text-purple-300 shrink-0 mt-0.5" />
+            <div className="text-[10.5px] text-purple-100/90 leading-relaxed">
+              <span className="font-bold text-white">पुराण व महाभारत के १० अमूल्य दार्शनिक रत्न:</span> ये वे स्वतंत्र व अमर आध्यात्मिक प्रकरण हैं, जो अपने मूल ग्रंथों से निकलकर सनातन धर्म के दैनिक स्वाध्याय, साधन, और मोक्ष के प्रधान स्तम्भ बन गए हैं। प्रत्येक रत्न के मूल श्लोक, भावार्थ एवं संरचना को सीधे प्रबंधित किया जा सकता है।
             </div>
           </div>
 
@@ -810,37 +864,37 @@ export const PuranaItihasaListPage: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 4: १८ उपपुराण (18 Upapuranas) - Compact */}
+      {/* TAB 4: १८ उपपुराण (18 Upapuranas) - Compact & Luxury */}
       {activeTab === "upapuranas" && (
         <div className="space-y-3">
-          <div className="bg-amber-50/70 border border-amber-200 p-2 sm:p-2.5 rounded-xl flex items-start gap-2">
-            <Layers className="w-3.5 h-3.5 text-amber-700 shrink-0 mt-0.5" />
-            <div className="text-[10px] text-amber-900 leading-relaxed">
-              <span className="font-bold">अष्टादश उपपुराण (18 Minor Puranas):</span> महापुराणों के अतिरिक्त व्यास, सनत्कुमार, दुर्वासा, वसिष्ठ आदि ऋषियों द्वारा प्रतिपादित १८ उपपुराण सनातन धर्म की विशिष्ट साधनाओं, शक्तिपीठों, तीर्थों एवं गूढ़ मन्त्रविद्याओं के प्रामाणिक आधार हैं।
+          <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-[#2c1810] via-[#3a1d11] to-[#200e07] text-amber-100 p-3 sm:p-3.5 border border-amber-700/40 shadow-soft flex items-start gap-2.5">
+            <Layers className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
+            <div className="text-[10.5px] text-amber-100/90 leading-relaxed">
+              <span className="font-bold text-white">अष्टादश उपपुराण (18 Minor Puranas):</span> महापुराणों के अतिरिक्त व्यास, सनत्कुमार, दुर्वासा, वसिष्ठ आदि ऋषियों द्वारा प्रतिपादित १८ उपपुराण सनातन धर्म की विशिष्ट साधनाओं, शक्तिपीठों, तीर्थों एवं गूढ़ मन्त्रविद्याओं के प्रामाणिक आधार हैं।
             </div>
           </div>
 
-          <div className="card overflow-hidden shadow-2xs">
+          <div className="card overflow-hidden shadow-soft border border-cream-200/90">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-cream-100/70 border-b border-cream-200 text-[10px] font-bold text-charcoal-700 uppercase tracking-wider">
-                    <th className="py-1.5 px-2 w-10 text-center">क्र०</th>
-                    <th className="py-1.5 px-2 min-w-[180px]">उपपुराण का नाम</th>
-                    <th className="py-1.5 px-2">परम्परा</th>
-                    <th className="py-1.5 px-2">इष्ट देवता व ऋषि</th>
-                    <th className="py-1.5 px-2">श्लोक संख्या</th>
-                    <th className="py-1.5 px-2 min-w-[240px]">संक्षिप्त सार</th>
-                    <th className="py-1.5 px-2 text-center">स्थिति</th>
+                  <tr className="bg-gradient-to-r from-cream-100/90 via-cream-50 to-cream-100/90 border-b border-cream-200 text-[10.5px] font-bold text-charcoal-700 uppercase tracking-wider">
+                    <th className="py-2 px-2.5 w-10 text-center">क्र०</th>
+                    <th className="py-2 px-2.5 min-w-[180px]">उपपुराण का नाम</th>
+                    <th className="py-2 px-2.5">परम्परा</th>
+                    <th className="py-2 px-2.5">इष्ट देवता व ऋषि</th>
+                    <th className="py-2 px-2.5">श्लोक संख्या</th>
+                    <th className="py-2 px-2.5 min-w-[240px]">संक्षिप्त सार</th>
+                    <th className="py-2 px-2.5 text-center">स्थिति</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-cream-100 text-xs">
                   {filteredUpapuranas.map((u, i) => (
-                    <tr key={u.id} className="table-row-hover">
-                      <td className="py-1.5 px-2 text-center text-[10px] font-semibold text-charcoal-400">
+                    <tr key={u.id} className="hover:bg-amber-50/25 transition-colors">
+                      <td className="py-1.5 px-2.5 text-center text-[10.5px] font-semibold text-charcoal-400 font-mono">
                         {i + 1}
                       </td>
-                      <td className="py-1.5 px-2">
+                      <td className="py-1.5 px-2.5">
                         <div className="font-bold text-charcoal-900 text-xs font-devanagari">
                           {u.name}
                         </div>
@@ -848,12 +902,12 @@ export const PuranaItihasaListPage: React.FC = () => {
                           {u.enName}
                         </div>
                       </td>
-                      <td className="py-1.5 px-2 whitespace-nowrap">
+                      <td className="py-1.5 px-2.5 whitespace-nowrap">
                         <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
                           {u.tradition}
                         </span>
                       </td>
-                      <td className="py-1.5 px-2">
+                      <td className="py-1.5 px-2.5">
                         <div className="text-[11px] font-medium text-charcoal-800">
                           {u.chiefDeity}
                         </div>
@@ -861,13 +915,13 @@ export const PuranaItihasaListPage: React.FC = () => {
                           {u.associatedRishi}
                         </div>
                       </td>
-                      <td className="py-1.5 px-2 whitespace-nowrap text-[11px] font-bold text-charcoal-700">
+                      <td className="py-1.5 px-2.5 whitespace-nowrap text-[11px] font-bold text-charcoal-700">
                         {u.approxShlokas}
                       </td>
-                      <td className="py-1.5 px-2 text-[10px] text-charcoal-600 leading-snug">
+                      <td className="py-1.5 px-2.5 text-[10px] text-charcoal-600 leading-snug">
                         {u.summary}
                       </td>
-                      <td className="py-1.5 px-2 text-center whitespace-nowrap">
+                      <td className="py-1.5 px-2.5 text-center whitespace-nowrap">
                         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-green-50 text-green-700 border border-green-200">
                           सक्रिय
                         </span>
@@ -881,23 +935,23 @@ export const PuranaItihasaListPage: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 5: दश लक्षण (10 Shastric Characteristics) - Compact */}
+      {/* TAB 5: दश लक्षण (10 Shastric Characteristics) - Compact & Luxury */}
       {activeTab === "lakshanas" && (
         <div className="space-y-3">
-          <div className="bg-emerald-50/70 border border-emerald-200 p-2.5 sm:p-3 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-2.5">
+          <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-[#0d2818] via-[#123822] to-[#091f13] text-emerald-100 p-3 sm:p-3.5 border border-emerald-700/40 shadow-soft flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
             <div>
-              <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              <div className="text-[10.5px] font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
                 <span>श्रीमद्भागवत महापुराण (द्वादश स्कन्ध ७.९-१० एवं द्वितीय स्कन्ध १०.१)</span>
               </div>
-              <div className="text-xs sm:text-[13px] font-devanagari font-bold text-emerald-950 mt-0.5 italic">
+              <div className="text-xs sm:text-[13px] font-devanagari font-bold text-white mt-0.5 italic">
                 सर्गोऽस्याथ विसर्गश्च वृत्ती रक्षान्तराणि च। वंशो वंशानुचरितं संस्था हेतुरपाश्रयः॥
               </div>
-              <p className="text-[10px] text-emerald-800 mt-0.5">
+              <p className="text-[10px] text-emerald-200/90 mt-0.5">
                 महापुराणों के पूर्ण होने के १० शास्त्रीय लक्षण (सर्ग, विसर्ग, वृत्ति, रक्षा, मन्वन्तर, वंश, वंशानुचरित, संस्था/प्रलय, हेतु, और अपाश्रय)।
               </p>
             </div>
-            <div className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-bold text-[10px] shrink-0 shadow-2xs">
+            <div className="px-3 py-1 rounded-lg bg-emerald-700/80 border border-emerald-500/30 text-white font-bold text-[10px] shrink-0 shadow-2xs">
               १० शास्त्रीय लक्षण मानक
             </div>
           </div>
@@ -906,7 +960,7 @@ export const PuranaItihasaListPage: React.FC = () => {
             {filteredCharacteristics.map((char) => (
               <div
                 key={char.id}
-                className="card p-2.5 border-cream-200 hover:border-emerald-300 hover:shadow-2xs transition-all"
+                className="card p-3 border-cream-200/90 hover:border-emerald-300 hover:shadow-card transition-all duration-200 rounded-xl"
               >
                 <div className="flex items-start justify-between gap-2 border-b border-cream-100 pb-1.5">
                   <div className="flex items-center gap-1.5">
