@@ -10,8 +10,9 @@ export type GranthaStatus = "ACTIVE" | "INACTIVE" | "DRAFT";
 export interface PuranaItihasaGrantha {
   id: string;
   slug: string;
-  name: string; // Devanagari e.g. "विष्णु पुराण"
-  enName: string; // English e.g. "Vishnu Purana"
+  name: string; // Hindi Name e.g. "विष्णु पुराण"
+  enName: string; // English Name e.g. "Vishnu Purana"
+  hinglishName?: string; // Hinglish Name e.g. "Vishnu Puran"
   category: GranthaCategory;
   guna: GunaClassification;
   chiefDeity: string; // e.g. "भगवान् विष्णु"

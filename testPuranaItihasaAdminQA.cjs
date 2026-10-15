@@ -26,7 +26,7 @@ async function runTests() {
   // Rule 1: PuranaItihasaFormPage Validation Function
   function validateGranthaForm(formData) {
     const errs = {};
-    if (!formData.name?.trim()) errs.name = "देवनागरी नाम अनिवार्य है";
+    if (!formData.name?.trim()) errs.name = "हिन्दी नाम अनिवार्य है";
     if (!formData.enName?.trim()) errs.enName = "अंग्रेजी नाम अनिवार्य है";
     if (!formData.slug?.trim()) errs.slug = "स्लग (URL पहचानकर्ता) अनिवार्य है";
     if (!formData.category) errs.category = "श्रेणी का चयन करें";

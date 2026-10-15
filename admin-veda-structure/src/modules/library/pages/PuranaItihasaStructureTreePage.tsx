@@ -211,7 +211,7 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
 
     const errs: Record<string, string> = {};
     if (!nodeFormData.name?.trim()) {
-      errs.name = "नोड का नाम (देवनागरी) अनिवार्य है";
+      errs.name = "हिन्दी नाम अनिवार्य है (उदा. बालकाण्ड, भीष्म पर्व, अध्याय १)";
     }
     if (Object.keys(errs).length > 0) {
       setNodeErrors(errs);
@@ -622,10 +622,10 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
             </select>
           </div>
 
-          {/* Name (Devanagari) */}
+          {/* Hindi Name */}
           <div>
             <label className="label-field">
-              नाम (देवनागरी में) <span className="text-red-500">*</span>
+              हिन्दी नाम (Hindi Name) <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -644,8 +644,8 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
             )}
           </div>
 
-          {/* English Name & Slug */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* English Name, Hinglish Name & Slug */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className="label-field">अंग्रेजी नाम (English Title)</label>
               <input
@@ -653,6 +653,16 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
                 value={nodeFormData.enName || ""}
                 onChange={(e) => setNodeFormData({ ...nodeFormData, enName: e.target.value })}
                 placeholder="उदा. Bala Kanda, Chapter 1"
+                className="input-field text-xs"
+              />
+            </div>
+            <div>
+              <label className="label-field">हिंग्लिश नाम (Hinglish Title)</label>
+              <input
+                type="text"
+                value={nodeFormData.hinglishName || ""}
+                onChange={(e) => setNodeFormData({ ...nodeFormData, hinglishName: e.target.value })}
+                placeholder="उदा. Bala Kand, Adhyay 1"
                 className="input-field text-xs"
               />
             </div>

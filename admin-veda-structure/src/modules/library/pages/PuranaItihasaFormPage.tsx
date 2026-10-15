@@ -41,6 +41,7 @@ export const PuranaItihasaFormPage: React.FC = () => {
     slug: "",
     name: "",
     enName: "",
+    hinglishName: "",
     category: "purana",
     guna: "sattvika",
     chiefDeity: "",
@@ -110,7 +111,7 @@ export const PuranaItihasaFormPage: React.FC = () => {
     const errs: Record<string, string> = {};
 
     if (!formData.name?.trim()) {
-      errs.name = "देवनागरी नाम अनिवार्य है (उदा. विष्णु पुराण, श्रीमद्भगवद्गीता)";
+      errs.name = "हिन्दी नाम अनिवार्य है (उदा. ब्रह्म पुराण, विष्णु पुराण)";
     }
     if (!formData.enName?.trim()) {
       errs.enName = "अंग्रेजी नाम अनिवार्य है (उदा. Vishnu Purana)";
@@ -246,11 +247,11 @@ export const PuranaItihasaFormPage: React.FC = () => {
                   <span>१. आधारभूत पहचान (Basic Grantha Identification)</span>
                 </h3>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Name (Devanagari) */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {/* Hindi Name */}
                   <div>
                     <label className="label-field">
-                      नाम (देवनागरी में) <span className="text-red-500">*</span>
+                      हिन्दी नाम (Hindi Name) <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -259,8 +260,8 @@ export const PuranaItihasaFormPage: React.FC = () => {
                         setFormData({ ...formData, name: e.target.value });
                         if (errors.name) setErrors({ ...errors, name: "" });
                       }}
-                      placeholder="उदा. विष्णु पुराण, श्रीमद्भागवत महापुराण"
-                      className={`input-field font-devanagari font-semibold text-base ${
+                      placeholder="उदा. ब्रह्म पुराण, विष्णु पुराण"
+                      className={`input-field font-devanagari font-semibold text-sm ${
                         errors.name ? "border-red-400 focus:ring-red-200" : ""
                       }`}
                     />
@@ -276,12 +277,26 @@ export const PuranaItihasaFormPage: React.FC = () => {
                       type="text"
                       value={formData.enName || ""}
                       onChange={(e) => handleEnNameChange(e.target.value)}
-                      placeholder="उदा. Vishnu Purana, Shrimad Bhagavata"
-                      className={`input-field ${
+                      placeholder="उदा. Brahma Purana, Vishnu Purana"
+                      className={`input-field text-sm ${
                         errors.enName ? "border-red-400 focus:ring-red-200" : ""
                       }`}
                     />
                     {errors.enName && <p className="text-xs text-red-600 mt-1">{errors.enName}</p>}
+                  </div>
+
+                  {/* Hinglish Name */}
+                  <div>
+                    <label className="label-field">
+                      हिंग्लिश नाम (Hinglish Name)
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.hinglishName || ""}
+                      onChange={(e) => setFormData({ ...formData, hinglishName: e.target.value })}
+                      placeholder="उदा. Brahma Puran, Vishnu Puran"
+                      className="input-field text-sm font-medium"
+                    />
                   </div>
                 </div>
 

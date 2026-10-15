@@ -296,7 +296,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
           </h1>
 
           <p className="text-xs text-charcoal-600 leading-relaxed">
-            वैदिक देवनागरी लिपि में मूल श्लोक, पदच्छेद (Padapatha), त्रिभाषी भावार्थ (हिन्दी, English, हिंग्लिश) एवं शास्त्रीय व्याख्या सहेजें।
+            मूल श्लोक (Sanskrit), पदच्छेद (Padapatha), त्रिभाषी भावार्थ (हिन्दी, English, हिंग्लिश) एवं शास्त्रीय व्याख्या सहेजें।
           </p>
         </div>
 
@@ -502,7 +502,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-charcoal-700 flex items-center gap-1.5">
                   <Scroll className="w-4 h-4 text-saffron-600" />
-                  <span>मूल संस्कृत श्लोक (Devanagari Sanskrit Text) *</span>
+                  <span>मूल संस्कृत श्लोक (Original Sanskrit Shloka) *</span>
                 </label>
 
                 <div className="flex items-center gap-2">
@@ -576,7 +576,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                 <p className="text-xs text-red-600 mt-1">{formErrors.sanskrit}</p>
               )}
               <p className="text-[11px] text-charcoal-400">
-                वैदिक अवग्रह (ऽ), विराम (।) एवं पूर्णविराम (॥) सहित शुद्ध देवनागरी में लिखें।
+                वैदिक अवग्रह (ऽ), विराम (।) एवं पूर्णविराम (॥) सहित मूल संस्कृत पाठ दर्ज करें।
               </p>
             </div>
 
