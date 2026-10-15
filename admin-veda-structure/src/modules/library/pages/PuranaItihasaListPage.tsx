@@ -15,22 +15,13 @@ import {
   ShieldCheck,
   CheckCircle2,
   Award,
-  Feather,
-  Sun,
-  Eye,
-  ExternalLink,
-  Info,
   Filter,
   SlidersHorizontal,
 } from "lucide-react";
-import PageHeader from "@/components/PageHeader";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { useToast } from "@/context/ToastContext";
 import type {
   PuranaItihasaGrantha,
-  PhilosophicalJewel,
-  UpapuranaItem,
-  ShastricCharacteristic,
   GunaClassification,
   GranthaStatus,
 } from "../types/puranaItihasa.types";
