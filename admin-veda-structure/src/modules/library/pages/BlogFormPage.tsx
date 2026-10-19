@@ -51,9 +51,9 @@ export default function BlogFormPage() {
 
   const isEditMode = Boolean(id);
 
-  // Active Language Tab for Editor ("en" | "hi")
-  const [activeLang, setActiveLang] = useState<"en" | "hi">("en");
-  const [previewLang, setPreviewLang] = useState<"en" | "hi">("en");
+  // Active Language Tab for Editor ("en" | "hi" | "hinglish")
+  const [activeLang, setActiveLang] = useState<"en" | "hi" | "hinglish">("en");
+  const [previewLang, setPreviewLang] = useState<"en" | "hi" | "hinglish">("en");
 
   // Form Validation Errors
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -68,7 +68,7 @@ export default function BlogFormPage() {
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
 
-  // Hindi Content States (Bilingual)
+  // Hindi Content States (हिन्दी)
   const [titleHi, setTitleHi] = useState("");
   const [subtitleHi, setSubtitleHi] = useState("");
   const [excerptHi, setExcerptHi] = useState("");
@@ -76,20 +76,29 @@ export default function BlogFormPage() {
   const [metaTitleHi, setMetaTitleHi] = useState("");
   const [metaDescriptionHi, setMetaDescriptionHi] = useState("");
 
+  // Hinglish Content States (सरल हिंग्लिश)
+  const [titleHinglish, setTitleHinglish] = useState("");
+  const [subtitleHinglish, setSubtitleHinglish] = useState("");
+  const [excerptHinglish, setExcerptHinglish] = useState("");
+  const [contentHinglish, setContentHinglish] = useState("");
+  const [metaTitleHinglish, setMetaTitleHinglish] = useState("");
+  const [metaDescriptionHinglish, setMetaDescriptionHinglish] = useState("");
+
   // Metadata & Settings
   const [postType, setPostType] = useState<string>("article");
   const [customPostType, setCustomPostType] = useState<string>("");
   const [isAddingCustomType, setIsAddingCustomType] = useState(false);
 
-  // Sacred Verse / Mantra & Shloka Details
+  // Sacred Verse / Mantra & Shloka Details (Devanagari Sanskrit + 3 Languages)
   const [sanskrit, setSanskrit] = useState("");
-  const [transliteration, setTransliteration] = useState("");
+  const [verseMeaningHi, setVerseMeaningHi] = useState("");
+  const [verseMeaningEn, setVerseMeaningEn] = useState("");
+  const [verseMeaningHinglish, setVerseMeaningHinglish] = useState("");
   const [deity, setDeity] = useState("");
   const [customDeity, setCustomDeity] = useState("");
   const [isAddingCustomDeity, setIsAddingCustomDeity] = useState(false);
   const [rishi, setRishi] = useState("");
   const [chhandas, setChhandas] = useState("");
-  const [verseMeaning, setVerseMeaning] = useState("");
   const [vidhi, setVidhi] = useState("");
   const [benefits, setBenefits] = useState("");
   const [showMantraSection, setShowMantraSection] = useState(false);
@@ -160,6 +169,14 @@ export default function BlogFormPage() {
           setMetaTitleHi(blog.metaTitleHi || "");
           setMetaDescriptionHi(blog.metaDescriptionHi || "");
 
+          // Hinglish Content (सरल हिंग्लिश)
+          setTitleHinglish(blog.titleHinglish || "");
+          setSubtitleHinglish(blog.subtitleHinglish || "");
+          setExcerptHinglish(blog.excerptHinglish || "");
+          setContentHinglish(blog.contentHinglish || "");
+          setMetaTitleHinglish(blog.metaTitleHinglish || "");
+          setMetaDescriptionHinglish(blog.metaDescriptionHinglish || "");
+
           // Common Metadata
           const isStandardCategory = (BLOG_CATEGORIES as readonly string[]).includes(blog.category);
           setCategory(isStandardCategory ? blog.category : "Custom");
@@ -179,7 +196,7 @@ export default function BlogFormPage() {
             setPublishedAt(new Date(blog.publishedAt).toISOString().slice(0, 16));
           }
 
-          // Multi-format & Sacred Verse / Mantra restoration
+          // Multi-format & Sacred Verse / Mantra restoration (Devanagari Sanskrit + 3 Languages)
           if (blog.postType) {
             const isStdType = (POST_TYPES as readonly { value: string }[]).some(
               (pt) => pt.value === blog.postType
@@ -193,7 +210,9 @@ export default function BlogFormPage() {
             }
           }
           setSanskrit(blog.sanskrit || "");
-          setTransliteration(blog.transliteration || "");
+          setVerseMeaningHi(blog.hindiTranslation || blog.meaningHi || blog.meaning || "");
+          setVerseMeaningEn(blog.englishTranslation || blog.meaningEn || "");
+          setVerseMeaningHinglish(blog.hinglishTranslation || blog.meaningHinglish || "");
           if (blog.deity) {
             const isStdDeity = (POPULAR_DEITIES as readonly { id: string }[]).some(
               (d) => d.id === blog.deity || d.id === blog.deity.toLowerCase()
@@ -208,7 +227,6 @@ export default function BlogFormPage() {
           }
           setRishi(blog.rishi || "");
           setChhandas(blog.chhandas || "");
-          setVerseMeaning(blog.meaning || "");
           setVidhi(blog.vidhi || "");
           setBenefits(blog.benefits || "");
           if (
@@ -365,6 +383,10 @@ export default function BlogFormPage() {
         subtitleHi: subtitleHi.trim() || undefined,
         excerptHi: excerptHi.trim() || undefined,
         contentHi: contentHi.trim() || undefined,
+        titleHinglish: titleHinglish.trim() || undefined,
+        subtitleHinglish: subtitleHinglish.trim() || undefined,
+        excerptHinglish: excerptHinglish.trim() || undefined,
+        contentHinglish: contentHinglish.trim() || undefined,
         featuredImage: featuredImage.trim() || undefined,
         author: author.trim() || "Veda Structure Team",
         authorAvatar: authorAvatar.trim() || undefined,
@@ -377,22 +399,29 @@ export default function BlogFormPage() {
         metaDescription: metaDescription.trim() || undefined,
         metaTitleHi: metaTitleHi.trim() || undefined,
         metaDescriptionHi: metaDescriptionHi.trim() || undefined,
+        metaTitleHinglish: metaTitleHinglish.trim() || undefined,
+        metaDescriptionHinglish: metaDescriptionHinglish.trim() || undefined,
         metaKeywords,
         publishedAt: publishedAt ? new Date(publishedAt).toISOString() : undefined,
-        // Multi-format & Sacred Verse / Mantra additions
+        // Multi-format & Sacred Verse / Mantra additions (Devanagari Sanskrit + 3 Languages)
         postType:
           postType === "custom" && customPostType.trim()
             ? customPostType.trim()
             : postType,
         sanskrit: sanskrit.trim() || undefined,
-        transliteration: transliteration.trim() || undefined,
         deity:
           deity === "custom" && customDeity.trim()
             ? customDeity.trim()
             : deity.trim() || undefined,
         rishi: rishi.trim() || undefined,
         chhandas: chhandas.trim() || undefined,
-        meaning: verseMeaning.trim() || undefined,
+        meaning: (verseMeaningHi.trim() || verseMeaningEn.trim() || verseMeaningHinglish.trim()) || undefined,
+        meaningHi: verseMeaningHi.trim() || undefined,
+        meaningEn: verseMeaningEn.trim() || undefined,
+        meaningHinglish: verseMeaningHinglish.trim() || undefined,
+        hindiTranslation: verseMeaningHi.trim() || undefined,
+        englishTranslation: verseMeaningEn.trim() || undefined,
+        hinglishTranslation: verseMeaningHinglish.trim() || undefined,
         vidhi: vidhi.trim() || undefined,
         benefits: benefits.trim() || undefined,
       };
@@ -443,6 +472,7 @@ export default function BlogFormPage() {
 
   const hasEnglishContent = Boolean(title.trim() && content.trim());
   const hasHindiContent = Boolean(titleHi.trim() || contentHi.trim());
+  const hasHinglishContent = Boolean(titleHinglish.trim() || contentHinglish.trim());
 
   // SERP preview calculations
   const displaySerpTitle = (metaTitle || title || "Veda Library Article").trim();
@@ -668,19 +698,7 @@ export default function BlogFormPage() {
               />
             </div>
 
-            {/* Transliteration */}
-            <div>
-              <label className="block text-xs font-bold text-charcoal-800 uppercase tracking-wider mb-1.5">
-                रोमन उच्चारण (Roman / IAST Transliteration)
-              </label>
-              <input
-                type="text"
-                value={transliteration}
-                onChange={(e) => setTransliteration(e.target.value)}
-                placeholder="E.g. Om Tryambakaṁ Yajāmahe Sugandhiṁ Puṣṭivardhanam..."
-                className="w-full px-3.5 py-2 text-xs sm:text-sm rounded-xl border border-cream-200 bg-white focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 focus:outline-hidden text-charcoal-800 shadow-2xs font-mono"
-              />
-            </div>
+
 
             {/* Grid: Deity, Rishi, Chhandas */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -756,18 +774,71 @@ export default function BlogFormPage() {
               </div>
             </div>
 
-            {/* Meaning & Bhavarth */}
-            <div>
-              <label className="block text-xs font-bold text-charcoal-800 uppercase tracking-wider mb-1">
-                मंत्र भावार्थ / अर्थ (Meaning & Essence)
-              </label>
-              <textarea
-                rows={2}
-                value={verseMeaning}
-                onChange={(e) => setVerseMeaning(e.target.value)}
-                placeholder="मंत्र का पूर्ण आध्यात्मिक व शाब्दिक अर्थ..."
-                className="w-full px-3.5 py-2 text-xs sm:text-sm rounded-xl border border-cream-200 bg-white focus:ring-1.5 focus:ring-amber-500 focus:outline-hidden shadow-2xs"
-              />
+            {/* 3-Language Sacred Verse Meanings (Hindi, English, Hinglish) */}
+            <div className="space-y-3 pt-2 border-t border-amber-200/60">
+              <div className="flex items-center gap-2">
+                <Languages className="w-4 h-4 text-amber-700" />
+                <span className="text-xs font-bold text-charcoal-900 uppercase tracking-wider">
+                  त्रिभाषी भावार्थ (3 Mandatory Translations: Hindi, English, Hinglish)
+                </span>
+                <span className="text-[10px] text-charcoal-400">
+                  (रोमन IAST वर्जित • ३ मानक भाषाएँ)
+                </span>
+              </div>
+
+              {/* 1. Hindi Meaning */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-bold text-charcoal-800 flex items-center gap-1.5">
+                    <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 text-[10px] font-bold">हिन्दी</span>
+                    <span>१. हिंदी भावार्थ (Authentic Hindi Meaning & Essence)</span>
+                  </label>
+                  <span className="text-[10px] text-amber-700 font-medium">देवनागरी लिपि</span>
+                </div>
+                <textarea
+                  rows={2}
+                  value={verseMeaningHi}
+                  onChange={(e) => setVerseMeaningHi(e.target.value)}
+                  placeholder="उदा: हम त्रिनेत्रधारी भगवान शिव की उपासना करते हैं, जो समस्त लोकों को जीवन सुगंध और पुष्टि प्रदान करते हैं..."
+                  className="w-full px-3.5 py-2 text-xs sm:text-sm rounded-xl border border-cream-200 bg-white focus:ring-1.5 focus:ring-amber-500 focus:outline-hidden shadow-2xs font-devanagari leading-relaxed"
+                />
+              </div>
+
+              {/* 2. English Meaning */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-bold text-charcoal-800 flex items-center gap-1.5">
+                    <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-900 text-[10px] font-bold">English</span>
+                    <span>2. English Meaning (Authentic Translation)</span>
+                  </label>
+                  <span className="text-[10px] text-blue-700 font-medium">English</span>
+                </div>
+                <textarea
+                  rows={2}
+                  value={verseMeaningEn}
+                  onChange={(e) => setVerseMeaningEn(e.target.value)}
+                  placeholder="E.g. We worship the three-eyed Lord Shiva, who nourishes and nurtures all beings..."
+                  className="w-full px-3.5 py-2 text-xs sm:text-sm rounded-xl border border-cream-200 bg-white focus:ring-1.5 focus:ring-amber-500 focus:outline-hidden shadow-2xs leading-relaxed"
+                />
+              </div>
+
+              {/* 3. Hinglish Meaning */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-bold text-charcoal-800 flex items-center gap-1.5">
+                    <span className="px-1.5 py-0.5 rounded bg-purple-100 text-purple-900 text-[10px] font-bold">Hinglish</span>
+                    <span>३. सरल हिंग्लिश भावार्थ (Conversational Romanized Explanation)</span>
+                  </label>
+                  <span className="text-[10px] text-purple-700 font-medium">Roman Script</span>
+                </div>
+                <textarea
+                  rows={2}
+                  value={verseMeaningHinglish}
+                  onChange={(e) => setVerseMeaningHinglish(e.target.value)}
+                  placeholder="E.g. Hum three-eyed Lord Shiva ki upasana karte hain jo sabhi praniyo ko poshan aur aayu dete hain..."
+                  className="w-full px-3.5 py-2 text-xs sm:text-sm rounded-xl border border-cream-200 bg-white focus:ring-1.5 focus:ring-amber-500 focus:outline-hidden shadow-2xs leading-relaxed"
+                />
+              </div>
             </div>
 
             {/* Vidhi & Benefits Row */}
@@ -812,7 +883,7 @@ export default function BlogFormPage() {
               Article Language Editor:
             </span>
             <span className="text-xs text-charcoal-400 ml-1.5 hidden md:inline">
-              (Single article holds dual English & Hindi translations)
+              (Hold distinct English, Hindi & Hinglish translations)
             </span>
           </div>
         </div>
@@ -846,6 +917,25 @@ export default function BlogFormPage() {
           >
             <span>🇮🇳 हिन्दी (Hindi)</span>
             {hasHindiContent ? (
+              <span className="inline-flex items-center text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                ✓ Ready
+              </span>
+            ) : (
+              <span className="text-[10px] text-charcoal-400 font-normal">+ Optional</span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveLang("hinglish")}
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
+              activeLang === "hinglish"
+                ? "bg-white text-charcoal-900 shadow-2xs border border-cream-200/80 font-bold"
+                : "text-charcoal-600 hover:text-charcoal-900"
+            }`}
+          >
+            <span>🌐 सरल हिंग्लिश (Hinglish)</span>
+            {hasHinglishContent ? (
               <span className="inline-flex items-center text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
                 ✓ Ready
               </span>
@@ -1090,6 +1180,85 @@ export default function BlogFormPage() {
             </div>
           )}
 
+          {/* ================= 🌐 HINGLISH TAB ================= */}
+          {activeLang === "hinglish" && (
+            <div className="space-y-6 animate-fade-in">
+              {/* Hinglish Title & Subtitle */}
+              <div className="bg-white/95 backdrop-blur-md p-6 rounded-3xl border border-cream-200/90 shadow-xs space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-bold text-charcoal-800 uppercase tracking-wider">
+                      लेख का शीर्षक (Title in Hinglish)
+                    </label>
+                    <span className="text-[11px] font-semibold text-purple-800 bg-purple-100 px-2 py-0.5 rounded border border-purple-200">
+                      सरल हिंग्लिश
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    value={titleHinglish}
+                    onChange={(e) => setTitleHinglish(e.target.value)}
+                    placeholder="Jaise: Rudrabhishek Puja ki Divya Shakti aur Labh: Sampurna Vidhi evam Rahasya"
+                    className="w-full px-4 py-3 text-base sm:text-lg font-bold border border-cream-200 rounded-2xl focus:ring-2 focus:ring-saffron-500/30 focus:border-saffron-500 focus:outline-hidden bg-cream-50/30 focus:bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-charcoal-700 mb-1">
+                    उप-शीर्षक / टैगलाइन (Subtitle in Hinglish)
+                  </label>
+                  <input
+                    type="text"
+                    value={subtitleHinglish}
+                    onChange={(e) => setSubtitleHinglish(e.target.value)}
+                    placeholder="Bhagwan Shiva ki aseem kripa aur adhyatmik unnati ke liye margdarshan"
+                    className="w-full px-3.5 py-2 text-sm border border-cream-200 rounded-xl focus:ring-2 focus:ring-saffron-500/30 focus:border-saffron-500 focus:outline-hidden bg-cream-50/30 focus:bg-white"
+                  />
+                </div>
+              </div>
+
+              {/* Hinglish Excerpt */}
+              <div className="bg-white/95 backdrop-blur-md p-6 rounded-3xl border border-cream-200/90 shadow-xs space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-charcoal-800 uppercase tracking-wider">
+                    संक्षिप्त सारांश (Excerpt in Hinglish)
+                  </label>
+                  <span className="text-xs text-charcoal-400 font-mono">
+                    {excerptHinglish.length}/250 अक्षर
+                  </span>
+                </div>
+                <textarea
+                  rows={3}
+                  value={excerptHinglish}
+                  maxLength={250}
+                  onChange={(e) => setExcerptHinglish(e.target.value)}
+                  placeholder="Blog card aur search results ke liye 2-3 lines ka simple Hinglish summary..."
+                  className="w-full px-4 py-2.5 text-sm border border-cream-200 rounded-2xl focus:ring-2 focus:ring-saffron-500/30 focus:border-saffron-500 focus:outline-hidden leading-relaxed bg-cream-50/30 focus:bg-white"
+                />
+              </div>
+
+              {/* Hinglish Rich Text Editor */}
+              <div className="bg-white/95 backdrop-blur-md p-6 rounded-3xl border border-cream-200/90 shadow-xs space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-bold text-charcoal-800">
+                      सम्पूर्ण लेख सामग्री (Content in Hinglish)
+                    </h3>
+                    <p className="text-xs text-charcoal-400">
+                      सरल हिंग्लिश में विस्तृत लेख लिखें। Headings, bullet points evam mantron ki simple vyakhya.
+                    </p>
+                  </div>
+                </div>
+                <RichTextEditor
+                  value={contentHinglish}
+                  onChange={setContentHinglish}
+                  minHeight="440px"
+                  placeholder="Yahan simple Hinglish me Vedic gyan, mantras ki vyakhya aur puja vidhi likhein..."
+                />
+              </div>
+            </div>
+          )}
+
           {/* ================= SEO & SERP PREVIEW SECTION ================= */}
           <div className="bg-white/95 backdrop-blur-md rounded-3xl border border-cream-200/90 shadow-xs overflow-hidden">
             <button
@@ -1154,8 +1323,8 @@ export default function BlogFormPage() {
                   </div>
                 </div>
 
-                {/* English Meta Title & Description */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* English, Hindi & Hinglish Meta Titles */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-charcoal-700 mb-1">
                       Meta Title (English)
@@ -1171,7 +1340,7 @@ export default function BlogFormPage() {
 
                   <div>
                     <label className="block text-xs font-semibold text-charcoal-700 mb-1">
-                      मेटा शीर्षक (Meta Title in Hindi)
+                      मेटा शीर्षक (Hindi)
                     </label>
                     <input
                       type="text"
@@ -1181,9 +1350,23 @@ export default function BlogFormPage() {
                       className="w-full px-3.5 py-2 text-sm border border-cream-200 rounded-xl focus:ring-2 focus:ring-saffron-500/30 focus:border-saffron-500 focus:outline-hidden bg-white"
                     />
                   </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-charcoal-700 mb-1">
+                      मेटा शीर्षक (सरल Hinglish)
+                    </label>
+                    <input
+                      type="text"
+                      value={metaTitleHinglish}
+                      onChange={(e) => setMetaTitleHinglish(e.target.value)}
+                      placeholder={titleHinglish || "Hinglish search title"}
+                      className="w-full px-3.5 py-2 text-sm border border-cream-200 rounded-xl focus:ring-2 focus:ring-saffron-500/30 focus:border-saffron-500 focus:outline-hidden bg-white"
+                    />
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* English, Hindi & Hinglish Meta Descriptions */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <label className="block text-xs font-semibold text-charcoal-700">
@@ -1206,7 +1389,7 @@ export default function BlogFormPage() {
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <label className="block text-xs font-semibold text-charcoal-700">
-                        मेटा विवरण (Meta Description in Hindi)
+                        मेटा विवरण (Hindi)
                       </label>
                       <span className="text-[10px] text-charcoal-400">
                         {metaDescriptionHi.length}/160
@@ -1218,6 +1401,25 @@ export default function BlogFormPage() {
                       value={metaDescriptionHi}
                       onChange={(e) => setMetaDescriptionHi(e.target.value)}
                       placeholder="150-160 अक्षरों का हिन्दी विवरण..."
+                      className="w-full px-3.5 py-2 text-sm border border-cream-200 rounded-xl focus:ring-2 focus:ring-saffron-500/30 focus:border-saffron-500 focus:outline-hidden bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-semibold text-charcoal-700">
+                        मेटा विवरण (सरल Hinglish)
+                      </label>
+                      <span className="text-[10px] text-charcoal-400">
+                        {metaDescriptionHinglish.length}/160
+                      </span>
+                    </div>
+                    <textarea
+                      rows={2}
+                      maxLength={160}
+                      value={metaDescriptionHinglish}
+                      onChange={(e) => setMetaDescriptionHinglish(e.target.value)}
+                      placeholder="150-160 characters simple Hinglish description..."
                       className="w-full px-3.5 py-2 text-sm border border-cream-200 rounded-xl focus:ring-2 focus:ring-saffron-500/30 focus:border-saffron-500 focus:outline-hidden bg-white"
                     />
                   </div>
@@ -1659,6 +1861,15 @@ export default function BlogFormPage() {
                   >
                     🇮🇳 हिन्दी
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewLang("hinglish")}
+                    className={`px-3 py-1 rounded-md transition ${
+                      previewLang === "hinglish" ? "bg-white text-saffron-700 shadow-2xs font-bold" : "text-charcoal-600"
+                    }`}
+                  >
+                    🌐 सरल हिंग्लिश
+                  </button>
                 </div>
               </div>
               <button
@@ -1682,19 +1893,25 @@ export default function BlogFormPage() {
                     </span>
                   )}
                   <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-cream-100 text-charcoal-600">
-                    {previewLang === "en" ? "English View" : "हिन्दी प्रारूप"}
+                    {previewLang === "en"
+                      ? "English View"
+                      : previewLang === "hi"
+                      ? "हिन्दी प्रारूप"
+                      : "सरल हिंग्लिश"}
                   </span>
                 </div>
 
                 <h1 className="text-2xl sm:text-4xl font-extrabold text-charcoal-900 leading-tight">
                   {previewLang === "en"
                     ? title || "Untitled Article"
-                    : titleHi || title || "शीर्षक उपलब्ध नहीं है"}
+                    : previewLang === "hi"
+                    ? titleHi || title || "शीर्षक उपलब्ध नहीं है"
+                    : titleHinglish || title || "Hinglish title uplabdh nahi hai"}
                 </h1>
 
-                {(previewLang === "en" ? subtitle : subtitleHi) && (
+                {(previewLang === "en" ? subtitle : previewLang === "hi" ? subtitleHi : subtitleHinglish) && (
                   <p className="text-base sm:text-lg text-charcoal-600 italic">
-                    {previewLang === "en" ? subtitle : subtitleHi}
+                    {previewLang === "en" ? subtitle : previewLang === "hi" ? subtitleHi : subtitleHinglish}
                   </p>
                 )}
 
@@ -1723,9 +1940,9 @@ export default function BlogFormPage() {
                 </div>
               )}
 
-              {(previewLang === "en" ? excerpt : excerptHi) && (
+              {(previewLang === "en" ? excerpt : previewLang === "hi" ? excerptHi : excerptHinglish) && (
                 <div className="p-4 rounded-xl bg-amber-50/50 border-l-4 border-amber-400 text-charcoal-700 font-medium leading-relaxed">
-                  {previewLang === "en" ? excerpt : excerptHi}
+                  {previewLang === "en" ? excerpt : previewLang === "hi" ? excerptHi : excerptHinglish}
                 </div>
               )}
 
@@ -1733,11 +1950,17 @@ export default function BlogFormPage() {
                 className="rich-text-content max-w-none text-charcoal-800 leading-relaxed font-sans"
                 dangerouslySetInnerHTML={{
                   __html:
-                    (previewLang === "en" ? content : contentHi) ||
+                    (previewLang === "en"
+                      ? content
+                      : previewLang === "hi"
+                      ? contentHi
+                      : contentHinglish) ||
                     `<p><em>${
                       previewLang === "en"
                         ? "No English content provided yet..."
-                        : "हिन्दी सामग्री अभी नहीं जोड़ी गई है..."
+                        : previewLang === "hi"
+                        ? "हिन्दी सामग्री अभी नहीं जोड़ी गई है..."
+                        : "Hinglish samagri abhi nahi jodi gayi hai..."
                     }</em></p>`,
                 }}
               />

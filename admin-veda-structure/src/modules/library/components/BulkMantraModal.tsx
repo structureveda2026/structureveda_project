@@ -36,7 +36,6 @@ const SAMPLE_JSON_TEMPLATE = [
     chhanda: "गायत्री",
     svara: "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
     sanskrit: "ॐ अ॒ग्निमी॑ळे पु॒रोहि॑तं य॒ज्ञस्य॑ दे॒वमृ॒त्विज॑म्।\nहोता॑रं रत्न॒धात॑मम्॥१॥",
-    transliteration: "oṃ agnim īḷe purohitaṃ yajñasya devam ṛtvijam |\nhotāraṃ ratnadhātamam || 1 ||",
     hindiTranslation: "मैं यज्ञ के पुरोहित, दिव्य प्रकाशयुक्त अग्निदेव की स्तुति करता हूँ जो होता और रत्नों को धारण करने वाले हैं।",
     englishTranslation: "I magnify Agni, the divine priest of the sacrifice, the hotar, the greatest bestower of treasures.",
     hinglishTranslation: "Main yagya ke purohit, divya prakashmay Agni Dev ki stuti karta hoon jo ratno ko dharan karne wale hain.",

@@ -13,6 +13,11 @@ export interface BlogPost {
   subtitleHi?: string | null;
   excerptHi?: string | null;
   contentHi?: string | null;
+  // Hinglish Content (3-Language Standard)
+  titleHinglish?: string | null;
+  subtitleHinglish?: string | null;
+  excerptHinglish?: string | null;
+  contentHinglish?: string | null;
   // Media & Metadata
   featuredImage?: string | null;
   author: string;
@@ -29,14 +34,19 @@ export interface BlogPost {
   metaDescriptionHi?: string | null;
   metaKeywords?: string[];
   publishedAt?: string | null;
-  // Multi-format & Sacred Verse / Mantra additions
+  // Multi-format & Sacred Verse / Mantra additions (Devanagari Sanskrit + 3 Languages)
   postType?: string;
   sanskrit?: string | null;
-  transliteration?: string | null;
   deity?: string | null;
   rishi?: string | null;
   chhandas?: string | null;
   meaning?: string | null;
+  meaningHi?: string | null;
+  meaningEn?: string | null;
+  meaningHinglish?: string | null;
+  hindiTranslation?: string | null;
+  englishTranslation?: string | null;
+  hinglishTranslation?: string | null;
   vidhi?: string | null;
   benefits?: string | null;
   createdAt: string;
@@ -53,6 +63,10 @@ export interface CreateBlogPostInput {
   subtitleHi?: string;
   excerptHi?: string;
   contentHi?: string;
+  titleHinglish?: string;
+  subtitleHinglish?: string;
+  excerptHinglish?: string;
+  contentHinglish?: string;
   featuredImage?: string;
   author?: string;
   authorAvatar?: string;
@@ -67,14 +81,19 @@ export interface CreateBlogPostInput {
   metaDescriptionHi?: string;
   metaKeywords?: string[];
   publishedAt?: string;
-  // Multi-format & Sacred Verse / Mantra additions
+  // Multi-format & Sacred Verse / Mantra additions (Devanagari Sanskrit + 3 Languages)
   postType?: string;
   sanskrit?: string;
-  transliteration?: string;
   deity?: string;
   rishi?: string;
   chhandas?: string;
   meaning?: string;
+  meaningHi?: string;
+  meaningEn?: string;
+  meaningHinglish?: string;
+  hindiTranslation?: string;
+  englishTranslation?: string;
+  hinglishTranslation?: string;
   vidhi?: string;
   benefits?: string;
 }

@@ -708,9 +708,10 @@ export const MantraListPage: React.FC = () => {
                         <p className="font-devanagari font-bold text-xs sm:text-sm text-[#2E1808] leading-relaxed line-clamp-2">
                           {m.sanskrit}
                         </p>
-                        {m.transliteration && (
-                          <p className="font-serif italic text-[10px] text-amber-950/70 line-clamp-1 mt-1 border-t border-amber-100 pt-0.5">
-                            {m.transliteration}
+                        {m.hinglishTranslation && (
+                          <p className="font-sans text-[10px] text-amber-900/70 line-clamp-1 mt-1 border-t border-amber-100 pt-0.5">
+                            <span className="font-bold text-amber-800">हिंग्लिश: </span>
+                            {m.hinglishTranslation}
                           </p>
                         )}
 

@@ -61,6 +61,26 @@ const BlogPost = sequelize.define(
       allowNull: true,
       field: "content_hi",
     },
+    titleHinglish: {
+      type: DataTypes.STRING(300),
+      allowNull: true,
+      field: "title_hinglish",
+    },
+    subtitleHinglish: {
+      type: DataTypes.STRING(300),
+      allowNull: true,
+      field: "subtitle_hinglish",
+    },
+    excerptHinglish: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: "excerpt_hinglish",
+    },
+    contentHinglish: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: "content_hinglish",
+    },
     featuredImage: {
       type: DataTypes.STRING(600),
       allowNull: true,
@@ -132,6 +152,16 @@ const BlogPost = sequelize.define(
       allowNull: true,
       field: "meta_description_hi",
     },
+    metaTitleHinglish: {
+      type: DataTypes.STRING(300),
+      allowNull: true,
+      field: "meta_title_hinglish",
+    },
+    metaDescriptionHinglish: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: "meta_description_hinglish",
+    },
     metaKeywords: {
       type: DataTypes.JSONB,
       allowNull: true,
@@ -143,7 +173,7 @@ const BlogPost = sequelize.define(
       allowNull: true,
       field: "published_at",
     },
-    // Multi-type & Sacred Mantra/Sukti Extensions
+    // Multi-type & Sacred Mantra/Sukti Extensions (Devanagari Sanskrit + 3 Languages)
     postType: {
       type: DataTypes.STRING(60),
       allowNull: false,
@@ -151,10 +181,6 @@ const BlogPost = sequelize.define(
       field: "post_type",
     },
     sanskrit: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
-    transliteration: {
       type: DataTypes.TEXT,
       allowNull: true,
     },
@@ -173,6 +199,36 @@ const BlogPost = sequelize.define(
     meaning: {
       type: DataTypes.TEXT,
       allowNull: true,
+    },
+    meaningHi: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: "meaning_hi",
+    },
+    meaningEn: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: "meaning_en",
+    },
+    meaningHinglish: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: "meaning_hinglish",
+    },
+    hindiTranslation: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: "hindi_translation",
+    },
+    englishTranslation: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: "english_translation",
+    },
+    hinglishTranslation: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: "hinglish_translation",
     },
     vidhi: {
       type: DataTypes.TEXT,

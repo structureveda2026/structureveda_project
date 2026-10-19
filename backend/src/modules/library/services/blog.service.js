@@ -52,11 +52,16 @@ export const DEFAULT_MEMORY_BLOGS = [
     category: "Mantras & Stotrams",
     postType: "mantra",
     sanskrit: "ॐ भूर्भुवः स्वः तत्सवितुर्वरेण्यं भर्गो देवस्य धीमहि धियो यो नः प्रचोदयात्॥",
-    transliteration: "oṃ bhūr bhuvaḥ svaḥ tat savitur vareṇyaṃ bhargo devasya dhīmahi dhiyo yo naḥ pracodayāt ||",
+    hindiTranslation: "हम उस प्राणस्वरूप, दुःखनाशक, सुखस्वरूप, श्रेष्ठ, तेजस्वी, पापनाशक, देवस्वरूप परमात्मा का ध्यान करते हैं जो हमारी बुद्धि को सन्मार्ग पर प्रेरित करे।",
+    englishTranslation: "We meditate upon the supreme, adorable divine light of the Sun of Spiritual Consciousness. May that divine light illuminate our intellect and guide us on the righteous path.",
+    hinglishTranslation: "Hum us pranaswaroop, dukh-nashak, sukhswaroop, shreshtha aur divya parmatma ka dhyan karte hain, jo hamari buddhi ko satmarg par prerit karein.",
     deity: "gayatri",
     rishi: "ब्रह्मर्षि विश्वामित्र (Brahmarshi Vishwamitra)",
     chhandas: "गायत्री (Gayatri)",
     meaning: "हम उस प्राणस्वरूप, दुःखनाशक, सुखस्वरूप, श्रेष्ठ, तेजस्वी, पापनाशक, देवस्वरूप परमात्मा का ध्यान करते हैं।",
+    meaningHi: "हम उस प्राणस्वरूप, दुःखनाशक, सुखस्वरूप, श्रेष्ठ, तेजस्वी, पापनाशक, देवस्वरूप परमात्मा का ध्यान करते हैं जो हमारी बुद्धि को सन्मार्ग पर प्रेरित करे।",
+    meaningEn: "We meditate upon the supreme, adorable divine light of the Sun of Spiritual Consciousness.",
+    meaningHinglish: "Hum us pranaswaroop aur divya parmatma ka dhyan karte hain jo hamari buddhi ko prerit karein.",
     vidhi: "त्रिकाल संध्या (प्रातः, मध्याह्न, सायं) में पूर्व या उत्तर मुख होकर गायत्री जप करें।",
     benefits: "बुद्धि का विकास, एकाग्रता, आत्मज्ञान, मानसिक शांति एवं सकारात्मक ऊर्जा का संचार।",
     author: "Veda Structure Team",
@@ -137,6 +142,7 @@ class BlogService {
       where[Op.or] = [
         { title: { [Op.iLike]: searchTerm } },
         { titleHi: { [Op.iLike]: searchTerm } },
+        { titleHinglish: { [Op.iLike]: searchTerm } },
         { slug: { [Op.iLike]: searchTerm } },
         { excerpt: { [Op.iLike]: searchTerm } },
         { excerptHi: { [Op.iLike]: searchTerm } },
@@ -295,6 +301,10 @@ class BlogService {
       subtitleHi,
       excerptHi,
       contentHi,
+      titleHinglish,
+      subtitleHinglish,
+      excerptHinglish,
+      contentHinglish,
       featuredImage,
       author,
       authorAvatar,
@@ -307,16 +317,23 @@ class BlogService {
       metaDescription,
       metaTitleHi,
       metaDescriptionHi,
+      metaTitleHinglish,
+      metaDescriptionHinglish,
       metaKeywords,
       publishedAt,
-      // Sacred Mantra/Sukta/Stotra & Dynamic Post Type
+      // Sacred Mantra/Sukta/Stotra & Dynamic Post Type (Devanagari Sanskrit + 3 Languages)
       postType = "article",
       sanskrit,
-      transliteration,
       deity,
       rishi,
       chhandas,
       meaning,
+      meaningHi,
+      meaningEn,
+      meaningHinglish,
+      hindiTranslation,
+      englishTranslation,
+      hinglishTranslation,
       vidhi,
       benefits,
     } = data;
@@ -371,6 +388,7 @@ class BlogService {
     // Auto excerpt if not provided
     const finalExcerpt = excerpt?.trim() || extractExcerpt(content, 160);
     const finalExcerptHi = excerptHi?.trim() || (contentHi ? extractExcerpt(contentHi, 160) : null);
+    const finalExcerptHinglish = excerptHinglish?.trim() || (contentHinglish ? extractExcerpt(contentHinglish, 160) : null);
 
     // Auto read time if not provided
     const finalReadTime = readTime?.trim() || calculateReadTime(content);
@@ -401,6 +419,10 @@ class BlogService {
       subtitleHi: subtitleHi ? String(subtitleHi).trim() : null,
       excerptHi: finalExcerptHi,
       contentHi: contentHi || null,
+      titleHinglish: titleHinglish ? String(titleHinglish).trim() : null,
+      subtitleHinglish: subtitleHinglish ? String(subtitleHinglish).trim() : null,
+      excerptHinglish: finalExcerptHinglish,
+      contentHinglish: contentHinglish || null,
       featuredImage: featuredImage ? String(featuredImage).trim() : null,
       author: author ? String(author).trim() : "Veda Structure Team",
       authorAvatar: authorAvatar ? String(authorAvatar).trim() : null,
@@ -414,15 +436,22 @@ class BlogService {
       metaDescription: seo.metaDescription || null,
       metaTitleHi: metaTitleHi ? String(metaTitleHi).trim() : null,
       metaDescriptionHi: metaDescriptionHi ? String(metaDescriptionHi).trim() : null,
+      metaTitleHinglish: metaTitleHinglish ? String(metaTitleHinglish).trim() : null,
+      metaDescriptionHinglish: metaDescriptionHinglish ? String(metaDescriptionHinglish).trim() : null,
       metaKeywords: seo.metaKeywords,
       publishedAt: finalPublishedAt,
       postType: postType ? String(postType).trim() : "article",
       sanskrit: sanskrit ? String(sanskrit).trim() : null,
-      transliteration: transliteration ? String(transliteration).trim() : null,
       deity: deity ? String(deity).trim() : null,
       rishi: rishi ? String(rishi).trim() : null,
       chhandas: chhandas ? String(chhandas).trim() : null,
-      meaning: meaning ? String(meaning).trim() : null,
+      meaning: meaning ? String(meaning).trim() : (meaningHi || hindiTranslation || null),
+      meaningHi: (meaningHi || hindiTranslation || meaning) ? String(meaningHi || hindiTranslation || meaning).trim() : null,
+      meaningEn: (meaningEn || englishTranslation) ? String(meaningEn || englishTranslation).trim() : null,
+      meaningHinglish: (meaningHinglish || hinglishTranslation) ? String(meaningHinglish || hinglishTranslation).trim() : null,
+      hindiTranslation: (hindiTranslation || meaningHi || meaning) ? String(hindiTranslation || meaningHi || meaning).trim() : null,
+      englishTranslation: (englishTranslation || meaningEn) ? String(englishTranslation || meaningEn).trim() : null,
+      hinglishTranslation: (hinglishTranslation || meaningHinglish) ? String(hinglishTranslation || meaningHinglish).trim() : null,
       vidhi: vidhi ? String(vidhi).trim() : null,
       benefits: benefits ? String(benefits).trim() : null,
       createdAt: new Date().toISOString(),
@@ -457,6 +486,10 @@ class BlogService {
       subtitleHi,
       excerptHi,
       contentHi,
+      titleHinglish,
+      subtitleHinglish,
+      excerptHinglish,
+      contentHinglish,
       featuredImage,
       author,
       authorAvatar,
@@ -469,16 +502,23 @@ class BlogService {
       metaDescription,
       metaTitleHi,
       metaDescriptionHi,
+      metaTitleHinglish,
+      metaDescriptionHinglish,
       metaKeywords,
       publishedAt,
-      // Sacred Mantra/Sukta/Stotra & Dynamic Post Type
+      // Sacred Mantra/Sukta/Stotra & Dynamic Post Type (Devanagari Sanskrit + 3 Languages)
       postType,
       sanskrit,
-      transliteration,
       deity,
       rishi,
       chhandas,
       meaning,
+      meaningHi,
+      meaningEn,
+      meaningHinglish,
+      hindiTranslation,
+      englishTranslation,
+      hinglishTranslation,
       vidhi,
       benefits,
     } = data;
@@ -538,6 +578,12 @@ class BlogService {
         ? (excerptHi ? String(excerptHi).trim() : null)
         : blog.excerptHi || (updatedContentHi ? extractExcerpt(updatedContentHi) : null);
 
+    const updatedContentHinglish = typeof contentHinglish !== "undefined" ? contentHinglish : blog.contentHinglish;
+    const finalExcerptHinglish =
+      typeof excerptHinglish !== "undefined"
+        ? (excerptHinglish ? String(excerptHinglish).trim() : null)
+        : blog.excerptHinglish || (updatedContentHinglish ? extractExcerpt(updatedContentHinglish) : null);
+
     const finalReadTime =
       typeof readTime !== "undefined"
         ? readTime
@@ -553,6 +599,10 @@ class BlogService {
       subtitleHi: typeof subtitleHi !== "undefined" ? (subtitleHi ? String(subtitleHi).trim() : null) : blog.subtitleHi,
       excerptHi: finalExcerptHi,
       contentHi: updatedContentHi,
+      titleHinglish: typeof titleHinglish !== "undefined" ? (titleHinglish ? String(titleHinglish).trim() : null) : blog.titleHinglish,
+      subtitleHinglish: typeof subtitleHinglish !== "undefined" ? (subtitleHinglish ? String(subtitleHinglish).trim() : null) : blog.subtitleHinglish,
+      excerptHinglish: finalExcerptHinglish,
+      contentHinglish: updatedContentHinglish,
       featuredImage: typeof featuredImage !== "undefined" ? (featuredImage ? String(featuredImage).trim() : null) : blog.featuredImage,
       author: typeof author !== "undefined" ? String(author).trim() : blog.author,
       authorAvatar: typeof authorAvatar !== "undefined" ? (authorAvatar ? String(authorAvatar).trim() : null) : blog.authorAvatar,
@@ -565,15 +615,22 @@ class BlogService {
       metaDescription: typeof metaDescription !== "undefined" ? (metaDescription ? String(metaDescription).trim() : null) : blog.metaDescription,
       metaTitleHi: typeof metaTitleHi !== "undefined" ? (metaTitleHi ? String(metaTitleHi).trim() : null) : blog.metaTitleHi,
       metaDescriptionHi: typeof metaDescriptionHi !== "undefined" ? (metaDescriptionHi ? String(metaDescriptionHi).trim() : null) : blog.metaDescriptionHi,
+      metaTitleHinglish: typeof metaTitleHinglish !== "undefined" ? (metaTitleHinglish ? String(metaTitleHinglish).trim() : null) : blog.metaTitleHinglish,
+      metaDescriptionHinglish: typeof metaDescriptionHinglish !== "undefined" ? (metaDescriptionHinglish ? String(metaDescriptionHinglish).trim() : null) : blog.metaDescriptionHinglish,
       metaKeywords: typeof metaKeywords !== "undefined" ? normalizeTags(metaKeywords) : blog.metaKeywords,
       publishedAt: finalPublishedAt,
       postType: typeof postType !== "undefined" ? String(postType).trim() : blog.postType,
       sanskrit: typeof sanskrit !== "undefined" ? (sanskrit ? String(sanskrit).trim() : null) : blog.sanskrit,
-      transliteration: typeof transliteration !== "undefined" ? (transliteration ? String(transliteration).trim() : null) : blog.transliteration,
       deity: typeof deity !== "undefined" ? (deity ? String(deity).trim() : null) : blog.deity,
       rishi: typeof rishi !== "undefined" ? (rishi ? String(rishi).trim() : null) : blog.rishi,
       chhandas: typeof chhandas !== "undefined" ? (chhandas ? String(chhandas).trim() : null) : blog.chhandas,
       meaning: typeof meaning !== "undefined" ? (meaning ? String(meaning).trim() : null) : blog.meaning,
+      meaningHi: typeof meaningHi !== "undefined" ? (meaningHi ? String(meaningHi).trim() : null) : blog.meaningHi,
+      meaningEn: typeof meaningEn !== "undefined" ? (meaningEn ? String(meaningEn).trim() : null) : blog.meaningEn,
+      meaningHinglish: typeof meaningHinglish !== "undefined" ? (meaningHinglish ? String(meaningHinglish).trim() : null) : blog.meaningHinglish,
+      hindiTranslation: typeof hindiTranslation !== "undefined" ? (hindiTranslation ? String(hindiTranslation).trim() : null) : blog.hindiTranslation,
+      englishTranslation: typeof englishTranslation !== "undefined" ? (englishTranslation ? String(englishTranslation).trim() : null) : blog.englishTranslation,
+      hinglishTranslation: typeof hinglishTranslation !== "undefined" ? (hinglishTranslation ? String(hinglishTranslation).trim() : null) : blog.hinglishTranslation,
       vidhi: typeof vidhi !== "undefined" ? (vidhi ? String(vidhi).trim() : null) : blog.vidhi,
       benefits: typeof benefits !== "undefined" ? (benefits ? String(benefits).trim() : null) : blog.benefits,
       updatedAt: new Date().toISOString(),

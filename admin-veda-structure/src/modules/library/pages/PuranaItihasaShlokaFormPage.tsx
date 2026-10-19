@@ -65,7 +65,6 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
     chhanda: "अनुष्टुप्",
     svara: "वैदिक पाठ",
     sanskrit: "",
-    transliteration: "",
     hindiTranslation: "",
     englishTranslation: "",
     hinglishTranslation: "",

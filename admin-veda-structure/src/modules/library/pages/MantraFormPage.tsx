@@ -42,7 +42,6 @@ export const MantraFormPage: React.FC = () => {
     chhanda: "गायत्री",
     svara: "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
     sanskrit: "",
-    transliteration: "",
     hindiTranslation: "",
     englishTranslation: "",
     hinglishTranslation: "",

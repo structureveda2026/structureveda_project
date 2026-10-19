@@ -191,16 +191,23 @@ async function runTests() {
     const mantraPayload = {
       title: "Maha Mrityunjaya Mantra: The Sacred Cosmic Healing Verse",
       titleHi: "महामृत्युंजय मंत्र: संजीवनी रहस्य एवं संपूर्ण साधना विधान",
+      titleHinglish: "Maha Mrityunjaya Mantra: Sanjeevani Rahasya aur Sadhana Vidhi",
       content: "<p>The Maha Mrityunjaya Mantra from Rigveda Mandala 7 is a moksha and healing mantra.</p>",
       contentHi: "<p>महामृत्युंजय मंत्र ऋग्वेद के सातवें मण्डल का अत्यंत दिव्य और अमोघ संजीवनी मंत्र है।</p>",
+      contentHinglish: "<p>Maha Mrityunjaya Mantra Rigveda ke 7th Mandala ka divya healing mantra hai.</p>",
       category: "Mantras & Stotrams",
       postType: "mantra",
       sanskrit: "ॐ त्र्यम्बकं यजामहे सुगन्धिं पुष्टिवर्धनम्। उर्वारुकमिव बन्धनान्मृत्योर्मुक्षीय मामृतात्॥",
-      transliteration: "oṃ tryambakaṃ yajāmahe sugandhiṃ puṣṭivardhanam | urvārukamiva bandhanānmṛtyormukṣīya māmṛtāt ||",
+      hindiTranslation: "हम त्रिनेत्रधारी भगवान शिव की उपासना करते हैं, जो समस्त लोकों को जीवन सुगंध और पुष्टि प्रदान करते हैं।",
+      englishTranslation: "We worship the three-eyed Lord Shiva, who nourishes and nurtures all beings.",
+      hinglishTranslation: "Hum three-eyed Lord Shiva ki upasana karte hain jo sabhi praniyo ko poshan dete hain.",
       deity: "shiva",
       rishi: "महर्षि वशिष्ठ (Maharshi Vashishtha)",
       chhandas: "अनुष्टुप् (Anushtup)",
       meaning: "हम त्रिनेत्रधारी भगवान शिव की उपासना करते हैं, जो समस्त लोकों को जीवन सुगंध और पुष्टि प्रदान करते हैं।",
+      meaningHi: "हम त्रिनेत्रधारी भगवान शिव की उपासना करते हैं, जो समस्त लोकों को जीवन सुगंध और पुष्टि प्रदान करते हैं।",
+      meaningEn: "We worship the three-eyed Lord Shiva, who nourishes and nurtures all beings.",
+      meaningHinglish: "Hum three-eyed Lord Shiva ki upasana karte hain jo sabhi praniyo ko poshan dete hain.",
       vidhi: "प्रातःकाल पूर्व या उत्तर दिशा की ओर मुख कर रुद्राक्ष की माला से १०८ बार जप करें।",
       benefits: "अकाल मृत्यु से रक्षा, मानसिक शांति, असाध्य रोगों का निवारण और आत्मिक उन्नति।",
       status: "Published",
@@ -224,8 +231,10 @@ async function runTests() {
     assert.strictEqual(res.data.data.rishi, "महर्षि वशिष्ठ (Maharshi Vashishtha)");
     assert.strictEqual(res.data.data.chhandas, "अनुष्टुप् (Anushtup)");
     assert.ok(res.data.data.sanskrit.includes("त्र्यम्बकं"));
-    assert.ok(res.data.data.transliteration.includes("tryambakaṃ"));
     assert.ok(res.data.data.meaning.includes("त्रिनेत्रधारी"));
+    assert.ok(res.data.data.hindiTranslation.includes("त्रिनेत्रधारी"));
+    assert.ok(res.data.data.englishTranslation.includes("three-eyed"));
+    assert.ok(res.data.data.hinglishTranslation.includes("three-eyed"));
     assert.ok(res.data.data.vidhi.includes("रुद्राक्ष"));
     assert.ok(res.data.data.benefits.includes("अकाल मृत्यु"));
   });
@@ -234,12 +243,15 @@ async function runTests() {
     const customTypePayload = {
       title: "Sri Rudrashtakam: Divine Hymn of Devotion",
       titleHi: "नमामीशमीशान निर्वाणरूपं: श्री रुद्राष्टकम स्तुति",
+      titleHinglish: "Sri Rudrashtakam: Namamisham-Ishana Stuti",
       content: "<p>Composed by Goswami Tulsidas in the Uttarakanda of Ramcharitmanas.</p>",
       contentHi: "<p>गोस्वामी तुलसीदास जी द्वारा रचित भगवान शिव की परम पावन स्तुति।</p>",
       category: "Mantras & Stotrams",
       postType: "stuti",
       sanskrit: "नमामीशमीशान निर्वाणरूपं विभुं व्यापकं ब्रह्मवेदस्वरूपम्।",
-      transliteration: "namāmīśamīśāna nirvāṇarūpaṃ vibhuṃ vyāpakaṃ brahmavedasvarūpam |",
+      hindiTranslation: "हे मोक्ष स्वरूप, सर्वव्यापक, ब्रह्म एवं वेद स्वरूप ईशान शिव! मैं आपको नमन करता हूँ।",
+      englishTranslation: "I bow to the ruler of all, Lord Shiva, whose form is liberation and who pervades the universe.",
+      hinglishTranslation: "Main moksha swaroop, sarvavyapak Ishan Shiv ko pranam karta hoon.",
       deity: "shiva-rudra",
       rishi: "गोस्वामी तुलसीदास (Goswami Tulsidas)",
       chhandas: "भुजंगप्रयात (Bhujangaprayata)",

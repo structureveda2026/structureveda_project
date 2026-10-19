@@ -121,7 +121,6 @@ export interface VedaMantra {
   chhanda?: string;
   svara?: string;
   sanskrit: string;
-  transliteration?: string;
   hindiTranslation: string;
   englishTranslation?: string;
   hinglishTranslation?: string;
