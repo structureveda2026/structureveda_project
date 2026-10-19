@@ -56,6 +56,7 @@ import {
   PuranaItihasaStructureTreePage,
   PuranaItihasaShlokaListPage,
   PuranaItihasaShlokaFormPage,
+  MantraStotraBranchesPage,
 } from "@/modules/library";
 
 export default function App() {
@@ -242,6 +243,12 @@ export default function App() {
               <Route path="library/mantras/new" element={<MantraFormPage />} />
               <Route path="library/mantras/:id" element={<MantraDetailPage />} />
               <Route path="library/mantras/:id/edit" element={<MantraFormPage />} />
+
+              {/* Mantra-Stotra Branches & Subcategories (उप-विभाग एवं शाखाएँ) */}
+              <Route path="library/mantra-stotra-branches" element={<MantraStotraBranchesPage />} />
+              <Route path="library/branches" element={<MantraStotraBranchesPage />} />
+              <Route path="mantra-stotra-branches" element={<MantraStotraBranchesPage />} />
+              <Route path="branches" element={<MantraStotraBranchesPage />} />
 
               {/* Direct Veda Aliases */}
               <Route path="vedas" element={<VedaListPage />} />

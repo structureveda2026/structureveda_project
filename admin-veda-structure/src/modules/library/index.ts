@@ -15,6 +15,7 @@ export { default as VedaTreePage } from "./pages/VedaTreePage";
 export { default as MantraListPage } from "./pages/MantraListPage";
 export { default as MantraFormPage } from "./pages/MantraFormPage";
 export { default as MantraDetailPage } from "./pages/MantraDetailPage";
+export { default as MantraStotraBranchesPage } from "./pages/MantraStotraBranchesPage";
 
 // Purana & Itihasa Archive Pages
 export { default as PuranaItihasaListPage } from "./pages/PuranaItihasaListPage";
@@ -41,6 +42,12 @@ export {
   puranaItihasaAdminService,
   default as PuranaItihasaService,
 } from "./services/puranaItihasa.service";
+export {
+  libraryBranchService,
+  DEFAULT_MANTRA_BRANCHES,
+  default as LibraryBranchService,
+} from "./services/libraryBranch.service";
+export type { LibraryBranch } from "./services/libraryBranch.service";
 
 // Constants & Types
 export * from "./constants/blog.constants";

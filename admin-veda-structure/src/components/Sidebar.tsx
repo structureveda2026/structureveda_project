@@ -134,6 +134,11 @@ const LIBRARY_ITEMS: LibrarySubItem[] = [
     path: "/admin/library/blogs",
     aliases: ["/admin/blogs"],
   },
+  {
+    label: "Mantra-Stotra Branches",
+    path: "/admin/library/mantra-stotra-branches",
+    aliases: ["/admin/branches", "/admin/library/categories/mantra-stotra/subcategories"],
+  },
 ];
 
 interface SidebarProps {

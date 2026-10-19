@@ -143,6 +143,45 @@ const BlogPost = sequelize.define(
       allowNull: true,
       field: "published_at",
     },
+    // Multi-type & Sacred Mantra/Sukti Extensions
+    postType: {
+      type: DataTypes.STRING(60),
+      allowNull: false,
+      defaultValue: "article",
+      field: "post_type",
+    },
+    sanskrit: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    transliteration: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    deity: {
+      type: DataTypes.STRING(150),
+      allowNull: true,
+    },
+    rishi: {
+      type: DataTypes.STRING(150),
+      allowNull: true,
+    },
+    chhandas: {
+      type: DataTypes.STRING(150),
+      allowNull: true,
+    },
+    meaning: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    vidhi: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    benefits: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
   },
   {
     tableName: "blog_posts",

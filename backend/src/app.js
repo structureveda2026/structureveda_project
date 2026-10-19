@@ -41,6 +41,8 @@ import {
   puranaItihasaPublicRoutes,
   upanishadDarshanAdminRoutes,
   upanishadDarshanPublicRoutes,
+  libraryBranchAdminRoutes,
+  libraryBranchPublicRoutes,
 } from "./modules/library/index.js";
 
 const app = express();
@@ -102,6 +104,12 @@ app.use("/api/admin/library/blogs", blogAdminRoutes);
 app.use("/api/admin/blogs", blogAdminRoutes);
 app.use("/api/library/blogs", blogPublicRoutes);
 app.use("/api/blogs", blogPublicRoutes);
+
+// Library Categories & Subcategories / Branches Endpoints (Mantra-Stotra 7 Deities)
+app.use("/api/admin/library/categories", libraryBranchAdminRoutes);
+app.use("/api/admin/library", libraryBranchAdminRoutes);
+app.use("/api/library/categories", libraryBranchPublicRoutes);
+app.use("/api/library", libraryBranchPublicRoutes);
 
 // Veda, Mantra & Grantha Library Endpoints
 app.use("/api/admin/library/vedas", vedaAdminRoutes);

@@ -55,6 +55,7 @@ export const blogService = {
     const query = new URLSearchParams();
     if (params.status && params.status !== "All") query.append("status", params.status);
     if (params.category && params.category !== "All") query.append("category", params.category);
+    if (params.postType && params.postType !== "All") query.append("postType", params.postType);
     if (params.search && params.search.trim()) query.append("search", params.search.trim());
     if (typeof params.isFeatured !== "undefined" && params.isFeatured !== "") {
       query.append("isFeatured", String(params.isFeatured));

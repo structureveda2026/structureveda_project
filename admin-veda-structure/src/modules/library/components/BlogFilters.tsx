@@ -9,6 +9,8 @@ interface BlogFiltersProps {
   onCategoryChange: (val: string) => void;
   selectedStatus: string;
   onStatusChange: (val: string) => void;
+  selectedPostType?: string;
+  onPostTypeChange?: (val: string) => void;
   sortBy: string;
   sortOrder: "ASC" | "DESC";
   onSortChange: (field: string, order: "ASC" | "DESC") => void;
@@ -23,6 +25,8 @@ export default function BlogFilters({
   onCategoryChange,
   selectedStatus,
   onStatusChange,
+  selectedPostType = "All",
+  onPostTypeChange,
   sortBy,
   sortOrder,
   onSortChange,
@@ -32,12 +36,14 @@ export default function BlogFilters({
   const isFiltered =
     Boolean(searchQuery) ||
     selectedCategory !== "All" ||
-    selectedStatus !== "All";
+    selectedStatus !== "All" ||
+    (selectedPostType && selectedPostType !== "All");
 
   const handleResetFilters = () => {
     onSearchChange("");
     onCategoryChange("All");
     onStatusChange("All");
+    if (onPostTypeChange) onPostTypeChange("All");
   };
 
   const statusOptions = [
@@ -159,6 +165,39 @@ export default function BlogFilters({
           )}
         </div>
       </div>
+
+      {/* Post Format / Type Filter Bar */}
+      {onPostTypeChange && (
+        <div className="pt-2 border-t border-cream-100 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+          <span className="text-[10px] font-bold text-charcoal-400 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
+            प्रकार (Format):
+          </span>
+          {[
+            { value: "All", label: "सभी (All)" },
+            { value: "article", label: "लेख (Articles)" },
+            { value: "blog", label: "ब्लॉग (Blogs)" },
+            { value: "mantra", label: "मंत्र व स्तोत्र (Mantras)" },
+            { value: "sukta", label: "वैदिक सूक्त (Suktas)" },
+            { value: "stotra", label: "स्तुति (Stutis)" },
+          ].map((typeItem) => {
+            const isSelected = selectedPostType === typeItem.value;
+            return (
+              <button
+                key={typeItem.value}
+                type="button"
+                onClick={() => onPostTypeChange(typeItem.value)}
+                className={`px-2 py-0.5 rounded-md text-xs font-medium shrink-0 transition-all ${
+                  isSelected
+                    ? "bg-amber-600 text-white shadow-2xs font-bold"
+                    : "bg-cream-100/70 text-charcoal-600 hover:bg-cream-100 border border-cream-200/50"
+                }`}
+              >
+                {typeItem.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Category Horizontal Filter Bar */}
       <div className="pt-1.5 border-t border-cream-100 flex items-center gap-1.5 overflow-x-auto no-scrollbar">

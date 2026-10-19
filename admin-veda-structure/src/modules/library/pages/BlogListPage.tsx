@@ -37,6 +37,7 @@ export default function BlogListPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState<string>("All");
+  const [selectedPostType, setSelectedPostType] = useState<string>("All");
   const [sortBy, setSortBy] = useState<string>("createdAt");
   const [sortOrder, setSortOrder] = useState<"ASC" | "DESC">("DESC");
   const [viewMode, setViewMode] = useState<"grid" | "table">("table");
@@ -66,6 +67,7 @@ export default function BlogListPage() {
         search: searchQuery,
         category: selectedCategory,
         status: selectedStatus,
+        postType: selectedPostType !== "All" ? selectedPostType : undefined,
         sort: sortBy,
         order: sortOrder,
       });
@@ -96,7 +98,7 @@ export default function BlogListPage() {
 
   useEffect(() => {
     fetchBlogs();
-  }, [currentPage, selectedCategory, selectedStatus, sortBy, sortOrder]);
+  }, [currentPage, selectedCategory, selectedStatus, selectedPostType, sortBy, sortOrder]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -238,6 +240,11 @@ export default function BlogListPage() {
           setSelectedStatus(val);
           setCurrentPage(1);
         }}
+        selectedPostType={selectedPostType}
+        onPostTypeChange={(val) => {
+          setSelectedPostType(val);
+          setCurrentPage(1);
+        }}
         sortBy={sortBy}
         sortOrder={sortOrder}
         onSortChange={(f, o) => {
@@ -304,9 +311,16 @@ export default function BlogListPage() {
 
                       {/* Top Badges overlay */}
                       <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none">
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-white/95 backdrop-blur-md text-saffron-700 border border-cream-200/80 shadow-2xs">
-                          {blog.category}
-                        </span>
+                        <div className="flex items-center gap-1">
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-white/95 backdrop-blur-md text-saffron-700 border border-cream-200/80 shadow-2xs">
+                            {blog.category}
+                          </span>
+                          {blog.postType && blog.postType !== "article" && (
+                            <span className="px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-amber-500 text-white shadow-2xs uppercase">
+                              {blog.postType === "mantra" ? "🕉️ मंत्र" : blog.postType === "sukta" ? "📜 सूक्त" : blog.postType}
+                            </span>
+                          )}
+                        </div>
                         <div>{renderStatusPill(blog.status)}</div>
                       </div>
 
@@ -519,11 +533,18 @@ export default function BlogListPage() {
                       </div>
                     </td>
 
-                    {/* Category Badge */}
+                    {/* Category & Format Badge */}
                     <td className="py-2 px-2.5 whitespace-nowrap">
-                      <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-semibold bg-saffron-50 text-saffron-700 border border-saffron-200/60">
-                        {blog.category}
-                      </span>
+                      <div className="flex flex-col gap-1 items-start">
+                        <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-semibold bg-saffron-50 text-saffron-700 border border-saffron-200/60">
+                          {blog.category}
+                        </span>
+                        {blog.postType && blog.postType !== "article" && (
+                          <span className="inline-block px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                            {blog.postType === "mantra" ? "🕉️ मंत्र" : blog.postType === "sukta" ? "📜 सूक्त" : blog.postType}
+                          </span>
+                        )}
+                      </div>
                     </td>
 
                     {/* Author name & avatar */}
