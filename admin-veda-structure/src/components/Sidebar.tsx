@@ -7,6 +7,7 @@ import {
   LogOut,
   ChevronDown,
   X,
+  Sparkles,
 } from "lucide-react";
 import Logo from "./Logo";
 
@@ -447,7 +448,48 @@ export default function Sidebar({
           </NavLink>
         )}
 
-        {/* 2. Yagya & Puja (Umbrella Navigation) */}
+        {/* 2. Astrologers Management */}
+        {collapsed ? (
+          <NavLink
+            to="/admin/astrologers"
+            className={({ isActive }) =>
+              `flex items-center justify-center w-10 h-10 mx-auto rounded-lg transition group relative ${
+                isActive || location.pathname.startsWith("/admin/astrologers")
+                  ? "bg-saffron-500 text-white"
+                  : "text-charcoal-500 hover:bg-cream-100"
+              }`
+            }
+            title="Astrologers"
+          >
+            <Sparkles className="w-5 h-5" />
+            {location.pathname.startsWith("/admin/astrologers") && (
+              <span className="absolute -left-3 top-1/2 -translate-y-1/2 w-1 h-6 bg-saffron-500 rounded-r-full" />
+            )}
+          </NavLink>
+        ) : (
+          <NavLink
+            to="/admin/astrologers"
+            onClick={handleLinkClick}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${
+                isActive || location.pathname.startsWith("/admin/astrologers")
+                  ? "bg-saffron-50 text-saffron-700 font-semibold"
+                  : "text-charcoal-600 hover:bg-cream-100"
+              }`
+            }
+          >
+            <Sparkles
+              className={`w-[18px] h-[18px] ${
+                location.pathname.startsWith("/admin/astrologers")
+                  ? "text-saffron-600"
+                  : "text-charcoal-400"
+              }`}
+            />
+            <span className="flex-1">Astrologers</span>
+          </NavLink>
+        )}
+
+        {/* 3. Yagya & Puja (Umbrella Navigation) */}
         {collapsed ? (
           <NavLink
             to="/admin/upcoming-pujas"

@@ -11,14 +11,20 @@ npm run dev
 # Start production server
 npm start
 
-# Run database migrations
-npx sequelize-cli db:migrate
+# Run database migrations (configured via package.json / config.cjs)
+npm run migrate
+# or: npx sequelize-cli db:migrate --config src/config/config.cjs --migrations-path migrations
 
-# Run pending migrations and seed data
-npx sequelize-cli db:seed:all
+# Check migration status
+npm run migration:status
 
-# Reset database (drop, create, migrate, seed)
-npx sequelize-cli db:drop && npx sequelize-cli db:create && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all
+# Undo last database migration
+npm run migration:undo
+# or: npx sequelize-cli db:migrate:undo --config src/config/config.cjs --migrations-path migrations
+
+# Run astrologer catalogue seeder
+npx sequelize-cli db:seed --seed 20261016223000-seed-astrologers.cjs --config src/config/config.cjs --migrations-path migrations --seeders-path seeders
+# or standalone: node src/scripts/seedAstrologers.js
 ```
 
 No test framework is configured. If adding tests, consider Jest or Vitest for this Node.js/Express stack.
@@ -53,7 +59,7 @@ This is a Node.js backend using Express with Sequelize ORM and PostgreSQL. The a
 ### Configuration Files
 - `.env` - Environment variables (DB credentials, JWT_SECRET, etc.)
 - `.env.example` - Template for required environment variables
-- `.sequelizerc` - Sequelize CLI configuration
+- `.sequelizerc.cjs` - Sequelize CLI configuration (CJS format for ESM repository compatibility)
 
 ## Key Architectural Decisions
 1. **ES Modules (ESM)** - All source files use `import`/`export` (note `"type": "module"` in package.json)

@@ -27,7 +27,18 @@ if (!appId || !secretKey) {
 // ---------------------------------------------------------------------------
 const CASHFREE_API_VERSION = "2023-08-01";
 
-const cashfree = new Cashfree(CFEnvironment.SANDBOX, CASHFREE_API_VERSION);
+// Make Cashfree environment configurable via CASHFREE_ENVIRONMENT.
+// Default safely to SANDBOX unless explicit production configuration is supplied.
+// Never switch to production automatically based only on NODE_ENV.
+const isExplicitProduction =
+  typeof process.env.CASHFREE_ENVIRONMENT === "string" &&
+  process.env.CASHFREE_ENVIRONMENT.trim().toUpperCase() === "PRODUCTION";
+
+const cashfreeEnvironment = isExplicitProduction
+  ? CFEnvironment.PRODUCTION
+  : CFEnvironment.SANDBOX;
+
+const cashfree = new Cashfree(cashfreeEnvironment, CASHFREE_API_VERSION);
 cashfree.XClientId = appId;
 cashfree.XClientSecret = secretKey;
 cashfree.XApiVersion = CASHFREE_API_VERSION;
@@ -236,6 +247,88 @@ export const verifyCashfreeWebhookSignature = ({ signature, rawBody, timestamp }
 };
 
 // ---------------------------------------------------------------------------
+// initiateCashfreeRefund
+//
+// Initiates an order refund via Cashfree PGOrderCreateRefund API.
+// Uses an idempotency key to prevent accidental duplicate refund calls.
+// ---------------------------------------------------------------------------
+export const initiateCashfreeRefund = async ({
+  orderId,
+  refundAmount,
+  refundId,
+  refundNote,
+  refundSpeed = "STANDARD",
+}) => {
+  if (!appId || !secretKey) {
+    throw new Error("Cashfree credentials are not configured. Cannot initiate refund.");
+  }
+
+  const cleanOrderId = String(orderId || "").trim();
+  if (!cleanOrderId) {
+    throw new Error("orderId is required to initiate a refund.");
+  }
+
+  const amount = Number(Number(refundAmount).toFixed(2));
+  if (isNaN(amount) || amount <= 0) {
+    throw new Error(`Invalid refund amount: ${refundAmount}. Must be greater than 0.`);
+  }
+
+  const cleanRefundId = refundId
+    ? String(refundId).trim().replace(/[^a-zA-Z0-9_-]/g, "")
+    : `ref_${cleanOrderId.replace(/[^a-zA-Z0-9]/g, "")}_1`;
+
+  const idempotencyKey = `idemp_${cleanOrderId}_${cleanRefundId}`;
+
+  const payload = {
+    refund_amount: amount,
+    refund_id: cleanRefundId,
+    refund_note: String(refundNote || `Refund for booking ${cleanOrderId}`).slice(0, 200),
+    refund_speed: refundSpeed === "INSTANT" ? "INSTANT" : "STANDARD",
+  };
+
+  const response = await cashfree.PGOrderCreateRefund(
+    cleanOrderId,
+    payload,
+    undefined,
+    idempotencyKey
+  );
+
+  return response?.data || response;
+};
+
+// ---------------------------------------------------------------------------
+// fetchCashfreeRefund
+//
+// Fetches a specific refund record from Cashfree via PGOrderFetchRefund API.
+// ---------------------------------------------------------------------------
+export const fetchCashfreeRefund = async (orderId, refundId) => {
+  if (!appId || !secretKey) {
+    throw new Error("Cashfree credentials are not configured. Cannot fetch refund.");
+  }
+
+  const cleanOrderId = String(orderId || "").trim();
+  const cleanRefundId = String(refundId || "").trim();
+
+  const response = await cashfree.PGOrderFetchRefund(cleanOrderId, cleanRefundId);
+  return response?.data || response;
+};
+
+// ---------------------------------------------------------------------------
+// fetchCashfreeOrderRefunds
+//
+// Fetches all refunds processed for an order via PGOrderFetchRefunds API.
+// ---------------------------------------------------------------------------
+export const fetchCashfreeOrderRefunds = async (orderId) => {
+  if (!appId || !secretKey) {
+    throw new Error("Cashfree credentials are not configured. Cannot fetch order refunds.");
+  }
+
+  const cleanOrderId = String(orderId || "").trim();
+  const response = await cashfree.PGOrderFetchRefunds(cleanOrderId);
+  return Array.isArray(response?.data) ? response.data : [];
+};
+
+// ---------------------------------------------------------------------------
 // Expose underlying Cashfree instance for testing and health verification
 // ---------------------------------------------------------------------------
 export const getCashfreeInstance = () => cashfree;
@@ -245,5 +338,8 @@ export default {
   fetchCashfreeOrder,
   fetchCashfreeOrderPayments,
   verifyCashfreeWebhookSignature,
+  initiateCashfreeRefund,
+  fetchCashfreeRefund,
+  fetchCashfreeOrderRefunds,
   getCashfreeInstance,
 };

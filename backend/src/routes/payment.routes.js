@@ -6,6 +6,7 @@ import {
   getPaymentBookingStatus,
 } from "../controllers/payment.controller.js";
 import { optionalAuthenticate } from "../middleware/auth.middleware.js";
+import { paymentInitiationLimiter } from "../middleware/rateLimiter.middleware.js";
 
 const router = express.Router();
 
@@ -14,9 +15,8 @@ const router = express.Router();
 router.get("/booking-status/:bookingReference", optionalAuthenticate, getPaymentBookingStatus);
 
 // POST /api/payments/create-order
-// Creates or recovers a Cashfree Sandbox order for an existing Pending booking.
-// Reuses active sessions or creates replacement orders for expired ones without duplicate bookings.
-router.post("/create-order", optionalAuthenticate, createPaymentOrder);
+// Creates or recovers a Cashfree Sandbox order for an existing Pending booking with rate limiting.
+router.post("/create-order", paymentInitiationLimiter, optionalAuthenticate, createPaymentOrder);
 
 // POST /api/payments/verify
 // Verifies Cashfree payment status server-side after frontend checkout.

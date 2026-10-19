@@ -61,18 +61,15 @@ const AppRoutes = () => {
   return (
     <Routes>
       {/* =====================================================
-          VISHAL BHARDWAJ CONSULTATION LAYOUT
+          ASTROLOGER CONSULTATION LAYOUTS & BOOKING STATUS ROUTES
       ====================================================== */}
       <Route element={<VishalLayout />}>
         <Route path="/astrologers/vishal-bhardwaj" element={<VishalBhardwajDetails />} />
         <Route path="/astrologers/vishal-bhardwaj/book-consultation" element={<VishalBooking />} />
-      </Route>
-
-      {/* =====================================================
-          ACHARYA ANURAG BHARDWAJ CONSULTATION LAYOUT
-      ====================================================== */}
-      <Route element={<VishalLayout />}>
+        <Route path="/astrologers/vishal-bhardwaj/booking-status" element={<VishalBooking />} />
         <Route path="/astrologers/acharya-anurag-bhardwaj" element={<AcharyaAnuragBhardwajDetails />} />
+        <Route path="/astrologers/:slug/book-consultation" element={<VishalBooking />} />
+        <Route path="/astrologers/:slug/booking-status" element={<VishalBooking />} />
       </Route>
 
       {/* =====================================================

@@ -1,4 +1,4 @@
-import api from "../../services/api";
+import api from "../../services/api.js";
 
 const createBooking = async (bookingData) => {
   const response = await api.post("/bookings", bookingData);

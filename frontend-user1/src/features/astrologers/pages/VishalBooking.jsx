@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useToast } from "../../../components/ui/toastContext";
 import bookingService from "../bookingService";
 import paymentService from "../paymentService";
+import astrologerService from "../astrologerService";
 import {
   ArrowLeft,
   Check,
@@ -99,17 +100,35 @@ const TOPICS = [
   "Family Harmony",
 ];
 
+const minDate = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Kolkata",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+}).format(new Date());
+
 const VishalBooking = () => {
   const navigate = useNavigate();
+  const { slug: routeSlug } = useParams();
+  const [searchParams] = useSearchParams();
+  const activeSlug = routeSlug || "vishal-bhardwaj";
+
   const { user } = useSelector((state) => state.auth);
   const { showToast } = useToast();
 
   const STORAGE_KEY = "veda_active_payment_booking";
 
+  // Dynamic Astrologer and Package State
+  const [astrologer, setAstrologer] = useState(null);
+  const [packages, setPackages] = useState(PACKAGES);
+  const [timeSlots, setTimeSlots] = useState(TIME_SLOTS);
+
   // isConfirmed is reserved for AFTER successful payment verification (Phase 2C+).
   const [isConfirmed, setIsConfirmed] = useState(false);
   // isAwaitingPayment: booking created with Pending status. User sees the Pay button.
   const [isAwaitingPayment, setIsAwaitingPayment] = useState(false);
+  // isSubmitting: creation of booking is in flight
+  const [isSubmitting, setIsSubmitting] = useState(false);
   // isOpeningPayment: create-order call is in flight or checkout is opening.
   const [isOpeningPayment, setIsOpeningPayment] = useState(false);
   // isVerifyingPayment: checking status with /api/payments/verify after checkout modal
@@ -122,8 +141,22 @@ const VishalBooking = () => {
   const [bookingReference, setBookingReference] = useState("");
   const [paymentSessionId, setPaymentSessionId] = useState("");
   const [cashfreeOrderAmount, setCashfreeOrderAmount] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmedBooking, setConfirmedBooking] = useState(null);
+  const [countdownSeconds, setCountdownSeconds] = useState(900); // 15-minute slot reservation window
+
+  useEffect(() => {
+    if (!isAwaitingPayment || isConfirmed) return;
+    const timer = setInterval(() => {
+      setCountdownSeconds((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isAwaitingPayment, isConfirmed]);
+
+  const formatCountdown = (secs) => {
+    const mins = Math.floor(secs / 60);
+    const remSecs = secs % 60;
+    return `${String(mins).padStart(2, "0")}:${String(remSecs).padStart(2, "0")}`;
+  };
 
   // Package State
   const [selectedPackage, setSelectedPackage] = useState(PACKAGES[0]);
@@ -142,7 +175,7 @@ const VishalBooking = () => {
     whatsappNumber: user?.phone || "",
     isPhoneVerified: false,
     email: user?.email || "",
-    consultationDate: new Date(Date.now() + 86400000).toISOString().split("T")[0],
+    consultationDate: minDate,
     consultationTime: TIME_SLOTS[0],
     consultationMode: "Video Call (Google Meet / Zoom)",
     selectedTopics: ["Career & Job Growth"],
@@ -151,6 +184,65 @@ const VishalBooking = () => {
     addOnExpress: false, // +400
   });
 
+  // Fetch dynamic astrologer packages and slots from backend
+  useEffect(() => {
+    let isMounted = true;
+    const loadAstrologerData = async () => {
+      try {
+        const res = await astrologerService.getPublicAstrologerBySlug(activeSlug);
+        if (isMounted && res?.success && res.data) {
+          const astro = res.data;
+          setAstrologer(astro);
+
+          // 1. Packages from DB
+          if (Array.isArray(astro.packages) && astro.packages.length > 0) {
+            const dynamicPkgs = astro.packages.map((p) => ({
+              id: p.packageKey || p.id,
+              dbId: p.id,
+              duration: p.duration,
+              title: p.title,
+              price: Number(p.price),
+              originalPrice: p.originalPrice ? Number(p.originalPrice) : Math.round(Number(p.price) * 1.35),
+              description: p.subtitle || (p.knownFor?.[0] ?? ""),
+              popular: Boolean(p.isPopular),
+            }));
+            setPackages(dynamicPkgs);
+
+            const requestedPkgKey = searchParams.get("package");
+            const found = dynamicPkgs.find((dp) => dp.id === requestedPkgKey) ||
+                          dynamicPkgs.find((dp) => dp.id === selectedPackage?.id);
+            if (found) {
+              setSelectedPackage(found);
+            } else {
+              setSelectedPackage(dynamicPkgs[0]);
+            }
+          }
+
+          // 2. Time slots from DB
+          if (Array.isArray(astro.availableTimeSlots) && astro.availableTimeSlots.length > 0) {
+            setTimeSlots(astro.availableTimeSlots);
+            const requestedTime = searchParams.get("time");
+            const timeToUse = (requestedTime && astro.availableTimeSlots.includes(requestedTime))
+              ? requestedTime
+              : astro.availableTimeSlots[0];
+
+            setFormData((prev) => ({
+              ...prev,
+              consultationTime: timeToUse || prev.consultationTime,
+            }));
+          }
+        }
+      } catch (err) {
+        console.warn("Could not fetch astrologer profile from backend:", err.message);
+      }
+    };
+
+    loadAstrologerData();
+    return () => {
+      isMounted = false;
+    };
+  }, [activeSlug]);
+
   // ---------------------------------------------------------------------------
   // PHASE 2D: ACTIVE BOOKING RECOVERY ON MOUNT
   // Checks localStorage for veda_active_payment_booking.
@@ -158,7 +250,10 @@ const VishalBooking = () => {
   // ---------------------------------------------------------------------------
   useEffect(() => {
     const recoverActiveBooking = async () => {
-      const storedRef = localStorage.getItem(STORAGE_KEY);
+      const storedRef =
+        searchParams.get("order_id") ||
+        searchParams.get("bookingReference") ||
+        localStorage.getItem(STORAGE_KEY);
       if (!storedRef) return;
 
       setIsRecoveringPayment(true);
@@ -173,6 +268,16 @@ const VishalBooking = () => {
             setIsConfirmed(true);
             setIsAwaitingPayment(false);
             localStorage.removeItem(STORAGE_KEY);
+          } else if (booking.bookingStatus === "Payment Review Required") {
+            setBookingReference(booking.bookingReference);
+            setConfirmedBooking(booking);
+            setIsConfirmed(false);
+            setIsAwaitingPayment(false);
+            localStorage.removeItem(STORAGE_KEY);
+            showToast(
+              "Payment verified, but your requested slot was reassigned after the 15-minute window expired. Our team will contact you to reschedule or process a refund.",
+              "warning"
+            );
           } else if (booking.bookingStatus === "Cancelled") {
             localStorage.removeItem(STORAGE_KEY);
             showToast("Previous booking request was cancelled.", "info");
@@ -181,7 +286,7 @@ const VishalBooking = () => {
             setConfirmedBooking(booking);
             if (booking.amount) setCashfreeOrderAmount(Number(booking.amount));
 
-            const matchedPkg = PACKAGES.find((p) => p.id === booking.packageId);
+            const matchedPkg = packages.find((p) => p.id === booking.packageId) || PACKAGES.find((p) => p.id === booking.packageId);
             if (matchedPkg) setSelectedPackage(matchedPkg);
 
             setFormData((prev) => ({
@@ -333,8 +438,8 @@ const VishalBooking = () => {
       // STEP 1: Create the booking record (bookingStatus = Pending)
       // ------------------------------------------------------------------
       const bookingPayload = {
-        astrologerId: "ast-vishal",
-        astrologerName: "Vishal Bhardwaj",
+        astrologerId: astrologer?.code || astrologer?.id || (activeSlug === "acharya-anurag-bhardwaj" ? "ast-anurag" : "ast-vishal"),
+        astrologerName: astrologer?.name || (activeSlug === "acharya-anurag-bhardwaj" ? "Acharya Anurag Bhardwaj" : "Vishal Bhardwaj"),
         packageId: selectedPackage.id,
         packageName: selectedPackage.title,
         duration: selectedPackage.duration,
@@ -632,7 +737,7 @@ const VishalBooking = () => {
   };
 
   const handleBackToDetails = () => {
-    navigate("/astrologers/vishal-bhardwaj");
+    navigate(`/astrologers/${activeSlug}`);
   };
 
   // ---------------------------------------------------------------------------
@@ -821,6 +926,18 @@ const VishalBooking = () => {
                 Booking Reference:{" "}
                 <strong className="font-mono text-[#b36c1e]">{bookingReference}</strong>
               </p>
+
+              {/* 15-Minute Slot Reservation Countdown (UI-UX-01) */}
+              <div className="mt-3.5 inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-4 py-1.5 text-[12.5px] font-medium text-amber-900 shadow-sm">
+                <Clock size={14} className="text-amber-600 animate-pulse" />
+                <span>
+                  {countdownSeconds > 0 ? (
+                    <>Slot reserved for: <strong className="font-mono text-amber-950 font-bold">{formatCountdown(countdownSeconds)}</strong></>
+                  ) : (
+                    <span className="text-red-700 font-semibold">Reservation window expired. Please reselect your slot.</span>
+                  )}
+                </span>
+              </div>
             </div>
 
             {/* Booking Summary Box */}
@@ -998,12 +1115,12 @@ const VishalBooking = () => {
             Online Kundali Consultation
           </p>
           <h1 className="mt-2 font-serif text-[32px] font-semibold text-[#2b241d] sm:text-[40px]">
-            Book Consultation with <span className="text-[#c77722]">Vishal Bhardwaj</span>
+            Book Consultation with <span className="text-[#c77722]">{astrologer?.name || (activeSlug === "acharya-anurag-bhardwaj" ? "Acharya Anurag Bhardwaj" : "Vishal Bhardwaj")}</span>
           </h1>
 
           {/* Quick Package Selector Row */}
           <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-            {PACKAGES.map((pkg) => {
+            {packages.map((pkg) => {
               const isSelected = selectedPackage.id === pkg.id;
               return (
                 <button
@@ -1037,9 +1154,11 @@ const VishalBooking = () => {
                     <span className="font-serif text-[20px] font-bold text-[#2b241d]">
                       ₹{pkg.price.toLocaleString("en-IN")}
                     </span>
-                    <span className="text-[12px] text-[#9c8e7b] line-through">
-                      ₹{pkg.originalPrice.toLocaleString("en-IN")}
-                    </span>
+                    {pkg.originalPrice ? (
+                      <span className="text-[12px] text-[#9c8e7b] line-through">
+                        ₹{pkg.originalPrice.toLocaleString("en-IN")}
+                      </span>
+                    ) : null}
                   </div>
                 </button>
               );
@@ -1340,6 +1459,7 @@ const VishalBooking = () => {
                     type="date"
                     name="consultationDate"
                     required
+                    min={minDate}
                     value={formData.consultationDate}
                     onChange={handleInputChange}
                     className="h-[48px] w-full rounded-xl border border-[#d6b8a0] bg-[#fffdfa] px-4 text-[13.5px] font-medium text-[#2b241d] outline-none transition-all hover:border-[#d4872b] focus:border-[#d4872b] focus:ring-4 focus:ring-[#d4872b]/10"
@@ -1357,7 +1477,7 @@ const VishalBooking = () => {
                     onChange={handleInputChange}
                     className="h-[48px] w-full rounded-xl border border-[#d6b8a0] bg-[#fffdfa] px-4 text-[13.5px] font-medium text-[#2b241d] outline-none transition-all hover:border-[#d4872b] focus:border-[#d4872b] focus:ring-4 focus:ring-[#d4872b]/10"
                   >
-                    {TIME_SLOTS.map((slot) => (
+                    {timeSlots.map((slot) => (
                       <option key={slot} value={slot}>
                         {slot}
                       </option>
@@ -1600,12 +1720,12 @@ const VishalBooking = () => {
               {/* Pay Now Button (Matching Screenshot) */}
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isOpeningPayment}
                 className={`group mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#eab12c] via-[#f0bb3b] to-[#dca522] py-4 text-[15px] font-bold text-[#1c1308] shadow-[0_8px_25px_rgba(234,177,44,0.35)] transition-all duration-300 hover:brightness-105 hover:shadow-[0_12px_32px_rgba(234,177,44,0.45)] ${
-                  isSubmitting ? "cursor-not-allowed opacity-75" : ""
+                  isSubmitting || isOpeningPayment ? "cursor-not-allowed opacity-75" : ""
                 }`}
               >
-                {isSubmitting ? (
+                {isSubmitting || isOpeningPayment ? (
                   <>
                     <Loader2 size={18} className="animate-spin text-[#1c1308]" />
                     <span>Processing Booking...</span>

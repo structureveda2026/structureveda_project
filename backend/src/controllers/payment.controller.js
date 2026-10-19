@@ -7,8 +7,16 @@ import {
   createCashfreeOrder,
   fetchCashfreeOrder,
   fetchCashfreeOrderPayments,
+  fetchCashfreeOrderRefunds,
   verifyCashfreeWebhookSignature,
 } from "../services/cashfree.service.js";
+import sequelize from "../config/database.js";
+import Booking from "../models/bookingModel.js";
+import {
+  getCanonicalSlotLockKey,
+  acquireSlotAdvisoryLock,
+  checkSlotConflict,
+} from "../utils/slotConcurrency.js";
 
 // ---------------------------------------------------------------------------
 // createPaymentOrder
@@ -311,7 +319,48 @@ export const getPaymentBookingStatus = async (req, res) => {
             } catch {
               // fallback to cf_order_id
             }
-            await adapter.markConfirmed(cfPaymentId, paymentGroup);
+
+            if (adapter.type === BOOKING_TYPES.CONSULTATION) {
+              const booking = adapter.entity;
+              const transaction = await sequelize.transaction();
+              try {
+                const lockKey = getCanonicalSlotLockKey(
+                  booking.astrologerId,
+                  booking.consultationDate,
+                  booking.consultationTime
+                );
+                await acquireSlotAdvisoryLock(sequelize, lockKey, transaction);
+
+                const conflict = await checkSlotConflict({
+                  Booking,
+                  astrologerId: booking.astrologerId,
+                  consultationDate: booking.consultationDate,
+                  consultationTime: booking.consultationTime,
+                  excludeBookingId: booking.id,
+                  transaction,
+                });
+
+                if (conflict) {
+                  console.warn(
+                    `Late payment in status recovery for ${ref}: slot occupied by ${conflict.bookingReference}. Marking Payment Review Required.`
+                  );
+                  await adapter.markPaymentReviewRequired(
+                    cfPaymentId,
+                    paymentGroup,
+                    `Slot already occupied by booking ${conflict.bookingReference} (${conflict.bookingStatus})`,
+                    { transaction }
+                  );
+                } else {
+                  await adapter.markConfirmed(cfPaymentId, paymentGroup, { transaction });
+                }
+                await transaction.commit();
+              } catch (recoveryTxErr) {
+                await transaction.rollback();
+                console.error("Status recovery transaction error:", recoveryTxErr);
+              }
+            } else {
+              await adapter.markConfirmed(cfPaymentId, paymentGroup);
+            }
           }
         }
       } catch {
@@ -446,20 +495,37 @@ export const verifyPayment = async (req, res) => {
     }
 
     // 4. IDEMPOTENCY CHECK:
-    // If webhook or previous verification already confirmed the payment
-    if (adapter.paymentStatus === "Paid" && adapter.bookingStatus === "Confirmed") {
-      return res.status(200).json({
-        success: true,
-        confirmed: true,
-        message: "Payment already verified. Booking is confirmed.",
-        data: {
-          bookingReference: ref,
-          bookingStatus: adapter.bookingStatus,
-          paymentStatus: adapter.paymentStatus,
-          transactionId: adapter.transactionId,
-          amount: adapter.authoritativeAmount,
-        },
-      });
+    // If webhook or previous verification already confirmed or reviewed the payment
+    if (adapter.paymentStatus === "Paid") {
+      if (adapter.bookingStatus === "Payment Review Required") {
+        return res.status(200).json({
+          success: true,
+          confirmed: false,
+          reviewRequired: true,
+          message: "Payment captured, but the requested consultation slot was reassigned after the reservation expired. Our team will contact you to reschedule or process a refund.",
+          data: {
+            bookingReference: ref,
+            bookingStatus: adapter.bookingStatus,
+            paymentStatus: adapter.paymentStatus,
+            transactionId: adapter.transactionId,
+            amount: adapter.authoritativeAmount,
+          },
+        });
+      }
+      if (adapter.bookingStatus === "Confirmed") {
+        return res.status(200).json({
+          success: true,
+          confirmed: true,
+          message: "Payment already verified. Booking is confirmed.",
+          data: {
+            bookingReference: ref,
+            bookingStatus: adapter.bookingStatus,
+            paymentStatus: adapter.paymentStatus,
+            transactionId: adapter.transactionId,
+            amount: adapter.authoritativeAmount,
+          },
+        });
+      }
     }
 
     // 5. Server-side verification with Cashfree Sandbox API
@@ -531,8 +597,64 @@ export const verifyPayment = async (req, res) => {
         console.warn("Could not fetch specific payment item list; using cf_order_id fallback:", payFetchErr.message);
       }
 
-      // 6c. Transition booking to Confirmed / Paid via normalized adapter
-      await adapter.markConfirmed(cfPaymentId, paymentGroup);
+      // 6c. Transition booking to Confirmed / Paid via normalized adapter with slot concurrency lock
+      if (adapter.type === BOOKING_TYPES.CONSULTATION) {
+        const booking = adapter.entity;
+        const transaction = await sequelize.transaction();
+        try {
+          const lockKey = getCanonicalSlotLockKey(
+            booking.astrologerId,
+            booking.consultationDate,
+            booking.consultationTime
+          );
+          await acquireSlotAdvisoryLock(sequelize, lockKey, transaction);
+
+          // Re-check slot availability inside the transaction to prevent late-payment conflict
+          const conflict = await checkSlotConflict({
+            Booking,
+            astrologerId: booking.astrologerId,
+            consultationDate: booking.consultationDate,
+            consultationTime: booking.consultationTime,
+            excludeBookingId: booking.id,
+            transaction,
+          });
+
+          if (conflict) {
+            console.warn(
+              `Late payment for ${ref}: slot '${booking.consultationTime}' on ${booking.consultationDate} occupied by ${conflict.bookingReference}. Marking Payment Review Required.`
+            );
+            await adapter.markPaymentReviewRequired(
+              cfPaymentId,
+              paymentGroup,
+              `Slot already occupied by booking ${conflict.bookingReference} (${conflict.bookingStatus})`,
+              { transaction }
+            );
+            await transaction.commit();
+
+            return res.status(200).json({
+              success: true,
+              confirmed: false,
+              reviewRequired: true,
+              message: "Payment verified successfully, but your requested slot was reassigned after the reservation window expired. Our concierge team will reach out to reschedule or issue a refund.",
+              data: {
+                bookingReference: ref,
+                bookingStatus: "Payment Review Required",
+                paymentStatus: "Paid",
+                transactionId: String(cfPaymentId),
+                amount: adapter.authoritativeAmount,
+              },
+            });
+          }
+
+          await adapter.markConfirmed(cfPaymentId, paymentGroup, { transaction });
+          await transaction.commit();
+        } catch (confirmTxErr) {
+          await transaction.rollback();
+          throw confirmTxErr;
+        }
+      } else {
+        await adapter.markConfirmed(cfPaymentId, paymentGroup);
+      }
 
       const confirmationMsg = adapter.type === BOOKING_TYPES.CONSULTATION
         ? "Payment verified successfully. Your consultation is confirmed."
@@ -665,14 +787,93 @@ export const handleCashfreeWebhook = async (req, res) => {
 
     // 3. IDEMPOTENCY CHECK
     // If webhook or client verification already completed, acknowledge safely
-    if (adapter.paymentStatus === "Paid" && adapter.bookingStatus === "Confirmed") {
+    if (adapter.paymentStatus === "Paid") {
+      if (adapter.bookingStatus === "Payment Review Required") {
+        return res.status(200).json({
+          success: true,
+          reviewRequired: true,
+          message: "Booking already under Payment Review Required. Webhook acknowledged.",
+        });
+      }
+      if (adapter.bookingStatus === "Confirmed") {
+        return res.status(200).json({
+          success: true,
+          message: "Booking already confirmed. Webhook acknowledged.",
+        });
+      }
+    }
+
+    // 4. Check if event is a Refund Webhook
+    const isRefundEvent =
+      eventType === "REFUND_STATUS_WEBHOOK" ||
+      eventType === "REFUND_SUCCESS_WEBHOOK" ||
+      eventType === "REFUND_FAILED_WEBHOOK" ||
+      (typeof eventType === "string" && eventType.startsWith("REFUND_"));
+
+    if (isRefundEvent) {
+      const refundObj = event?.data?.refund;
+      const refundStatus = refundObj?.refund_status?.toUpperCase();
+      const cfRefundId = refundObj?.cf_refund_id || refundObj?.refund_id;
+      const arn = refundObj?.refund_arn ? ` (ARN: ${refundObj.refund_arn})` : "";
+      const booking = adapter.entity;
+
+      // Idempotency: If already confirmed as fully Refunded, exit safely without mutating
+      if (adapter.paymentStatus === "Refunded") {
+        return res.status(200).json({
+          success: true,
+          message: "Refund already recorded as Refunded. Webhook acknowledged.",
+        });
+      }
+
+      const prevNotes = booking.notes ? `${booking.notes}\n` : "";
+
+      if (refundStatus === "SUCCESS") {
+        const thisRefundAmount = Number(refundObj?.refund_amount || 0);
+        let cumulativeRefunded = thisRefundAmount;
+        try {
+          const allRefunds = await fetchCashfreeOrderRefunds(orderId);
+          const successfulRefunds = allRefunds.filter(
+            (r) => r.refund_status?.toUpperCase() === "SUCCESS"
+          );
+          if (successfulRefunds.length > 0) {
+            cumulativeRefunded = successfulRefunds.reduce(
+              (sum, r) => sum + Number(r.refund_amount || 0),
+              0
+            );
+          }
+        } catch {
+          // Fallback to thisRefundAmount
+        }
+
+        const orderTotal = Number(adapter.authoritativeAmount || booking.amount || 0);
+        const isFullRefund = cumulativeRefunded >= orderTotal - 0.01;
+        const targetPaymentStatus = isFullRefund ? "Refunded" : "Partially Refunded";
+
+        await booking.update({
+          paymentStatus: targetPaymentStatus,
+          notes: `${prevNotes}[WEBHOOK REFUND ${isFullRefund ? "CONFIRMED" : "PARTIAL"}] Cashfree Refund ID: ${cfRefundId} (Amount: ₹${thisRefundAmount}, Cumulative: ₹${cumulativeRefunded}/₹${orderTotal})${arn} verified on ${new Date().toISOString()}.`,
+        });
+        console.log(`Cashfree Webhook: Processed ${targetPaymentStatus} for ${orderId} (Refund ID: ${cfRefundId}, Cumulative: ₹${cumulativeRefunded})`);
+      } else if (refundStatus === "FAILED" || refundStatus === "CANCELLED") {
+        await booking.update({
+          paymentStatus: "Refund Failed",
+          notes: `${prevNotes}[WEBHOOK REFUND FAILED] Reason: ${refundObj?.status_description || "Gateway failure"} at ${new Date().toISOString()}.`,
+        });
+        console.warn(`Cashfree Webhook: Refund failed for ${orderId}: ${refundStatus}`);
+      } else {
+        await booking.update({
+          paymentStatus: "Refund Pending",
+          notes: `${prevNotes}[WEBHOOK REFUND PENDING] Cashfree Refund ID: ${cfRefundId}, status: ${refundStatus}`,
+        });
+      }
+
       return res.status(200).json({
         success: true,
-        message: "Booking already confirmed. Webhook acknowledged.",
+        message: `Refund webhook processed. Refund status: ${refundStatus}`,
       });
     }
 
-    // 4. Check if event indicates a successful payment
+    // 5. Check if event indicates a successful payment
     const paymentStatus = event?.data?.payment?.payment_status?.toUpperCase();
     const isSuccess =
       eventType === "PAYMENT_SUCCESS_WEBHOOK" ||
@@ -704,8 +905,55 @@ export const handleCashfreeWebhook = async (req, res) => {
 
       const paymentGroup = event?.data?.payment?.payment_group || null;
 
-      // 4c. Update booking state to Confirmed & Paid via normalized adapter
-      await adapter.markConfirmed(cfPaymentId, paymentGroup);
+      // 4c. Update booking state to Confirmed & Paid via normalized adapter with slot concurrency lock
+      if (adapter.type === BOOKING_TYPES.CONSULTATION) {
+        const booking = adapter.entity;
+        const transaction = await sequelize.transaction();
+        try {
+          const lockKey = getCanonicalSlotLockKey(
+            booking.astrologerId,
+            booking.consultationDate,
+            booking.consultationTime
+          );
+          await acquireSlotAdvisoryLock(sequelize, lockKey, transaction);
+
+          const conflict = await checkSlotConflict({
+            Booking,
+            astrologerId: booking.astrologerId,
+            consultationDate: booking.consultationDate,
+            consultationTime: booking.consultationTime,
+            excludeBookingId: booking.id,
+            transaction,
+          });
+
+          if (conflict) {
+            console.warn(
+              `Webhook: Late payment for ${orderId}: slot occupied by ${conflict.bookingReference}. Marking Payment Review Required.`
+            );
+            await adapter.markPaymentReviewRequired(
+              cfPaymentId,
+              paymentGroup,
+              `Slot already occupied by booking ${conflict.bookingReference} (${conflict.bookingStatus})`,
+              { transaction }
+            );
+            await transaction.commit();
+
+            return res.status(200).json({
+              success: true,
+              reviewRequired: true,
+              message: "Webhook processed. Slot conflict detected; marked Payment Review Required.",
+            });
+          }
+
+          await adapter.markConfirmed(cfPaymentId, paymentGroup, { transaction });
+          await transaction.commit();
+        } catch (webhookTxErr) {
+          await transaction.rollback();
+          throw webhookTxErr;
+        }
+      } else {
+        await adapter.markConfirmed(cfPaymentId, paymentGroup);
+      }
 
       console.log(`Cashfree Webhook: Successfully confirmed booking ${orderId} (Payment ID: ${cfPaymentId})`);
 

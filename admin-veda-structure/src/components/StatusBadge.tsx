@@ -51,6 +51,21 @@ const statusConfig: Record<string, { bg: string; text: string; dot: string }> =
     },
     Paid: { bg: "bg-green-50", text: "text-green-700", dot: "bg-green-500" },
     Failed: { bg: "bg-red-50", text: "text-red-700", dot: "bg-red-500" },
+    "Refund Pending": {
+      bg: "bg-orange-50",
+      text: "text-orange-700",
+      dot: "bg-orange-500",
+    },
+    "Refund Failed": {
+      bg: "bg-red-50",
+      text: "text-red-700",
+      dot: "bg-red-500",
+    },
+    "Payment Review Required": {
+      bg: "bg-amber-100",
+      text: "text-amber-800",
+      dot: "bg-amber-600",
+    },
     Refunded: {
       bg: "bg-charcoal-100",
       text: "text-charcoal-600",

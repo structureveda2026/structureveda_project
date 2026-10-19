@@ -4,6 +4,8 @@ import cors from "cors";
 import authRoutes from "./routes/auth.routes.js";
 import consultationRoutes from "./routes/consultation.routes.js";
 import bookingRoutes from "./routes/booking.routes.js";
+import astrologerRoutes from "./routes/astrologer.routes.js";
+import astrologerAdminRoutes from "./routes/astrologerAdmin.routes.js";
 import paymentRoutes from "./routes/payment.routes.js";
 import upcomingPujaAdminRoutes from "./routes/upcomingPujaAdmin.routes.js";
 import upcomingPujaRoutes from "./routes/upcomingPuja.routes.js";
@@ -72,6 +74,8 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/consultations", consultationRoutes);
+app.use("/api/astrologers", astrologerRoutes);
+app.use("/api/admin/astrologers", astrologerAdminRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/admin/upcoming-pujas", upcomingPujaAdminRoutes);

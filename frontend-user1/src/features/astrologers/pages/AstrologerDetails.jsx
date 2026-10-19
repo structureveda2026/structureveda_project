@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useMemo, useState, useEffect } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, CalendarDays, Check, Clock3, Languages, MessageCircle, Phone, ShieldCheck, Sparkles, Star, Users, Video } from "lucide-react";
 import { getAstrologerBySlug } from "../data/astrologers";
+import astrologerService from "../astrologerService";
 import { useToast } from "../../../components/ui/toastContext";
 
 const durations = [10, 15, 30, 45, 60];
@@ -11,20 +12,80 @@ export const calculateTotal = (rate, duration) => rate * duration;
 
 const AstrologerDetails = () => {
   const { slug } = useParams();
-  const astrologer = getAstrologerBySlug(slug);
+  const navigate = useNavigate();
+  const initialAstro = getAstrologerBySlug(slug);
+  const [astrologer, setAstrologer] = useState(initialAstro);
   const { showToast } = useToast();
-  const [consultationType, setConsultationType] = useState(astrologer?.consultationTypes?.[0] || "Audio Call");
+  const [consultationType, setConsultationType] = useState(initialAstro?.consultationTypes?.[0] || "Audio Call");
   const [duration, setDuration] = useState(15);
-  const [selectedDate, setSelectedDate] = useState(astrologer?.availableSlots.today?.length ? "today" : "tomorrow");
+  const [selectedDate, setSelectedDate] = useState(initialAstro?.availableSlots.today?.length ? "today" : "tomorrow");
   const [selectedSlot, setSelectedSlot] = useState("");
-  const slots = useMemo(() => astrologer?.availableSlots[selectedDate] || [], [astrologer, selectedDate]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchAstro = async () => {
+      try {
+        const res = await astrologerService.getPublicAstrologerBySlug(slug);
+        if (isMounted && res?.success && res.data) {
+          const dbAstro = res.data;
+          const mock = getAstrologerBySlug(slug) || {};
+          const startPrice = dbAstro.startingPrice || (mock.pricePerMinute ? mock.pricePerMinute * 30 : 1100);
+          const pricePerMinute = Math.round((startPrice / 30) * 100) / 100;
+
+          setAstrologer({
+            ...mock,
+            id: dbAstro.code || dbAstro.id || mock.id,
+            slug: dbAstro.slug || slug,
+            name: dbAstro.name || mock.name,
+            title: dbAstro.title || mock.title,
+            image: dbAstro.profileImage || mock.image,
+            experience: dbAstro.experienceYears || mock.experience || 5,
+            languages: dbAstro.languages && dbAstro.languages.length > 0 ? dbAstro.languages : (mock.languages || ["Hindi", "English"]),
+            expertise: dbAstro.specializations && dbAstro.specializations.length > 0 ? dbAstro.specializations : (dbAstro.expertise || mock.expertise || ["Vedic Astrology"]),
+            rating: Number(dbAstro.rating) || mock.rating || 5.0,
+            reviews: dbAstro.reviewsCount || mock.reviews || "100+",
+            sessions: dbAstro.sessionsCount || mock.sessions || "250+",
+            pricePerMinute: pricePerMinute || mock.pricePerMinute || 36.67,
+            currency: "₹",
+            online: dbAstro.isActive !== false,
+            availability: "Available now",
+            about: dbAstro.description || mock.about || "",
+            specializations: dbAstro.specializations || mock.specializations || [],
+            consultationTypes: mock.consultationTypes && mock.consultationTypes.length > 0 ? mock.consultationTypes : ["Video Call", "Audio Call"],
+            availableSlots: Array.isArray(dbAstro.availableTimeSlots) && dbAstro.availableTimeSlots.length > 0
+              ? {
+                  today: dbAstro.availableTimeSlots.slice(0, 4),
+                  tomorrow: dbAstro.availableTimeSlots.slice(2, 6),
+                  next: dbAstro.availableTimeSlots,
+                }
+              : (mock.availableSlots || { today: [], tomorrow: [], next: [] }),
+            unavailableSlots: mock.unavailableSlots || [],
+          });
+        }
+      } catch (err) {
+        console.warn("Could not load backend profile for", slug, err.message);
+      }
+    };
+    fetchAstro();
+    return () => {
+      isMounted = false;
+    };
+  }, [slug]);
+
+  const slots = useMemo(() => astrologer?.availableSlots?.[selectedDate] || [], [astrologer, selectedDate]);
   const total = astrologer ? calculateTotal(astrologer.pricePerMinute, duration) : 0;
   const dateLabel = dates.find((item) => item.key === selectedDate)?.label;
 
   if (!astrologer) return <section className="min-h-[65vh] bg-[#fffaf0] px-5 py-16"><div className="mx-auto max-w-[680px] rounded-[24px] border border-[#e4cd9d] bg-[#fffdf9] p-10 text-center"><Sparkles className="mx-auto text-[#d49a25]" /><h1 className="mt-4 font-serif text-[38px]">Astrologer not found</h1><p className="mt-3 text-[14px] leading-6 text-[#75695c]">This profile may no longer be available. Browse our verified astrologers to find the right guide.</p><Link to="/astrologers" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#eab12c] px-5 py-3 text-[12px] font-semibold"><ArrowLeft size={15} />Back to astrologers</Link></div></section>;
 
   const selectDate = (date) => { setSelectedDate(date); setSelectedSlot(""); };
-  const continueBooking = () => selectedSlot ? showToast("Your consultation request has been prepared. Booking confirmation will be available soon.") : showToast("Please select a preferred time slot to continue.", "error");
+  const continueBooking = () => {
+    if (selectedSlot) {
+      navigate(`/astrologers/${slug}/book-consultation?time=${encodeURIComponent(selectedSlot)}`);
+    } else {
+      showToast("Please select a preferred time slot to continue.", "error");
+    }
+  };
 
   return (
     <section className="min-h-screen bg-[#fffaf0] px-5 py-10 sm:px-8 lg:px-12">

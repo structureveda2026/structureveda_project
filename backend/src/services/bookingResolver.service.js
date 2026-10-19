@@ -77,25 +77,30 @@ export const createConsultationAdapter = (booking) => {
   const normalizedPhone = rawPhone.replace(/\D/g, "").slice(-10);
   const authoritativeAmount = Number(booking.amount);
 
-  return {
-    type: BOOKING_TYPES.CONSULTATION,
-    reference: booking.bookingReference,
-    entity: booking,
-    userId: booking.userId || null,
-    authoritativeAmount: Number(authoritativeAmount.toFixed(2)),
-    customerDetails: {
-      name: booking.fullName ? String(booking.fullName).trim() : "",
-      phone: rawPhone,
-      normalizedPhone,
-      email: booking.email ? String(booking.email).trim() : null,
-    },
-    bookingStatus: booking.bookingStatus,
-    paymentStatus: booking.paymentStatus,
-    transactionId: booking.transactionId || null,
-    paymentMethod: booking.paymentMethod || null,
-    paymentGateway: "Cashfree",
-    returnUrl: `${process.env.FRONTEND_URL || "http://localhost:5173"}/astrologers/vishal-bhardwaj/booking-status?order_id={order_id}`,
-    orderNote: `Astrologer consultation booking - ${booking.bookingReference}`,
+    const resolvedSlug =
+      booking.astrologerId === "ast-anurag"
+        ? "acharya-anurag-bhardwaj"
+        : "vishal-bhardwaj";
+
+    return {
+      type: BOOKING_TYPES.CONSULTATION,
+      reference: booking.bookingReference,
+      entity: booking,
+      userId: booking.userId || null,
+      authoritativeAmount: Number(authoritativeAmount.toFixed(2)),
+      customerDetails: {
+        name: booking.fullName ? String(booking.fullName).trim() : "",
+        phone: rawPhone,
+        normalizedPhone,
+        email: booking.email ? String(booking.email).trim() : null,
+      },
+      bookingStatus: booking.bookingStatus,
+      paymentStatus: booking.paymentStatus,
+      transactionId: booking.transactionId || null,
+      paymentMethod: booking.paymentMethod || null,
+      paymentGateway: "Cashfree",
+      returnUrl: `${process.env.FRONTEND_URL || "http://localhost:5173"}/astrologers/${resolvedSlug}/booking-status?order_id={order_id}`,
+      orderNote: `Astrologer consultation booking - ${booking.bookingReference}`,
 
     canAccess(user) {
       if (!this.userId) return true; // guest booking
@@ -111,19 +116,48 @@ export const createConsultationAdapter = (booking) => {
       return this;
     },
 
-    async markConfirmed(cfPaymentId, paymentGroup = null) {
+    async markConfirmed(cfPaymentId, paymentGroup = null, options = {}) {
       const paymentMethod = paymentGroup
         ? (paymentGroup.startsWith("Cashfree") ? paymentGroup : `Cashfree ${paymentGroup.toUpperCase()}`)
         : "Cashfree Online";
 
-      await booking.update({
-        bookingStatus: "Confirmed",
-        paymentStatus: "Paid",
-        transactionId: String(cfPaymentId),
-        paymentMethod,
-      });
+      await booking.update(
+        {
+          bookingStatus: "Confirmed",
+          paymentStatus: "Paid",
+          transactionId: String(cfPaymentId),
+          paymentMethod,
+        },
+        { transaction: options.transaction }
+      );
 
       this.bookingStatus = "Confirmed";
+      this.paymentStatus = "Paid";
+      this.transactionId = String(cfPaymentId);
+      this.paymentMethod = paymentMethod;
+      return this;
+    },
+
+    async markPaymentReviewRequired(cfPaymentId, paymentGroup = null, conflictReason = "", options = {}) {
+      const paymentMethod = paymentGroup
+        ? (paymentGroup.startsWith("Cashfree") ? paymentGroup : `Cashfree ${paymentGroup.toUpperCase()}`)
+        : "Cashfree Online";
+
+      const existingNotes = booking.notes ? `${booking.notes}\n` : "";
+      const alertNote = `[CONCURRENCY ALERT] Payment of ₹${authoritativeAmount} captured via Cashfree (Payment ID: ${cfPaymentId}) on ${new Date().toISOString()}. Slot conflict detected: ${conflictReason}. Action required: Admin reschedule or initiate refund.`;
+
+      await booking.update(
+        {
+          bookingStatus: "Payment Review Required",
+          paymentStatus: "Paid",
+          transactionId: String(cfPaymentId),
+          paymentMethod,
+          notes: `${existingNotes}${alertNote}`,
+        },
+        { transaction: options.transaction }
+      );
+
+      this.bookingStatus = "Payment Review Required";
       this.paymentStatus = "Paid";
       this.transactionId = String(cfPaymentId);
       this.paymentMethod = paymentMethod;
