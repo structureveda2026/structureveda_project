@@ -1,7 +1,7 @@
 export type ProductStatus = 'Active' | 'Draft' | 'Out of Stock';
 export type OrderStatus = 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
-export type PaymentStatus = 'Paid' | 'Pending' | 'Failed' | 'Refunded';
-export type BookingStatus = 'Confirmed' | 'Pending' | 'Completed' | 'Cancelled' | 'Rescheduled';
+export type PaymentStatus = 'Paid' | 'Pending' | 'Failed' | 'Refunded' | 'Refund Pending' | 'Refund Failed';
+export type BookingStatus = 'Confirmed' | 'Pending' | 'Completed' | 'Cancelled' | 'Rescheduled' | 'Payment Review Required';
 export type BookingType = 'Astrology Consultation' | 'Pandit Booking' | 'Vastu Consultation' | 'Numerology' | 'Other Services';
 export type ConsultationMode = 'Online' | 'Phone' | 'In-Person' | 'Video Call';
 export type ExpertType = 'Pandit' | 'Astrologer' | 'Spiritual Expert';

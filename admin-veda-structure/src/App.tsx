@@ -38,6 +38,10 @@ import PathServiceDetail from "@/pages/PathServiceDetail";
 import PathCategories from "@/pages/PathCategories";
 import PathCategoryForm from "@/pages/PathCategoryForm";
 import PathCategoryDetail from "@/pages/PathCategoryDetail";
+import Astrologers from "@/pages/Astrologers";
+import AstrologerDetail from "@/pages/AstrologerDetail";
+import AstrologerForm from "@/pages/AstrologerForm";
+import AstrologerPackages from "@/pages/AstrologerPackages";
 
 
 // Veda Library Module (Blogs, Vedas, Mantras & Suktas)
@@ -66,6 +70,13 @@ export default function App() {
                 element={<Navigate to="/admin/dashboard" replace />}
               />
               <Route path="dashboard" element={<Dashboard />} />
+
+              {/* Astrologers */}
+              <Route path="astrologers" element={<Astrologers />} />
+              <Route path="astrologers/new" element={<AstrologerForm />} />
+              <Route path="astrologers/:id" element={<AstrologerDetail />} />
+              <Route path="astrologers/:id/packages" element={<AstrologerPackages />} />
+              <Route path="astrologers/:id/edit" element={<AstrologerForm />} />
 
               {/* Upcoming Pujas */}
               <Route path="upcoming-pujas" element={<UpcomingPujas />} />

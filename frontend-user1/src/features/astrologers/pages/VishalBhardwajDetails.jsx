@@ -24,10 +24,30 @@ import AstrologerBookingProcess from "../components/AstrologerBookingProcess";
 import AstrologerFaq from "../components/AstrologerFaq";
 import AstrologerFinalCta from "../components/AstrologerFinalCta";
 import AstrologerFloatingBar from "../components/AstrologerFloatingBar";
+import astrologerService from "../astrologerService";
 
 const VishalBhardwajDetails = () => {
   const navigate = useNavigate();
   const [showStickyBar, setShowStickyBar] = useState(false);
+  const [astrologerData, setAstrologerData] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchProfile = async () => {
+      try {
+        const res = await astrologerService.getPublicAstrologerBySlug("vishal-bhardwaj");
+        if (isMounted && res?.success && res.data) {
+          setAstrologerData(res.data);
+        }
+      } catch (err) {
+        console.warn("Could not fetch backend astrologer details:", err.message);
+      }
+    };
+    fetchProfile();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     // 1. Scroll listener for floating consultation bar
@@ -69,6 +89,37 @@ const VishalBhardwajDetails = () => {
     navigate("/astrologers/vishal-bhardwaj/book-consultation");
   };
 
+  const startingPriceText = astrologerData?.startingPrice
+    ? `₹${Number(astrologerData.startingPrice).toLocaleString("en-IN")}`
+    : "₹1,100";
+
+  const dynamicPackages = astrologerData?.packages?.length
+    ? astrologerData.packages.map((pkg) => ({
+        id: pkg.packageKey || pkg.id,
+        badge: pkg.badge || (pkg.isPopular ? "Most Popular" : null),
+        title: pkg.title,
+        subtitle: pkg.subtitle || "",
+        image: pkg.isPopular ? vishalImage : vishalBlueImage,
+        isPopular: Boolean(pkg.isPopular),
+        knownFor: Array.isArray(pkg.knownFor) && pkg.knownFor.length > 0
+          ? pkg.knownFor
+          : [
+              "Personalized remedies for career, finance, marriage, and health",
+              "Easy-to-follow solutions for daily life",
+              "Clear and honest guidance without fear tactics",
+            ],
+        consultationDetails: Array.isArray(pkg.consultationDetails) && pkg.consultationDetails.length > 0
+          ? pkg.consultationDetails
+          : [
+              `Duration: ${pkg.duration}`,
+              "Immediate slot availability & priority booking",
+              "Couple consultation available at checkout",
+            ],
+        normalPrice: `₹${Number(pkg.price).toLocaleString("en-IN")}`,
+        urgentPrice: `₹${Number(pkg.originalPrice || (Number(pkg.price) + 400)).toLocaleString("en-IN")}`,
+      }))
+    : undefined;
+
   return (
     <div className="min-h-screen bg-[#fffaf0]">      {/* ========================================
           VISHAL BHARDWAJ HERO SECTION (Reusable)
@@ -76,10 +127,10 @@ const VishalBhardwajDetails = () => {
       <AstrologerHero
         eyebrow="Vedic Astrology • Kashi / Varanasi"
         astrologerPrefix="Astrologer"
-        astrologerName="Vishal Bhardwaj"
-        quote="Understand Your Kundali. Find Clarity in Life."
-        description="Personalized Vedic Astrology consultation rooted in ancient Kashi traditions. Gain actionable guidance on career, relationships, marriage timing, wealth yogas, and practical Vedic remedies."
-        price="₹1,100"
+        astrologerName={astrologerData?.name || "Vishal Bhardwaj"}
+        quote={astrologerData?.quote || "Understand Your Kundali. Find Clarity in Life."}
+        description={astrologerData?.description || "Personalized Vedic Astrology consultation rooted in ancient Kashi traditions. Gain actionable guidance on career, relationships, marriage timing, wealth yogas, and practical Vedic remedies."}
+        price={startingPriceText}
         sessionText="30-Min Audio / Video Session"
         portrait={vishalTransparentPortrait}
         portraitAlt="Astrologer Vishal Bhardwaj"
@@ -128,9 +179,10 @@ const VishalBhardwajDetails = () => {
           CHOOSE YOUR EXPERT CONSULTATION
       ======================================== */}
       <AstrologerPackages
+        packages={dynamicPackages}
         mainAstrologerImage={vishalImage}
         secondaryAstrologerImage={vishalBlueImage}
-        astrologerName="Vishal Bhardwaj"
+        astrologerName={astrologerData?.name || "Vishal Bhardwaj"}
         directAstrologerText="Direct 1-on-1 with Astrologer Vishal"
         onBookConsultation={handleBookConsultation}
       />
@@ -194,9 +246,9 @@ const VishalBhardwajDetails = () => {
       ======================================== */}
       <AstrologerFloatingBar
         astrologerImage={vishalImage}
-        astrologerName="Vishal Bhardwaj"
-        rating="4.9 ★"
-        price="₹1,100"
+        astrologerName={astrologerData?.name || "Vishal Bhardwaj"}
+        rating={astrologerData?.rating ? `${astrologerData.rating} ★` : "4.9 ★"}
+        price={startingPriceText}
         showStickyBar={showStickyBar}
         onBookConsultation={handleBookConsultation}
       />

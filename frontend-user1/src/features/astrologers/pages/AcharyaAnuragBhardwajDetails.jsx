@@ -24,10 +24,30 @@ import AstrologerBookingProcess from "../components/AstrologerBookingProcess";
 import AstrologerFaq from "../components/AstrologerFaq";
 import AstrologerFinalCta from "../components/AstrologerFinalCta";
 import AstrologerFloatingBar from "../components/AstrologerFloatingBar";
+import astrologerService from "../astrologerService";
 
 const AcharyaAnuragBhardwajDetails = () => {
   const navigate = useNavigate();
   const [showStickyBar, setShowStickyBar] = useState(false);
+  const [astrologerData, setAstrologerData] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchProfile = async () => {
+      try {
+        const res = await astrologerService.getPublicAstrologerBySlug("acharya-anurag-bhardwaj");
+        if (isMounted && res?.success && res.data) {
+          setAstrologerData(res.data);
+        }
+      } catch (err) {
+        console.warn("Could not fetch Anurag Bhardwaj backend profile:", err.message);
+      }
+    };
+    fetchProfile();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     // 1. Scroll listener for floating consultation bar
@@ -66,8 +86,39 @@ const AcharyaAnuragBhardwajDetails = () => {
   }, []);
 
   const handleBookConsultation = () => {
-    navigate("/book-consultation");
+    navigate("/astrologers/acharya-anurag-bhardwaj/book-consultation");
   };
+
+  const startingPriceText = astrologerData?.startingPrice
+    ? `₹${Number(astrologerData.startingPrice).toLocaleString("en-IN")}`
+    : "₹1,100";
+
+  const dynamicPackages = astrologerData?.packages?.length
+    ? astrologerData.packages.map((pkg) => ({
+        id: pkg.packageKey || pkg.id,
+        badge: pkg.badge || (pkg.isPopular ? "Most Popular" : null),
+        title: pkg.title,
+        subtitle: pkg.subtitle || "",
+        image: pkg.isPopular ? vishalImage : vishalBlueImage,
+        isPopular: Boolean(pkg.isPopular),
+        knownFor: Array.isArray(pkg.knownFor) && pkg.knownFor.length > 0
+          ? pkg.knownFor
+          : [
+              "Personalized remedies for career, finance, marriage, and health",
+              "Easy-to-follow solutions for daily life",
+              "Clear and honest guidance without fear tactics",
+            ],
+        consultationDetails: Array.isArray(pkg.consultationDetails) && pkg.consultationDetails.length > 0
+          ? pkg.consultationDetails
+          : [
+              `Duration: ${pkg.duration}`,
+              "Immediate slot availability & priority booking",
+              "Couple consultation available at checkout",
+            ],
+        normalPrice: `₹${Number(pkg.price).toLocaleString("en-IN")}`,
+        urgentPrice: `₹${Number(pkg.originalPrice || (Number(pkg.price) + 400)).toLocaleString("en-IN")}`,
+      }))
+    : undefined;
 
   return (
     <div className="min-h-screen bg-[#fffaf0]">
@@ -77,10 +128,10 @@ const AcharyaAnuragBhardwajDetails = () => {
       <AstrologerHero
         eyebrow="Vedic Astrology • Ancient Wisdom"
         astrologerPrefix="Acharya"
-        astrologerName="Acharya Anurag Bhardwaj"
-        quote="Traditional Vedic astrology guidance rooted in ancient wisdom."
-        description="Personalized Vedic Astrology consultation rooted in ancient Sanatan traditions. Gain actionable guidance on career, relationships, marriage timing, wealth yogas, and practical Vedic remedies."
-        price="₹1,100"
+        astrologerName={astrologerData?.name || "Acharya Anurag Bhardwaj"}
+        quote={astrologerData?.quote || "Traditional Vedic astrology guidance rooted in ancient wisdom."}
+        description={astrologerData?.description || "Personalized Vedic Astrology consultation rooted in ancient Sanatan traditions. Gain actionable guidance on career, relationships, marriage timing, wealth yogas, and practical Vedic remedies."}
+        price={startingPriceText}
         sessionText="30-Min Audio / Video Session"
         portrait={vishalTransparentPortrait}
         portraitAlt="Acharya Anurag Bhardwaj"
@@ -123,7 +174,7 @@ const AcharyaAnuragBhardwajDetails = () => {
       ======================================== */}
       <WhyChooseAstrologer
         astrologerImage={vishalBlueImage}
-        astrologerName="Acharya Anurag Bhardwaj"
+        astrologerName={astrologerData?.name || "Acharya Anurag Bhardwaj"}
         onBookConsultation={handleBookConsultation}
       />
 
@@ -131,9 +182,10 @@ const AcharyaAnuragBhardwajDetails = () => {
           5. CHOOSE YOUR EXPERT CONSULTATION
       ======================================== */}
       <AstrologerPackages
+        packages={dynamicPackages}
         mainAstrologerImage={vishalImage}
         secondaryAstrologerImage={vishalBlueImage}
-        astrologerName="Acharya Anurag Bhardwaj"
+        astrologerName={astrologerData?.name || "Acharya Anurag Bhardwaj"}
         directAstrologerText="Direct 1-on-1 with Acharya Anurag"
         onBookConsultation={handleBookConsultation}
       />
@@ -200,9 +252,9 @@ const AcharyaAnuragBhardwajDetails = () => {
       ======================================== */}
       <AstrologerFloatingBar
         astrologerImage={vishalImage}
-        astrologerName="Acharya Anurag Bhardwaj"
-        rating="4.9 ★"
-        price="₹1,100"
+        astrologerName={astrologerData?.name || "Acharya Anurag Bhardwaj"}
+        rating={astrologerData?.rating ? `${astrologerData.rating} ★` : "4.9 ★"}
+        price={startingPriceText}
         showStickyBar={showStickyBar}
         onBookConsultation={handleBookConsultation}
       />

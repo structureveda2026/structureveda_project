@@ -25,6 +25,19 @@ import BlogPost from "./blogPostModel.js";
 import Veda from "./vedaModel.js";
 import VedaNode from "./vedaNodeModel.js";
 import VedaMantra from "./vedaMantraModel.js";
+import Astrologer from "./astrologerModel.js";
+import AstrologerPackage from "./astrologerPackageModel.js";
+
+// Astrologer & Packages Associations
+Astrologer.hasMany(AstrologerPackage, {
+  foreignKey: "astrologerId",
+  as: "packages",
+});
+
+AstrologerPackage.belongsTo(Astrologer, {
+  foreignKey: "astrologerId",
+  as: "astrologer",
+});
 
 // Veda & Hierarchy Associations
 Veda.hasMany(VedaNode, {
@@ -263,6 +276,8 @@ const db = {
   Veda,
   VedaNode,
   VedaMantra,
+  Astrologer,
+  AstrologerPackage,
 };
 
 export {
@@ -292,5 +307,7 @@ export {
   Veda,
   VedaNode,
   VedaMantra,
+  Astrologer,
+  AstrologerPackage,
 };
 export default db;
