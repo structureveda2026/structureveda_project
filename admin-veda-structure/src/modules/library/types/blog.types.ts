@@ -32,6 +32,8 @@ export interface BlogPost {
   metaDescription?: string | null;
   metaTitleHi?: string | null;
   metaDescriptionHi?: string | null;
+  metaTitleHinglish?: string | null;
+  metaDescriptionHinglish?: string | null;
   metaKeywords?: string[];
   publishedAt?: string | null;
   // Multi-format & Sacred Verse / Mantra additions (Devanagari Sanskrit + 3 Languages)
@@ -79,6 +81,8 @@ export interface CreateBlogPostInput {
   metaDescription?: string;
   metaTitleHi?: string;
   metaDescriptionHi?: string;
+  metaTitleHinglish?: string;
+  metaDescriptionHinglish?: string;
   metaKeywords?: string[];
   publishedAt?: string;
   // Multi-format & Sacred Verse / Mantra additions (Devanagari Sanskrit + 3 Languages)
