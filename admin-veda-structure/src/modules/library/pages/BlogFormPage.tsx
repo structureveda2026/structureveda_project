@@ -214,14 +214,16 @@ export default function BlogFormPage() {
           setVerseMeaningEn(blog.englishTranslation || blog.meaningEn || "");
           setVerseMeaningHinglish(blog.hinglishTranslation || blog.meaningHinglish || "");
           if (blog.deity) {
+            const rawDeity = blog.deity;
+            const lowerDeity = rawDeity.toLowerCase();
             const isStdDeity = (POPULAR_DEITIES as readonly { id: string }[]).some(
-              (d) => d.id === blog.deity || d.id === blog.deity.toLowerCase()
+              (d) => d.id === rawDeity || d.id === lowerDeity
             );
             if (isStdDeity) {
-              setDeity(blog.deity.toLowerCase());
+              setDeity(lowerDeity);
             } else {
               setDeity("custom");
-              setCustomDeity(blog.deity);
+              setCustomDeity(rawDeity);
               setIsAddingCustomDeity(true);
             }
           }

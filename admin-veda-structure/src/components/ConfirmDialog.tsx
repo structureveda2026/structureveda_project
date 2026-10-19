@@ -14,10 +14,12 @@ interface ConfirmDialogProps {
   cancelText?: string;
   cancelLabel?: string;
   danger?: boolean;
+  isDestructive?: boolean;
   type?: string;
   variant?: string;
   confirmVariant?: string;
   loading?: boolean;
+  isLoading?: boolean;
 }
 
 export default function ConfirmDialog({
@@ -33,15 +35,18 @@ export default function ConfirmDialog({
   cancelText,
   cancelLabel,
   danger = false,
+  isDestructive = false,
   type,
   variant,
   confirmVariant,
   loading = false,
+  isLoading = false,
 }: ConfirmDialogProps) {
   const showOpen = Boolean(typeof isOpen !== 'undefined' ? isOpen : open);
   const handleClose = onClose || onCancel || (() => {});
   const isDanger =
     danger ||
+    isDestructive ||
     type === 'danger' ||
     variant === 'danger' ||
     confirmVariant === 'danger';
