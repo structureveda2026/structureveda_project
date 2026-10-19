@@ -661,7 +661,7 @@ export default function BlogFormPage() {
                 </span>
               </div>
               <p className="text-xs text-charcoal-500">
-                संस्कृत श्लोक, उच्चारण, ऋषि, छन्द, इष्टदेवता एवं साधना/जप विधि
+                संस्कृत श्लोक, ऋषि, छन्द, इष्टदेवता, त्रिभाषी भावार्थ एवं साधना विधि
               </p>
             </div>
           </div>
@@ -781,8 +781,8 @@ export default function BlogFormPage() {
                 <span className="text-xs font-bold text-charcoal-900 uppercase tracking-wider">
                   त्रिभाषी भावार्थ (3 Mandatory Translations: Hindi, English, Hinglish)
                 </span>
-                <span className="text-[10px] text-charcoal-400">
-                  (रोमन IAST वर्जित • ३ मानक भाषाएँ)
+                <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  (हिन्दी, English एवं हिंग्लिश)
                 </span>
               </div>
 
