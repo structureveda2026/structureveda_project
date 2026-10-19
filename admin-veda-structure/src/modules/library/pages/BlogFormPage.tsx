@@ -23,14 +23,25 @@ import {
   User,
   Image as ImageIcon,
   SlidersHorizontal,
+  Scroll,
+  Flame,
+  BookMarked,
+  Feather,
+  Check,
 } from "lucide-react";
 import { useToast } from "@/context/ToastContext";
 import { uploadImage } from "@/services/mediaUploadService";
 
 import { blogService } from "../services/blog.service";
 import RichTextEditor from "../components/RichTextEditor";
-import { BLOG_CATEGORIES, SUGGESTED_TAGS } from "../constants/blog.constants";
-import type { BlogStatus } from "../types/blog.types";
+import {
+  BLOG_CATEGORIES,
+  SUGGESTED_TAGS,
+  POST_TYPES,
+  POPULAR_DEITIES,
+  SACRED_METERS,
+} from "../constants/blog.constants";
+import type { BlogStatus, CreateBlogPostInput } from "../types/blog.types";
 
 export default function BlogFormPage() {
   const { id } = useParams<{ id: string }>();
@@ -66,6 +77,23 @@ export default function BlogFormPage() {
   const [metaDescriptionHi, setMetaDescriptionHi] = useState("");
 
   // Metadata & Settings
+  const [postType, setPostType] = useState<string>("article");
+  const [customPostType, setCustomPostType] = useState<string>("");
+  const [isAddingCustomType, setIsAddingCustomType] = useState(false);
+
+  // Sacred Verse / Mantra & Shloka Details
+  const [sanskrit, setSanskrit] = useState("");
+  const [transliteration, setTransliteration] = useState("");
+  const [deity, setDeity] = useState("");
+  const [customDeity, setCustomDeity] = useState("");
+  const [isAddingCustomDeity, setIsAddingCustomDeity] = useState(false);
+  const [rishi, setRishi] = useState("");
+  const [chhandas, setChhandas] = useState("");
+  const [verseMeaning, setVerseMeaning] = useState("");
+  const [vidhi, setVidhi] = useState("");
+  const [benefits, setBenefits] = useState("");
+  const [showMantraSection, setShowMantraSection] = useState(false);
+
   const [category, setCategory] = useState<string>(BLOG_CATEGORIES[0]);
   const [customCategory, setCustomCategory] = useState("");
   const [isAddingCustomCategory, setIsAddingCustomCategory] = useState(false);
@@ -149,6 +177,47 @@ export default function BlogFormPage() {
           setMetaKeywords(blog.metaKeywords || []);
           if (blog.publishedAt) {
             setPublishedAt(new Date(blog.publishedAt).toISOString().slice(0, 16));
+          }
+
+          // Multi-format & Sacred Verse / Mantra restoration
+          if (blog.postType) {
+            const isStdType = (POST_TYPES as readonly { value: string }[]).some(
+              (pt) => pt.value === blog.postType
+            );
+            if (isStdType) {
+              setPostType(blog.postType);
+            } else {
+              setPostType("custom");
+              setCustomPostType(blog.postType);
+              setIsAddingCustomType(true);
+            }
+          }
+          setSanskrit(blog.sanskrit || "");
+          setTransliteration(blog.transliteration || "");
+          if (blog.deity) {
+            const isStdDeity = (POPULAR_DEITIES as readonly { id: string }[]).some(
+              (d) => d.id === blog.deity || d.id === blog.deity.toLowerCase()
+            );
+            if (isStdDeity) {
+              setDeity(blog.deity.toLowerCase());
+            } else {
+              setDeity("custom");
+              setCustomDeity(blog.deity);
+              setIsAddingCustomDeity(true);
+            }
+          }
+          setRishi(blog.rishi || "");
+          setChhandas(blog.chhandas || "");
+          setVerseMeaning(blog.meaning || "");
+          setVidhi(blog.vidhi || "");
+          setBenefits(blog.benefits || "");
+          if (
+            blog.postType === "mantra" ||
+            blog.postType === "sukta" ||
+            blog.postType === "stotra" ||
+            Boolean(blog.sanskrit)
+          ) {
+            setShowMantraSection(true);
           }
         } catch (err: any) {
           showError(err?.message || "Failed to load blog post for editing");
@@ -310,6 +379,22 @@ export default function BlogFormPage() {
         metaDescriptionHi: metaDescriptionHi.trim() || undefined,
         metaKeywords,
         publishedAt: publishedAt ? new Date(publishedAt).toISOString() : undefined,
+        // Multi-format & Sacred Verse / Mantra additions
+        postType:
+          postType === "custom" && customPostType.trim()
+            ? customPostType.trim()
+            : postType,
+        sanskrit: sanskrit.trim() || undefined,
+        transliteration: transliteration.trim() || undefined,
+        deity:
+          deity === "custom" && customDeity.trim()
+            ? customDeity.trim()
+            : deity.trim() || undefined,
+        rishi: rishi.trim() || undefined,
+        chhandas: chhandas.trim() || undefined,
+        meaning: verseMeaning.trim() || undefined,
+        vidhi: vidhi.trim() || undefined,
+        benefits: benefits.trim() || undefined,
       };
 
       if (isEditMode && id) {
@@ -461,6 +546,260 @@ export default function BlogFormPage() {
           </div>
         </div>
       )}
+
+      {/* ================= POST FORMAT / CONTENT TYPE BAR ================= */}
+      <div className="bg-white/95 backdrop-blur-md border border-cream-200/90 rounded-2xl p-4 shadow-xs space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-saffron-600 animate-pulse" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-charcoal-800 flex items-center gap-1.5">
+              <Scroll className="w-4 h-4 text-saffron-600" />
+              <span>प्रकाशन प्रकार (Post Type & Format)</span>
+            </h3>
+          </div>
+          <span className="text-[11px] text-charcoal-500 font-medium">
+            आलेख, ब्लॉग, मंत्र, स्तोत्र या स्वयं का कस्टम प्रकार चुनें
+          </span>
+        </div>
+
+        {/* Post Type Selector Pills */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+          {POST_TYPES.map((pt) => {
+            const isSelected = postType === pt.value;
+            return (
+              <button
+                key={pt.value}
+                type="button"
+                onClick={() => {
+                  setPostType(pt.value);
+                  if (pt.value === "custom") {
+                    setIsAddingCustomType(true);
+                  }
+                  if (pt.value === "mantra" || pt.value === "sukta" || pt.value === "stotra") {
+                    setShowMantraSection(true);
+                  }
+                }}
+                className={`p-2.5 rounded-xl border text-left transition-all relative ${
+                  isSelected
+                    ? "bg-gradient-to-br from-saffron-50 to-amber-50/50 border-saffron-400 shadow-2xs ring-1 ring-saffron-400/40"
+                    : "bg-white hover:bg-cream-50 border-cream-200/80 text-charcoal-700"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className={`text-xs font-bold ${isSelected ? "text-saffron-900" : "text-charcoal-800"}`}>
+                    {pt.label}
+                  </span>
+                  {isSelected && <Check className="w-3.5 h-3.5 text-saffron-600" />}
+                </div>
+                <p className="text-[10px] text-charcoal-500 leading-tight line-clamp-1">
+                  {pt.desc}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Custom Post Type Input */}
+        {postType === "custom" && (
+          <div className="p-3 bg-amber-50/60 rounded-xl border border-amber-200/70 flex items-center gap-3">
+            <span className="text-xs font-bold text-amber-900 shrink-0">कस्टम प्रकार नाम:</span>
+            <input
+              type="text"
+              value={customPostType}
+              onChange={(e) => setCustomPostType(e.target.value)}
+              placeholder="उदा. वैदिक सूक्ति, उपनिषद् रहस्य, ज्योतिष उपाय, आदि..."
+              className="flex-1 px-3 py-1.5 text-xs font-semibold bg-white border border-amber-300 rounded-lg focus:ring-1.5 focus:ring-saffron-500 focus:outline-hidden"
+            />
+          </div>
+        )}
+      </div>
+
+      {/* ================= SACRED VERSE / MANTRA & SHLOKA CARD ================= */}
+      <div className="bg-gradient-to-br from-amber-50/40 via-white to-cream-50/30 backdrop-blur-md rounded-3xl border border-amber-200/80 p-5 sm:p-6 shadow-xs space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-amber-100 border border-amber-300/80 text-amber-800 flex items-center justify-center font-bold shadow-2xs">
+              <Flame className="w-5 h-5 text-amber-600" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm sm:text-base font-bold text-charcoal-900 font-serif">
+                  मंत्र, सूक्त व श्लोक विवरण (Sacred Verse & Mantra Details)
+                </h3>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-md border border-amber-300/60">
+                  {postType === "mantra" ? "मंत्र" : postType === "sukta" ? "सूक्त" : "स्तोत्र व श्लोक"}
+                </span>
+              </div>
+              <p className="text-xs text-charcoal-500">
+                संस्कृत श्लोक, उच्चारण, ऋषि, छन्द, इष्टदेवता एवं साधना/जप विधि
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowMantraSection(!showMantraSection)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-800 bg-amber-100/70 hover:bg-amber-200/80 rounded-xl transition border border-amber-300/60"
+          >
+            <span>{showMantraSection ? "छुपाएँ (Hide)" : "खोलें (Expand)"}</span>
+            {showMantraSection ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+        </div>
+
+        {showMantraSection && (
+          <div className="pt-3 border-t border-amber-200/60 space-y-4 animate-fade-in">
+            {/* Sanskrit Shloka Input */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-bold text-charcoal-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <BookMarked className="w-3.5 h-3.5 text-amber-600" />
+                  <span>मूल संस्कृत श्लोक / मंत्र (Sanskrit Shloka in Devanagari)</span>
+                </label>
+                <span className="text-[10px] text-charcoal-500 font-medium">
+                  देवनागरी लिपि में लिखें
+                </span>
+              </div>
+              <textarea
+                rows={3}
+                value={sanskrit}
+                onChange={(e) => setSanskrit(e.target.value)}
+                placeholder="उदा: ॐ त्र्यम्बकं यजामहे सुगन्धिं पुष्टिवर्धनम्। उर्वारुकमिव बन्धनान्मृत्योर्मुक्षीय मामृतात्॥"
+                className="w-full px-4 py-3 text-sm sm:text-base font-serif leading-relaxed rounded-2xl border border-amber-300/70 bg-amber-50/20 focus:bg-white focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 focus:outline-hidden text-charcoal-900 shadow-2xs"
+              />
+            </div>
+
+            {/* Transliteration */}
+            <div>
+              <label className="block text-xs font-bold text-charcoal-800 uppercase tracking-wider mb-1.5">
+                रोमन उच्चारण (Roman / IAST Transliteration)
+              </label>
+              <input
+                type="text"
+                value={transliteration}
+                onChange={(e) => setTransliteration(e.target.value)}
+                placeholder="E.g. Om Tryambakaṁ Yajāmahe Sugandhiṁ Puṣṭivardhanam..."
+                className="w-full px-3.5 py-2 text-xs sm:text-sm rounded-xl border border-cream-200 bg-white focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 focus:outline-hidden text-charcoal-800 shadow-2xs font-mono"
+              />
+            </div>
+
+            {/* Grid: Deity, Rishi, Chhandas */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Deity */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-bold text-charcoal-800">
+                    इष्टदेव / देवता (Deity)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingCustomDeity(!isAddingCustomDeity)}
+                    className="text-[10px] font-bold text-amber-700 hover:text-amber-900"
+                  >
+                    {isAddingCustomDeity ? "सूची से चुनें" : "+ अन्य देवता"}
+                  </button>
+                </div>
+                {isAddingCustomDeity ? (
+                  <input
+                    type="text"
+                    value={customDeity}
+                    onChange={(e) => setCustomDeity(e.target.value)}
+                    placeholder="देवता का नाम लिखें..."
+                    className="w-full px-3 py-2 text-xs font-medium rounded-xl border border-amber-300 bg-white focus:ring-1.5 focus:ring-amber-500 focus:outline-hidden"
+                  />
+                ) : (
+                  <select
+                    value={deity}
+                    onChange={(e) => setDeity(e.target.value)}
+                    className="w-full px-3 py-2 text-xs font-semibold rounded-xl border border-cream-200 bg-white focus:ring-1.5 focus:ring-amber-500 focus:outline-hidden text-charcoal-800 cursor-pointer shadow-2xs"
+                  >
+                    <option value="">-- देवता चुनें --</option>
+                    {POPULAR_DEITIES.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              {/* Rishi */}
+              <div>
+                <label className="block text-xs font-bold text-charcoal-800 mb-1">
+                  ऋषि / दृष्टा (Sage / Rishi)
+                </label>
+                <input
+                  type="text"
+                  value={rishi}
+                  onChange={(e) => setRishi(e.target.value)}
+                  placeholder="उदा. महर्षि वसिष्ठ, विश्वामित्र"
+                  className="w-full px-3 py-2 text-xs font-medium rounded-xl border border-cream-200 bg-white focus:ring-1.5 focus:ring-amber-500 focus:outline-hidden shadow-2xs"
+                />
+              </div>
+
+              {/* Chhandas */}
+              <div>
+                <label className="block text-xs font-bold text-charcoal-800 mb-1">
+                  छन्द (Meter / Chhandas)
+                </label>
+                <select
+                  value={chhandas}
+                  onChange={(e) => setChhandas(e.target.value)}
+                  className="w-full px-3 py-2 text-xs font-semibold rounded-xl border border-cream-200 bg-white focus:ring-1.5 focus:ring-amber-500 focus:outline-hidden shadow-2xs"
+                >
+                  <option value="">-- छन्द चुनें --</option>
+                  {SACRED_METERS.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Meaning & Bhavarth */}
+            <div>
+              <label className="block text-xs font-bold text-charcoal-800 uppercase tracking-wider mb-1">
+                मंत्र भावार्थ / अर्थ (Meaning & Essence)
+              </label>
+              <textarea
+                rows={2}
+                value={verseMeaning}
+                onChange={(e) => setVerseMeaning(e.target.value)}
+                placeholder="मंत्र का पूर्ण आध्यात्मिक व शाब्दिक अर्थ..."
+                className="w-full px-3.5 py-2 text-xs sm:text-sm rounded-xl border border-cream-200 bg-white focus:ring-1.5 focus:ring-amber-500 focus:outline-hidden shadow-2xs"
+              />
+            </div>
+
+            {/* Vidhi & Benefits Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-charcoal-800 uppercase tracking-wider mb-1">
+                  जप व साधना विधि (Chanting Guidelines & Vidhi)
+                </label>
+                <textarea
+                  rows={2}
+                  value={vidhi}
+                  onChange={(e) => setVidhi(e.target.value)}
+                  placeholder="माला संख्या, शुभ समय, दिशा, शुद्धि विधान..."
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-cream-200 bg-white focus:ring-1.5 focus:ring-amber-500 focus:outline-hidden shadow-2xs"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-charcoal-800 uppercase tracking-wider mb-1">
+                  फलश्रुति व लाभ (Spiritual Benefits & Falashruti)
+                </label>
+                <textarea
+                  rows={2}
+                  value={benefits}
+                  onChange={(e) => setBenefits(e.target.value)}
+                  placeholder="आरोग्य, दीर्घायु, आत्मिक शांति, संकट निवारण..."
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-cream-200 bg-white focus:ring-1.5 focus:ring-amber-500 focus:outline-hidden shadow-2xs"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Bilingual Language Switcher Strip */}
       <div className="bg-white/95 backdrop-blur-md border border-cream-200/90 rounded-2xl p-3 sm:px-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">

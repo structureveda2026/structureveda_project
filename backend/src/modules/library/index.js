@@ -19,12 +19,21 @@ import puranaItihasaPublicRoutes from "./routes/puranaItihasa.public.routes.js";
 import upanishadDarshanAdminRoutes from "./routes/upanishadDarshan.admin.routes.js";
 import upanishadDarshanPublicRoutes from "./routes/upanishadDarshan.public.routes.js";
 
+import LibraryBranch from "./models/libraryBranch.model.js";
+import LibraryBranchService from "./services/libraryBranch.service.js";
+import libraryBranchAdminRoutes from "./routes/libraryBranch.admin.routes.js";
+import libraryBranchPublicRoutes from "./routes/libraryBranch.public.routes.js";
+
 export {
   BlogPost,
   BlogService,
   blogAdminRoutes,
   blogPublicRoutes,
   blogHelpers,
+  LibraryBranch,
+  LibraryBranchService,
+  libraryBranchAdminRoutes,
+  libraryBranchPublicRoutes,
   Veda,
   VedaNode,
   VedaMantra,

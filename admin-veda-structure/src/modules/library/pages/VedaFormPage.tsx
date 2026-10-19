@@ -221,7 +221,7 @@ export const VedaFormPage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-charcoal-700 mb-1.5">
-                वेद का नाम (Devanagari / Hindi) *
+                हिन्दी नाम (Hindi Name) *
               </label>
               <input
                 type="text"
@@ -232,13 +232,13 @@ export const VedaFormPage: React.FC = () => {
                 className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:ring-2 focus:ring-saffron-100 focus:outline-none font-devanagari transition-all font-semibold"
               />
               <span className="text-[10px] text-charcoal-400 mt-1 block">
-                देवनागरी लिपि में वेद का मुख्य नाम
+                वेद का मुख्य हिन्दी नाम (उदा. ऋग्वेद)
               </span>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-charcoal-700 mb-1.5">
-                English Name (Roman Script) *
+                अंग्रेजी नाम (English Name) *
               </label>
               <input
                 type="text"
@@ -249,7 +249,7 @@ export const VedaFormPage: React.FC = () => {
                 className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:ring-2 focus:ring-saffron-100 focus:outline-none transition-all font-semibold"
               />
               <span className="text-[10px] text-charcoal-400 mt-1 block">
-                अंतर्राष्ट्रीय पाठकों व यूआरएल के लिए
+                International English title (e.g. Rigveda)
               </span>
             </div>
 

@@ -55,6 +55,12 @@ import {
   MantraListPage,
   MantraFormPage,
   MantraDetailPage,
+  PuranaItihasaListPage,
+  PuranaItihasaFormPage,
+  PuranaItihasaStructureTreePage,
+  PuranaItihasaShlokaListPage,
+  PuranaItihasaShlokaFormPage,
+  MantraStotraBranchesPage,
 } from "@/modules/library";
 
 export default function App() {
@@ -187,19 +193,47 @@ export default function App() {
               <Route path="library/vedas/:id/edit" element={<VedaFormPage />} />
               <Route path="library/vedas/:id/structure" element={<VedaTreePage />} />
 
+              {/* Purana & Itihasa Archive Module */}
+              {/* Purana & Itihasa Archive */}
+              <Route path="purana-itihasa" element={<PuranaItihasaListPage />} />
+              <Route path="purana-itihasa/new" element={<PuranaItihasaFormPage />} />
+              <Route path="purana-itihasa/:id" element={<PuranaItihasaStructureTreePage />} />
+              <Route path="purana-itihasa/:id/edit" element={<PuranaItihasaFormPage />} />
+              <Route path="purana-itihasa/:id/structure" element={<PuranaItihasaStructureTreePage />} />
+              <Route path="purana-itihasa/:id/shlokas" element={<PuranaItihasaShlokaListPage />} />
+              <Route path="purana-itihasa/:id/shlokas/new" element={<PuranaItihasaShlokaFormPage />} />
+              <Route path="purana-itihasa/shlokas" element={<PuranaItihasaShlokaListPage />} />
+              <Route path="purana-itihasa/shlokas/new" element={<PuranaItihasaShlokaFormPage />} />
+              <Route path="purana-itihasa/shlokas/:shlokaId/edit" element={<PuranaItihasaShlokaFormPage />} />
+
+              <Route path="library/purana-itihasa" element={<PuranaItihasaListPage />} />
+              <Route path="library/purana-itihasa/new" element={<PuranaItihasaFormPage />} />
+              <Route path="library/purana-itihasa/:id" element={<PuranaItihasaStructureTreePage />} />
+              <Route path="library/purana-itihasa/:id/edit" element={<PuranaItihasaFormPage />} />
+              <Route path="library/purana-itihasa/:id/structure" element={<PuranaItihasaStructureTreePage />} />
+              <Route path="library/purana-itihasa/:id/shlokas" element={<PuranaItihasaShlokaListPage />} />
+              <Route path="library/purana-itihasa/:id/shlokas/new" element={<PuranaItihasaShlokaFormPage />} />
+              <Route path="library/purana-itihasa/shlokas" element={<PuranaItihasaShlokaListPage />} />
+              <Route path="library/purana-itihasa/shlokas/new" element={<PuranaItihasaShlokaFormPage />} />
+              <Route path="library/purana-itihasa/shlokas/:shlokaId/edit" element={<PuranaItihasaShlokaFormPage />} />
+
               {/* Veda Library Module - Puranas (पुराण) */}
-              <Route path="library/puranas" element={<VedaListPage category="purana" title="Puranas (पुराण)" />} />
-              <Route path="library/puranas/new" element={<VedaFormPage />} />
-              <Route path="library/puranas/:id" element={<VedaTreePage />} />
-              <Route path="library/puranas/:id/edit" element={<VedaFormPage />} />
-              <Route path="library/puranas/:id/structure" element={<VedaTreePage />} />
+              <Route path="library/puranas" element={<PuranaItihasaListPage />} />
+              <Route path="library/puranas/new" element={<PuranaItihasaFormPage />} />
+              <Route path="library/puranas/:id" element={<PuranaItihasaStructureTreePage />} />
+              <Route path="library/puranas/:id/edit" element={<PuranaItihasaFormPage />} />
+              <Route path="library/puranas/:id/structure" element={<PuranaItihasaStructureTreePage />} />
+              <Route path="library/puranas/:id/shlokas" element={<PuranaItihasaShlokaListPage />} />
+              <Route path="library/puranas/:id/shlokas/new" element={<PuranaItihasaShlokaFormPage />} />
 
               {/* Veda Library Module - Itihasa (इतिहास) */}
-              <Route path="library/itihasas" element={<VedaListPage category="itihasa" title="Itihasa (इतिहास)" />} />
-              <Route path="library/itihasas/new" element={<VedaFormPage />} />
-              <Route path="library/itihasas/:id" element={<VedaTreePage />} />
-              <Route path="library/itihasas/:id/edit" element={<VedaFormPage />} />
-              <Route path="library/itihasas/:id/structure" element={<VedaTreePage />} />
+              <Route path="library/itihasas" element={<PuranaItihasaListPage />} />
+              <Route path="library/itihasas/new" element={<PuranaItihasaFormPage />} />
+              <Route path="library/itihasas/:id" element={<PuranaItihasaStructureTreePage />} />
+              <Route path="library/itihasas/:id/edit" element={<PuranaItihasaFormPage />} />
+              <Route path="library/itihasas/:id/structure" element={<PuranaItihasaStructureTreePage />} />
+              <Route path="library/itihasas/:id/shlokas" element={<PuranaItihasaShlokaListPage />} />
+              <Route path="library/itihasas/:id/shlokas/new" element={<PuranaItihasaShlokaFormPage />} />
 
               {/* Veda Library Module - Upanishads (उपनिषद्) */}
               <Route path="library/upanishads" element={<VedaListPage category="upanishad" title="Upanishads (उपनिषद्)" />} />
@@ -221,6 +255,12 @@ export default function App() {
               <Route path="library/mantras/:id" element={<MantraDetailPage />} />
               <Route path="library/mantras/:id/edit" element={<MantraFormPage />} />
 
+              {/* Mantra-Stotra Branches & Subcategories (उप-विभाग एवं शाखाएँ) */}
+              <Route path="library/mantra-stotra-branches" element={<MantraStotraBranchesPage />} />
+              <Route path="library/branches" element={<MantraStotraBranchesPage />} />
+              <Route path="mantra-stotra-branches" element={<MantraStotraBranchesPage />} />
+              <Route path="branches" element={<MantraStotraBranchesPage />} />
+
               {/* Direct Veda Aliases */}
               <Route path="vedas" element={<VedaListPage />} />
               <Route path="vedas/new" element={<VedaFormPage />} />
@@ -228,17 +268,21 @@ export default function App() {
               <Route path="vedas/:id/edit" element={<VedaFormPage />} />
               <Route path="vedas/:id/structure" element={<VedaTreePage />} />
 
-              <Route path="puranas" element={<VedaListPage category="purana" title="Puranas (पुराण)" />} />
-              <Route path="puranas/new" element={<VedaFormPage />} />
-              <Route path="puranas/:id" element={<VedaTreePage />} />
-              <Route path="puranas/:id/edit" element={<VedaFormPage />} />
-              <Route path="puranas/:id/structure" element={<VedaTreePage />} />
+              <Route path="puranas" element={<PuranaItihasaListPage />} />
+              <Route path="puranas/new" element={<PuranaItihasaFormPage />} />
+              <Route path="puranas/:id" element={<PuranaItihasaStructureTreePage />} />
+              <Route path="puranas/:id/edit" element={<PuranaItihasaFormPage />} />
+              <Route path="puranas/:id/structure" element={<PuranaItihasaStructureTreePage />} />
+              <Route path="puranas/:id/shlokas" element={<PuranaItihasaShlokaListPage />} />
+              <Route path="puranas/:id/shlokas/new" element={<PuranaItihasaShlokaFormPage />} />
 
-              <Route path="itihasas" element={<VedaListPage category="itihasa" title="Itihasa (इतिहास)" />} />
-              <Route path="itihasas/new" element={<VedaFormPage />} />
-              <Route path="itihasas/:id" element={<VedaTreePage />} />
-              <Route path="itihasas/:id/edit" element={<VedaFormPage />} />
-              <Route path="itihasas/:id/structure" element={<VedaTreePage />} />
+              <Route path="itihasas" element={<PuranaItihasaListPage />} />
+              <Route path="itihasas/new" element={<PuranaItihasaFormPage />} />
+              <Route path="itihasas/:id" element={<PuranaItihasaStructureTreePage />} />
+              <Route path="itihasas/:id/edit" element={<PuranaItihasaFormPage />} />
+              <Route path="itihasas/:id/structure" element={<PuranaItihasaStructureTreePage />} />
+              <Route path="itihasas/:id/shlokas" element={<PuranaItihasaShlokaListPage />} />
+              <Route path="itihasas/:id/shlokas/new" element={<PuranaItihasaShlokaFormPage />} />
 
               <Route path="upanishads" element={<VedaListPage category="upanishad" title="Upanishads (उपनिषद्)" />} />
               <Route path="upanishads/new" element={<VedaFormPage />} />

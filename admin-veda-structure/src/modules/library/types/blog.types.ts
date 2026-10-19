@@ -29,6 +29,16 @@ export interface BlogPost {
   metaDescriptionHi?: string | null;
   metaKeywords?: string[];
   publishedAt?: string | null;
+  // Multi-format & Sacred Verse / Mantra additions
+  postType?: string;
+  sanskrit?: string | null;
+  transliteration?: string | null;
+  deity?: string | null;
+  rishi?: string | null;
+  chhandas?: string | null;
+  meaning?: string | null;
+  vidhi?: string | null;
+  benefits?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -57,6 +67,16 @@ export interface CreateBlogPostInput {
   metaDescriptionHi?: string;
   metaKeywords?: string[];
   publishedAt?: string;
+  // Multi-format & Sacred Verse / Mantra additions
+  postType?: string;
+  sanskrit?: string;
+  transliteration?: string;
+  deity?: string;
+  rishi?: string;
+  chhandas?: string;
+  meaning?: string;
+  vidhi?: string;
+  benefits?: string;
 }
 
 export interface UpdateBlogPostInput extends Partial<CreateBlogPostInput> {}
@@ -64,6 +84,7 @@ export interface UpdateBlogPostInput extends Partial<CreateBlogPostInput> {}
 export interface BlogFilterParams {
   status?: string;
   category?: string;
+  postType?: string;
   search?: string;
   isFeatured?: boolean | string;
   page?: number;

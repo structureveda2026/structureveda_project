@@ -43,6 +43,8 @@ import {
   puranaItihasaPublicRoutes,
   upanishadDarshanAdminRoutes,
   upanishadDarshanPublicRoutes,
+  libraryBranchAdminRoutes,
+  libraryBranchPublicRoutes,
 } from "./modules/library/index.js";
 
 const app = express();
@@ -107,6 +109,12 @@ app.use("/api/admin/blogs", blogAdminRoutes);
 app.use("/api/library/blogs", blogPublicRoutes);
 app.use("/api/blogs", blogPublicRoutes);
 
+// Library Categories & Subcategories / Branches Endpoints (Mantra-Stotra 7 Deities)
+app.use("/api/admin/library/categories", libraryBranchAdminRoutes);
+app.use("/api/admin/library", libraryBranchAdminRoutes);
+app.use("/api/library/categories", libraryBranchPublicRoutes);
+app.use("/api/library", libraryBranchPublicRoutes);
+
 // Veda, Mantra & Grantha Library Endpoints
 app.use("/api/admin/library/vedas", vedaAdminRoutes);
 app.use("/api/admin/vedas", vedaAdminRoutes);
@@ -124,11 +132,15 @@ app.use("/api/darshanas", vedaPublicRoutes);
 
 // Purana & Itihasa Endpoints
 app.use("/api/admin/library/purana-itihasa", puranaItihasaAdminRoutes);
+app.use("/api/admin/library/puranas", puranaItihasaAdminRoutes);
+app.use("/api/admin/library/itihasas", puranaItihasaAdminRoutes);
 app.use("/api/admin/purana-itihasa", puranaItihasaAdminRoutes);
 app.use("/api/admin/puranas", puranaItihasaAdminRoutes);
 app.use("/api/admin/itihasas", puranaItihasaAdminRoutes);
 
 app.use("/api/library/purana-itihasa", puranaItihasaPublicRoutes);
+app.use("/api/library/puranas", puranaItihasaPublicRoutes);
+app.use("/api/library/itihasas", puranaItihasaPublicRoutes);
 app.use("/api/purana-itihasa", puranaItihasaPublicRoutes);
 app.use("/api/puranas", puranaItihasaPublicRoutes);
 app.use("/api/itihasas", puranaItihasaPublicRoutes);

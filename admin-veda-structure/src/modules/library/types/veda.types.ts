@@ -88,8 +88,9 @@ export interface VedaNode {
     | "SUKTA"
     | "VARGA"
     | "PARVA";
-  name: string;
-  enName?: string;
+  name: string; // Hindi Name
+  enName?: string; // English Name
+  hinglishName?: string; // Hinglish Name
   desc?: string;
   stats?: string;
   priest?: string;

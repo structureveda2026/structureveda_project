@@ -27,6 +27,10 @@ export const getPublicBlogPosts = async (req, res) => {
       where.category = category;
     }
 
+    if (req.query.postType && req.query.postType !== "All") {
+      where.postType = req.query.postType;
+    }
+
     if (typeof isFeatured !== "undefined" && isFeatured !== "") {
       where.isFeatured = isFeatured === "true" || isFeatured === true;
     }
@@ -41,7 +45,9 @@ export const getPublicBlogPosts = async (req, res) => {
       const searchTerm = `%${search.trim()}%`;
       where[Op.or] = [
         { title: { [Op.iLike]: searchTerm } },
+        { titleHi: { [Op.iLike]: searchTerm } },
         { excerpt: { [Op.iLike]: searchTerm } },
+        { excerptHi: { [Op.iLike]: searchTerm } },
         { author: { [Op.iLike]: searchTerm } },
         { category: { [Op.iLike]: searchTerm } },
       ];
@@ -64,12 +70,17 @@ export const getPublicBlogPosts = async (req, res) => {
         "id",
         "slug",
         "title",
+        "titleHi",
         "subtitle",
+        "subtitleHi",
         "excerpt",
+        "excerptHi",
         "featuredImage",
         "author",
         "authorAvatar",
         "category",
+        "postType",
+        "deity",
         "tags",
         "isFeatured",
         "readTime",
