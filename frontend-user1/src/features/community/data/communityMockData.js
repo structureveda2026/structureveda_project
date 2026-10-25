@@ -56,7 +56,7 @@ export const INITIAL_COMMUNITY_PROFILES = [
     headline: "Vedic Karmakand Specialist & Shukla Yajurveda Parayan Acharya from Kashi",
     professionalType: "Pandit",
     avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400",
-    coverImage: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&q=80&w=1200",
+    coverImage: "/create-profile-hero-bg.jpg",
     city: "Varanasi",
     state: "Uttar Pradesh",
     country: "India",
@@ -796,25 +796,86 @@ export const normalizeCommunityProfile = (raw) => {
   };
 };
 
+// Safe LocalStorage helpers with robust error handling for SSR and malformed JSON
+const safeGetItem = (key, fallback) => {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    return parsed !== null && parsed !== undefined ? parsed : fallback;
+  } catch (err) {
+    console.warn(`Error reading ${key} from localStorage, using fallback:`, err);
+    return fallback;
+  }
+};
+
+const safeSetItem = (key, value) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch (err) {
+    console.error(`Error saving ${key} to localStorage:`, err);
+    return false;
+  }
+};
+
 /**
  * Retrieve all custom profiles created by the user in this browser session
  */
 export const getUserCustomProfiles = () => {
-  try {
-    const customData = localStorage.getItem(STORAGE_KEY_PROFILES);
-    if (customData) {
-      const parsed = JSON.parse(customData);
-      if (Array.isArray(parsed)) {
-        return parsed
-          .filter((p) => p && p.isCustomUserCreated)
-          .map(normalizeCommunityProfile)
-          .filter(Boolean);
-      }
-    }
-  } catch (err) {
-    console.error("Error reading custom profiles from localStorage:", err);
+  const customData = safeGetItem(STORAGE_KEY_PROFILES, []);
+  if (Array.isArray(customData)) {
+    return customData
+      .filter((p) => p && p.isCustomUserCreated)
+      .map(normalizeCommunityProfile)
+      .filter(Boolean);
   }
   return [];
+};
+
+export const DEFAULT_NEUTRAL_AVATAR =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(`
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+    <rect width="100" height="100" fill="#FFF5E5"/>
+    <circle cx="50" cy="40" r="18" fill="#D9A441"/>
+    <path d="M22 84C22 68 34 58 50 58C66 58 78 68 78 84" fill="#A94F0A"/>
+  </svg>
+`);
+
+export const DEFAULT_ACTIVE_USER = {
+  id: "user-session-current",
+  slug: "acharya-vidyadhar-shastri",
+  fullName: "Acharya Vidyadhar Shastri",
+  displayName: "Acharya Vidyadhar Shastri",
+  professionalType: "Pandit & Astrologer",
+  headline: "Shukla Yajurveda & Jyotish Scholar • Kashi Parampara",
+  bio: "Preserving sacred Vedic recitation, karmakand rituals, and astrological counseling.",
+  avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400",
+  coverImage: "/create-profile-hero-bg.jpg",
+  city: "Varanasi",
+  state: "Uttar Pradesh",
+  country: "India",
+  location: "Varanasi (Kashi), Uttar Pradesh",
+  yearsOfExperience: 18,
+  languages: ["Sanskrit", "Hindi"],
+  isVerified: true,
+  isFeatured: true,
+  isCustomUserCreated: true,
+  status: "APPROVED",
+  expertise: ["Vedic Karmakand", "Kundli Analysis", "Maha Rudrabhishek"],
+  specializations: ["Shukla Yajurveda Samhita", "Graha Dosha Nivarana"],
+  education: "Acharya in Shukla Yajurveda, Sampurnanand Sanskrit Vishwavidyalaya",
+  lineage: "Kashi Vedic Parampara",
+  services: [
+    {
+      name: "Maha Rudrabhishek Vidhi",
+      type: "Vedic Fire & Abhishekam",
+      mode: "In-Person & Online Live",
+      duration: "3 Hours",
+      description: "Complete Rudri Path and Panchamrit Abhishekam.",
+    },
+  ],
 };
 
 /**
@@ -822,11 +883,16 @@ export const getUserCustomProfiles = () => {
  */
 export const getUserCustomProfile = (slug = null) => {
   const customProfiles = getUserCustomProfiles();
-  if (customProfiles.length === 0) return null;
-  if (slug) {
-    return customProfiles.find((p) => p.slug === slug || p.id === slug) || null;
+  if (customProfiles.length > 0) {
+    if (slug) {
+      return customProfiles.find((p) => p.slug === slug || p.id === slug) || null;
+    }
+    return customProfiles[0];
   }
-  return customProfiles[0];
+  if (slug && slug !== DEFAULT_ACTIVE_USER.slug) {
+    return null;
+  }
+  return DEFAULT_ACTIVE_USER;
 };
 
 /**
@@ -836,7 +902,10 @@ export const getUserCustomProfile = (slug = null) => {
 export const getCommunityProfiles = () => {
   const customProfiles = getUserCustomProfiles();
   const normalizedSeeded = INITIAL_COMMUNITY_PROFILES.map(normalizeCommunityProfile).filter(Boolean);
-  return [...customProfiles, ...normalizedSeeded];
+  if (customProfiles.length > 0) {
+    return [...customProfiles, ...normalizedSeeded];
+  }
+  return [DEFAULT_ACTIVE_USER, ...normalizedSeeded];
 };
 
 /**
@@ -894,7 +963,7 @@ export const saveCommunityProfile = (profileData) => {
       updatedList = [normalized, ...customProfiles];
     }
 
-    localStorage.setItem(STORAGE_KEY_PROFILES, JSON.stringify(updatedList));
+    safeSetItem(STORAGE_KEY_PROFILES, updatedList);
     return normalized;
   } catch (err) {
     console.error("Error saving community profile to localStorage:", err);
@@ -906,24 +975,14 @@ export const saveCommunityProfile = (profileData) => {
  * Retrieve draft profile
  */
 export const getCommunityDraft = () => {
-  try {
-    const draft = localStorage.getItem(STORAGE_KEY_DRAFT);
-    return draft ? JSON.parse(draft) : null;
-  } catch (err) {
-    console.error("Error reading draft:", err);
-    return null;
-  }
+  return safeGetItem(STORAGE_KEY_DRAFT, null);
 };
 
 /**
  * Save draft profile
  */
 export const saveCommunityDraft = (draftData) => {
-  try {
-    localStorage.setItem(STORAGE_KEY_DRAFT, JSON.stringify(draftData));
-  } catch (err) {
-    console.error("Error saving draft:", err);
-  }
+  return safeSetItem(STORAGE_KEY_DRAFT, draftData);
 };
 
 /**
@@ -934,5 +993,552 @@ export const clearCommunityDraft = () => {
     localStorage.removeItem(STORAGE_KEY_DRAFT);
   } catch (err) {
     console.error("Error clearing draft:", err);
+  }
+};
+
+// ============================================================================
+// SOCIAL COMMUNITY FEED & PRACTITIONER INTERACTION LAYER
+// ============================================================================
+
+export const STORAGE_KEY_POSTS = "veda_community_posts";
+export const STORAGE_KEY_LIKES = "veda_community_likes";
+export const STORAGE_KEY_SAVED = "veda_community_saved";
+export const STORAGE_KEY_COMMENTS = "veda_community_comments";
+export const STORAGE_KEY_FOLLOWS = "veda_community_follows";
+
+export const COMMUNITY_TOPICS = [
+  "All",
+  "Vedic Scriptures",
+  "Sanskrit Study",
+  "Rituals & Vidhi",
+  "Jyotish & Kundli",
+  "Practitioner Q&A",
+  "Events & Sessions",
+];
+
+export const TRENDING_TOPICS = [
+  { tag: "ShuklaYajurveda", topic: "Vedic Scriptures", count: 28 },
+  { tag: "RudrabhishekVidhi", topic: "Rituals & Vidhi", count: 42 },
+  { tag: "PrashnaKundli", topic: "Jyotish & Kundli", count: 31 },
+  { tag: "PaniniGrammar", topic: "Sanskrit Study", count: 24 },
+  { tag: "SamidhaOfferings", topic: "Rituals & Vidhi", count: 19 },
+  { tag: "AssiGhatTradition", topic: "Vedic Scriptures", count: 16 },
+];
+
+export const UPCOMING_COMMUNITY_SESSIONS = [
+  {
+    id: "session-1",
+    title: "Purusha Suktam: Recitation Nuances & Svara Masterclass",
+    hostName: "Acharya Rameshwar Shastri",
+    hostSlug: "pandit-rameshwar-shastri",
+    hostAvatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200",
+    date: "Sunday, Oct 26",
+    time: "10:00 AM IST",
+    mode: "Live Discussion Circle",
+    participants: "85 Registered",
+  },
+  {
+    id: "session-2",
+    title: "Prashna Shastra: Practical Horary Interpretations for Careers",
+    hostName: "Dr. Sunita Joshi",
+    hostSlug: "dr-sunita-joshi",
+    hostAvatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
+    date: "Wednesday, Oct 29",
+    time: "07:30 PM IST",
+    mode: "Interactive Case Study",
+    participants: "120 Registered",
+  },
+  {
+    id: "session-3",
+    title: "Vastu Shastra & Home Temple Consecration Vidhi",
+    hostName: "Pt. Raghavendra Bhatt",
+    hostSlug: "pandit-raghavendra-bhatt",
+    hostAvatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200",
+    date: "Saturday, Nov 01",
+    time: "05:30 PM IST",
+    mode: "Agama Shastra Q&A",
+    participants: "64 Registered",
+  },
+];
+
+export const INITIAL_COMMUNITY_POSTS = [
+  {
+    id: "post-seed-1",
+    authorSlug: "pandit-rameshwar-shastri",
+    authorName: "Acharya Rameshwar Shastri",
+    authorRole: "Pandit / Acharya",
+    authorHeadline: "Vedic Karmakand Specialist & Shukla Yajurveda Parayan Acharya from Kashi",
+    authorAvatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400",
+    authorLocation: "Varanasi (Kashi)",
+    isVerified: true,
+    topic: "Vedic Scriptures",
+    tags: ["ShuklaYajurveda", "RudriPath", "AssiGhatTradition"],
+    createdAt: new Date(Date.now() - 3 * 3600 * 1000).toISOString(), // 3 hours ago
+    content: `When reciting the sacred Sri Rudram (Namakam and Chamakam) in accordance with the Madhyandina Shakha of Shukla Yajurveda, the preservation of the three primary svaras—Udatta (high pitch), Anudatta (low pitch), and Svarita (circumflex)—is not merely musical; it is vibrational engineering for prana prathishta.
+
+In our Assi Ghat parampara, we emphasize that during the 11th Anuvaka, when invoking the Sahasrani Sahasraso forms of Rudra, the practitioner must breathe from the navel (Nabhi Sthana) rather than the throat. This maintains uninterrupted flow without agitating the mind.
+
+Fellow Acharyas: which regional variations do your Gurukuls adhere to for Panchamrit abhishekam sankalpa timing? I welcome your shastric reflections below.`,
+    mediaImage: "/create-profile-hero-bg.jpg",
+    baseLikesCount: 38,
+    baseSharesCount: 9,
+    comments: [
+      {
+        id: "c-101",
+        authorName: "Acharya Devavrat Dixit",
+        authorRole: "Pandit & Astrologer",
+        authorAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200",
+        content: "Pranam Shastri ji. In our Haridwar lineage, we perform the Ghrita and Madhu arpanam immediately after the 5th Anuvaka to anchor the tejas before the Chamakam begins. Wonderful guidance on the Nabhi Sthana.",
+        createdAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
+      },
+      {
+        id: "c-102",
+        authorName: "Pt. Anand Krishna Shukla",
+        authorRole: "Pandit / Acharya",
+        authorAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200",
+        content: "Har Har Mahadev. In Ujjain Mahakal Kshetra, the Bhasma arpanam precedes the water stream (Dhara). Pristine explanation of the svara discipline.",
+        createdAt: new Date(Date.now() - 1 * 3600 * 1000).toISOString(),
+      },
+    ],
+  },
+  {
+    id: "post-seed-2",
+    authorSlug: "dr-sunita-joshi",
+    authorName: "Dr. Sunita Joshi",
+    authorRole: "Vedic Astrologer",
+    authorHeadline: "Ph.D. in Vedic Astrology • KP System & Prashna Shastra Specialist",
+    authorAvatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400",
+    authorLocation: "Bengaluru, Karnataka",
+    isVerified: true,
+    topic: "Jyotish & Kundli",
+    tags: ["PrashnaKundli", "KP_Astrology", "GuruGochar"],
+    createdAt: new Date(Date.now() - 9 * 3600 * 1000).toISOString(), // 9 hours ago
+    content: `Observing the subtle dynamics of Horary Astrology (Prashna Tantra):
+
+Recently, a seeker inquired about a delayed professional transition. The Prashna Lagna fell in Mithuna with the Moon in Uttarashadha nakshatra. The 10th sub-lord in the KP system directly signaled connection with the 6th and 11th houses, but Jupiter was in retrograde motion through the 8th house from Moon.
+
+A common misunderstanding is to immediately recommend harsh stone remedies. Instead, the Shastras teach us that a retrograde benefic signifies review and internal maturation before external fructification. We prescribed Vishnu Sahasranama parayana on Thursdays alongside patience until the planet turned direct. Within 45 days, the appointment letter arrived smoothly without conflict.
+
+Remember: Vedic Astrology is not fatalism; it is divine diagnosis for dharmic alignment.`,
+    baseLikesCount: 54,
+    baseSharesCount: 14,
+    comments: [
+      {
+        id: "c-201",
+        authorName: "Vidushi Meenakshi Iyer",
+        authorRole: "Vedic Astrologer",
+        authorAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200",
+        content: "Very well articulated Dr. Sunita. Benefics in retrograde signify internal consolidation. Fast-tracking with gemstones often accelerates friction rather than harmony.",
+        createdAt: new Date(Date.now() - 6 * 3600 * 1000).toISOString(),
+      },
+    ],
+  },
+  {
+    id: "post-seed-3",
+    authorSlug: "vidushi-meenakshi-iyer",
+    authorName: "Vidushi Meenakshi Iyer",
+    authorRole: "Vedic Astrologer",
+    authorHeadline: "Parashari & Nadi Jyotish Expert • Sanskrit Shloka Recitation Mentor",
+    authorAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400",
+    authorLocation: "Delhi NCR",
+    isVerified: true,
+    topic: "Sanskrit Study",
+    tags: ["PaniniGrammar", "SandhiRules", "MantraChanting"],
+    createdAt: new Date(Date.now() - 18 * 3600 * 1000).toISOString(), // 18 hours ago
+    content: `A concise note on Visarga Sandhi in daily Stotra recitation:
+
+Many students of the Bhagavad Gita stumble on the transition between verses where a Visarga (:) meets a vowel or soft consonant. According to the Ashtadhyayi sutras, Visarga before voiced consonants often softens into 'O' or drops entirely (Lopa) depending on preceding vowels.
+
+For instance, 'Devāḥ + vadanti' becomes 'Devā vadanti', NOT 'Devāho vadanti'. 
+
+When we chant without recognizing Sandhi rules, the poetic Chandas (meter) breaks, altering the cadence of the mantra. I have compiled a quick 2-page cheatsheet on classical Paninian Sandhi rules for our study group. Drop a comment if you would like me to share it in our next live circle!`,
+    baseLikesCount: 67,
+    baseSharesCount: 22,
+    comments: [
+      {
+        id: "c-301",
+        authorName: "Acharya Vinayak Trivedi",
+        authorRole: "Vedic Astrologer",
+        authorAvatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=200",
+        content: "Please share the Sandhi compilation Vidushi ji. Our students at the gurukul will benefit immensely from having the Ashtadhyayi references laid out systematically.",
+        createdAt: new Date(Date.now() - 14 * 3600 * 1000).toISOString(),
+      },
+    ],
+  },
+  {
+    id: "post-seed-4",
+    authorSlug: "acharya-devavrat-dixit",
+    authorName: "Acharya Devavrat Dixit",
+    authorRole: "Pandit & Astrologer",
+    authorHeadline: "Rigvedic Tradition Scholar, Navagraha Homa & Vastu Shanti Vidhi Acharya",
+    authorAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400",
+    authorLocation: "Haridwar, Uttarakhand",
+    isVerified: true,
+    topic: "Rituals & Vidhi",
+    tags: ["NavagrahaHoma", "SamidhaOfferings", "Rigveda"],
+    createdAt: new Date(Date.now() - 28 * 3600 * 1000).toISOString(), // 1 day ago
+    content: `The Shastric science behind the 9 Samidha (Sacred Woods) used in Navagraha Havan:
+
+1. Surya (Sun) — Arka (Calotropis gigantea)
+2. Chandra (Moon) — Palasha (Butea monosperma)
+3. Mangala (Mars) — Khadira (Acacia catechu)
+4. Budha (Mercury) — Apamarga (Achyranthes aspera)
+5. Guru (Jupiter) — Ashvattha / Peepal (Ficus religiosa)
+6. Shukra (Venus) — Audumbara / Gular (Ficus racemosa)
+7. Shani (Saturn) — Shami (Prosopis cineraria)
+8. Rahu — Durva (Cynodon dactylon)
+9. Ketu — Kusha (Desmostachya bipinnata)
+
+Each wood releases specific therapeutic aromas and negative-ion purifying compounds when ignited with pure Desi cow ghee. Using surrogate or artificial wood chips diminishes the ritual's subtler atmospheric purification. Protect the purity of your samagri!`,
+    mediaImage: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=1200",
+    baseLikesCount: 82,
+    baseSharesCount: 31,
+    comments: [],
+  },
+  {
+    id: "post-seed-5",
+    authorSlug: "pandit-anand-krishna-shukla",
+    authorName: "Pt. Anand Krishna Shukla",
+    authorRole: "Pandit / Acharya",
+    authorHeadline: "Kaal Sarp & Pitra Dosha Specialist • Assi Ghat & Mahakaleshwar Parampara",
+    authorAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400",
+    authorLocation: "Ujjain, Madhya Pradesh",
+    isVerified: true,
+    topic: "Practitioner Q&A",
+    tags: ["UjjainTradition", "PitraDosha", "SankalpaVidhi"],
+    createdAt: new Date(Date.now() - 40 * 3600 * 1000).toISOString(), // 1.5 days ago
+    content: `Question for Senior Acharyas regarding Tithi timings in Pitra Tarpan:
+
+When a devotee's ancestral Amavasya falls across two solar days—beginning in the afternoon of Trayodashi/Chaturdashi and concluding before noon on Amavasya—do you recommend performing the Aparahna Tarpan on the day where the Aparahna Kala (afternoon period between 1:30 PM to 3:45 PM) coincides with the maximum tithi span, or strictly on the sunrise (Udaya Tithi)?
+
+In the Avanti Kshetra tradition, we place heavy weight on Aparahna Vyapini Amavasya. Let us compare regional shastra injunctions to help guide seekers accurately.`,
+    baseLikesCount: 29,
+    baseSharesCount: 8,
+    comments: [
+      {
+        id: "c-501",
+        authorName: "Pt. Rameshwar Shastri",
+        authorRole: "Pandit / Acharya",
+        authorAvatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200",
+        content: "Pranam Shukla ji. In Kashi, the Nirnaya Sindhu rule explicitly prioritizes Aparahna Vyapti for Shraddha and Tarpan, regardless of Udaya Tithi. You are following the authentic Shrauta norm.",
+        createdAt: new Date(Date.now() - 36 * 3600 * 1000).toISOString(),
+      },
+    ],
+  },
+  {
+    id: "post-seed-6",
+    authorSlug: "pandit-raghavendra-bhatt",
+    authorName: "Pt. Raghavendra Bhatt",
+    authorRole: "Pandit & Astrologer",
+    authorHeadline: "Gokarna Vedic Heritage • Mayamata Vastu Shastra & Agama Vidhi Acharya",
+    authorAvatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400",
+    authorLocation: "Rishikesh, Uttarakhand",
+    isVerified: true,
+    topic: "Events & Sessions",
+    tags: ["LiveStudy", "AgamaShastra", "RishikeshCircle"],
+    createdAt: new Date(Date.now() - 55 * 3600 * 1000).toISOString(), // 2 days ago
+    content: `🌿 Vedic Study Session Announcement:
+
+I will be hosting a community study circle this Saturday on 'The Sacred Geometry of Vastu Mandalas: Harmonizing the Brahma Sthana in Modern Living'.
+
+We will explore classical verses from the Mayamata and Vishwakarma Prakash, specifically focusing on remedial alignment without structural demolition. 
+
+Date: Saturday, Nov 01 • 05:30 PM IST
+Format: Interactive Community Discussion Circle
+
+Feel free to post your home layout or temple direction questions in the comments beforehand so we can cover them during the live dialogue!`,
+    isSession: true,
+    sessionDate: "Saturday, Nov 01 • 05:30 PM IST",
+    sessionMode: "Agama Shastra Q&A",
+    baseLikesCount: 46,
+    baseSharesCount: 17,
+    comments: [],
+  },
+];
+
+
+
+/**
+ * Retrieve user's liked post IDs
+ */
+export const getLikedPostIds = () => {
+  const list = safeGetItem(STORAGE_KEY_LIKES, []);
+  return Array.isArray(list) ? list : [];
+};
+
+/**
+ * Toggle like for a post
+ */
+export const toggleLikePost = (postId) => {
+  const current = getLikedPostIds();
+  const isLiked = current.includes(postId);
+  const updated = isLiked
+    ? current.filter((id) => id !== postId)
+    : [...current, postId];
+  safeSetItem(STORAGE_KEY_LIKES, updated);
+  return !isLiked;
+};
+
+/**
+ * Retrieve user's saved post IDs
+ */
+export const getSavedPostIds = () => {
+  const list = safeGetItem(STORAGE_KEY_SAVED, []);
+  return Array.isArray(list) ? list : [];
+};
+
+/**
+ * Toggle bookmark/save for a post
+ */
+export const toggleSavePost = (postId) => {
+  const current = getSavedPostIds();
+  const isSaved = current.includes(postId);
+  const updated = isSaved
+    ? current.filter((id) => id !== postId)
+    : [...current, postId];
+  safeSetItem(STORAGE_KEY_SAVED, updated);
+  return !isSaved;
+};
+
+/**
+ * Retrieve custom comments map { [postId]: Array<comment> }
+ */
+export const getCustomCommentsMap = () => {
+  const map = safeGetItem(STORAGE_KEY_COMMENTS, {});
+  return map && typeof map === "object" ? map : {};
+};
+
+/**
+ * Add a comment to a post
+ */
+export const addPostComment = (postId, commentData) => {
+  const commentsMap = getCustomCommentsMap();
+  const existingForPost = Array.isArray(commentsMap[postId]) ? commentsMap[postId] : [];
+
+  const newComment = {
+    id: `comment-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+    authorName: commentData.authorName || "Spiritual Seeker",
+    authorRole: commentData.authorRole || "Devotee / Practitioner",
+    authorAvatar: commentData.authorAvatar || "",
+    content: commentData.content.trim(),
+    createdAt: new Date().toISOString(),
+    isCustom: true,
+  };
+
+  const updatedForPost = [...existingForPost, newComment];
+  commentsMap[postId] = updatedForPost;
+  safeSetItem(STORAGE_KEY_COMMENTS, commentsMap);
+  return newComment;
+};
+
+/**
+ * Retrieve followed practitioner slugs
+ */
+export const getFollowedPractitioners = () => {
+  const list = safeGetItem(STORAGE_KEY_FOLLOWS, []);
+  return Array.isArray(list) ? list : [];
+};
+
+/**
+ * Check if a practitioner is followed
+ */
+export const isFollowingPractitioner = (slug) => {
+  if (!slug) return false;
+  return getFollowedPractitioners().includes(slug);
+};
+
+/**
+ * Toggle follow status for a practitioner slug
+ */
+export const toggleFollowPractitioner = (slug) => {
+  if (!slug) return false;
+  const current = getFollowedPractitioners();
+  const isFollowing = current.includes(slug);
+  const updated = isFollowing
+    ? current.filter((s) => s !== slug)
+    : [...current, slug];
+  safeSetItem(STORAGE_KEY_FOLLOWS, updated);
+  return !isFollowing;
+};
+
+/**
+ * Calculate dynamic follower count for a practitioner
+ */
+export const getPractitionerFollowerCount = (slug) => {
+  if (!slug) return 120;
+  // Deterministic base based on slug hash for realism
+  let hash = 0;
+  for (let i = 0; i < slug.length; i++) {
+    hash = (hash * 31 + slug.charCodeAt(i)) % 500;
+  }
+  const baseFollowers = 150 + hash;
+  const isUserFollowing = isFollowingPractitioner(slug);
+  return baseFollowers + (isUserFollowing ? 1 : 0);
+};
+
+/**
+ * Retrieve all community posts (user-created custom posts + seeded posts)
+ * Injects user's like/save state and dynamically aggregated comments.
+ */
+export const getCommunityPosts = () => {
+  const customPosts = safeGetItem(STORAGE_KEY_POSTS, []);
+  const safeCustom = Array.isArray(customPosts) ? customPosts : [];
+
+  const likedIds = new Set(getLikedPostIds());
+  const savedIds = new Set(getSavedPostIds());
+  const commentsMap = getCustomCommentsMap();
+
+  // Combine custom user posts + initial seeded posts with strict ID deduplication
+  const seenIds = new Set();
+  const allRaw = [];
+  for (const post of [...safeCustom, ...INITIAL_COMMUNITY_POSTS]) {
+    if (post && post.id && !seenIds.has(post.id)) {
+      seenIds.add(post.id);
+      allRaw.push(post);
+    }
+  }
+
+  return allRaw.map((post) => {
+    const isLiked = likedIds.has(post.id);
+    const isSaved = savedIds.has(post.id);
+    const localComments = Array.isArray(commentsMap[post.id]) ? commentsMap[post.id] : [];
+    const baseComments = Array.isArray(post.comments) ? post.comments : [];
+    const mergedComments = [...baseComments, ...localComments];
+
+    const baseLikes = typeof post.baseLikesCount === "number" ? post.baseLikesCount : 0;
+    const finalLikesCount = Math.max(0, baseLikes + (isLiked ? 1 : 0));
+
+    return {
+      ...post,
+      isLiked,
+      isSaved,
+      likesCount: finalLikesCount,
+      comments: mergedComments,
+      commentsCount: mergedComments.length,
+      sharesCount: post.baseSharesCount || post.sharesCount || 3,
+    };
+  });
+};
+
+/**
+ * Retrieve posts authored by a specific practitioner slug
+ */
+export const getCommunityPostsByAuthor = (authorSlug) => {
+  if (!authorSlug) return [];
+  const allPosts = getCommunityPosts();
+  return allPosts.filter(
+    (p) => p.authorSlug === authorSlug || p.authorId === authorSlug
+  );
+};
+
+/**
+ * Create a new community post
+ */
+export const createCommunityPost = (postInput) => {
+  const customPosts = safeGetItem(STORAGE_KEY_POSTS, []);
+  const safeCustom = Array.isArray(customPosts) ? customPosts : [];
+
+  const userProfile = getUserCustomProfile();
+
+  const authorName =
+    postInput.authorName ||
+    userProfile?.displayName ||
+    userProfile?.fullName ||
+    "Vedic Practitioner";
+
+  const authorSlug =
+    postInput.authorSlug ||
+    userProfile?.slug ||
+    "community-member";
+
+  const authorRole =
+    postInput.authorRole ||
+    (userProfile?.professionalType === "Both"
+      ? "Pandit & Astrologer"
+      : userProfile?.professionalType || "Spiritual Scholar");
+
+  const authorHeadline =
+    postInput.authorHeadline ||
+    userProfile?.headline ||
+    "Member of Veda Structure Community";
+
+  const authorAvatar =
+    postInput.authorAvatar ||
+    userProfile?.avatar ||
+    "";
+
+  const authorLocation =
+    postInput.authorLocation ||
+    userProfile?.location ||
+    userProfile?.city ||
+    "India";
+
+  const newPost = {
+    id: `post-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+    authorSlug,
+    authorName,
+    authorRole,
+    authorHeadline,
+    authorAvatar,
+    authorLocation,
+    isVerified: Boolean(userProfile?.isVerified),
+    isCustomUserCreated: true,
+    topic: postInput.topic || "Vedic Scriptures",
+    tags: Array.isArray(postInput.tags) && postInput.tags.length > 0
+      ? postInput.tags
+      : ["VedaStructure", "SanatanaWisdom"],
+    createdAt: new Date().toISOString(),
+    content: postInput.content.trim(),
+    mediaImage: postInput.mediaImage || "",
+    baseLikesCount: 0,
+    baseSharesCount: 0,
+    comments: [],
+    isSession: Boolean(postInput.isSession),
+    sessionDate: postInput.sessionDate || "",
+    sessionMode: postInput.sessionMode || "",
+  };
+
+  const updatedList = [newPost, ...safeCustom];
+  safeSetItem(STORAGE_KEY_POSTS, updatedList);
+  return newPost;
+};
+
+/**
+ * Delete a user-created post
+ */
+export const deleteCommunityPost = (postId) => {
+  const customPosts = safeGetItem(STORAGE_KEY_POSTS, []);
+  const safeCustom = Array.isArray(customPosts) ? customPosts : [];
+  const filtered = safeCustom.filter((p) => p.id !== postId);
+  safeSetItem(STORAGE_KEY_POSTS, filtered);
+  return true;
+};
+
+/**
+ * Format relative timestamp for post and comments
+ */
+export const formatRelativeTime = (isoString) => {
+  if (!isoString) return "Recently";
+  try {
+    const date = new Date(isoString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHour = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHour / 24);
+
+    if (diffSec < 60) return "Just now";
+    if (diffMin < 60) return `${diffMin}m ago`;
+    if (diffHour < 24) return `${diffHour}h ago`;
+    if (diffDay === 1) return "Yesterday";
+    if (diffDay < 7) return `${diffDay}d ago`;
+
+    return date.toLocaleDateString("en-IN", {
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return "Recently";
   }
 };

@@ -15,11 +15,9 @@ import {
   Trash2,
   AlertCircle,
   FileText,
-  Info,
   Check,
-  ShieldCheck,
-  Clock,
   MapPin,
+  Clock,
   Lightbulb,
   X,
 } from "lucide-react";
@@ -32,11 +30,15 @@ import {
 } from "../data/communityMockData";
 import CommunityProfilePreview from "./CommunityProfilePreview";
 
+// Neutral dignified spiritual avatar placeholder (replaces generic hardcoded stock photos)
+const DEFAULT_NEUTRAL_AVATAR =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%23faebd7'/%3E%3Ccircle cx='60' cy='46' r='20' fill='%23a94f0a' fill-opacity='0.85'/%3E%3Cpath d='M28 98c0-16 14-28 32-28s32 12 32 28v4H28v-4z' fill='%23a94f0a' fill-opacity='0.85'/%3E%3Ccircle cx='60' cy='46' r='5' fill='%23d9a441'/%3E%3C/svg%3E";
+
 const STEPS = [
   { id: 1, title: "Basic Information", subtitle: "Name, Portrait & Bio", icon: User },
-  { id: 2, title: "Professional Identity", subtitle: "Expertise, Lineage & Vidhis", icon: Sparkles },
-  { id: 3, title: "Credentials & Links", subtitle: "Certifications & Channels", icon: Award },
-  { id: 4, title: "Preview & Submit", subtitle: "Directory Inspection", icon: Eye },
+  { id: 2, title: "Professional Identity", subtitle: "Traditions & Vidhis", icon: Sparkles },
+  { id: 3, title: "Credentials & Links", subtitle: "Gurukul & Channels", icon: Award },
+  { id: 4, title: "Preview & Publish", subtitle: "Review & Submission", icon: Eye },
 ];
 
 const DEFAULT_FORM_DATA = {
@@ -110,27 +112,37 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
     return savedDraft ? { ...DEFAULT_FORM_DATA, ...savedDraft } : DEFAULT_FORM_DATA;
   });
 
-  // Autosave draft locally whenever formData changes (only if not editing existing)
+  // Autosave draft locally whenever formData changes (only if creating fresh)
   useEffect(() => {
     if (!isEditing) {
       saveCommunityDraft(formData);
     }
   }, [formData, isEditing]);
 
-  // Profile Completeness Calculation
-  const completenessScore = useMemo(() => {
-    let score = 0;
-    if (formData.fullName?.trim()) score += 10;
-    if (formData.displayName?.trim()) score += 10;
-    if (formData.headline?.trim()) score += 15;
-    if (formData.bio?.trim() && formData.bio.length >= 20) score += 15;
-    if (formData.city?.trim()) score += 10;
-    if (formData.avatar) score += 10;
-    if (formData.expertise?.length > 0) score += 15;
-    if (formData.services?.length > 0 && formData.services[0].name?.trim()) score += 10;
-    if (formData.certificateName?.trim() || formData.education?.trim()) score += 5;
-    return Math.min(score, 100);
-  }, [formData]);
+  // Real Progress Calculation based on active wizard step & required fields
+  const calculatedProgress = useMemo(() => {
+    let completedStepsCount = currentStep - 1;
+    let requiredFieldsCount = 0;
+    let requiredFieldsFilled = 0;
+
+    // Required fields in Step 1
+    requiredFieldsCount += 5;
+    if (formData.fullName?.trim()) requiredFieldsFilled++;
+    if (formData.displayName?.trim()) requiredFieldsFilled++;
+    if (formData.headline?.trim()) requiredFieldsFilled++;
+    if (formData.bio?.trim() && formData.bio.length >= 20) requiredFieldsFilled++;
+    if (formData.city?.trim()) requiredFieldsFilled++;
+
+    // Required fields in Step 2
+    requiredFieldsCount += 2;
+    if (formData.yearsOfExperience !== undefined && formData.yearsOfExperience >= 0) requiredFieldsFilled++;
+    if (formData.expertise?.length > 0) requiredFieldsFilled++;
+
+    // Base percentage from step + proportion of filled fields
+    const stepBase = (completedStepsCount / 4) * 100;
+    const fieldsProportion = (requiredFieldsFilled / requiredFieldsCount) * 25;
+    return Math.min(Math.round(stepBase + fieldsProportion), 100);
+  }, [currentStep, formData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -144,6 +156,10 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
   const handlePhotoUpload = (e, fieldName = "avatar") => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Image exceeds 5MB size limit. Please choose a smaller file.");
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData((prev) => ({ ...prev, [fieldName]: reader.result }));
@@ -155,6 +171,10 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
   const handleCredentialUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        alert("File exceeds 10MB limit.");
+        return;
+      }
       setFormData((prev) => ({
         ...prev,
         credentialFileName: file.name,
@@ -172,6 +192,9 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
         return { ...prev, expertise: [...current, item] };
       }
     });
+    if (errors.expertise) {
+      setErrors((prev) => ({ ...prev, expertise: null }));
+    }
   };
 
   // Services management
@@ -211,18 +234,18 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
     const newErrors = {};
 
     if (step === 1) {
-      if (!formData.fullName.trim()) newErrors.fullName = "Full legal name is required";
-      if (!formData.displayName.trim())
+      if (!formData.fullName?.trim()) newErrors.fullName = "Full legal name is required";
+      if (!formData.displayName?.trim())
         newErrors.displayName = "Professional display name is required";
-      if (!formData.headline.trim()) newErrors.headline = "Professional headline is required";
-      if (!formData.city.trim()) newErrors.city = "Sacred city/location is required";
-      if (!formData.bio.trim() || formData.bio.length < 20) {
-        newErrors.bio = "Please write at least 20 characters introducing your spiritual lineage & vidhis";
+      if (!formData.headline?.trim()) newErrors.headline = "Professional headline is required";
+      if (!formData.city?.trim()) newErrors.city = "Sacred city/location is required";
+      if (!formData.bio?.trim() || formData.bio.length < 20) {
+        newErrors.bio = "Please write at least 20 characters introducing your spiritual lineage";
       }
     }
 
     if (step === 2) {
-      if (formData.yearsOfExperience < 0)
+      if (formData.yearsOfExperience === undefined || formData.yearsOfExperience < 0)
         newErrors.yearsOfExperience = "Years of experience cannot be negative";
       if (!formData.expertise || formData.expertise.length === 0) {
         newErrors.expertise = "Please select at least one area of expertise";
@@ -236,13 +259,13 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
   const handleNext = () => {
     if (validateStep(currentStep)) {
       setCurrentStep((prev) => Math.min(prev + 1, 4));
-      window.scrollTo({ top: 120, behavior: "smooth" });
+      window.scrollTo({ top: 80, behavior: "smooth" });
     }
   };
 
   const handleBack = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
-    window.scrollTo({ top: 120, behavior: "smooth" });
+    window.scrollTo({ top: 80, behavior: "smooth" });
   };
 
   const handleSaveDraft = () => {
@@ -255,6 +278,7 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
     e.preventDefault();
     if (!validateStep(1) || !validateStep(2)) {
       alert("Please ensure all required fields in steps 1 and 2 are filled.");
+      setCurrentStep(!validateStep(1) ? 1 : 2);
       return;
     }
 
@@ -274,32 +298,32 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
     }
   };
 
-  // Dynamic context tips for right sidebar
-  const getStepTips = () => {
+  // Concise contextual tips for the current step
+  const currentTips = useMemo(() => {
     switch (currentStep) {
       case 1:
         return {
           title: "Crafting Your Sacred Presentation",
           tips: [
             "Use traditional titles honoring your lineage (Acharya, Pandit, Jyotishi).",
-            "A portrait in traditional attire (Kurta/Dhoti/Saffron) communicates reverence and authenticity.",
-            "In your biography, highlight your guru parampara, family traditions, and temples served.",
+            "A portrait in traditional attire communicates reverence and authenticity.",
+            "In your biography, highlight your guru parampara and sacred traditions.",
           ],
         };
       case 2:
         return {
           title: "Defining Rituals & Consultations",
           tips: [
-            "Devotees seek specific vidhis such as Maha Rudrabhishek, Kaal Sarp Shanti, or Navagraha Japa.",
+            "Devotees seek specific vidhis such as Maha Rudrabhishek or Navagraha Japa.",
             "Clarify if you conduct rituals in-person, travel, or perform online live sankalpas.",
-            "Multiple expertise tags help seekers discover you easily in the directory.",
+            "Specific expertise tags help seekers discover your profile in the directory.",
           ],
         };
       case 3:
         return {
           title: "Credentials & Transparency",
           tips: [
-            "Upload Gurukul or Sanskrit Vishwavidyalaya degrees for demonstration.",
+            "Upload Gurukul or Sanskrit Vishwavidyalaya credentials for demonstration.",
             "Official links to your YouTube channel or website increase devotee confidence.",
             "Credentials will be verified by the Sanatana Advisory Council in future phases.",
           ],
@@ -309,128 +333,142 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
         return {
           title: "Final Directory Review",
           tips: [
-            "Verify all details as they will appear to devotees in the directory card and full profile page.",
-            "You can return to any step using the 'Previous' button before saving.",
-            "Submissions are preserved in your local session for instant demonstration.",
+            "Verify all details as they will appear in the directory card and profile detail.",
+            "Click 'Edit' on any section to return and refine your information before saving.",
+            "Submissions are saved locally to your demo session for instant inspection.",
           ],
         };
     }
-  };
-
-  const currentTips = getStepTips();
+  }, [currentStep]);
 
   return (
     <div className="relative">
       {/* Toast Notification for Draft Save */}
       {draftSavedToast && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-[#2b190c] text-white px-5 py-3 rounded-xl shadow-2xl border border-[#d4af37]/50 text-xs sm:text-sm animate-fade-in">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 bg-[#231a12] text-white px-5 py-3 rounded-xl shadow-2xl border border-[#d9a441]/50 text-xs sm:text-sm animate-fade-in">
           <Check className="w-4 h-4 text-emerald-400" />
-          <span>Draft profile autosaved to browser storage!</span>
+          <span>Draft profile saved to browser storage!</span>
         </div>
       )}
 
-      {/* Redesigned Stepper Header */}
-      <div className="mb-8">
-        {/* Desktop Stepper */}
-        <div className="hidden md:flex items-center justify-between relative bg-white rounded-2xl border border-[#ebdcc2] p-4 shadow-2xs">
-          <div className="absolute top-1/2 left-8 right-8 h-0.5 bg-[#ebdcc2] -translate-y-1/2 z-0" />
-          {STEPS.map((step) => {
-            const Icon = step.icon;
+      {/* Redesigned Compact Stepper Header */}
+      <div className="mb-7">
+        {/* Desktop Horizontal Stepper */}
+        <div className="hidden md:flex items-center justify-between bg-white rounded-2xl border border-[#ebdcc2] p-3.5 shadow-2xs">
+          {STEPS.map((step, idx) => {
             const isCompleted = currentStep > step.id;
             const isCurrent = currentStep === step.id;
 
             return (
-              <button
-                key={step.id}
-                type="button"
-                onClick={() => {
-                  if (step.id < currentStep || validateStep(currentStep)) {
-                    setCurrentStep(step.id);
-                  }
-                }}
-                className="relative z-10 flex items-center gap-3 bg-white px-3 py-1.5 rounded-xl cursor-pointer group text-left"
-              >
-                <div
-                  className={`w-11 h-11 rounded-xl flex items-center justify-center font-bold text-xs transition-all duration-300 ${
-                    isCompleted
-                      ? "bg-[#9b4e10] text-white shadow-xs"
-                      : isCurrent
-                      ? "bg-[#fff8ed] text-[#9b4e10] border-2 border-[#9b4e10] ring-4 ring-[#faeed8] shadow-sm"
-                      : "bg-[#fcf8f0] text-[#8a725e] border border-[#ebdcc2]"
+              <div key={step.id} className="flex-1 flex items-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (step.id < currentStep || validateStep(currentStep)) {
+                      setCurrentStep(step.id);
+                    }
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition text-left cursor-pointer group ${
+                    isCurrent
+                      ? "bg-[#fff5e5] border border-[#d9a441]/50"
+                      : "hover:bg-[#fffcf7]"
                   }`}
                 >
-                  {isCompleted ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
-                </div>
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#a0520d] block">
-                    Step 0{step.id}
-                  </span>
-                  <span
-                    className={`text-xs font-bold block ${
-                      isCurrent ? "text-[#2b241d]" : "text-[#7a6452]"
+                  <div
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs transition-all shrink-0 ${
+                      isCompleted
+                        ? "bg-[#a94f0a] text-white shadow-2xs"
+                        : isCurrent
+                        ? "bg-[#a94f0a] text-white shadow-sm ring-2 ring-[#a94f0a]/30"
+                        : "bg-[#fff5e5] text-[#7a6452] border border-[#ebdcc2]"
                     }`}
                   >
-                    {step.title}
-                  </span>
-                </div>
-              </button>
+                    {isCompleted ? <Check className="w-4 h-4" /> : `0${step.id}`}
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#a94f0a] block">
+                      Step 0{step.id}
+                    </span>
+                    <span
+                      className={`text-xs font-bold truncate block ${
+                        isCurrent ? "text-[#382516]" : "text-[#7a6452]"
+                      }`}
+                    >
+                      {step.title}
+                    </span>
+                  </div>
+                </button>
+
+                {idx < STEPS.length - 1 && (
+                  <div className="w-8 h-0.5 bg-[#ebdcc2] mx-2 shrink-0 hidden lg:block" />
+                )}
+              </div>
             );
           })}
         </div>
 
-        {/* Mobile Compact Progress Bar */}
+        {/* Mobile Compact Current-Step Bar */}
         <div className="md:hidden bg-white rounded-xl border border-[#ebdcc2] p-4 shadow-2xs">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-[#a0520d] uppercase tracking-wider">
-              Step {currentStep} of 4: {STEPS[currentStep - 1].title}
-            </span>
-            <span className="text-xs font-semibold text-[#2b241d]">{completenessScore}% Complete</span>
+            <div>
+              <span className="text-[11px] font-bold text-[#a94f0a] uppercase tracking-wider block">
+                STEP 0{currentStep} OF 04
+              </span>
+              <span className="text-xs font-bold text-[#382516]">
+                {STEPS[currentStep - 1].title}
+              </span>
+            </div>
+            <span className="text-xs font-bold text-[#a94f0a]">{calculatedProgress}%</span>
           </div>
           <div className="w-full h-2 rounded-full bg-[#faeed8] overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-[#9b4e10] to-[#c2782b] transition-all duration-300"
-              style={{ width: `${(currentStep / 4) * 100}%` }}
+              className="h-full bg-gradient-to-r from-[#a94f0a] to-[#d9a441] transition-all duration-300 rounded-full"
+              style={{ width: `${calculatedProgress}%` }}
             />
           </div>
         </div>
       </div>
 
-      {/* Desktop 2-Column Grid Layout: Main Form (Left 68%) vs Contextual Sidebar (Right 32%) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Vertical Single-Column Form */}
-        <div className="lg:col-span-8 bg-white rounded-3xl border border-[#ebdcc2] p-6 sm:p-8 md:p-10 shadow-[0_4px_24px_rgba(43,36,29,0.05)]">
+      {/* Two-Column Form Layout (Left: Form ~68%, Right: Live Preview Card ~32%) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
+        {/* Left Column: Current Step Form */}
+        <div className="lg:col-span-8 bg-white rounded-2xl border border-[#ebdcc2] p-6 sm:p-8 md:p-9 shadow-sm">
           <form onSubmit={handleSubmit}>
             {/* ================= STEP 1: BASIC INFORMATION ================= */}
             {currentStep === 1 && (
               <div className="space-y-6">
                 <div className="pb-4 border-b border-[#f0e4cf]">
-                  <h2 className="font-serif text-2xl font-bold text-[#2b241d]">
-                    Step 1: Personal & Basic Information
+                  <h2 className="font-serif text-2xl font-bold text-[#382516]">
+                    Basic Information & Heritage
                   </h2>
-                  <p className="text-xs sm:text-sm text-[#735e4d] mt-1">
-                    Present your authentic identity and background to seekers looking for guidance.
+                  <p className="text-xs sm:text-sm text-[#6b5542] mt-1">
+                    Introduce your personal identity, lineage, and sacred city to seekers.
                   </p>
                 </div>
 
-                {/* Profile Photo Upload Dropzone */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#574332] mb-2">
-                    Profile Photograph <span className="text-red-500">*</span>
-                  </label>
+                {/* Group A: Your Portrait */}
+                <div className="p-5 rounded-2xl bg-[#fffdfa] border border-[#ebdcc2] space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-[#382516]">
+                        Group A: Your Portrait & Banner
+                      </h3>
+                      <p className="text-[11px] text-[#7a6452] mt-0.5">
+                        Authentic portrait in traditional attire (Kurta/Dhoti/Saffron). PNG or JPG, max 5MB.
+                      </p>
+                    </div>
+                  </div>
 
-                  <div className="p-5 rounded-2xl bg-[#fffdfa] border-2 border-dashed border-[#dfcdb5] hover:border-[#b35d14] transition-all flex flex-col sm:flex-row items-center gap-5">
+                  <div className="flex flex-col sm:flex-row items-center gap-5 pt-1">
                     <div className="relative group shrink-0">
                       <img
-                        src={
-                          formData.avatar ||
-                          "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200"
-                        }
-                        alt="Profile Avatar Preview"
-                        className="w-24 h-24 rounded-2xl object-cover border-2 border-[#d4af37] shadow-sm bg-white"
+                        src={formData.avatar || DEFAULT_NEUTRAL_AVATAR}
+                        alt="Portrait Avatar"
+                        className="w-24 h-24 rounded-2xl object-cover border-2 border-[#d9a441] shadow-2xs bg-stone-50"
                       />
                       <label
                         htmlFor="avatar-file-upload"
-                        className="absolute inset-0 bg-black/50 rounded-2xl opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition text-white"
+                        className="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition text-white"
                         title="Change Photo"
                       >
                         <Upload className="w-5 h-5" />
@@ -445,17 +483,13 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
                     </div>
 
                     <div className="flex-1 text-center sm:text-left">
-                      <h4 className="text-sm font-bold text-[#2b241d]">Upload Portrait Photograph</h4>
-                      <p className="text-xs text-[#7d6857] mt-0.5 leading-relaxed">
-                        Serene portrait in traditional attire (Kurta/Dhoti/Saffron). PNG, JPG, max 5MB.
-                      </p>
-                      <div className="mt-3 flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
+                      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
                         <label
                           htmlFor="avatar-file-upload-btn"
-                          className="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#faeed8] hover:bg-[#f7dfb0] border border-[#d6be9a] text-xs font-semibold text-[#8a4e17] shadow-2xs transition"
+                          className="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#fff5e5] hover:bg-[#faebd7] border border-[#d6be9a] text-xs font-semibold text-[#a94f0a] transition shadow-2xs"
                         >
                           <Upload className="w-3.5 h-3.5" />
-                          <span>Choose New Photo</span>
+                          <span>{formData.avatar ? "Change Photo" : "Upload Profile Photo"}</span>
                         </label>
                         <input
                           id="avatar-file-upload-btn"
@@ -464,174 +498,220 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
                           onChange={(e) => handlePhotoUpload(e, "avatar")}
                           className="hidden"
                         />
+
                         {formData.avatar && (
                           <button
                             type="button"
                             onClick={() => setFormData((p) => ({ ...p, avatar: "" }))}
-                            className="inline-flex items-center gap-1 text-xs text-red-600 hover:text-red-800 transition"
+                            className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold text-red-600 hover:text-red-800 transition"
                           >
                             <X className="w-3.5 h-3.5" />
-                            <span>Remove</span>
+                            <span>Remove Photo</span>
                           </button>
                         )}
                       </div>
+                      <p className="text-[11px] text-[#8a725e] mt-2">
+                        {formData.avatar
+                          ? "Custom photo uploaded successfully."
+                          : "A neutral dignified avatar placeholder is active until you upload a portrait."}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Optional Cover Banner */}
+                  <div className="pt-3 border-t border-[#f5ebd9] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <span className="text-xs font-semibold text-[#382516]">
+                        Cover Banner Image (Optional)
+                      </span>
+                      <p className="text-[11px] text-[#7a6452]">
+                        Background depicting temples or holy rivers. Default banner applied if left blank.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <label
+                        htmlFor="cover-file-upload-btn"
+                        className="cursor-pointer inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white border border-[#ebdcc2] hover:bg-[#fff5e5] text-xs font-semibold text-[#5c4736] transition"
+                      >
+                        <Upload className="w-3 h-3 text-[#a94f0a]" />
+                        <span>{formData.coverImage ? "Change Banner" : "Select Banner"}</span>
+                      </label>
+                      <input
+                        id="cover-file-upload-btn"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handlePhotoUpload(e, "coverImage")}
+                        className="hidden"
+                      />
+                      {formData.coverImage && (
+                        <button
+                          type="button"
+                          onClick={() => setFormData((p) => ({ ...p, coverImage: "" }))}
+                          className="text-xs text-red-600 hover:text-red-800 font-medium"
+                        >
+                          Remove
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                {/* Full Legal Name - Single Column */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#574332] mb-1.5">
-                    Full Legal Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    placeholder="e.g. Rameshwar Dattatreya Shastri"
-                    className={`w-full px-4 py-3 rounded-xl border text-sm text-[#2b241d] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#b35d14]/30 focus:border-[#b35d14] ${
-                      errors.fullName ? "border-red-500" : "border-[#ebdcc2]"
-                    }`}
-                  />
-                  <p className="text-[11px] text-[#8a725e] mt-1">
-                    Your formal birth name as listed on personal identity records.
-                  </p>
-                  {errors.fullName && <p className="text-xs text-red-500 mt-1">{errors.fullName}</p>}
+                {/* Group B: Your Name */}
+                <div className="space-y-4">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#382516]">
+                    Group B: Name & Traditional Title
+                  </h3>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Full Legal Name */}
+                    <div>
+                      <label className="block text-xs font-bold text-[#382516] mb-1.5">
+                        Full Legal Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="fullName"
+                        value={formData.fullName}
+                        onChange={handleChange}
+                        placeholder="e.g. Rameshwar Dattatreya Shastri"
+                        className={`w-full px-4 py-2.5 rounded-xl border text-xs sm:text-sm text-[#382516] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#a94f0a]/20 focus:border-[#a94f0a] transition ${
+                          errors.fullName ? "border-red-500" : "border-[#ebdcc2]"
+                        }`}
+                      />
+                      {errors.fullName && <p className="text-xs text-red-500 mt-1">{errors.fullName}</p>}
+                    </div>
+
+                    {/* Professional Display Name */}
+                    <div>
+                      <label className="block text-xs font-bold text-[#382516] mb-1.5">
+                        Professional Display Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="displayName"
+                        value={formData.displayName}
+                        onChange={handleChange}
+                        placeholder="e.g. Acharya Rameshwar Shastri"
+                        className={`w-full px-4 py-2.5 rounded-xl border text-xs sm:text-sm text-[#382516] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#a94f0a]/20 focus:border-[#a94f0a] transition ${
+                          errors.displayName ? "border-red-500" : "border-[#ebdcc2]"
+                        }`}
+                      />
+                      {errors.displayName && (
+                        <p className="text-xs text-red-500 mt-1">{errors.displayName}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Professional Headline */}
+                  <div>
+                    <label className="block text-xs font-bold text-[#382516] mb-1">
+                      Professional Headline / Traditional Title <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="headline"
+                      value={formData.headline}
+                      onChange={handleChange}
+                      placeholder="Acharya specializing in Jyotish and traditional Vedic studies"
+                      className={`w-full px-4 py-2.5 rounded-xl border text-xs sm:text-sm text-[#382516] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#a94f0a]/20 focus:border-[#a94f0a] transition ${
+                        errors.headline ? "border-red-500" : "border-[#ebdcc2]"
+                      }`}
+                    />
+                    <p className="text-[11px] text-[#7a6452] mt-1">
+                      Example: Acharya specializing in Jyotish and traditional Vedic studies
+                    </p>
+                    {errors.headline && <p className="text-xs text-red-500 mt-1">{errors.headline}</p>}
+                  </div>
                 </div>
 
-                {/* Professional Display Name - Single Column */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#574332] mb-1.5">
-                    Professional Display Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="displayName"
-                    value={formData.displayName}
-                    onChange={handleChange}
-                    placeholder="e.g. Acharya Rameshwar Shastri"
-                    className={`w-full px-4 py-3 rounded-xl border text-sm text-[#2b241d] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#b35d14]/30 focus:border-[#b35d14] ${
-                      errors.displayName ? "border-red-500" : "border-[#ebdcc2]"
-                    }`}
-                  />
-                  <p className="text-[11px] text-[#8a725e] mt-1">
-                    This is the primary name devotees will see across search results and directory cards.
-                  </p>
-                  {errors.displayName && (
-                    <p className="text-xs text-red-500 mt-1">{errors.displayName}</p>
-                  )}
-                </div>
-
-                {/* Professional Headline - Single Column */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#574332] mb-1.5">
-                    Professional Headline / Traditional Title <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="headline"
-                    value={formData.headline}
-                    onChange={handleChange}
-                    placeholder="e.g. Shukla Yajurveda Parayan Acharya & Karmakand Specialist from Kashi"
-                    className={`w-full px-4 py-3 rounded-xl border text-sm text-[#2b241d] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#b35d14]/30 focus:border-[#b35d14] ${
-                      errors.headline ? "border-red-500" : "border-[#ebdcc2]"
-                    }`}
-                  />
-                  <p className="text-[11px] text-[#8a725e] mt-1">
-                    A concise title explaining your sampradaya, samhita, or core astrological discipline.
-                  </p>
-                  {errors.headline && <p className="text-xs text-red-500 mt-1">{errors.headline}</p>}
-                </div>
-
-                {/* Biography - Single Column */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#574332] mb-1.5">
-                    About & Spiritual Heritage (Biography) <span className="text-red-500">*</span>
-                  </label>
+                {/* Group C: Your Story */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[#382516]">
+                      Group C: Your Story & Lineage <span className="text-red-500">*</span>
+                    </label>
+                    <span className="text-[11px] text-[#7a6452]">
+                      {formData.bio?.length || 0} characters (min 20)
+                    </span>
+                  </div>
                   <textarea
                     name="bio"
                     rows={4}
                     value={formData.bio}
                     onChange={handleChange}
-                    placeholder="Describe your lineage, traditional initiation, guru parampara, sacred pilgrimage sites served, and primary rituals conducted..."
-                    className={`w-full px-4 py-3 rounded-xl border text-sm text-[#2b241d] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#b35d14]/30 focus:border-[#b35d14] ${
+                    placeholder="Share your guru parampara, traditional training, sacred traditions, and the guidance you offer to seekers."
+                    className={`w-full px-4 py-3 rounded-xl border text-xs sm:text-sm text-[#382516] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#a94f0a]/20 focus:border-[#a94f0a] transition leading-relaxed ${
                       errors.bio ? "border-red-500" : "border-[#ebdcc2]"
                     }`}
                   />
-                  <div className="flex justify-between items-center text-[11px] text-[#8a725e] mt-1">
-                    <span>Minimum 20 characters recommended.</span>
-                    <span>{formData.bio?.length || 0} characters</span>
-                  </div>
                   {errors.bio && <p className="text-xs text-red-500 mt-1">{errors.bio}</p>}
                 </div>
 
-                {/* Location: City, State, Country - Single Column Rows */}
+                {/* Group D: Your Location and Languages */}
                 <div className="space-y-4 pt-2">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#574332] mb-1.5">
-                      Sacred City / Headquarters <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleChange}
-                      placeholder="e.g. Varanasi (Kashi)"
-                      className="w-full px-4 py-3 rounded-xl border border-[#ebdcc2] text-sm text-[#2b241d] bg-[#fffdfa]"
-                    />
-                    {errors.city && <p className="text-xs text-red-500 mt-1">{errors.city}</p>}
-                  </div>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#382516]">
+                    Group D: Sacred Location & Languages
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-[#382516] mb-1.5">
+                        Sacred City / Kshetra <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="city"
+                        value={formData.city}
+                        onChange={handleChange}
+                        placeholder="e.g. Varanasi (Kashi)"
+                        className={`w-full px-4 py-2.5 rounded-xl border text-xs sm:text-sm text-[#382516] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#a94f0a]/20 focus:border-[#a94f0a] ${
+                          errors.city ? "border-red-500" : "border-[#ebdcc2]"
+                        }`}
+                      />
+                      {errors.city && <p className="text-xs text-red-500 mt-1">{errors.city}</p>}
+                    </div>
 
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#574332] mb-1.5">
-                      State / Province
-                    </label>
-                    <input
-                      type="text"
-                      name="state"
-                      value={formData.state}
-                      onChange={handleChange}
-                      placeholder="e.g. Uttar Pradesh"
-                      className="w-full px-4 py-3 rounded-xl border border-[#ebdcc2] text-sm text-[#2b241d] bg-[#fffdfa]"
-                    />
-                  </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#382516] mb-1.5">
+                        State / Province
+                      </label>
+                      <input
+                        type="text"
+                        name="state"
+                        value={formData.state}
+                        onChange={handleChange}
+                        placeholder="e.g. Uttar Pradesh"
+                        className="w-full px-4 py-2.5 rounded-xl border border-[#ebdcc2] text-xs sm:text-sm text-[#382516] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#a94f0a]/20 focus:border-[#a94f0a]"
+                      />
+                    </div>
 
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#574332] mb-1.5">
-                      Country
-                    </label>
-                    <input
-                      type="text"
-                      name="country"
-                      value={formData.country}
-                      onChange={handleChange}
-                      placeholder="India"
-                      className="w-full px-4 py-3 rounded-xl border border-[#ebdcc2] text-sm text-[#2b241d] bg-[#fffdfa]"
-                    />
-                  </div>
-                </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#382516] mb-1.5">
+                        Country
+                      </label>
+                      <input
+                        type="text"
+                        name="country"
+                        value={formData.country}
+                        onChange={handleChange}
+                        placeholder="India"
+                        className="w-full px-4 py-2.5 rounded-xl border border-[#ebdcc2] text-xs sm:text-sm text-[#382516] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#a94f0a]/20 focus:border-[#a94f0a]"
+                      />
+                    </div>
 
-                {/* Languages Spoken - Single Column */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#574332] mb-1.5">
-                    Languages Spoken (comma separated)
-                  </label>
-                  <input
-                    type="text"
-                    name="languages"
-                    value={
-                      Array.isArray(formData.languages)
-                        ? formData.languages.join(", ")
-                        : (formData.languages || "")
-                    }
-                    onChange={handleChange}
-                    placeholder="Sanskrit, Hindi, English, Gujarati"
-                    className="w-full px-4 py-3 rounded-xl border border-[#ebdcc2] text-sm text-[#2b241d] bg-[#fffdfa]"
-                  />
-                  <p className="text-[11px] text-[#8a725e] mt-1">
-                    Include liturgical and regional spoken languages.
-                  </p>
+                    <div>
+                      <label className="block text-xs font-bold text-[#382516] mb-1.5">
+                        Languages Spoken (comma separated)
+                      </label>
+                      <input
+                        type="text"
+                        name="languages"
+                        value={formData.languages}
+                        onChange={handleChange}
+                        placeholder="Sanskrit, Hindi, English"
+                        className="w-full px-4 py-2.5 rounded-xl border border-[#ebdcc2] text-xs sm:text-sm text-[#382516] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#a94f0a]/20 focus:border-[#a94f0a]"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -640,18 +720,18 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
             {currentStep === 2 && (
               <div className="space-y-6">
                 <div className="pb-4 border-b border-[#f0e4cf]">
-                  <h2 className="font-serif text-2xl font-bold text-[#2b241d]">
-                    Step 2: Professional Identity & Vidhis
+                  <h2 className="font-serif text-2xl font-bold text-[#382516]">
+                    Professional Identity & Vidhis
                   </h2>
-                  <p className="text-xs sm:text-sm text-[#735e4d] mt-1">
+                  <p className="text-xs sm:text-sm text-[#6b5542] mt-1">
                     Detail your spiritual discipline, areas of expertise, and rituals offered to devotees.
                   </p>
                 </div>
 
-                {/* Professional Role Selection */}
+                {/* Role Category Selector Cards */}
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#574332] mb-2.5">
-                    Professional Category
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[#382516] mb-2.5">
+                    Professional Role Category
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {[
@@ -663,101 +743,96 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
                         key={role.id}
                         type="button"
                         onClick={() => setFormData((p) => ({ ...p, professionalType: role.id }))}
-                        className={`p-4 rounded-xl text-left border transition-all ${
+                        className={`p-4 rounded-xl text-left border transition-all cursor-pointer ${
                           formData.professionalType === role.id
-                            ? "border-[#9b4e10] bg-[#fff8ed] ring-2 ring-[#c2782b]/30 shadow-xs"
-                            : "border-[#ebdcc2] bg-[#fffdfa] hover:bg-[#faebd7]/30"
+                            ? "border-[#a94f0a] bg-[#fff5e5] ring-2 ring-[#a94f0a]/30 shadow-2xs"
+                            : "border-[#ebdcc2] bg-[#fffdfa] hover:bg-[#fff5e5]/50"
                         }`}
                       >
-                        <p className="font-bold text-sm text-[#2b241d]">{role.label}</p>
-                        <p className="text-xs text-[#7d6857] mt-1 leading-snug">{role.desc}</p>
+                        <p className="font-bold text-sm text-[#382516]">{role.label}</p>
+                        <p className="text-xs text-[#7a6452] mt-1 leading-snug">{role.desc}</p>
                       </button>
                     ))}
                   </div>
                 </div>
 
-                {/* Years of Experience */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#574332] mb-1.5">
-                    Years of Active Experience <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="80"
-                    name="yearsOfExperience"
-                    value={formData.yearsOfExperience}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border border-[#ebdcc2] text-sm text-[#2b241d] bg-[#fffdfa]"
-                  />
-                  {errors.yearsOfExperience && (
-                    <p className="text-xs text-red-500 mt-1">{errors.yearsOfExperience}</p>
-                  )}
+                {/* Years of Experience & Lineage (2-column) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#382516] mb-1.5">
+                      Years of Active Practice <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="80"
+                      name="yearsOfExperience"
+                      value={formData.yearsOfExperience}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#ebdcc2] text-xs sm:text-sm text-[#382516] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#a94f0a]/20 focus:border-[#a94f0a]"
+                    />
+                    {errors.yearsOfExperience && (
+                      <p className="text-xs text-red-500 mt-1">{errors.yearsOfExperience}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#382516] mb-1.5">
+                      Spiritual Lineage / Guru Parampara
+                    </label>
+                    <input
+                      type="text"
+                      name="lineage"
+                      value={formData.lineage}
+                      onChange={handleChange}
+                      placeholder="e.g. 5th Generation Kashi Assi Ghat Scholar"
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#ebdcc2] text-xs sm:text-sm text-[#382516] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#a94f0a]/20 focus:border-[#a94f0a]"
+                    />
+                  </div>
                 </div>
 
-                {/* Spiritual Lineage */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#574332] mb-1.5">
-                    Spiritual Lineage / Guru Parampara
-                  </label>
-                  <input
-                    type="text"
-                    name="lineage"
-                    value={formData.lineage}
-                    onChange={handleChange}
-                    placeholder="e.g. 5th Generation Kashi Assi Ghat Vedic Scholar Lineage"
-                    className="w-full px-4 py-3 rounded-xl border border-[#ebdcc2] text-sm text-[#2b241d] bg-[#fffdfa]"
-                  />
+                {/* Education and Specializations */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#382516] mb-1.5">
+                      Traditional Education / Gurukul
+                    </label>
+                    <input
+                      type="text"
+                      name="education"
+                      value={formData.education}
+                      onChange={handleChange}
+                      placeholder="Acharya in Shukla Yajurveda"
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#ebdcc2] text-xs sm:text-sm text-[#382516] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#a94f0a]/20 focus:border-[#a94f0a]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#382516] mb-1.5">
+                      Specializations (comma separated)
+                    </label>
+                    <input
+                      type="text"
+                      name="specializations"
+                      value={formData.specializations}
+                      onChange={handleChange}
+                      placeholder="Rudri Path, Vivah Sanskar, Griha Pravesh"
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#ebdcc2] text-xs sm:text-sm text-[#382516] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#a94f0a]/20 focus:border-[#a94f0a]"
+                    />
+                  </div>
                 </div>
 
-                {/* Education and Traditional Training */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#574332] mb-1.5">
-                    Education & Traditional Training
-                  </label>
-                  <input
-                    type="text"
-                    name="education"
-                    value={formData.education}
-                    onChange={handleChange}
-                    placeholder="e.g. Acharya in Shukla Yajurveda, Sampurnanand Sanskrit Vishwavidyalaya"
-                    className="w-full px-4 py-3 rounded-xl border border-[#ebdcc2] text-sm text-[#2b241d] bg-[#fffdfa]"
-                  />
-                </div>
-
-                {/* Specializations & Shastric Rigor */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#574332] mb-1.5">
-                    Specializations & Shastric Focus (comma separated)
-                  </label>
-                  <input
-                    type="text"
-                    name="specializations"
-                    value={
-                      Array.isArray(formData.specializations)
-                        ? formData.specializations.join(", ")
-                        : (formData.specializations || "")
-                    }
-                    onChange={handleChange}
-                    placeholder="e.g. Shukla Yajurveda, Assi Ghat Parampara, Rudri Path, Vivah Sanskar"
-                    className="w-full px-4 py-3 rounded-xl border border-[#ebdcc2] text-sm text-[#2b241d] bg-[#fffdfa]"
-                  />
-                  <p className="text-[11px] text-[#8a725e] mt-1">
-                    Specific shastric texts, paramparas, or ritual disciplines you specialize in.
-                  </p>
-                </div>
-
-                {/* Areas of Expertise Selection */}
+                {/* Areas of Expertise Selection Chips */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#574332]">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[#382516]">
                       Areas of Expertise (Select all that apply) <span className="text-red-500">*</span>
                     </label>
-                    <span className="text-xs text-[#8a4e17] font-semibold">
+                    <span className="text-xs text-[#a94f0a] font-semibold">
                       {(formData.expertise || []).length} selected
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-2 p-3.5 rounded-xl bg-[#fffdfa] border border-[#f0e4cf]">
+                  <div className="flex flex-wrap gap-2 p-3.5 rounded-xl bg-[#fffdfa] border border-[#ebdcc2]">
                     {EXPERTISE_CATEGORIES.filter((c) => c !== "All").map((cat) => {
                       const isSelected = (formData.expertise || []).includes(cat);
                       return (
@@ -765,10 +840,10 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
                           key={cat}
                           type="button"
                           onClick={() => toggleExpertise(cat)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                             isSelected
-                              ? "bg-[#9b4e10] text-white shadow-2xs"
-                              : "bg-white text-[#523d2d] hover:bg-[#faebd7] border border-[#ebdcc2]"
+                              ? "bg-[#a94f0a] text-white shadow-2xs"
+                              : "bg-white text-[#523d2d] hover:bg-[#fff5e5] border border-[#ebdcc2]"
                           }`}
                         >
                           {isSelected && <span className="mr-1">✓</span>}
@@ -782,72 +857,75 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
                   )}
                 </div>
 
-                {/* Consultation Availability */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#574332] mb-1.5">
-                    Consultation Availability Mode
-                  </label>
-                  <select
-                    name="availabilityMode"
-                    value={formData.availabilityMode}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border border-[#ebdcc2] text-sm text-[#2b241d] bg-[#fffdfa]"
-                  >
-                    <option value="both">Both Online Video & In-Person at Temple/Home</option>
-                    <option value="online">Online Video Consultations Only</option>
-                    <option value="in_person">In-Person at Temple Kshetra Only</option>
-                  </select>
+                {/* Consultation Availability Mode */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#382516] mb-1.5">
+                      Consultation Availability Mode
+                    </label>
+                    <select
+                      name="availabilityMode"
+                      value={formData.availabilityMode}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#ebdcc2] text-xs sm:text-sm text-[#382516] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#a94f0a]/20 focus:border-[#a94f0a]"
+                    >
+                      <option value="both">Both Online Video & In-Person</option>
+                      <option value="online">Online Video Consultations Only</option>
+                      <option value="in_person">In-Person at Temple Kshetra Only</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#382516] mb-1.5">
+                      Service Travel Locations
+                    </label>
+                    <input
+                      type="text"
+                      name="serviceLocations"
+                      value={formData.serviceLocations}
+                      onChange={handleChange}
+                      placeholder="Varanasi, Prayagraj, Worldwide Live"
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#ebdcc2] text-xs sm:text-sm text-[#382516] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#a94f0a]/20 focus:border-[#a94f0a]"
+                    />
+                  </div>
                 </div>
 
-                {/* Service Locations */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#574332] mb-1.5">
-                    Service Travel Locations
-                  </label>
-                  <input
-                    type="text"
-                    name="serviceLocations"
-                    value={formData.serviceLocations}
-                    onChange={handleChange}
-                    placeholder="Varanasi, Prayagraj, Ayodhya, Delhi NCR, Worldwide Live Stream"
-                    className="w-full px-4 py-3 rounded-xl border border-[#ebdcc2] text-sm text-[#2b241d] bg-[#fffdfa]"
-                  />
-                </div>
-
-                {/* Dynamic Services Section */}
+                {/* Dynamic Services / Rituals Section */}
                 <div className="pt-4 border-t border-[#f0e4cf]">
                   <div className="flex items-center justify-between mb-3.5">
                     <div>
-                      <h3 className="font-serif text-lg font-bold text-[#2b241d]">
-                        Specific Rituals & Consultations Offered
+                      <h3 className="font-serif text-lg font-bold text-[#382516]">
+                        Specific Rituals & Consultations
                       </h3>
-                      <p className="text-xs text-[#735e4d]">
-                        Add ritual vidhis or reading packages that devotees can request from you.
+                      <p className="text-xs text-[#7a6452]">
+                        List specific pujas, yagyas, or reading packages devotees can request.
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={handleAddService}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#fff8ed] border border-[#d6be9a] text-xs font-bold text-[#9b4e10] hover:bg-[#faebd7] transition"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#fff5e5] border border-[#d6be9a] text-xs font-bold text-[#a94f0a] hover:bg-[#faebd7] transition shadow-2xs cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>Add Ritual</span>
                     </button>
                   </div>
 
-                  <div className="space-y-3.5">
+                  <div className="space-y-3">
                     {(formData.services || []).map((srv, idx) => (
                       <div
                         key={idx}
-                        className="p-4 rounded-xl bg-[#fffdfa] border border-[#ebdcc2] relative space-y-3 shadow-2xs"
+                        className="p-4 rounded-xl bg-[#fffdfa] border border-[#ebdcc2] relative space-y-2.5 shadow-2xs"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-[#8a4e17]">Ritual #{idx + 1}</span>
+                          <span className="text-xs font-bold text-[#a94f0a]">
+                            Ritual #{idx + 1}
+                          </span>
                           {(formData.services || []).length > 1 && (
                             <button
                               type="button"
                               onClick={() => handleRemoveService(idx)}
-                              className="text-stone-400 hover:text-red-600 p-1 rounded transition"
+                              className="text-stone-400 hover:text-red-600 p-1 rounded transition cursor-pointer"
                               title="Remove Service"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -855,30 +933,28 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
                           )}
                         </div>
 
-                        <div>
-                          <input
-                            type="text"
-                            value={srv.name}
-                            onChange={(e) => handleUpdateService(idx, "name", e.target.value)}
-                            placeholder="Ritual Name (e.g. Maha Rudrabhishek with 11 Pandits)"
-                            className="w-full px-3.5 py-2 rounded-lg border border-[#ebdcc2] text-xs font-semibold text-[#2b241d]"
-                          />
-                        </div>
+                        <input
+                          type="text"
+                          value={srv.name}
+                          onChange={(e) => handleUpdateService(idx, "name", e.target.value)}
+                          placeholder="Ritual Name (e.g. Maha Rudrabhishek with 11 Pandits)"
+                          className="w-full px-3.5 py-2 rounded-lg border border-[#ebdcc2] text-xs font-semibold text-[#382516] bg-white focus:outline-none focus:ring-1 focus:ring-[#a94f0a]"
+                        />
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           <input
                             type="text"
                             value={srv.type}
                             onChange={(e) => handleUpdateService(idx, "type", e.target.value)}
                             placeholder="Type (e.g. Vedic Fire Ritual)"
-                            className="px-3.5 py-2 rounded-lg border border-[#ebdcc2] text-xs text-[#2b241d]"
+                            className="px-3.5 py-2 rounded-lg border border-[#ebdcc2] text-xs text-[#382516] bg-white"
                           />
                           <input
                             type="text"
                             value={srv.duration}
                             onChange={(e) => handleUpdateService(idx, "duration", e.target.value)}
-                            placeholder="Duration (e.g. 3.5 Hours)"
-                            className="px-3.5 py-2 rounded-lg border border-[#ebdcc2] text-xs text-[#2b241d]"
+                            placeholder="Duration (e.g. 3 Hours)"
+                            className="px-3.5 py-2 rounded-lg border border-[#ebdcc2] text-xs text-[#382516] bg-white"
                           />
                         </div>
 
@@ -886,8 +962,8 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
                           type="text"
                           value={srv.description}
                           onChange={(e) => handleUpdateService(idx, "description", e.target.value)}
-                          placeholder="Brief description of samidha, mantras, benefits, and sankalpa..."
-                          className="w-full px-3.5 py-2 rounded-lg border border-[#ebdcc2] text-xs text-[#2b241d]"
+                          placeholder="Brief description of samidha, mantras, and benefits..."
+                          className="w-full px-3.5 py-2 rounded-lg border border-[#ebdcc2] text-xs text-[#382516] bg-white"
                         />
                       </div>
                     ))}
@@ -900,60 +976,48 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
             {currentStep === 3 && (
               <div className="space-y-6">
                 <div className="pb-4 border-b border-[#f0e4cf]">
-                  <h2 className="font-serif text-2xl font-bold text-[#2b241d]">
-                    Step 3: Credentials, Certifications & Web Presence
+                  <h2 className="font-serif text-2xl font-bold text-[#382516]">
+                    Credentials & Web Presence
                   </h2>
-                  <p className="text-xs sm:text-sm text-[#735e4d] mt-1">
+                  <p className="text-xs sm:text-sm text-[#6b5542] mt-1">
                     Upload degrees and share your public professional media channels.
                   </p>
                 </div>
 
-                {/* Future Verification Disclaimer Box */}
-                <div className="p-4 rounded-xl bg-amber-50/80 border border-amber-200 text-[#614522] flex items-start gap-3">
-                  <Info className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
-                  <div className="text-xs sm:text-sm">
-                    <p className="font-bold text-[#543b1c]">
-                      Notice Regarding Credential Verification
-                    </p>
-                    <p className="text-[#694e2e] mt-0.5 leading-relaxed text-xs">
-                      Credentials submitted here are stored for demonstration purposes. In future phases, verified badges will be awarded after thorough administrative review of gurukul certificates, university degrees, and identity verification. No actual server documents are uploaded in this frontend preview.
-                    </p>
+                {/* Credential Details (2-column) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#382516] mb-1.5">
+                      Qualification or Certificate Name
+                    </label>
+                    <input
+                      type="text"
+                      name="certificateName"
+                      value={formData.certificateName}
+                      onChange={handleChange}
+                      placeholder="e.g. Acharya / Jyotish Praveena"
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#ebdcc2] text-xs sm:text-sm text-[#382516] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#a94f0a]/20 focus:border-[#a94f0a]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#382516] mb-1.5">
+                      Issuing Gurukul / University / Board
+                    </label>
+                    <input
+                      type="text"
+                      name="issuingInstitution"
+                      value={formData.issuingInstitution}
+                      onChange={handleChange}
+                      placeholder="e.g. Sampurnanand Sanskrit Vishwavidyalaya"
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#ebdcc2] text-xs sm:text-sm text-[#382516] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#a94f0a]/20 focus:border-[#a94f0a]"
+                    />
                   </div>
                 </div>
 
-                {/* Certificate Title */}
+                {/* Credential File Upload Simulation Dropzone */}
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#574332] mb-1.5">
-                    Qualification or Certificate Name
-                  </label>
-                  <input
-                    type="text"
-                    name="certificateName"
-                    value={formData.certificateName}
-                    onChange={handleChange}
-                    placeholder="e.g. Acharya / Jyotish Praveena / Shastri"
-                    className="w-full px-4 py-3 rounded-xl border border-[#ebdcc2] text-sm text-[#2b241d] bg-[#fffdfa]"
-                  />
-                </div>
-
-                {/* Issuing Institution */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#574332] mb-1.5">
-                    Issuing Institution / Gurukul / Board
-                  </label>
-                  <input
-                    type="text"
-                    name="issuingInstitution"
-                    value={formData.issuingInstitution}
-                    onChange={handleChange}
-                    placeholder="e.g. Sampurnanand Sanskrit Vishwavidyalaya, Varanasi"
-                    className="w-full px-4 py-3 rounded-xl border border-[#ebdcc2] text-sm text-[#2b241d] bg-[#fffdfa]"
-                  />
-                </div>
-
-                {/* Credential File Upload Dropzone */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#574332] mb-1.5">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[#382516] mb-1.5">
                     Upload Certificate Document (PDF/JPG Simulation)
                   </label>
                   <div className="border-2 border-dashed border-[#d6be9a] rounded-2xl p-6 text-center bg-[#fffdfa] hover:bg-[#fff9ef] transition cursor-pointer relative">
@@ -964,118 +1028,123 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
                       className="absolute inset-0 opacity-0 cursor-pointer"
                     />
                     <div className="flex flex-col items-center">
-                      <FileText className="w-8 h-8 text-[#a0520d] mb-2" />
-                      <p className="text-xs sm:text-sm font-bold text-[#2b241d]">
+                      <FileText className="w-8 h-8 text-[#a94f0a] mb-2" />
+                      <p className="text-xs sm:text-sm font-bold text-[#382516]">
                         {formData.credentialFileName
                           ? `Selected: ${formData.credentialFileName}`
                           : "Click to select certificate file or drag & drop"}
                       </p>
-                      <p className="text-[11px] text-[#856e5c] mt-1">
-                        PDF, JPG, or PNG up to 10MB (Local preview demonstration)
+                      <p className="text-[11px] text-[#7a6452] mt-1">
+                        PDF, JPG, or PNG up to 10MB (Stored locally for demonstration preview)
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Professional Links */}
+                {/* Professional Links in 2-column Grid */}
                 <div className="pt-4 border-t border-[#f0e4cf] space-y-4">
-                  <h3 className="font-serif text-lg font-bold text-[#2b241d]">
-                    Professional Channels & Media
+                  <h3 className="font-serif text-lg font-bold text-[#382516]">
+                    Professional Channels & Media (Optional)
                   </h3>
 
-                  <div>
-                    <label className="block text-xs font-bold text-[#6e5947] mb-1">
-                      Professional Website
-                    </label>
-                    <input
-                      type="url"
-                      name="websiteUrl"
-                      value={formData.websiteUrl}
-                      onChange={handleChange}
-                      placeholder="https://acharya-example.org"
-                      className="w-full px-4 py-2.5 rounded-xl border border-[#ebdcc2] text-xs sm:text-sm text-[#2b241d] bg-[#fffdfa]"
-                    />
-                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-[#6e5947] mb-1">
+                        Website URL
+                      </label>
+                      <input
+                        type="url"
+                        name="websiteUrl"
+                        value={formData.websiteUrl}
+                        onChange={handleChange}
+                        placeholder="https://acharya-example.org"
+                        className="w-full px-4 py-2.5 rounded-xl border border-[#ebdcc2] text-xs sm:text-sm text-[#382516] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#a94f0a]/20 focus:border-[#a94f0a]"
+                      />
+                    </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-[#6e5947] mb-1">
-                      YouTube Channel
-                    </label>
-                    <input
-                      type="url"
-                      name="youtubeUrl"
-                      value={formData.youtubeUrl}
-                      onChange={handleChange}
-                      placeholder="https://youtube.com/@vedic_karmakand"
-                      className="w-full px-4 py-2.5 rounded-xl border border-[#ebdcc2] text-xs sm:text-sm text-[#2b241d] bg-[#fffdfa]"
-                    />
-                  </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#6e5947] mb-1">
+                        YouTube Channel
+                      </label>
+                      <input
+                        type="url"
+                        name="youtubeUrl"
+                        value={formData.youtubeUrl}
+                        onChange={handleChange}
+                        placeholder="https://youtube.com/@vedic_karmakand"
+                        className="w-full px-4 py-2.5 rounded-xl border border-[#ebdcc2] text-xs sm:text-sm text-[#382516] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#a94f0a]/20 focus:border-[#a94f0a]"
+                      />
+                    </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-[#6e5947] mb-1">
-                      LinkedIn Profile
-                    </label>
-                    <input
-                      type="url"
-                      name="linkedInUrl"
-                      value={formData.linkedInUrl}
-                      onChange={handleChange}
-                      placeholder="https://linkedin.com/in/acharya-profile"
-                      className="w-full px-4 py-2.5 rounded-xl border border-[#ebdcc2] text-xs sm:text-sm text-[#2b241d] bg-[#fffdfa]"
-                    />
-                  </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#6e5947] mb-1">
+                        LinkedIn Profile
+                      </label>
+                      <input
+                        type="url"
+                        name="linkedInUrl"
+                        value={formData.linkedInUrl}
+                        onChange={handleChange}
+                        placeholder="https://linkedin.com/in/acharya-profile"
+                        className="w-full px-4 py-2.5 rounded-xl border border-[#ebdcc2] text-xs sm:text-sm text-[#382516] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#a94f0a]/20 focus:border-[#a94f0a]"
+                      />
+                    </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-[#6e5947] mb-1">
-                      Instagram Profile
-                    </label>
-                    <input
-                      type="url"
-                      name="instagramUrl"
-                      value={formData.instagramUrl}
-                      onChange={handleChange}
-                      placeholder="https://instagram.com/vedic_acharya"
-                      className="w-full px-4 py-2.5 rounded-xl border border-[#ebdcc2] text-xs sm:text-sm text-[#2b241d] bg-[#fffdfa]"
-                    />
+                    <div>
+                      <label className="block text-xs font-bold text-[#6e5947] mb-1">
+                        Instagram Profile
+                      </label>
+                      <input
+                        type="url"
+                        name="instagramUrl"
+                        value={formData.instagramUrl}
+                        onChange={handleChange}
+                        placeholder="https://instagram.com/vedic_acharya"
+                        className="w-full px-4 py-2.5 rounded-xl border border-[#ebdcc2] text-xs sm:text-sm text-[#382516] bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#a94f0a]/20 focus:border-[#a94f0a]"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* ================= STEP 4: PREVIEW & SUBMIT ================= */}
+            {/* ================= STEP 4: PREVIEW & PUBLISH ================= */}
             {currentStep === 4 && (
               <div className="space-y-6">
                 <div className="pb-4 border-b border-[#f0e4cf]">
-                  <h2 className="font-serif text-2xl font-bold text-[#2b241d]">
-                    Step 4: Inspect Your Profile & Submit
+                  <h2 className="font-serif text-2xl font-bold text-[#382516]">
+                    Inspect Your Profile & Publish
                   </h2>
-                  <p className="text-xs sm:text-sm text-[#735e4d] mt-1">
+                  <p className="text-xs sm:text-sm text-[#6b5542] mt-1">
                     Review your professional representation before saving to your local demonstration session.
                   </p>
                 </div>
 
-                <CommunityProfilePreview formData={formData} />
+                <CommunityProfilePreview
+                  formData={formData}
+                  onEditStep={(stepNum) => setCurrentStep(stepNum)}
+                />
 
                 <div className="p-4 rounded-xl bg-[#fff8ed] border border-[#e8d2b2] text-xs text-[#634827]">
                   <p className="font-bold text-[#4f371a] flex items-center gap-1.5">
-                    <AlertCircle className="w-4 h-4 text-[#a0520d]" />
-                    Frontend Demonstration Notice
+                    <AlertCircle className="w-4 h-4 text-[#a94f0a]" />
+                    <span>Submission Confirmation Notice</span>
                   </p>
                   <p className="mt-1 leading-relaxed">
-                    This phase is frontend-only. Clicking &quot;Submit for Review&quot; will persist your profile locally in your browser so you can preview it immediately within the directory and detail page. No external network request or actual admin review takes place.
+                    Clicking <strong>&quot;Create My Profile&quot;</strong> persists your profile into your browser session with a <em>Pending Review</em> status. Devotees and scholars will be able to discover your profile in the Community Directory and post interactions.
                   </p>
                 </div>
               </div>
             )}
 
             {/* Bottom Actions Bar */}
-            <div className="mt-8 pt-6 border-t border-[#ebdcc2] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="mt-8 pt-6 border-t border-[#ebdcc2] flex flex-col sm:flex-row items-center justify-between gap-3.5">
               <div className="flex items-center gap-2.5 w-full sm:w-auto">
                 {currentStep > 1 && (
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-[#d6be9a] text-xs sm:text-sm font-semibold text-[#523d2d] hover:bg-stone-50 transition w-full sm:w-auto justify-center"
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-[#d6be9a] text-xs sm:text-sm font-semibold text-[#523d2d] bg-[#fffdfa] hover:bg-[#fff5e5] transition w-full sm:w-auto cursor-pointer"
                   >
                     <ChevronLeft className="w-4 h-4" />
                     <span>Previous</span>
@@ -1084,7 +1153,7 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
                 <button
                   type="button"
                   onClick={handleSaveDraft}
-                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#fffdfa] border border-[#d6be9a] text-xs sm:text-sm font-semibold text-[#7a4010] hover:bg-[#faeed8] transition w-full sm:w-auto justify-center shadow-2xs"
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#fffdfa] border border-[#d6be9a] text-xs sm:text-sm font-semibold text-[#7a4010] hover:bg-[#faeed8] transition w-full sm:w-auto shadow-2xs cursor-pointer"
                 >
                   <Save className="w-4 h-4" />
                   <span>Save Draft</span>
@@ -1096,7 +1165,7 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
                   <button
                     type="button"
                     onClick={handleNext}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#9b4e10] to-[#b86116] hover:from-[#853f09] hover:to-[#a0520d] text-white text-xs sm:text-sm font-bold shadow-md shadow-[#9b4e10]/20 transition"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#a94f0a] hover:bg-[#8f4208] text-white text-xs sm:text-sm font-bold shadow-md shadow-[#a94f0a]/20 transition cursor-pointer"
                   >
                     <span>Continue to Step 0{currentStep + 1}</span>
                     <ChevronRight className="w-4 h-4" />
@@ -1104,10 +1173,10 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
                 ) : (
                   <button
                     type="submit"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#9b4e10] to-[#b86116] hover:from-[#853f09] hover:to-[#a0520d] text-white text-xs sm:text-sm font-bold shadow-md shadow-[#9b4e10]/20 transition transform active:scale-95"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#a94f0a] hover:bg-[#8f4208] text-white text-xs sm:text-sm font-bold shadow-md shadow-[#a94f0a]/20 transition transform active:scale-95 cursor-pointer"
                   >
                     <Send className="w-4 h-4" />
-                    <span>{isEditing ? "Update Profile (Local)" : "Submit for Review (Demo)"}</span>
+                    <span>{isEditing ? "Update Profile" : "Create My Profile"}</span>
                   </button>
                 )}
               </div>
@@ -1115,146 +1184,139 @@ const CommunityProfileForm = ({ initialData = null, isEditing = false }) => {
           </form>
         </div>
 
-        {/* Right Column: Contextual Side Panel (~32% Width) */}
-        <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-20">
-          {/* Progress & Completeness Card */}
-          <div className="bg-white rounded-3xl border border-[#ebdcc2] p-5 sm:p-6 shadow-[0_4px_20px_rgba(43,36,29,0.05)]">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#a0520d]">
-                Profile Completeness
-              </span>
-              <span className="text-sm font-bold text-[#2b241d]">{completenessScore}%</span>
+        {/* Right Column: Live Identity Preview (~32% Width) */}
+        <div className="lg:col-span-4 space-y-5 lg:sticky lg:top-20">
+          {/* Live Profile Identity Card */}
+          <div className="bg-white rounded-2xl border border-[#ebdcc2] p-5 shadow-2xs">
+            <div className="flex items-center justify-between mb-3 pb-2.5 border-b border-[#f0e4cf]">
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#a94f0a] block">
+                  Your Profile Preview
+                </span>
+                <span className="text-[10px] text-[#7a6452]">
+                  Live directory representation
+                </span>
+              </div>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="Live Sync Active" />
             </div>
-            <div className="w-full h-2.5 rounded-full bg-[#faeed8] overflow-hidden mb-3">
-              <div
-                className="h-full bg-gradient-to-r from-[#9b4e10] via-[#c2782b] to-[#d4af37] transition-all duration-500 rounded-full"
-                style={{ width: `${completenessScore}%` }}
+
+            {/* Identity Card Contents */}
+            <div className="flex items-start gap-3">
+              <img
+                src={formData.avatar || DEFAULT_NEUTRAL_AVATAR}
+                alt="Live Preview"
+                className="w-14 h-14 rounded-xl object-cover border-2 border-[#d9a441] bg-stone-50 shrink-0 shadow-2xs"
               />
+              <div className="min-w-0 flex-1">
+                <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#fff5e5] text-[#a94f0a] border border-[#ebdcc2]">
+                  {formData.professionalType}
+                </span>
+                <h4 className="font-serif text-sm font-bold text-[#382516] truncate mt-1">
+                  {formData.displayName || formData.fullName || "Your Professional Name"}
+                </h4>
+                <p className="text-[11px] text-[#7a6452] line-clamp-2 leading-snug">
+                  {formData.headline || "Your traditional Vedic title & specialization"}
+                </p>
+              </div>
             </div>
-            <p className="text-[11px] text-[#7d6857] leading-relaxed">
-              Profiles with complete photographs, traditional training, and ritual descriptions receive 3x higher consultation requests.
+
+            <div className="mt-3.5 pt-3 border-t border-[#f5ebd9] grid grid-cols-2 gap-2 text-[11px] text-[#6b5542]">
+              <span className="flex items-center gap-1 truncate">
+                <MapPin className="w-3 h-3 text-[#a94f0a] shrink-0" />
+                <span className="truncate">{formData.city || "Sacred City"}</span>
+              </span>
+              <span className="flex items-center gap-1 truncate">
+                <Clock className="w-3 h-3 text-[#a94f0a] shrink-0" />
+                <span>{formData.yearsOfExperience || 0}+ Yrs Experience</span>
+              </span>
+            </div>
+
+            {/* Areas of Expertise chips */}
+            {formData.expertise && formData.expertise.length > 0 && (
+              <div className="mt-3 pt-2.5 border-t border-[#f5ebd9]">
+                <div className="flex flex-wrap gap-1">
+                  {formData.expertise.slice(0, 3).map((exp, idx) => (
+                    <span
+                      key={idx}
+                      className="px-2 py-0.5 rounded text-[10px] font-medium bg-[#fff5e5] text-[#7a4010] border border-[#ebdcc2]"
+                    >
+                      {exp}
+                    </span>
+                  ))}
+                  {formData.expertise.length > 3 && (
+                    <span className="text-[10px] text-[#7a6452] self-center">
+                      +{formData.expertise.length - 3} more
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <p className="text-[10px] text-[#8a725e] italic mt-3 pt-2 border-t border-[#f5ebd9] text-center">
+              This is how your professional identity may appear in the directory.
             </p>
           </div>
 
-          {/* Dynamic Step Tips Card */}
-          <div className="bg-gradient-to-br from-[#fffdfa] to-[#fbf6ed] rounded-3xl border border-[#ebdcc2] p-5 sm:p-6 shadow-2xs">
-            <div className="flex items-center gap-2 mb-3">
-              <Lightbulb className="w-4 h-4 text-[#b35d14]" />
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#5c3e21]">
+          {/* Contextual Step Guidance Card */}
+          <div className="bg-[#fffdfa] rounded-2xl border border-[#ebdcc2] p-5 shadow-2xs">
+            <div className="flex items-center gap-2 mb-2.5">
+              <Lightbulb className="w-4 h-4 text-[#d9a441]" />
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#382516]">
                 {currentTips.title}
               </h4>
             </div>
-            <ul className="space-y-2.5 text-xs text-[#6e5845] leading-relaxed">
+            <ul className="space-y-2 text-xs text-[#6e5845] leading-relaxed">
               {currentTips.tips.map((tip, idx) => (
                 <li key={idx} className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#b35d14] mt-1.5 shrink-0" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#a94f0a] mt-1.5 shrink-0" />
                   <span>{tip}</span>
                 </li>
               ))}
             </ul>
           </div>
-
-          {/* Real-time Mini Profile Summary Card */}
-          <div className="bg-white rounded-3xl border border-[#ebdcc2] p-5 shadow-2xs">
-            <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#f0e4cf]">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#8a4e17]">
-                Live Preview Snippet
-              </span>
-              <span className="text-[10px] text-stone-500 font-medium">Updates Live</span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <img
-                src={
-                  formData.avatar ||
-                  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200"
-                }
-                alt="Mini Preview"
-                className="w-14 h-14 rounded-xl object-cover border-2 border-[#d4af37]"
-              />
-              <div className="min-w-0 flex-1">
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#faeed8] text-[#8a4e17]">
-                  {formData.professionalType}
-                </span>
-                <h5 className="font-serif text-sm font-bold text-[#2b241d] truncate mt-1">
-                  {formData.displayName || formData.fullName || "Your Name"}
-                </h5>
-                <p className="text-[11px] text-[#735e4d] truncate">
-                  {formData.headline || "Your Vedic title"}
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-3 pt-3 border-t border-[#f5ebd9] flex items-center justify-between text-[11px] text-[#8a725e]">
-              <span className="flex items-center gap-1">
-                <MapPin className="w-3 h-3 text-[#b35d14]" />
-                {formData.city || "Sacred City"}
-              </span>
-              <span className="flex items-center gap-1">
-                <Clock className="w-3 h-3 text-[#b35d14]" />
-                {formData.yearsOfExperience || 0}+ Yrs
-              </span>
-            </div>
-          </div>
-
-          {/* Sanatana Advisory Verification Notice */}
-          <div className="p-4 rounded-2xl bg-[#fdfaf5] border border-[#ebdcc2] text-xs text-[#705844] space-y-1.5">
-            <div className="flex items-center gap-1.5 font-bold text-[#453324]">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>Sanatana Council Standards</span>
-            </div>
-            <p className="leading-relaxed text-[11px]">
-              Veda Structure operates on strictly verified authentic shastric rituals. Profiles submitted here are tagged as demo until official review.
-            </p>
-          </div>
         </div>
       </div>
 
-      {/* Confirmation Modal upon Successful Submission */}
+      {/* Confirmation Modal Upon Successful Submission */}
       {showSubmissionSuccessModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in">
-          <div className="bg-white rounded-3xl border border-[#ebdcc2] p-6 sm:p-8 max-w-md w-full shadow-2xl text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
+          <div className="bg-white rounded-2xl border border-[#ebdcc2] p-6 sm:p-8 max-w-md w-full shadow-2xl text-center space-y-4">
+            <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-8 h-8" />
             </div>
 
-            <h3 className="font-serif text-2xl font-bold text-[#2b241d]">
-              {isEditing ? "Profile Updated Successfully!" : "Profile Submitted for Review!"}
+            <h3 className="font-serif text-2xl font-bold text-[#382516]">
+              {isEditing ? "Profile Updated!" : "Profile Created Successfully!"}
             </h3>
 
-            <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 text-left">
-              <p className="font-bold flex items-center gap-1">
-                <AlertCircle className="w-3.5 h-3.5 text-amber-700" />
-                Mock Demonstration Status:
-              </p>
-              <p className="mt-1 text-amber-800 leading-relaxed">
-                {isEditing ? (
-                  <>Your profile changes have been saved to your local browser session. Your profile remains listed in the Community Directory with its review status preserved.</>
-                ) : (
-                  <>Your profile is now saved locally with a <strong>&quot;Pending Review&quot;</strong> badge. You can view its live public representation or check the Community Directory.</>
-                )}
-              </p>
-            </div>
-
-            <p className="text-xs sm:text-sm text-[#665342]">
-              In the live system, the Veda Structure spiritual advisory committee verifies credentials before publishing.
+            <p className="text-xs sm:text-sm text-[#665342] leading-relaxed">
+              Your profile is now active in your local browser demonstration session with a <strong>&quot;Pending Review&quot;</strong> badge. Devotees can view your offerings in the Community Directory.
             </p>
 
-            <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
+            <div className="pt-2 flex flex-col gap-2">
               <button
                 type="button"
                 onClick={() => navigate(`/community/profile/${submittedSlug}`)}
-                className="w-full py-2.5 px-4 rounded-xl bg-[#9b4e10] hover:bg-[#853f09] text-white font-semibold text-xs sm:text-sm shadow-xs transition"
+                className="w-full py-2.5 px-4 rounded-xl bg-[#a94f0a] hover:bg-[#8f4208] text-white font-semibold text-xs sm:text-sm shadow-xs transition cursor-pointer"
               >
-                {isEditing ? "View Updated Profile" : "View Profile Detail"}
+                View My Profile Detail
               </button>
-              <button
-                type="button"
-                onClick={() => navigate("/community")}
-                className="w-full py-2.5 px-4 rounded-xl bg-[#fffdfa] hover:bg-[#faebd7] text-[#7a4010] border border-[#ebdcc2] font-semibold text-xs sm:text-sm transition"
-              >
-                Back to Directory
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => navigate("/community?view=directory")}
+                  className="flex-1 py-2.5 px-3 rounded-xl bg-[#fff5e5] hover:bg-[#faeed8] text-[#7a4010] border border-[#d6be9a] font-semibold text-xs transition cursor-pointer"
+                >
+                  Browse Directory
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate("/community?view=feed")}
+                  className="flex-1 py-2.5 px-3 rounded-xl bg-[#fffdfa] hover:bg-[#faebd7] text-[#7a4010] border border-[#ebdcc2] font-semibold text-xs transition cursor-pointer"
+                >
+                  Community Feed
+                </button>
+              </div>
             </div>
           </div>
         </div>
