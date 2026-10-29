@@ -204,9 +204,8 @@ const Navbar = () => {
                   <span className="max-w-[100px] truncate">{displayName}</span>
                   <ChevronDown
                     size={13}
-                    className={`transition-transform duration-200 ${
-                      isAccountDropdownOpen ? "rotate-180 text-[#b36a18]" : "text-[#8a7c6b]"
-                    }`}
+                    className={`transition-transform duration-200 ${isAccountDropdownOpen ? "rotate-180 text-[#b36a18]" : "text-[#8a7c6b]"
+                      }`}
                   />
                 </button>
 
@@ -323,130 +322,127 @@ const Navbar = () => {
       <nav className="relative hidden xl:block bg-[#fffcf7] border-b border-[#ebdcc2]/70 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
         <div className="mx-auto max-w-[1440px] px-6 lg:px-8">
           <div className="flex h-[46px] items-center justify-center gap-8 2xl:gap-12">
-          {/* Talk to an Astrologer Dropdown */}
-          <div
-            className="relative"
-            onMouseEnter={() => setIsAstrologerDropdownOpen(true)}
-            onMouseLeave={() => setIsAstrologerDropdownOpen(false)}
-          >
-            <Link
-              to="/astrologers"
-              className="flex items-center gap-1.5 rounded-full px-3.5 py-2 whitespace-nowrap text-[13.5px] 2xl:text-[14px] font-semibold text-[#2c2217] transition-all hover:bg-amber-500/10 hover:text-[#b36a18]"
+            {/* Talk to an Astrologer Dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setIsAstrologerDropdownOpen(true)}
+              onMouseLeave={() => setIsAstrologerDropdownOpen(false)}
             >
-              <span>Talk to an Astrologer</span>
-              <ChevronDown
-                size={13}
-                strokeWidth={2.2}
-                className={`transition-transform duration-200 ${
-                  isAstrologerDropdownOpen ? "rotate-180 text-[#b36a18]" : "text-[#8a7c6b]"
-                }`}
-              />
-            </Link>
+              <Link
+                to="/astrologers"
+                className="flex items-center gap-1.5 rounded-full px-3.5 py-2 whitespace-nowrap text-[13.5px] 2xl:text-[14px] font-semibold text-[#2c2217] transition-all hover:bg-amber-500/10 hover:text-[#b36a18]"
+              >
+                <span>Talk to an Astrologer</span>
+                <ChevronDown
+                  size={13}
+                  strokeWidth={2.2}
+                  className={`transition-transform duration-200 ${isAstrologerDropdownOpen ? "rotate-180 text-[#b36a18]" : "text-[#8a7c6b]"
+                    }`}
+                />
+              </Link>
 
-            {isAstrologerDropdownOpen && (
-              <div className="absolute left-0 top-full z-50 pt-2 w-[270px]">
-                <div className="overflow-hidden rounded-2xl border border-[#ebd2a0] bg-[#fffdf9] shadow-[0_16px_40px_rgba(80,60,30,0.14)] animate-in fade-in slide-in-from-top-2 duration-200">
-                  {/* Header */}
-                  <div className="border-b border-[#ebdcc2] bg-gradient-to-r from-[#fbf3e4] to-[#faf0db] px-4 py-2.5">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#b36a18] flex items-center gap-1.5">
-                      <Sparkles size={11} />
-                      TALK TO AN ASTROLOGER
-                    </p>
-                  </div>
+              {isAstrologerDropdownOpen && (
+                <div className="absolute left-0 top-full z-50 pt-2 w-[270px]">
+                  <div className="overflow-hidden rounded-2xl border border-[#ebd2a0] bg-[#fffdf9] shadow-[0_16px_40px_rgba(80,60,30,0.14)] animate-in fade-in slide-in-from-top-2 duration-200">
+                    {/* Header */}
+                    <div className="border-b border-[#ebdcc2] bg-gradient-to-r from-[#fbf3e4] to-[#faf0db] px-4 py-2.5">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#b36a18] flex items-center gap-1.5">
+                        <Sparkles size={11} />
+                        TALK TO AN ASTROLOGER
+                      </p>
+                    </div>
 
-                  {/* Astrologer List */}
-                  <div className="p-1.5 divide-y divide-[#f7eedf]">
-                    {NAVBAR_ASTROLOGERS.map((astrologer) => (
-                      <button
-                        key={astrologer.slug}
-                        type="button"
-                        onClick={() => {
-                          window.open(
-                            `/astrologers/${astrologer.slug}`,
-                            "_blank",
-                            "noopener,noreferrer"
-                          );
-                          setIsAstrologerDropdownOpen(false);
-                        }}
-                        className="group flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left transition-colors hover:bg-[#faf4e6] cursor-pointer"
-                      >
-                        <span className="text-[13px] font-semibold text-[#2b241d] transition-colors group-hover:text-[#b36a18]">
-                          {astrologer.name}
-                        </span>
-                        <ArrowRight
-                          size={13}
-                          className="text-[#8a7c6b] transition-all group-hover:translate-x-1 group-hover:text-[#b36a18]"
-                        />
-                      </button>
-                    ))}
+                    {/* Astrologer List */}
+                    <div className="p-1.5 divide-y divide-[#f7eedf]">
+                      {NAVBAR_ASTROLOGERS.map((astrologer) => (
+                        <button
+                          key={astrologer.slug}
+                          type="button"
+                          onClick={() => {
+                            window.open(
+                              `/astrologers/${astrologer.slug}`,
+                              "_blank",
+                              "noopener,noreferrer"
+                            );
+                            setIsAstrologerDropdownOpen(false);
+                          }}
+                          className="group flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left transition-colors hover:bg-[#faf4e6] cursor-pointer"
+                        >
+                          <span className="text-[13px] font-semibold text-[#2b241d] transition-colors group-hover:text-[#b36a18]">
+                            {astrologer.name}
+                          </span>
+                          <ArrowRight
+                            size={13}
+                            className="text-[#8a7c6b] transition-all group-hover:translate-x-1 group-hover:text-[#b36a18]"
+                          />
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          {/* Upcoming Puja Link */}
-          <Link
-            to="/puja/upcoming"
-            className="rounded-full px-3.5 py-2 whitespace-nowrap text-[13.5px] 2xl:text-[14px] font-semibold text-[#2c2217] transition-all hover:bg-amber-500/10 hover:text-[#b36a18]"
-          >
-            Upcoming Puja
-          </Link>
+            {/* Upcoming Puja Link */}
+            <Link
+              to="/puja/upcoming"
+              className="rounded-full px-3.5 py-2 whitespace-nowrap text-[13.5px] 2xl:text-[14px] font-semibold text-[#2c2217] transition-all hover:bg-amber-500/10 hover:text-[#b36a18]"
+            >
+              Upcoming Puja
+            </Link>
 
-          {/* Yagya & Puja — Opens dedicated landing in new tab */}
-          <div>
-            <button
-              type="button"
-              onClick={() => {
-                window.open("/yagya-puja", "_blank", "noopener,noreferrer");
-              }}
-              className={`flex items-center gap-1.5 rounded-full px-3.5 py-2 whitespace-nowrap text-[13.5px] 2xl:text-[14px] font-semibold transition-all cursor-pointer ${
-                isYagyaPujaActive
+            {/* Yagya & Puja — Opens dedicated landing in new tab */}
+            <div>
+              <button
+                type="button"
+                onClick={() => {
+                  window.open("/yagya-puja", "_blank", "noopener,noreferrer");
+                }}
+                className={`flex items-center gap-1.5 rounded-full px-3.5 py-2 whitespace-nowrap text-[13.5px] 2xl:text-[14px] font-semibold transition-all cursor-pointer ${isYagyaPujaActive
                   ? "bg-amber-500/15 text-[#b36a18] font-bold"
                   : "text-[#2c2217] hover:bg-amber-500/10 hover:text-[#b36a18]"
-              }`}
-              aria-label="Open Yagya & Puja in new tab"
+                  }`}
+                aria-label="Open Yagya & Puja in new tab"
+              >
+                <span>Yagya & Puja</span>
+                <ArrowRight
+                  size={13}
+                  strokeWidth={2.2}
+                  className="text-[#8a7c6b]"
+                />
+              </button>
+            </div>
+
+            {/* Veda Library Link */}
+            <a
+              href="https://library.vedastructure.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full px-3.5 py-2 whitespace-nowrap text-[13.5px] 2xl:text-[14px] font-semibold text-[#2c2217] transition-all hover:bg-amber-500/10 hover:text-[#b36a18]"
             >
-              <span>Yagya & Puja</span>
-              <ArrowRight
-                size={13}
-                strokeWidth={2.2}
-                className="text-[#8a7c6b]"
-              />
-            </button>
-          </div>
+              Veda Library
+            </a>
 
-          {/* Veda Library Link */}
-          <a
-            href="https://veda-library-five.vercel.app/library"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-full px-3.5 py-2 whitespace-nowrap text-[13.5px] 2xl:text-[14px] font-semibold text-[#2c2217] transition-all hover:bg-amber-500/10 hover:text-[#b36a18]"
-          >
-            Veda Library
-          </a>
-
-          {/* Community Link */}
-          <Link
-            to="/community"
-            className={`rounded-full px-3.5 py-2 whitespace-nowrap text-[13.5px] 2xl:text-[14px] font-semibold transition-all ${
-              location.pathname.startsWith("/community")
+            {/* Community Link */}
+            <Link
+              to="/community"
+              className={`rounded-full px-3.5 py-2 whitespace-nowrap text-[13.5px] 2xl:text-[14px] font-semibold transition-all ${location.pathname.startsWith("/community")
                 ? "bg-amber-500/15 text-[#b36a18] font-bold"
                 : "text-[#2c2217] hover:bg-amber-500/10 hover:text-[#b36a18]"
-            }`}
-          >
-            Community
-          </Link>
+                }`}
+            >
+              Community
+            </Link>
 
-          {/* Shop Link */}
-          <a
-            href="https://veda-shop.vercel.app/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-full px-3.5 py-2 whitespace-nowrap text-[13.5px] 2xl:text-[14px] font-semibold text-[#2c2217] transition-all hover:bg-amber-500/10 hover:text-[#b36a18]"
-          >
-            Shop
-          </a>
+            {/* Shop Link */}
+            <a
+              href="https://store.vedastructure.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full px-3.5 py-2 whitespace-nowrap text-[13.5px] 2xl:text-[14px] font-semibold text-[#2c2217] transition-all hover:bg-amber-500/10 hover:text-[#b36a18]"
+            >
+              Shop
+            </a>
           </div>
         </div>
       </nav>
@@ -529,7 +525,7 @@ const Navbar = () => {
 
             {/* Veda Library */}
             <a
-              href="https://veda-library-five.vercel.app/library"
+              href="https://library.vedastructure.com/"
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setIsMenuOpen(false)}
@@ -546,9 +542,8 @@ const Navbar = () => {
             <Link
               to="/community"
               onClick={() => setIsMenuOpen(false)}
-              className={`border-b border-[#ebdcc2] py-3 text-[14px] font-bold flex items-center justify-between ${
-                location.pathname.startsWith("/community") ? "text-[#b36a18]" : "text-[#241c15]"
-              }`}
+              className={`border-b border-[#ebdcc2] py-3 text-[14px] font-bold flex items-center justify-between ${location.pathname.startsWith("/community") ? "text-[#b36a18]" : "text-[#241c15]"
+                }`}
             >
               <div className="flex items-center gap-1.5">
                 <Users size={15} className="text-[#b36a18]" />
@@ -559,7 +554,7 @@ const Navbar = () => {
 
             {/* Shop */}
             <a
-              href="https://veda-shop.vercel.app/"
+              href="https://store.vedastructure.com/"
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setIsMenuOpen(false)}
