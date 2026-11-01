@@ -22,8 +22,12 @@ import {
   Tag,
   Hash,
   Shield,
+  ListPlus,
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
+import BulkFaqModal from "@/components/BulkFaqModal";
+import BulkStringListModal from "@/components/BulkStringListModal";
+import BulkNumberListModal from "@/components/BulkNumberListModal";
 import { useToast } from "@/context/ToastContext";
 import mediaUploadService from "@/services/mediaUploadService";
 import japaCategoryAdminService, {
@@ -36,6 +40,8 @@ import japaServiceCatalogueService, {
   JapaServicePayload,
 } from "@/services/japaServiceCatalogueService";
 import { ApiError } from "@/services/api";
+import SEOSection from "@/components/SEOSection";
+import { SeoMetadata } from "@/types";
 
 const slugify = (str: string): string =>
   str
@@ -86,9 +92,10 @@ interface FormState {
   galleryImages: string[];
   samagri: string[];
   prasad: string;
-  seoTitle: string;
-  seoDescription: string;
-  seoKeywords: string;
+  seo: SeoMetadata;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
   faqs: JapaFaqItem[];
 }
 
@@ -119,6 +126,11 @@ export default function JapaServiceForm() {
 
   const bannerInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
+
+  // Bulk Modal States
+  const [isFaqBulkModalOpen, setIsFaqBulkModalOpen] = useState(false);
+  const [isSamagriBulkModalOpen, setIsSamagriBulkModalOpen] = useState(false);
+  const [isCountsBulkModalOpen, setIsCountsBulkModalOpen] = useState(false);
 
   const [form, setForm] = useState<FormState>({
     name: "",
@@ -187,6 +199,7 @@ export default function JapaServiceForm() {
     galleryImages: [],
     samagri: ["Rudraksha Mala", "Gangajal", "Pure Desi Ghee", "Dhoop & Deepam"],
     prasad: "Consecrated Rudraksha and energized Vibhuti (where applicable)",
+    seo: {},
     seoTitle: "",
     seoDescription: "",
     seoKeywords: "",
@@ -311,6 +324,7 @@ export default function JapaServiceForm() {
           galleryImages: Array.isArray(data.galleryImages) ? data.galleryImages : [],
           samagri: Array.isArray(data.samagri) ? data.samagri : [],
           prasad: data.prasad || "",
+          seo: (data.seo as SeoMetadata) || {},
           seoTitle: data.seo?.title || data.seo?.metaTitle || "",
           seoDescription: data.seo?.description || data.seo?.metaDescription || "",
           seoKeywords: Array.isArray(data.seo?.keywords)
@@ -554,6 +568,58 @@ export default function JapaServiceForm() {
     });
   };
 
+  // Bulk Apply Handlers
+  const handleApplyBulkFaqs = (
+    newFaqs: Array<{ question: string; answer: string }>,
+    mode: "append" | "replace"
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+      faqs: mode === "replace" ? newFaqs : [...prev.faqs, ...newFaqs],
+    }));
+    toast.success(
+      `${newFaqs.length} FAQ${newFaqs.length > 1 ? "s" : ""} ${
+        mode === "replace" ? "replaced" : "added to"
+      } Japa service.`
+    );
+  };
+
+  const handleApplyBulkSamagri = (
+    newItems: string[],
+    mode: "append" | "replace"
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+      samagri: mode === "replace" ? newItems : [...prev.samagri, ...newItems],
+    }));
+    toast.success(
+      `${newItems.length} samagri item${newItems.length > 1 ? "s" : ""} ${
+        mode === "replace" ? "replaced" : "added to"
+      } Samagri list.`
+    );
+  };
+
+  const handleApplyBulkCounts = (
+    newCounts: number[],
+    mode: "append" | "replace"
+  ) => {
+    const finalCounts =
+      mode === "replace"
+        ? Array.from(new Set(newCounts)).sort((a, b) => a - b)
+        : Array.from(new Set([...form.availableCounts, ...newCounts])).sort((a, b) => a - b);
+
+    setForm((prev) => ({
+      ...prev,
+      availableCounts: finalCounts,
+    }));
+    if (errors.availableCounts) setErrors((p) => ({ ...p, availableCounts: undefined }));
+    toast.success(
+      `${newCounts.length} recitation count${newCounts.length > 1 ? "s" : ""} ${
+        mode === "replace" ? "configured" : "added"
+      }. Click 'Auto-sync Missing Counts' in Section 4 if you wish to generate pricing tiers.`
+    );
+  };
+
   // Media Handlers
   const handleBannerSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -715,13 +781,7 @@ export default function JapaServiceForm() {
         galleryImages: form.galleryImages.filter((img) => Boolean(img && img.trim())),
         samagri: form.samagri.map((s) => s.trim()).filter(Boolean),
         prasad: form.prasad.trim() || null,
-        seo: {
-          title: form.seoTitle.trim() || undefined,
-          description: form.seoDescription.trim() || undefined,
-          keywords: form.seoKeywords.trim()
-            ? form.seoKeywords.split(",").map((k) => k.trim()).filter(Boolean)
-            : undefined,
-        },
+        seo: form.seo,
         faqs: form.faqs
           .map((f) => ({ question: f.question.trim(), answer: f.answer.trim() }))
           .filter((f) => f.question || f.answer),
@@ -1011,15 +1071,25 @@ export default function JapaServiceForm() {
 
         {/* Section 3: Japa Recitation Configuration (Available Counts) */}
         <div className="card p-5">
-          <div className="flex items-center justify-between mb-4 pb-2 border-b border-cream-100">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4 pb-2 border-b border-cream-100">
             <div>
               <h3 className="text-base font-semibold text-charcoal-800 flex items-center gap-2">
                 <Hash className="w-4 h-4 text-saffron-600" /> 3. Japa Recitation Configuration
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-saffron-50 text-saffron-700 border border-saffron-200">
+                  {form.availableCounts.length} count{form.availableCounts.length === 1 ? "" : "s"}
+                </span>
               </h3>
               <p className="text-xs text-charcoal-500 mt-0.5">
                 Configure positive integer recitation targets offered for this Mantra Japa.
               </p>
             </div>
+            <button
+              type="button"
+              onClick={() => setIsCountsBulkModalOpen(true)}
+              className="text-xs font-semibold text-saffron-600 hover:text-saffron-700 bg-saffron-50 border border-saffron-200 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition"
+            >
+              <ListPlus className="w-3.5 h-3.5" /> Bulk Add Counts
+            </button>
           </div>
 
           {/* Quick preset buttons & custom addition */}
@@ -1705,18 +1775,31 @@ export default function JapaServiceForm() {
 
         {/* Section 9: Samagri & Prasad */}
         <div className="card p-5">
-          <div className="flex items-center justify-between mb-4 pb-2 border-b border-cream-100">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4 pb-2 border-b border-cream-100">
             <h3 className="text-base font-semibold text-charcoal-800 flex items-center gap-2">
               <Layers className="w-4 h-4 text-saffron-600" /> 9. Samagri & Prasad
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-saffron-50 text-saffron-700 border border-saffron-200">
+                {form.samagri.length} item{form.samagri.length === 1 ? "" : "s"}
+              </span>
             </h3>
-            <button
-              type="button"
-              onClick={handleAddSamagri}
-              className="text-xs font-semibold text-saffron-600 hover:text-saffron-700 flex items-center gap-1"
-              disabled={submitting}
-            >
-              <Plus className="w-3.5 h-3.5" /> Add Samagri Item
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsSamagriBulkModalOpen(true)}
+                className="text-xs font-semibold text-saffron-600 hover:text-saffron-700 bg-saffron-50 border border-saffron-200 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition"
+                disabled={submitting}
+              >
+                <ListPlus className="w-3.5 h-3.5" /> Bulk Add Samagri
+              </button>
+              <button
+                type="button"
+                onClick={handleAddSamagri}
+                className="text-xs font-semibold text-charcoal-700 hover:text-charcoal-900 bg-cream-100 border border-cream-200 px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition"
+                disabled={submitting}
+              >
+                <Plus className="w-3.5 h-3.5" /> Add Samagri Item
+              </button>
+            </div>
           </div>
 
           {/* Samagri string list */}
@@ -1746,7 +1829,23 @@ export default function JapaServiceForm() {
               </div>
             ))}
             {form.samagri.length === 0 && (
-              <p className="text-xs text-charcoal-400 italic">No specific samagri items entered.</p>
+              <div className="text-center py-6 px-4 rounded-xl border border-dashed border-cream-300 bg-cream-50/40 text-xs text-charcoal-500">
+                No specific samagri items entered yet. Click{" "}
+                <strong
+                  className="text-saffron-600 cursor-pointer hover:underline"
+                  onClick={() => setIsSamagriBulkModalOpen(true)}
+                >
+                  Bulk Add Samagri
+                </strong>{" "}
+                to paste multiple items or{" "}
+                <strong
+                  className="text-charcoal-800 cursor-pointer hover:underline"
+                  onClick={handleAddSamagri}
+                >
+                  + Add Samagri Item
+                </strong>{" "}
+                to add one manually.
+              </div>
             )}
           </div>
 
@@ -1768,18 +1867,31 @@ export default function JapaServiceForm() {
 
         {/* Section 10: FAQs */}
         <div className="card p-5">
-          <div className="flex items-center justify-between mb-4 pb-2 border-b border-cream-100">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4 pb-2 border-b border-cream-100">
             <h3 className="text-base font-semibold text-charcoal-800 flex items-center gap-2">
               <HelpCircle className="w-4 h-4 text-saffron-600" /> 10. Frequently Asked Questions (FAQs)
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-saffron-50 text-saffron-700 border border-saffron-200">
+                {form.faqs.length} FAQ{form.faqs.length === 1 ? "" : "s"}
+              </span>
             </h3>
-            <button
-              type="button"
-              onClick={handleAddFaq}
-              className="text-xs font-semibold text-saffron-600 hover:text-saffron-700 flex items-center gap-1"
-              disabled={submitting}
-            >
-              <Plus className="w-3.5 h-3.5" /> Add FAQ
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsFaqBulkModalOpen(true)}
+                className="text-xs font-semibold text-saffron-600 hover:text-saffron-700 bg-saffron-50 border border-saffron-200 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition"
+                disabled={submitting}
+              >
+                <ListPlus className="w-3.5 h-3.5" /> Bulk Add FAQs
+              </button>
+              <button
+                type="button"
+                onClick={handleAddFaq}
+                className="text-xs font-semibold text-charcoal-700 hover:text-charcoal-900 bg-cream-100 border border-cream-200 px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition"
+                disabled={submitting}
+              >
+                <Plus className="w-3.5 h-3.5" /> Add FAQ
+              </button>
+            </div>
           </div>
 
           <div className="space-y-3">
@@ -1827,63 +1939,47 @@ export default function JapaServiceForm() {
             ))}
 
             {form.faqs.length === 0 && (
-              <p className="text-xs text-charcoal-400 italic">No FAQs configured.</p>
+              <div className="text-center py-6 px-4 rounded-xl border border-dashed border-cream-300 bg-cream-50/40 text-xs text-charcoal-500">
+                No FAQs added yet. Click{" "}
+                <strong
+                  className="text-saffron-600 cursor-pointer hover:underline"
+                  onClick={() => setIsFaqBulkModalOpen(true)}
+                >
+                  Bulk Add FAQs
+                </strong>{" "}
+                to paste multiple entries or{" "}
+                <strong
+                  className="text-charcoal-800 cursor-pointer hover:underline"
+                  onClick={handleAddFaq}
+                >
+                  + Add FAQ
+                </strong>{" "}
+                to create one manually.
+              </div>
             )}
           </div>
         </div>
 
         {/* Section 11: SEO Metadata */}
-        <div className="card p-5">
-          <h3 className="text-base font-semibold text-charcoal-800 flex items-center gap-2 mb-4 pb-2 border-b border-cream-100">
-            <Globe className="w-4 h-4 text-saffron-600" /> 11. Search Engine Optimization (SEO)
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="japa-seo-title" className="label-field">
-                SEO Meta Title
-              </label>
-              <input
-                id="japa-seo-title"
-                type="text"
-                className="input-field text-sm"
-                value={form.seoTitle}
-                onChange={(e) => setForm((p) => ({ ...p, seoTitle: e.target.value }))}
-                placeholder="e.g. Maha Mrityunjaya Mantra Japa Services | Veda Structure"
-                disabled={submitting}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="japa-seo-keywords" className="label-field">
-                Keywords (Comma-separated)
-              </label>
-              <input
-                id="japa-seo-keywords"
-                type="text"
-                className="input-field text-sm"
-                value={form.seoKeywords}
-                onChange={(e) => setForm((p) => ({ ...p, seoKeywords: e.target.value }))}
-                placeholder="e.g. japa, mrityunjaya, shiva, kashi, sankalpa"
-                disabled={submitting}
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label htmlFor="japa-seo-desc" className="label-field">
-                SEO Meta Description
-              </label>
-              <textarea
-                id="japa-seo-desc"
-                rows={2}
-                className="input-field text-sm"
-                value={form.seoDescription}
-                onChange={(e) => setForm((p) => ({ ...p, seoDescription: e.target.value }))}
-                placeholder="Meta description for search engines and social link previews..."
-                disabled={submitting}
-              />
-            </div>
-          </div>
-        </div>
+        <SEOSection
+          value={form.seo}
+          onChange={(newSeo) =>
+            setForm((p) => ({
+              ...p,
+              seo: newSeo,
+              seoTitle: newSeo.title || "",
+              seoDescription: newSeo.description || "",
+              seoKeywords: (newSeo.keywords || []).join(", "),
+            }))
+          }
+          defaultTitle={form.name}
+          defaultDescription={form.shortDescription || form.description}
+          defaultOgImage={form.bannerImage}
+          defaultSlug={form.slug}
+          serviceTypeLabel="Japa"
+          sectionNumber="11"
+          disabled={submitting}
+        />
 
         {/* Form Submission Footer */}
         <div className="flex items-center justify-end gap-3 pb-8">
@@ -1900,6 +1996,48 @@ export default function JapaServiceForm() {
           </button>
         </div>
       </form>
+
+      {/* Bulk Recitation Counts Modal */}
+      <BulkNumberListModal
+        isOpen={isCountsBulkModalOpen}
+        onClose={() => setIsCountsBulkModalOpen(false)}
+        title="Bulk Add Recitation Counts"
+        itemLabel="Count"
+        unitSuffix="Japa"
+        placeholder="Enter or paste recitation counts (separated by commas or new lines)...&#10;e.g.&#10;11000, 21000&#10;31000&#10;51000, 100000, 125000"
+        sampleNumbers={[11000, 21000, 31000, 51000, 100000, 125000]}
+        existingNumbers={form.availableCounts}
+        existingCount={form.availableCounts.length}
+        onApply={handleApplyBulkCounts}
+      />
+
+      {/* Bulk Samagri Modal */}
+      <BulkStringListModal
+        isOpen={isSamagriBulkModalOpen}
+        onClose={() => setIsSamagriBulkModalOpen(false)}
+        title="Bulk Add Japa Samagri"
+        itemLabel="Samagri Item"
+        placeholder="Paste samagri items here (one per line)...&#10;e.g.&#10;Rudraksha Mala (108 beads)&#10;Pure Desi Cow Ghee for Havana&#10;Gangajal & Panchamrit&#10;Vibhuti & Consecrated Bhasma&#10;Raktachandan & Kumkum"
+        sampleItems={[
+          "Rudraksha Mala (108 beads)",
+          "Pure Desi Cow Ghee for Havana",
+          "Gangajal & Panchamrit",
+          "Vibhuti & Consecrated Bhasma",
+          "Raktachandan & Kumkum",
+          "Dhoop & Desi Camphor (Karpuram)",
+        ]}
+        isNumbered={false}
+        existingCount={form.samagri.filter((s) => s.trim().length > 0).length}
+        onApply={handleApplyBulkSamagri}
+      />
+
+      {/* Bulk FAQ Modal */}
+      <BulkFaqModal
+        isOpen={isFaqBulkModalOpen}
+        onClose={() => setIsFaqBulkModalOpen(false)}
+        onApply={handleApplyBulkFaqs}
+        existingCount={form.faqs.filter((f) => f.question.trim().length > 0).length}
+      />
     </div>
   );
 }

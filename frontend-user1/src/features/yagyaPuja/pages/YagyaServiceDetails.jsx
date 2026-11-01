@@ -15,6 +15,7 @@ import yagyaCatalogueService, {
   getYagyaFallbackImage,
 } from "../../../services/yagyaCatalogueService";
 import YagyaServiceCard from "../components/YagyaServiceCard";
+import PublicSEO from "../../../components/common/PublicSEO";
 
 export default function YagyaServiceDetails() {
   const { slug } = useParams();
@@ -79,13 +80,6 @@ export default function YagyaServiceDetails() {
     };
   }, [slug]);
 
-  // Set SEO Title
-  useEffect(() => {
-    if (service?.name) {
-      document.title = `${service.name} in Kashi | Multi-Day Vedic Yagya | Veda Structure`;
-    }
-  }, [service]);
-
   const handleBookNow = () => {
     if (service?.slug) {
       navigate(`/yagya-puja/yagya/${service.slug}/book`, {
@@ -136,6 +130,7 @@ export default function YagyaServiceDetails() {
 
   return (
     <div className="min-h-screen bg-[#fffaf0] text-[#2b241d]">
+      <PublicSEO service={service} serviceType="yagya" />
       {/* 1. BREADCRUMBS & TOP NAV */}
       <nav aria-label="Breadcrumb" className="border-b border-[#ead8b8] bg-[#fffdfa] px-4 py-3 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-[1360px] items-center gap-2 text-[12px] font-medium text-[#75695c]">

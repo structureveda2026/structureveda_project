@@ -164,6 +164,11 @@ const PujaService = sequelize.define(
       allowNull: true,
       defaultValue: [],
     },
+    seo: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+      defaultValue: {},
+    },
   },
   {
     tableName: "puja_services",

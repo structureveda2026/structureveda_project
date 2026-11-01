@@ -17,6 +17,7 @@ import homaCatalogueService, {
   mapApiHomaServiceDetailToUi,
 } from '../../../services/homaCatalogueService';
 import HomaServiceCard from '../components/HomaServiceCard';
+import PublicSEO from '../../../components/common/PublicSEO';
 
 export default function HomaServiceDetails() {
   const { slug } = useParams();
@@ -156,6 +157,7 @@ export default function HomaServiceDetails() {
 
   return (
     <div className="min-h-screen bg-[#faf4e6] text-[#2b241d]">
+      <PublicSEO service={service} serviceType="homa" />
       {/* Breadcrumb Navigation */}
       <div className="border-b border-[#ebdcc4] bg-[#fffdfa] px-5 py-3.5 sm:px-8 lg:px-12">
         <div className="mx-auto flex max-w-[1280px] items-center gap-2 text-[12.5px] text-[#78644e]">

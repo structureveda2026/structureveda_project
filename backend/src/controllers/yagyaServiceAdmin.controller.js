@@ -6,6 +6,11 @@ import {
   serializeAdminYagyaServiceDetail,
   normalizeFaqs,
 } from "../serializers/yagyaService.serializer.js";
+import {
+  validateSeoInput,
+  normalizeSeo,
+  mergeSeo,
+} from "../services/seo.service.js";
 
 const VALID_MODES = ["in_person", "remote", "hybrid"];
 const VALID_ADMIN_SORTS = [
@@ -281,6 +286,7 @@ export const createAdminYagyaService = async (req, res) => {
       significance,
       procedureSteps,
       faqs,
+      seo,
     } = req.body;
 
     if (!name || !String(name).trim()) {
@@ -347,6 +353,17 @@ export const createAdminYagyaService = async (req, res) => {
       }
     }
 
+    // SEO Validation
+    if (typeof seo !== "undefined" && seo !== null) {
+      const seoValidation = validateSeoInput(seo);
+      if (!seoValidation.valid) {
+        return res.status(400).json({
+          success: false,
+          message: seoValidation.message,
+        });
+      }
+    }
+
     const newService = await YagyaService.create({
       name: String(name).trim(),
       slug: finalSlug,
@@ -382,6 +399,7 @@ export const createAdminYagyaService = async (req, res) => {
       significance: Array.isArray(significance) ? significance : [],
       procedureSteps: Array.isArray(procedureSteps) ? procedureSteps : [],
       faqs: normalizeFaqs(faqs),
+      seo: normalizeSeo(seo),
     });
 
     await newService.reload({
@@ -550,6 +568,22 @@ export const updateAdminYagyaService = async (req, res) => {
     if (Array.isArray(significance)) service.significance = significance;
     if (Array.isArray(procedureSteps)) service.procedureSteps = procedureSteps;
     if (Array.isArray(faqs)) service.faqs = normalizeFaqs(faqs);
+
+    // SEO handling with partial update support
+    if (typeof req.body.seo !== "undefined") {
+      if (req.body.seo !== null) {
+        const seoValidation = validateSeoInput(req.body.seo);
+        if (!seoValidation.valid) {
+          return res.status(400).json({
+            success: false,
+            message: seoValidation.message,
+          });
+        }
+        service.seo = mergeSeo(service.seo, req.body.seo);
+      } else {
+        service.seo = {};
+      }
+    }
 
     await service.save();
 

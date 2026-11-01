@@ -1,4 +1,5 @@
 import api from "@/services/api";
+import { SeoMetadata } from "@/types";
 
 // --- Shared Types ---
 
@@ -23,11 +24,7 @@ export interface PathFaqItem {
   answer: string;
 }
 
-export interface PathSeoData {
-  title?: string;
-  description?: string;
-  keywords?: string[] | string;
-}
+export interface PathSeoData extends SeoMetadata {}
 
 export interface PathSankalpaFields {
   name?: boolean;

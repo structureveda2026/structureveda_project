@@ -24,6 +24,7 @@ import {
   Tag,
   Package,
   Gift,
+  ListPlus,
 } from "lucide-react";
 import { useToast } from "@/context/ToastContext";
 import mediaUploadService from "@/services/mediaUploadService";
@@ -34,6 +35,11 @@ import homaServiceCatalogueService, {
 import homaCategoryAdminService, {
   AdminHomaCategory,
 } from "@/services/homaCategoryAdminService";
+import SEOSection from "@/components/SEOSection";
+import { SeoMetadata } from "@/types";
+import BulkFaqModal from "@/components/BulkFaqModal";
+import BulkSamagriModal from "@/components/BulkSamagriModal";
+import BulkNumberListModal from "@/components/BulkNumberListModal";
 
 const slugify = (str: string): string =>
   str
@@ -95,9 +101,10 @@ interface FormState {
     deity: boolean;
     specialInstructions: boolean;
   };
-  seoTitle: string;
-  seoDescription: string;
-  seoKeywords: string;
+  seo: SeoMetadata;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
   faqs: { question: string; answer: string }[];
 }
 
@@ -130,6 +137,11 @@ export default function HomaServiceForm() {
 
   const bannerInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
+
+  // Bulk Modal Visibility States
+  const [isFaqBulkModalOpen, setIsFaqBulkModalOpen] = useState(false);
+  const [isSamagriBulkModalOpen, setIsSamagriBulkModalOpen] = useState(false);
+  const [isHavanCountsBulkModalOpen, setIsHavanCountsBulkModalOpen] = useState(false);
 
   const [form, setForm] = useState<FormState>({
     name: "",
@@ -172,6 +184,7 @@ export default function HomaServiceForm() {
       deity: true,
       specialInstructions: true,
     },
+    seo: {},
     seoTitle: "",
     seoDescription: "",
     seoKeywords: "",
@@ -306,6 +319,7 @@ export default function HomaServiceForm() {
             deity: data.sankalpaFields?.deity !== false,
             specialInstructions: data.sankalpaFields?.specialInstructions !== false,
           },
+          seo: (data.seo as SeoMetadata) || {},
           seoTitle: data.seo?.title || data.seo?.metaTitle || "",
           seoDescription: data.seo?.description || data.seo?.metaDescription || "",
           seoKeywords: Array.isArray(data.seo?.keywords)
@@ -401,6 +415,40 @@ export default function HomaServiceForm() {
     }
     const updated = form.availableHavanCounts.filter((c) => c !== countNum);
     setForm((p) => ({ ...p, availableHavanCounts: updated }));
+  };
+
+  const handleApplyBulkHavanCounts = (
+    numbers: number[],
+    mode: "append" | "replace"
+  ) => {
+    if (!numbers || numbers.length === 0) {
+      toast.info("No valid havan counts to add.");
+      return;
+    }
+
+    setForm((prev) => {
+      let nextCounts: number[];
+      if (mode === "replace") {
+        nextCounts = [...numbers].sort((a, b) => a - b);
+      } else {
+        const set = new Set(prev.availableHavanCounts);
+        for (const n of numbers) {
+          set.add(n);
+        }
+        nextCounts = Array.from(set).sort((a, b) => a - b);
+      }
+      return { ...prev, availableHavanCounts: nextCounts };
+    });
+
+    if (errors.availableHavanCounts || errors.coupling) {
+      setErrors((p) => ({ ...p, availableHavanCounts: undefined, coupling: undefined }));
+    }
+
+    toast.success(
+      mode === "replace"
+        ? `Replaced havan counts with ${numbers.length} count(s).`
+        : `Added ${numbers.length} havan count(s).`
+    );
   };
 
   // Available Days
@@ -508,6 +556,44 @@ export default function HomaServiceForm() {
     });
   };
 
+  const handleApplyBulkSamagri = (
+    newItems: Array<{ name: string; status: "included" | "optional" | "additional" }>,
+    mode: "append" | "replace"
+  ) => {
+    const cleaned = newItems
+      .map((item) => ({
+        name: item.name.trim(),
+        status: item.status || "included",
+      }))
+      .filter((item) => item.name.length > 0);
+
+    if (cleaned.length === 0) {
+      toast.info("No valid samagri items to add.");
+      return;
+    }
+
+    setForm((prev) => {
+      let nextSamagri: { name: string; status: string }[];
+      if (mode === "replace") {
+        nextSamagri = cleaned;
+      } else {
+        // Append mode: preserve existing items and their statuses; deduplicate incoming items case-insensitively
+        const existingNames = new Set(
+          prev.samagri.filter((s) => s.name.trim()).map((s) => s.name.trim().toLowerCase())
+        );
+        const toAdd = cleaned.filter((item) => !existingNames.has(item.name.toLowerCase()));
+        nextSamagri = [...prev.samagri.filter((s) => s.name.trim()), ...toAdd];
+      }
+      return { ...prev, samagri: nextSamagri };
+    });
+
+    toast.success(
+      mode === "replace"
+        ? `Replaced samagri list with ${cleaned.length} item(s).`
+        : `Added ${cleaned.length} samagri item(s).`
+    );
+  };
+
   // FAQ Handlers
   const handleAddFaq = () => {
     setForm((p) => ({
@@ -530,6 +616,41 @@ export default function HomaServiceForm() {
       updated.splice(index, 1);
       return { ...p, faqs: updated };
     });
+  };
+
+  const handleApplyBulkFaqs = (
+    newFaqs: Array<{ question: string; answer: string }>,
+    mode: "append" | "replace"
+  ) => {
+    const cleaned = newFaqs
+      .map((f) => ({ question: f.question.trim(), answer: f.answer.trim() }))
+      .filter((f) => f.question || f.answer);
+
+    if (cleaned.length === 0) {
+      toast.info("No valid FAQs to add.");
+      return;
+    }
+
+    setForm((prev) => {
+      let nextFaqs: Array<{ question: string; answer: string }>;
+      if (mode === "replace") {
+        nextFaqs = cleaned;
+      } else {
+        // Discard completely empty placeholder rows ({ question: "", answer: "" }), while preserving any existing valid FAQs
+        const existingValid = prev.faqs.filter((f) => f.question.trim() || f.answer.trim());
+        nextFaqs = [...existingValid, ...cleaned];
+      }
+      return {
+        ...prev,
+        faqs: nextFaqs.length > 0 ? nextFaqs : [{ question: "", answer: "" }],
+      };
+    });
+
+    toast.success(
+      mode === "replace"
+        ? `Replaced FAQs with ${cleaned.length} item(s).`
+        : `Added ${cleaned.length} FAQ(s).`
+    );
   };
 
   // Coupling Rule Status Check (1 Havan cannot be multi-day)
@@ -659,13 +780,7 @@ export default function HomaServiceForm() {
         samagri: form.samagri.filter((s) => s.name.trim()),
         prasad: form.prasad.trim() || null,
         sankalpaFields: form.sankalpaFields,
-        seo: {
-          title: form.seoTitle.trim() || undefined,
-          description: form.seoDescription.trim() || undefined,
-          keywords: form.seoKeywords.trim()
-            ? form.seoKeywords.split(",").map((k) => k.trim()).filter(Boolean)
-            : undefined,
-        },
+        seo: form.seo,
         faqs: form.faqs.filter((f) => f.question.trim() || f.answer.trim()),
       };
 
@@ -946,29 +1061,60 @@ export default function HomaServiceForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Available Havan Counts */}
             <div className="p-4 rounded-xl bg-cream-50/60 border border-cream-200">
-              <label className="label-field">
-                Available Havan Counts <span className="text-red-500">*</span>
-              </label>
-
-              <div className="flex flex-wrap gap-1.5 mb-3 min-h-[38px] p-2 bg-white rounded-lg border border-cream-200">
-                {form.availableHavanCounts.map((count) => (
-                  <span
-                    key={count}
-                    className="inline-flex items-center gap-1 bg-saffron-50 text-saffron-900 border border-saffron-200 px-2 py-0.5 rounded text-xs font-mono font-medium"
-                  >
-                    {count} Havan{count > 1 ? "s" : ""}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveHavanCount(count)}
-                      className="text-saffron-500 hover:text-red-600 focus:outline-none"
-                      title={`Remove ${count}`}
-                      disabled={submitting}
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <label className="label-field mb-0">
+                    Available Havan Counts <span className="text-red-500">*</span>
+                  </label>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-saffron-50 text-saffron-700 border border-saffron-200">
+                    {form.availableHavanCounts.length} count{form.availableHavanCounts.length === 1 ? "" : "s"}
                   </span>
-                ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsHavanCountsBulkModalOpen(true)}
+                  className="btn-secondary text-xs px-2.5 py-1 inline-flex items-center gap-1.5"
+                  disabled={submitting}
+                >
+                  <ListPlus className="w-3.5 h-3.5 text-saffron-600" /> Bulk Add Counts
+                </button>
               </div>
+
+              {form.availableHavanCounts.length === 0 ? (
+                <div className="p-3 rounded-lg border border-dashed border-cream-300 text-center bg-white mb-3">
+                  <p className="text-xs text-charcoal-500 font-medium">No havan counts configured</p>
+                  <p className="text-[11px] text-charcoal-400 mb-2">
+                    Add counts individually or paste multiple counts at once.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setIsHavanCountsBulkModalOpen(true)}
+                    className="btn-secondary text-xs px-2.5 py-1 inline-flex items-center gap-1"
+                  >
+                    <ListPlus className="w-3 h-3 text-saffron-600" /> Bulk Add Counts
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-1.5 mb-3 min-h-[38px] p-2 bg-white rounded-lg border border-cream-200">
+                  {form.availableHavanCounts.map((count) => (
+                    <span
+                      key={count}
+                      className="inline-flex items-center gap-1 bg-saffron-50 text-saffron-900 border border-saffron-200 px-2 py-0.5 rounded text-xs font-mono font-medium"
+                    >
+                      {count} Havan{count > 1 ? "s" : ""}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveHavanCount(count)}
+                        className="text-saffron-500 hover:text-red-600 focus:outline-none"
+                        title={`Remove ${count}`}
+                        disabled={submitting}
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
 
               <div className="flex items-center gap-2">
                 <input
@@ -1571,49 +1717,90 @@ export default function HomaServiceForm() {
 
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="label-field mb-0">Homa Samagri List</label>
-                <button
-                  type="button"
-                  onClick={handleAddSamagri}
-                  className="text-xs text-saffron-700 hover:text-saffron-800 font-semibold flex items-center gap-1"
-                  disabled={submitting}
-                >
-                  <Plus className="w-3.5 h-3.5" /> Add Samagri Item
-                </button>
+                <div className="flex items-center gap-2">
+                  <label className="label-field mb-0">Homa Samagri List</label>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-saffron-50 text-saffron-700 border border-saffron-200">
+                    {form.samagri.length} item{form.samagri.length === 1 ? "" : "s"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsSamagriBulkModalOpen(true)}
+                    className="btn-secondary text-xs px-2.5 py-1 inline-flex items-center gap-1.5"
+                    disabled={submitting}
+                  >
+                    <ListPlus className="w-3.5 h-3.5 text-saffron-600" /> Bulk Add Samagri
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleAddSamagri}
+                    className="btn-secondary text-xs px-2.5 py-1 inline-flex items-center gap-1"
+                    disabled={submitting}
+                  >
+                    <Plus className="w-3 h-3" /> Add Item
+                  </button>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                {form.samagri.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      className="input-field text-xs flex-1"
-                      value={item.name}
-                      onChange={(e) => handleUpdateSamagri(idx, "name", e.target.value)}
-                      placeholder="e.g. Desi Cow Ghee (Pure A2)"
-                      disabled={submitting}
-                    />
-                    <select
-                      className="input-field text-xs w-36"
-                      value={item.status}
-                      onChange={(e) => handleUpdateSamagri(idx, "status", e.target.value)}
-                      disabled={submitting}
-                    >
-                      <option value="included">Included</option>
-                      <option value="optional">Optional</option>
-                      <option value="additional">Additional</option>
-                    </select>
+              {form.samagri.length === 0 ? (
+                <div className="p-4 rounded-lg border border-dashed border-cream-300 text-center bg-cream-50/50">
+                  <Package className="w-5 h-5 mx-auto mb-1 text-charcoal-400" />
+                  <p className="text-xs text-charcoal-500 font-medium">No samagri items added yet</p>
+                  <p className="text-[11px] text-charcoal-400 mb-2">
+                    Paste a list of sacred materials or add them one by one.
+                  </p>
+                  <div className="flex items-center justify-center gap-2">
                     <button
                       type="button"
-                      onClick={() => handleRemoveSamagri(idx)}
-                      className="p-2 text-charcoal-400 hover:text-red-600 hover:bg-cream-100 rounded transition"
-                      disabled={submitting}
+                      onClick={() => setIsSamagriBulkModalOpen(true)}
+                      className="btn-secondary text-xs px-2.5 py-1 inline-flex items-center gap-1"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <ListPlus className="w-3 h-3 text-saffron-600" /> Bulk Add Samagri
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleAddSamagri}
+                      className="btn-secondary text-xs px-2.5 py-1 inline-flex items-center gap-1"
+                    >
+                      <Plus className="w-3 h-3" /> Add Single Item
                     </button>
                   </div>
-                ))}
-              </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {form.samagri.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        className="input-field text-xs flex-1"
+                        value={item.name}
+                        onChange={(e) => handleUpdateSamagri(idx, "name", e.target.value)}
+                        placeholder="e.g. Desi Cow Ghee (Pure A2)"
+                        disabled={submitting}
+                      />
+                      <select
+                        className="input-field text-xs w-36"
+                        value={item.status}
+                        onChange={(e) => handleUpdateSamagri(idx, "status", e.target.value)}
+                        disabled={submitting}
+                      >
+                        <option value="included">Included</option>
+                        <option value="optional">Optional</option>
+                        <option value="additional">Additional</option>
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSamagri(idx)}
+                        className="p-2 text-charcoal-400 hover:text-red-600 hover:bg-cream-100 rounded transition"
+                        disabled={submitting}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1662,108 +1849,116 @@ export default function HomaServiceForm() {
         </div>
 
         {/* Section 10: SEO Metadata */}
-        <div className="card p-5">
-          <h3 className="text-base font-semibold text-charcoal-800 flex items-center gap-2 mb-4 pb-2 border-b border-cream-100">
-            <Globe className="w-4 h-4 text-saffron-600" /> 10. Search Engine Optimization (SEO)
-          </h3>
-
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="homa-seo-title" className="label-field">
-                SEO Meta Title
-              </label>
-              <input
-                id="homa-seo-title"
-                type="text"
-                className="input-field"
-                value={form.seoTitle}
-                onChange={(e) => setForm((p) => ({ ...p, seoTitle: e.target.value }))}
-                placeholder="e.g. Maha Ganapati Homa in Kashi | Online Booking & Live Stream"
-                disabled={submitting}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="homa-seo-desc" className="label-field">
-                Meta Description
-              </label>
-              <textarea
-                id="homa-seo-desc"
-                rows={2}
-                className="input-field"
-                value={form.seoDescription}
-                onChange={(e) => setForm((p) => ({ ...p, seoDescription: e.target.value }))}
-                placeholder="Comprehensive meta description for search engine indexers..."
-                disabled={submitting}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="homa-seo-keywords" className="label-field">
-                Keywords (Comma Separated)
-              </label>
-              <input
-                id="homa-seo-keywords"
-                type="text"
-                className="input-field"
-                value={form.seoKeywords}
-                onChange={(e) => setForm((p) => ({ ...p, seoKeywords: e.target.value }))}
-                placeholder="ganapati homa, havan varanasi, vedic ritual kashi"
-                disabled={submitting}
-              />
-            </div>
-          </div>
-        </div>
+        <SEOSection
+          value={form.seo}
+          onChange={(newSeo) =>
+            setForm((p) => ({
+              ...p,
+              seo: newSeo,
+              seoTitle: newSeo.title || "",
+              seoDescription: newSeo.description || "",
+              seoKeywords: (newSeo.keywords || []).join(", "),
+            }))
+          }
+          defaultTitle={form.name}
+          defaultDescription={form.shortDescription || form.description}
+          defaultOgImage={form.bannerImage}
+          defaultSlug={form.slug}
+          serviceTypeLabel="Homa"
+          sectionNumber="10"
+          disabled={submitting}
+        />
 
         {/* Section 11: Frequently Asked Questions */}
         <div className="card p-5">
           <div className="flex items-center justify-between mb-4 pb-2 border-b border-cream-100">
-            <h3 className="text-base font-semibold text-charcoal-800 flex items-center gap-2">
-              <HelpCircle className="w-4 h-4 text-saffron-600" /> 11. Frequently Asked Questions (FAQs)
-            </h3>
-            <button
-              type="button"
-              onClick={handleAddFaq}
-              className="text-xs text-saffron-700 hover:text-saffron-800 font-semibold flex items-center gap-1"
-              disabled={submitting}
-            >
-              <Plus className="w-3.5 h-3.5" /> Add FAQ
-            </button>
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-semibold text-charcoal-800 flex items-center gap-2">
+                <HelpCircle className="w-4 h-4 text-saffron-600" /> 11. Frequently Asked Questions (FAQs)
+              </h3>
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-saffron-50 text-saffron-700 border border-saffron-200">
+                {form.faqs.filter((f) => f.question.trim().length > 0).length} FAQ{form.faqs.filter((f) => f.question.trim().length > 0).length === 1 ? "" : "s"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsFaqBulkModalOpen(true)}
+                className="btn-secondary text-xs px-2.5 py-1 inline-flex items-center gap-1.5"
+                disabled={submitting}
+              >
+                <ListPlus className="w-3.5 h-3.5 text-saffron-600" /> Bulk Add FAQs
+              </button>
+              <button
+                type="button"
+                onClick={handleAddFaq}
+                className="btn-secondary text-xs px-2.5 py-1 inline-flex items-center gap-1"
+                disabled={submitting}
+              >
+                <Plus className="w-3 h-3" /> Add FAQ
+              </button>
+            </div>
           </div>
 
-          <div className="space-y-3">
-            {form.faqs.map((faq, idx) => (
-              <div key={idx} className="p-3 rounded-xl bg-cream-50/50 border border-cream-200 space-y-2">
-                <div className="flex items-center justify-between gap-2">
-                  <input
-                    type="text"
-                    className="input-field text-xs font-semibold flex-1"
-                    value={faq.question}
-                    onChange={(e) => handleUpdateFaq(idx, "question", e.target.value)}
-                    placeholder="FAQ Question..."
+          {form.faqs.length === 0 ? (
+            <div className="p-4 rounded-lg border border-dashed border-cream-300 text-center bg-cream-50/50">
+              <HelpCircle className="w-5 h-5 mx-auto mb-1 text-charcoal-400" />
+              <p className="text-xs text-charcoal-500 font-medium">No FAQs added yet</p>
+              <p className="text-[11px] text-charcoal-400 mb-2">
+                Paste multiple Q&A pairs at once or create one manually.
+              </p>
+              <div className="flex items-center justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsFaqBulkModalOpen(true)}
+                  className="btn-secondary text-xs px-2.5 py-1 inline-flex items-center gap-1"
+                >
+                  <ListPlus className="w-3 h-3 text-saffron-600" /> Bulk Add FAQs
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAddFaq}
+                  className="btn-secondary text-xs px-2.5 py-1 inline-flex items-center gap-1"
+                >
+                  <Plus className="w-3 h-3" /> Add Single FAQ
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {form.faqs.map((faq, idx) => (
+                <div key={idx} className="p-3 rounded-xl bg-cream-50/50 border border-cream-200 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <input
+                      type="text"
+                      className="input-field text-xs font-semibold flex-1"
+                      value={faq.question}
+                      onChange={(e) => handleUpdateFaq(idx, "question", e.target.value)}
+                      placeholder="FAQ Question..."
+                      disabled={submitting}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveFaq(idx)}
+                      className="p-1.5 text-charcoal-400 hover:text-red-600 hover:bg-cream-100 rounded transition"
+                      title="Remove FAQ"
+                      disabled={submitting}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <textarea
+                    rows={2}
+                    className="input-field text-xs"
+                    value={faq.answer}
+                    onChange={(e) => handleUpdateFaq(idx, "answer", e.target.value)}
+                    placeholder="FAQ Answer..."
                     disabled={submitting}
                   />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveFaq(idx)}
-                    className="p-1.5 text-charcoal-400 hover:text-red-600 hover:bg-cream-100 rounded transition"
-                    title="Remove FAQ"
-                    disabled={submitting}
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
                 </div>
-                <textarea
-                  rows={2}
-                  className="input-field text-xs"
-                  value={faq.answer}
-                  onChange={(e) => handleUpdateFaq(idx, "answer", e.target.value)}
-                  placeholder="FAQ Answer..."
-                  disabled={submitting}
-                />
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Bottom Actions Bar */}
@@ -1784,6 +1979,36 @@ export default function HomaServiceForm() {
           </button>
         </div>
       </form>
+
+      {/* Bulk Havan Counts Modal */}
+      <BulkNumberListModal
+        isOpen={isHavanCountsBulkModalOpen}
+        onClose={() => setIsHavanCountsBulkModalOpen(false)}
+        title="Bulk Add Havan Counts"
+        itemLabel="Havan Count"
+        unitSuffix="Havans"
+        sampleNumbers={[1, 3, 5, 7, 11, 21, 51]}
+        placeholder="Enter or paste havan counts separated by commas, spaces, or newlines...&#10;e.g.&#10;1, 3, 5, 7, 11, 21, 51"
+        existingCount={form.availableHavanCounts.length}
+        existingNumbers={form.availableHavanCounts}
+        onApply={handleApplyBulkHavanCounts}
+      />
+
+      {/* Bulk Samagri Modal */}
+      <BulkSamagriModal
+        isOpen={isSamagriBulkModalOpen}
+        onClose={() => setIsSamagriBulkModalOpen(false)}
+        existingCount={form.samagri.filter((s) => s.name.trim().length > 0).length}
+        onApply={handleApplyBulkSamagri}
+      />
+
+      {/* Bulk FAQ Modal */}
+      <BulkFaqModal
+        isOpen={isFaqBulkModalOpen}
+        onClose={() => setIsFaqBulkModalOpen(false)}
+        existingCount={form.faqs.filter((f) => f.question.trim().length > 0).length}
+        onApply={handleApplyBulkFaqs}
+      />
     </div>
   );
 }

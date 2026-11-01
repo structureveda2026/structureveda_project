@@ -1,4 +1,5 @@
 import api from "@/services/api";
+import { SeoMetadata } from "@/types";
 
 // --- Shared Types ---
 
@@ -31,13 +32,7 @@ export interface JapaFaqItem {
   answer: string;
 }
 
-export interface JapaSeoData {
-  title?: string;
-  description?: string;
-  keywords?: string[] | string;
-  metaTitle?: string;
-  metaDescription?: string;
-}
+export interface JapaSeoData extends SeoMetadata {}
 
 // --- Listing Item ---
 

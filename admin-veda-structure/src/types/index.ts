@@ -286,3 +286,22 @@ export interface BlogStats {
   categories: { category: string; count: string | number }[];
 }
 
+/**
+ * Standardized SEO Metadata across Veda Structure Service Catalogues
+ */
+export interface SeoMetadata {
+  title?: string;
+  description?: string;
+  keywords?: string[];
+  focusKeyword?: string;
+  canonicalUrl?: string;
+  robotsIndex?: boolean;
+  robotsFollow?: boolean;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  // Legacy aliases supported for safety
+  metaTitle?: string;
+  metaDescription?: string;
+}
+

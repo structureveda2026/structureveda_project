@@ -22,6 +22,7 @@ import {
   HelpCircle,
   Tag,
   Package,
+  ListPlus,
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { useToast } from "@/context/ToastContext";
@@ -35,6 +36,11 @@ import pathServiceCatalogueService, {
 import pathCategoryAdminService, {
   AdminPathCategory,
 } from "@/services/pathCategoryAdminService";
+import SEOSection from "@/components/SEOSection";
+import { SeoMetadata } from "@/types";
+import BulkFaqModal from "@/components/BulkFaqModal";
+import BulkSamagriModal from "@/components/BulkSamagriModal";
+import BulkStringListModal from "@/components/BulkStringListModal";
 
 const slugify = (str: string): string =>
   str
@@ -105,9 +111,10 @@ interface FormState {
     specialSankalpa: boolean;
     specialInstructions: boolean;
   };
-  seoTitle: string;
-  seoDescription: string;
-  seoKeywords: string;
+  seo: SeoMetadata;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
   faqs: { question: string; answer: string }[];
 }
 
@@ -139,6 +146,11 @@ export default function PathServiceForm() {
 
   const bannerInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
+
+  // Bulk Modal Visibility States
+  const [isFaqBulkModalOpen, setIsFaqBulkModalOpen] = useState(false);
+  const [isSamagriBulkModalOpen, setIsSamagriBulkModalOpen] = useState(false);
+  const [isDurationsBulkModalOpen, setIsDurationsBulkModalOpen] = useState(false);
 
   const [form, setForm] = useState<FormState>({
     name: "",
@@ -188,6 +200,7 @@ export default function PathServiceForm() {
       specialSankalpa: true,
       specialInstructions: true,
     },
+    seo: {},
     seoTitle: "",
     seoDescription: "",
     seoKeywords: "",
@@ -300,6 +313,7 @@ export default function PathServiceForm() {
             specialSankalpa: data.sankalpaFields?.specialSankalpa !== false,
             specialInstructions: data.sankalpaFields?.specialInstructions !== false,
           },
+          seo: (data.seo as SeoMetadata) || {},
           seoTitle: data.seo?.title || "",
           seoDescription: data.seo?.description || "",
           seoKeywords: Array.isArray(data.seo?.keywords)
@@ -435,6 +449,46 @@ export default function PathServiceForm() {
     }));
   };
 
+  const handleApplyBulkDurations = (
+    newItems: string[],
+    mode: "append" | "replace"
+  ) => {
+    const cleaned = newItems.map((i) => i.trim()).filter(Boolean);
+    if (cleaned.length === 0) {
+      toast.info("No valid duration options to add.");
+      return;
+    }
+
+    setForm((prev) => {
+      let nextDurations: string[];
+      if (mode === "replace") {
+        const seen = new Set<string>();
+        nextDurations = cleaned.filter((item) => {
+          const lower = item.toLowerCase();
+          if (seen.has(lower)) return false;
+          seen.add(lower);
+          return true;
+        });
+      } else {
+        const existingSet = new Set(prev.availableDurations.map((d) => d.toLowerCase()));
+        const toAdd = cleaned.filter((item) => {
+          const lower = item.toLowerCase();
+          if (existingSet.has(lower)) return false;
+          existingSet.add(lower);
+          return true;
+        });
+        nextDurations = [...prev.availableDurations, ...toAdd];
+      }
+      return { ...prev, availableDurations: nextDurations };
+    });
+
+    toast.success(
+      `${cleaned.length} duration option${cleaned.length > 1 ? "s" : ""} ${
+        mode === "replace" ? "replaced" : "added to"
+      } Duration options.`
+    );
+  };
+
   // Samagri Array
   const handleAddSamagri = () => {
     setForm((p) => ({
@@ -458,6 +512,43 @@ export default function PathServiceForm() {
     }));
   };
 
+  const handleApplyBulkSamagri = (
+    newItems: Array<{ name: string; status: "included" | "optional" | "additional" }>,
+    mode: "append" | "replace"
+  ) => {
+    const cleaned = newItems
+      .map((item) => ({
+        name: item.name.trim(),
+        status: item.status || "included",
+      }))
+      .filter((item) => item.name.length > 0);
+
+    if (cleaned.length === 0) {
+      toast.info("No valid samagri items to add.");
+      return;
+    }
+
+    setForm((prev) => {
+      let nextSamagri: { name: string; status: string }[];
+      if (mode === "replace") {
+        nextSamagri = cleaned;
+      } else {
+        const existingNames = new Set(
+          prev.samagri.filter((s) => s.name.trim()).map((s) => s.name.trim().toLowerCase())
+        );
+        const toAdd = cleaned.filter((item) => !existingNames.has(item.name.toLowerCase()));
+        nextSamagri = [...prev.samagri.filter((s) => s.name.trim()), ...toAdd];
+      }
+      return { ...prev, samagri: nextSamagri };
+    });
+
+    toast.success(
+      `${cleaned.length} samagri item${cleaned.length > 1 ? "s" : ""} ${
+        mode === "replace" ? "replaced" : "added to"
+      } Samagri list.`
+    );
+  };
+
   // FAQs Array
   const handleAddFaq = () => {
     setForm((p) => ({
@@ -479,6 +570,40 @@ export default function PathServiceForm() {
       ...p,
       faqs: p.faqs.filter((_, i) => i !== index),
     }));
+  };
+
+  const handleApplyBulkFaqs = (
+    newFaqs: Array<{ question: string; answer: string }>,
+    mode: "append" | "replace"
+  ) => {
+    const cleaned = newFaqs
+      .map((f) => ({ question: f.question.trim(), answer: f.answer.trim() }))
+      .filter((f) => f.question || f.answer);
+
+    if (cleaned.length === 0) {
+      toast.info("No valid FAQs to add.");
+      return;
+    }
+
+    setForm((prev) => {
+      let nextFaqs: Array<{ question: string; answer: string }>;
+      if (mode === "replace") {
+        nextFaqs = cleaned;
+      } else {
+        const existingNonEmpty = prev.faqs.filter((f) => f.question.trim() || f.answer.trim());
+        nextFaqs = [...existingNonEmpty, ...cleaned];
+      }
+      return {
+        ...prev,
+        faqs: nextFaqs.length > 0 ? nextFaqs : [{ question: "", answer: "" }],
+      };
+    });
+
+    toast.success(
+      `${cleaned.length} FAQ${cleaned.length > 1 ? "s" : ""} ${
+        mode === "replace" ? "replaced" : "added to"
+      } Path service.`
+    );
   };
 
   // Media Upload Handlers
@@ -650,11 +775,7 @@ export default function PathServiceForm() {
         samagri: cleanSamagri,
         prasad: form.prasad.trim() || null,
         sankalpaFields: form.sankalpaFields,
-        seo: {
-          title: form.seoTitle.trim() || undefined,
-          description: form.seoDescription.trim() || undefined,
-          keywords: form.seoKeywords.trim() || undefined,
-        },
+        seo: form.seo,
         faqs: cleanFaqs,
       };
 
@@ -977,27 +1098,58 @@ export default function PathServiceForm() {
 
         {/* Available Durations List */}
         <div>
-          <label className="block text-xs font-semibold text-charcoal-700 uppercase mb-1.5">
-            Duration Options Displayed to Customer
-          </label>
-          <div className="flex flex-wrap gap-2 mb-2">
-            {form.availableDurations.map((dur) => (
-              <span
-                key={dur}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs bg-cream-100 text-charcoal-700 border border-cream-200"
-              >
-                <Clock className="w-3 h-3 text-saffron-600" />
-                {dur}
-                <button
-                  type="button"
-                  onClick={() => handleRemoveDuration(dur)}
-                  className="text-charcoal-400 hover:text-red-500"
-                >
-                  <X className="w-3 h-3" />
-                </button>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-semibold text-charcoal-700 uppercase">
+                Duration Options Displayed to Customer
+              </label>
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-saffron-50 text-saffron-700 border border-saffron-200">
+                {form.availableDurations.length} duration option{form.availableDurations.length === 1 ? "" : "s"}
               </span>
-            ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsDurationsBulkModalOpen(true)}
+              className="btn-secondary text-xs px-2.5 py-1 inline-flex items-center gap-1.5"
+            >
+              <ListPlus className="w-3.5 h-3.5 text-saffron-600" /> Bulk Add Durations
+            </button>
           </div>
+          {form.availableDurations.length === 0 ? (
+            <div className="p-4 rounded-lg border border-dashed border-cream-300 text-center bg-cream-50/50 mb-2">
+              <Clock className="w-5 h-5 mx-auto mb-1 text-charcoal-400" />
+              <p className="text-xs text-charcoal-500 font-medium">No duration options defined</p>
+              <p className="text-[11px] text-charcoal-400 mb-2">
+                Add duration options individually or paste multiple options at once.
+              </p>
+              <button
+                type="button"
+                onClick={() => setIsDurationsBulkModalOpen(true)}
+                className="btn-secondary text-xs px-2.5 py-1 inline-flex items-center gap-1"
+              >
+                <ListPlus className="w-3 h-3 text-saffron-600" /> Bulk Add Durations
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-2 mb-2">
+              {form.availableDurations.map((dur) => (
+                <span
+                  key={dur}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs bg-cream-100 text-charcoal-700 border border-cream-200"
+                >
+                  <Clock className="w-3 h-3 text-saffron-600" />
+                  {dur}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveDuration(dur)}
+                    className="text-charcoal-400 hover:text-red-500"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
           <div className="flex items-center gap-2 max-w-md">
             <input
               type="text"
@@ -1336,19 +1488,55 @@ export default function PathServiceForm() {
         {/* Samagri */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-xs font-semibold text-charcoal-700 uppercase">
-              Samagri & Scripture Materials
-            </label>
-            <button
-              type="button"
-              onClick={handleAddSamagri}
-              className="btn-secondary text-xs px-2.5 py-1 inline-flex items-center gap-1"
-            >
-              <Plus className="w-3 h-3" /> Add Item
-            </button>
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-semibold text-charcoal-700 uppercase">
+                Samagri & Scripture Materials
+              </label>
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-saffron-50 text-saffron-700 border border-saffron-200">
+                {form.samagri.length} item{form.samagri.length === 1 ? "" : "s"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsSamagriBulkModalOpen(true)}
+                className="btn-secondary text-xs px-2.5 py-1 inline-flex items-center gap-1.5"
+              >
+                <ListPlus className="w-3.5 h-3.5 text-saffron-600" /> Bulk Add Samagri
+              </button>
+              <button
+                type="button"
+                onClick={handleAddSamagri}
+                className="btn-secondary text-xs px-2.5 py-1 inline-flex items-center gap-1"
+              >
+                <Plus className="w-3 h-3" /> Add Item
+              </button>
+            </div>
           </div>
           {form.samagri.length === 0 ? (
-            <p className="text-xs text-charcoal-400 italic">No specific samagri items added.</p>
+            <div className="p-4 rounded-lg border border-dashed border-cream-300 text-center bg-cream-50/50">
+              <Package className="w-5 h-5 mx-auto mb-1 text-charcoal-400" />
+              <p className="text-xs text-charcoal-500 font-medium">No samagri items added yet</p>
+              <p className="text-[11px] text-charcoal-400 mb-2">
+                Paste a list of sacred materials or add them one by one.
+              </p>
+              <div className="flex items-center justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsSamagriBulkModalOpen(true)}
+                  className="btn-secondary text-xs px-2.5 py-1 inline-flex items-center gap-1"
+                >
+                  <ListPlus className="w-3 h-3 text-saffron-600" /> Bulk Add Samagri
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAddSamagri}
+                  className="btn-secondary text-xs px-2.5 py-1 inline-flex items-center gap-1"
+                >
+                  <Plus className="w-3 h-3" /> Add Single Item
+                </button>
+              </div>
+            </div>
           ) : (
             <div className="space-y-2">
               {form.samagri.map((item, idx) => (
@@ -1556,59 +1744,47 @@ export default function PathServiceForm() {
         </div>
       </div>
 
-      {/* 11. SEO & FAQs */}
+      {/* 11. SEO Metadata */}
+      <SEOSection
+        value={form.seo}
+        onChange={(newSeo) =>
+          setForm((p) => ({
+            ...p,
+            seo: newSeo,
+            seoTitle: newSeo.title || "",
+            seoDescription: newSeo.description || "",
+            seoKeywords: (newSeo.keywords || []).join(", "),
+          }))
+        }
+        defaultTitle={form.name}
+        defaultDescription={form.shortDescription || form.description}
+        defaultOgImage={form.bannerImage}
+        defaultSlug={form.slug}
+        serviceTypeLabel="Path"
+        sectionNumber="11"
+        disabled={submitting}
+      />
+
+      {/* 12. FAQs & Publishing Status */}
       <div className="card p-6 space-y-4">
-        <h3 className="text-base font-semibold text-charcoal-800 flex items-center gap-2 border-b border-cream-100 pb-2">
-          <HelpCircle className="w-4 h-4 text-saffron-600" />
-          11. SEO, FAQs & Publishing Status
-        </h3>
-
-        {/* SEO */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-charcoal-700 uppercase mb-1">
-              Meta Title
-            </label>
-            <input
-              type="text"
-              value={form.seoTitle}
-              onChange={(e) => setForm((p) => ({ ...p, seoTitle: e.target.value }))}
-              placeholder="e.g. Sundarkand Path Recitation in Kashi"
-              className="input-field w-full text-sm"
-            />
+        <div className="flex items-center justify-between border-b border-cream-100 pb-2">
+          <div className="flex items-center gap-2">
+            <h3 className="text-base font-semibold text-charcoal-800 flex items-center gap-2">
+              <HelpCircle className="w-4 h-4 text-saffron-600" />
+              12. FAQs & Publishing Status
+            </h3>
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-saffron-50 text-saffron-700 border border-saffron-200">
+              {form.faqs.filter((f) => f.question.trim().length > 0).length} FAQ{form.faqs.filter((f) => f.question.trim().length > 0).length === 1 ? "" : "s"}
+            </span>
           </div>
-          <div>
-            <label className="block text-xs font-semibold text-charcoal-700 uppercase mb-1">
-              Meta Description
-            </label>
-            <input
-              type="text"
-              value={form.seoDescription}
-              onChange={(e) => setForm((p) => ({ ...p, seoDescription: e.target.value }))}
-              placeholder="e.g. Book authentic Sundarkand Path recited by Vedic Acharyas..."
-              className="input-field w-full text-sm"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-charcoal-700 uppercase mb-1">
-              Keywords (Comma-separated)
-            </label>
-            <input
-              type="text"
-              value={form.seoKeywords}
-              onChange={(e) => setForm((p) => ({ ...p, seoKeywords: e.target.value }))}
-              placeholder="e.g. sundarkand path, ramcharitmanas, kashi recitation"
-              className="input-field w-full text-sm"
-            />
-          </div>
-        </div>
-
-        {/* FAQs */}
-        <div className="pt-2">
-          <div className="flex items-center justify-between mb-2">
-            <label className="text-xs font-semibold text-charcoal-700 uppercase">
-              Frequently Asked Questions (FAQs)
-            </label>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsFaqBulkModalOpen(true)}
+              className="btn-secondary text-xs px-2.5 py-1 inline-flex items-center gap-1.5"
+            >
+              <ListPlus className="w-3.5 h-3.5 text-saffron-600" /> Bulk Add FAQs
+            </button>
             <button
               type="button"
               onClick={handleAddFaq}
@@ -1617,17 +1793,45 @@ export default function PathServiceForm() {
               <Plus className="w-3 h-3" /> Add FAQ
             </button>
           </div>
-          <div className="space-y-3">
-            {form.faqs.map((faq, idx) => (
-              <div
-                key={idx}
-                className="p-3 rounded-lg border border-cream-200 bg-cream-50/40 space-y-2 relative"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-semibold text-charcoal-400 uppercase">
-                    FAQ #{idx + 1}
-                  </span>
-                  {form.faqs.length > 1 && (
+        </div>
+
+        {/* FAQs */}
+        <div className="pt-2">
+          {form.faqs.length === 0 ? (
+            <div className="p-4 rounded-lg border border-dashed border-cream-300 text-center bg-cream-50/50 mb-3">
+              <HelpCircle className="w-5 h-5 mx-auto mb-1 text-charcoal-400" />
+              <p className="text-xs text-charcoal-500 font-medium">No FAQs added yet</p>
+              <p className="text-[11px] text-charcoal-400 mb-2">
+                Paste multiple Q&A pairs at once or create one manually.
+              </p>
+              <div className="flex items-center justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsFaqBulkModalOpen(true)}
+                  className="btn-secondary text-xs px-2.5 py-1 inline-flex items-center gap-1"
+                >
+                  <ListPlus className="w-3 h-3 text-saffron-600" /> Bulk Add FAQs
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAddFaq}
+                  className="btn-secondary text-xs px-2.5 py-1 inline-flex items-center gap-1"
+                >
+                  <Plus className="w-3 h-3" /> Add Single FAQ
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {form.faqs.map((faq, idx) => (
+                <div
+                  key={idx}
+                  className="p-3 rounded-lg border border-cream-200 bg-cream-50/40 space-y-2 relative"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-semibold text-charcoal-400 uppercase">
+                      FAQ #{idx + 1}
+                    </span>
                     <button
                       type="button"
                       onClick={() => handleRemoveFaq(idx)}
@@ -1635,25 +1839,25 @@ export default function PathServiceForm() {
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
-                  )}
+                  </div>
+                  <input
+                    type="text"
+                    value={faq.question}
+                    onChange={(e) => handleUpdateFaq(idx, "question", e.target.value)}
+                    placeholder="Question (e.g. How is the Sankalpa taken during online recitation?)"
+                    className="input-field text-xs w-full"
+                  />
+                  <textarea
+                    rows={2}
+                    value={faq.answer}
+                    onChange={(e) => handleUpdateFaq(idx, "answer", e.target.value)}
+                    placeholder="Answer..."
+                    className="input-field text-xs w-full"
+                  />
                 </div>
-                <input
-                  type="text"
-                  value={faq.question}
-                  onChange={(e) => handleUpdateFaq(idx, "question", e.target.value)}
-                  placeholder="Question (e.g. How is the Sankalpa taken during online recitation?)"
-                  className="input-field text-xs w-full"
-                />
-                <textarea
-                  rows={2}
-                  value={faq.answer}
-                  onChange={(e) => handleUpdateFaq(idx, "answer", e.target.value)}
-                  placeholder="Answer..."
-                  className="input-field text-xs w-full"
-                />
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Publishing Switches */}
@@ -1711,6 +1915,41 @@ export default function PathServiceForm() {
           {submitting ? "Saving..." : isEdit ? "Save Changes" : "Create Service"}
         </button>
       </div>
+
+      {/* Bulk Duration Options Modal */}
+      <BulkStringListModal
+        isOpen={isDurationsBulkModalOpen}
+        onClose={() => setIsDurationsBulkModalOpen(false)}
+        title="Bulk Add Duration Options"
+        itemLabel="Duration Option"
+        placeholder="Paste duration options here (one per line)...&#10;e.g.&#10;3 to 4 Hours&#10;Same-Day Extended (Morning & Evening)&#10;2 Days (Morning & Evening)&#10;3 Days (Daily 3 Hours)&#10;7 Days Complete Saptah"
+        sampleItems={[
+          "3 to 4 Hours",
+          "Same-Day Extended (Morning & Evening)",
+          "2 Days (Morning & Evening)",
+          "3 Days (Daily 3 Hours)",
+          "7 Days Complete Saptah",
+        ]}
+        isNumbered={false}
+        existingCount={form.availableDurations.length}
+        onApply={handleApplyBulkDurations}
+      />
+
+      {/* Bulk Samagri Modal */}
+      <BulkSamagriModal
+        isOpen={isSamagriBulkModalOpen}
+        onClose={() => setIsSamagriBulkModalOpen(false)}
+        existingCount={form.samagri.filter((s) => s.name.trim().length > 0).length}
+        onApply={handleApplyBulkSamagri}
+      />
+
+      {/* Bulk FAQ Modal */}
+      <BulkFaqModal
+        isOpen={isFaqBulkModalOpen}
+        onClose={() => setIsFaqBulkModalOpen(false)}
+        existingCount={form.faqs.filter((f) => f.question.trim().length > 0).length}
+        onApply={handleApplyBulkFaqs}
+      />
     </form>
   );
 }

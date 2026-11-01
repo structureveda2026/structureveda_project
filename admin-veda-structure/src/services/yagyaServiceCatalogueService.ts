@@ -1,4 +1,5 @@
 import api from "@/services/api";
+import { SeoMetadata } from "@/types";
 
 // --- Shared Types ---
 
@@ -151,6 +152,7 @@ export interface AdminYagyaServiceDetail {
   significance: string[];
   procedureSteps: YagyaProcedureStep[];
   faqs: YagyaFaqItem[];
+  seo?: SeoMetadata;
   createdAt: string;
   updatedAt: string;
 }
@@ -215,6 +217,7 @@ export interface YagyaServicePayload {
   significance?: string[];
   procedureSteps?: YagyaProcedureStep[];
   faqs?: YagyaFaqItem[];
+  seo?: SeoMetadata;
 }
 
 // --- Service Functions ---

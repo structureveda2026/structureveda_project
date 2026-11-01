@@ -1,0 +1,11 @@
+# Robots.txt for Veda Structure Public Website
+User-agent: *
+Allow: /
+Allow: /yagya-puja/
+
+# Disallow internal or admin paths
+Disallow: /admin/
+Disallow: /api/
+
+# Authoritative Sitemap
+Sitemap: https://vedastructure.com/sitemap.xml

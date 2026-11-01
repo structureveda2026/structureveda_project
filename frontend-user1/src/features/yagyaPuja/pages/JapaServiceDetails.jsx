@@ -21,6 +21,7 @@ import japaCatalogueService, {
   mapApiJapaServiceDetailToUi,
 } from "../../../services/japaCatalogueService";
 import JapaServiceCard from "../components/JapaServiceCard";
+import PublicSEO from "../../../components/common/PublicSEO";
 
 const formatCount = (count) => {
   if (count >= 100000) return `${(count / 100000).toLocaleString("en-IN")} Lakh`;
@@ -94,9 +95,6 @@ const JapaServiceDetails = () => {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    if (service?.name) {
-      document.title = `${service.name} | Vedic Mantra Japa | Veda Structure`;
-    }
   }, [service]);
 
   if (loading) {
@@ -158,6 +156,7 @@ const JapaServiceDetails = () => {
 
   return (
     <div className="min-h-screen bg-[#faf4e6] text-[#2b241d]">
+      <PublicSEO service={service} serviceType="japa" />
       {/* Breadcrumb Navigation */}
       <div className="border-b border-[#ebdcc4] bg-[#fffdfa] px-5 py-3.5 sm:px-8 lg:px-12">
         <div className="mx-auto flex max-w-[1280px] items-center gap-2 text-[12.5px] text-[#78644e]">
