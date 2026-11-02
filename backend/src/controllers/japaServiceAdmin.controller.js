@@ -5,6 +5,11 @@ import {
   serializeAdminJapaServiceDetail,
   normalizeFaqs,
 } from "../serializers/japaService.serializer.js";
+import {
+  validateSeoInput,
+  normalizeSeo,
+  mergeSeo,
+} from "../services/seo.service.js";
 
 const VALID_ADMIN_SORTS = [
   "name-asc",
@@ -542,6 +547,16 @@ export const createAdminJapaService = async (req, res) => {
       });
     }
 
+    if (typeof seo !== "undefined" && seo !== null) {
+      const seoValidation = validateSeoInput(seo);
+      if (!seoValidation.valid) {
+        return res.status(400).json({
+          success: false,
+          message: seoValidation.message,
+        });
+      }
+    }
+
     // 10. Persistence
     const newService = await JapaService.create({
       name: String(name).trim(),
@@ -573,7 +588,7 @@ export const createAdminJapaService = async (req, res) => {
       galleryImages: Array.isArray(galleryImages) ? galleryImages : [],
       samagri: Array.isArray(samagri) ? samagri : [],
       prasad: prasad ? String(prasad).trim() : null,
-      seo: typeof seo === "object" && seo !== null && !Array.isArray(seo) ? seo : {},
+      seo: typeof seo === "object" && seo !== null ? normalizeSeo(seo) : {},
       faqs: normalizeFaqs(faqs),
     });
 
@@ -842,7 +857,15 @@ export const updateAdminJapaService = async (req, res) => {
     }
     if (typeof prasad !== "undefined") service.prasad = prasad ? String(prasad).trim() : null;
     if (typeof seo !== "undefined") {
-      service.seo = typeof seo === "object" && seo !== null && !Array.isArray(seo) ? seo : {};
+      if (seo !== null) {
+        const seoValidation = validateSeoInput(seo);
+        if (!seoValidation.valid) {
+          return res.status(400).json({ success: false, message: seoValidation.message });
+        }
+        service.seo = mergeSeo(service.seo, seo);
+      } else {
+        service.seo = {};
+      }
     }
     if (typeof faqs !== "undefined") {
       if (!Array.isArray(faqs)) {

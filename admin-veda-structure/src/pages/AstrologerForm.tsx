@@ -10,7 +10,21 @@ import {
   Trash2,
   Image as ImageIcon,
   CheckCircle2,
+  ListPlus,
 } from "lucide-react";
+import BulkFaqModal from "@/components/BulkFaqModal";
+import BulkStringListModal from "@/components/BulkStringListModal";
+
+const SAMPLE_TIME_SLOTS = [
+  "09:00 AM - 09:30 AM",
+  "09:30 AM - 10:00 AM",
+  "10:00 AM - 10:30 AM",
+  "11:00 AM - 11:30 AM",
+  "02:00 PM - 02:30 PM",
+  "03:00 PM - 03:30 PM",
+  "04:00 PM - 04:30 PM",
+  "05:00 PM - 05:30 PM",
+];
 import PageHeader from "@/components/PageHeader";
 import { useToast } from "@/context/ToastContext";
 import astrologerAdminService, {
@@ -75,6 +89,10 @@ export default function AstrologerForm() {
   const [addOnReport, setAddOnReport] = useState(500);
   const [addOnExpress, setAddOnExpress] = useState(400);
 
+  // Bulk Modals
+  const [isBulkFaqOpen, setIsBulkFaqOpen] = useState(false);
+  const [isBulkSlotsOpen, setIsBulkSlotsOpen] = useState(false);
+
   useEffect(() => {
     if (!id) return;
     const loadData = async () => {
@@ -129,6 +147,133 @@ export default function AstrologerForm() {
 
     loadData();
   }, [id]);
+
+  // Bulk FAQ handler
+  const handleApplyBulkFaqs = (
+    newFaqs: Array<{ question: string; answer: string }>,
+    mode: "append" | "replace"
+  ) => {
+    const mapped = newFaqs
+      .map((f) => ({
+        q: f.question.trim(),
+        a: f.answer.trim(),
+      }))
+      .filter((f) => f.q.length > 0 || f.a.length > 0);
+
+    if (mapped.length === 0) {
+      toast.info("No valid FAQs to apply.");
+      return;
+    }
+
+    // Deduplicate within the newly parsed batch (first occurrence wins)
+    const seenBatchQuestions = new Set<string>();
+    const deduplicatedBatch: AstrologerFaq[] = [];
+    for (const item of mapped) {
+      const normQ = item.q.toLowerCase();
+      if (normQ && seenBatchQuestions.has(normQ)) {
+        continue;
+      }
+      if (normQ) {
+        seenBatchQuestions.add(normQ);
+      }
+      deduplicatedBatch.push(item);
+    }
+
+    setFaqs((prev) => {
+      if (mode === "replace") {
+        return deduplicatedBatch;
+      } else {
+        // Discard empty placeholder rows ({ q: "", a: "" })
+        const existingMeaningful = prev.filter(
+          (f) => f.q.trim().length > 0 || f.a.trim().length > 0
+        );
+        const existingQuestions = new Set(
+          existingMeaningful
+            .map((f) => f.q.trim().toLowerCase())
+            .filter(Boolean)
+        );
+
+        // Append items that do not duplicate existing questions (case-insensitive)
+        const toAppend = deduplicatedBatch.filter((item) => {
+          const normQ = item.q.toLowerCase();
+          return !normQ || !existingQuestions.has(normQ);
+        });
+
+        return [...existingMeaningful, ...toAppend];
+      }
+    });
+
+    toast.success(
+      mode === "replace"
+        ? `Replaced with ${deduplicatedBatch.length} FAQ${deduplicatedBatch.length === 1 ? "" : "s"}.`
+        : `Added FAQs successfully.`
+    );
+  };
+
+  // Normalization for consultation time slots
+  const normalizeSlotString = (slot: string): string => {
+    let trimmed = slot.trim();
+    // Normalize range separators like " - ", " – ", " — " to standard " - "
+    trimmed = trimmed.replace(/\s*[–—]\s*/g, " - ");
+    trimmed = trimmed.replace(/\s+-\s+/g, " - ");
+    // Collapse multiple internal spaces
+    trimmed = trimmed.replace(/\s{2,}/g, " ");
+    return trimmed;
+  };
+
+  // Bulk Time Slots handler
+  const handleApplyBulkSlots = (
+    items: string[],
+    mode: "append" | "replace"
+  ) => {
+    const normalizedItems = items
+      .map(normalizeSlotString)
+      .filter((s) => s.length > 0);
+
+    if (normalizedItems.length === 0) {
+      toast.info("No valid time slots to apply.");
+      return;
+    }
+
+    // Deduplicate within the newly parsed batch
+    const seenBatch = new Set<string>();
+    const deduplicatedBatch: string[] = [];
+    for (const slot of normalizedItems) {
+      const normKey = slot.toLowerCase().replace(/\s+/g, " ");
+      if (!seenBatch.has(normKey)) {
+        seenBatch.add(normKey);
+        deduplicatedBatch.push(slot);
+      }
+    }
+
+    setAvailableTimeSlots((prev) => {
+      if (mode === "replace") {
+        return deduplicatedBatch;
+      } else {
+        // Discard empty placeholders
+        const existingMeaningful = prev.filter((s) => s.trim().length > 0);
+        const existingNormalizedKeys = new Set(
+          existingMeaningful.map((s) =>
+            normalizeSlotString(s).toLowerCase().replace(/\s+/g, " ")
+          )
+        );
+
+        // Append items that do not duplicate existing slots
+        const toAppend = deduplicatedBatch.filter((slot) => {
+          const normKey = slot.toLowerCase().replace(/\s+/g, " ");
+          return !existingNormalizedKeys.has(normKey);
+        });
+
+        return [...existingMeaningful, ...toAppend];
+      }
+    });
+
+    toast.success(
+      mode === "replace"
+        ? `Replaced with ${deduplicatedBatch.length} time slot${deduplicatedBatch.length === 1 ? "" : "s"}.`
+        : `Added time slots successfully.`
+    );
+  };
 
   // Image upload handler
   const handleFileUpload = async (
@@ -819,25 +964,67 @@ export default function AstrologerForm() {
       {activeTab === "faqs" && (
         <div className="bg-white p-6 rounded-xl border border-cream-200 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-semibold text-charcoal-800">
-                Frequently Asked Questions
-              </h3>
-              <p className="text-xs text-charcoal-500">
-                Answers to common client questions about the consultation process.
-              </p>
+            <div className="flex items-center gap-2">
+              <div>
+                <h3 className="text-sm font-semibold text-charcoal-800">
+                  Frequently Asked Questions
+                </h3>
+                <p className="text-xs text-charcoal-500">
+                  Answers to common client questions about the consultation process.
+                </p>
+              </div>
+              {faqs.filter((f) => f.q.trim() || f.a.trim()).length > 0 && (
+                <span className="text-[11px] font-semibold text-saffron-700 bg-saffron-50 px-2 py-0.5 rounded-full border border-saffron-200 shrink-0">
+                  {faqs.filter((f) => f.q.trim() || f.a.trim()).length} FAQs
+                </span>
+              )}
             </div>
-            <button
-              type="button"
-              onClick={() => setFaqs([...faqs, { q: "", a: "" }])}
-              className="flex items-center gap-1 text-xs font-semibold text-saffron-700 hover:text-saffron-800 cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Add FAQ</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsBulkFaqOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-saffron-300 text-saffron-700 bg-saffron-50/50 hover:bg-saffron-100 transition cursor-pointer"
+              >
+                <ListPlus className="w-3.5 h-3.5" />
+                <span>Bulk Add FAQs</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setFaqs([...faqs, { q: "", a: "" }])}
+                className="flex items-center gap-1 text-xs font-semibold text-saffron-700 hover:text-saffron-800 cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add FAQ</span>
+              </button>
+            </div>
           </div>
 
           <div className="space-y-3">
+            {faqs.length === 0 && (
+              <div className="p-8 text-center bg-cream-50/50 rounded-xl border border-dashed border-cream-300">
+                <p className="text-xs text-charcoal-500 mb-3">
+                  No FAQs added yet. Add common client questions individually or use Bulk Add to paste multiple questions at once.
+                </p>
+                <div className="flex items-center justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setFaqs([{ q: "", a: "" }])}
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg text-charcoal-700 bg-white border border-cream-300 hover:bg-cream-50 transition cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Single FAQ</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsBulkFaqOpen(true)}
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg text-saffron-700 bg-saffron-50 border border-saffron-300 hover:bg-saffron-100 transition cursor-pointer"
+                  >
+                    <ListPlus className="w-3.5 h-3.5" />
+                    <span>Bulk Add FAQs</span>
+                  </button>
+                </div>
+              </div>
+            )}
             {faqs.map((faq, idx) => (
               <div
                 key={idx}
@@ -886,27 +1073,44 @@ export default function AstrologerForm() {
           {/* Time Slots */}
           <div className="bg-white p-6 rounded-xl border border-cream-200 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-semibold text-charcoal-800">
-                  Daily Consultation Slots
-                </h3>
-                <p className="text-xs text-charcoal-500">
-                  Standard time windows presented to clients when booking an appointment.
-                </p>
+              <div className="flex items-center gap-2">
+                <div>
+                  <h3 className="text-sm font-semibold text-charcoal-800">
+                    Daily Consultation Slots
+                  </h3>
+                  <p className="text-xs text-charcoal-500">
+                    Standard time windows presented to clients when booking an appointment.
+                  </p>
+                </div>
+                {availableTimeSlots.filter((s) => s.trim().length > 0).length > 0 && (
+                  <span className="text-[11px] font-semibold text-saffron-700 bg-saffron-50 px-2 py-0.5 rounded-full border border-saffron-200 shrink-0">
+                    {availableTimeSlots.filter((s) => s.trim().length > 0).length} Slots
+                  </span>
+                )}
               </div>
-              <button
-                type="button"
-                onClick={() =>
-                  setAvailableTimeSlots([
-                    ...availableTimeSlots,
-                    "09:00 AM - 09:30 AM",
-                  ])
-                }
-                className="flex items-center gap-1 text-xs font-semibold text-saffron-700 hover:text-saffron-800 cursor-pointer"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Add Time Slot</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsBulkSlotsOpen(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-saffron-300 text-saffron-700 bg-saffron-50/50 hover:bg-saffron-100 transition cursor-pointer"
+                >
+                  <ListPlus className="w-3.5 h-3.5" />
+                  <span>Bulk Add Slots</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setAvailableTimeSlots([
+                      ...availableTimeSlots,
+                      "09:00 AM - 09:30 AM",
+                    ])
+                  }
+                  className="flex items-center gap-1 text-xs font-semibold text-saffron-700 hover:text-saffron-800 cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Time Slot</span>
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -937,6 +1141,32 @@ export default function AstrologerForm() {
                 </div>
               ))}
             </div>
+
+            {availableTimeSlots.length === 0 && (
+              <div className="p-8 text-center bg-cream-50/50 rounded-xl border border-dashed border-cream-300">
+                <p className="text-xs text-charcoal-500 mb-3">
+                  No daily consultation slots configured yet. Add slots individually or use Bulk Add to paste daily schedules.
+                </p>
+                <div className="flex items-center justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setAvailableTimeSlots(["09:00 AM - 09:30 AM"])}
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg text-charcoal-700 bg-white border border-cream-300 hover:bg-cream-50 transition cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Single Slot</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsBulkSlotsOpen(true)}
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg text-saffron-700 bg-saffron-50 border border-saffron-300 hover:bg-saffron-100 transition cursor-pointer"
+                  >
+                    <ListPlus className="w-3.5 h-3.5" />
+                    <span>Bulk Add Slots</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Add-On Pricing */}
@@ -1023,6 +1253,27 @@ export default function AstrologerForm() {
           </span>
         </button>
       </div>
+
+      {/* Bulk FAQs Modal */}
+      <BulkFaqModal
+        isOpen={isBulkFaqOpen}
+        onClose={() => setIsBulkFaqOpen(false)}
+        existingCount={faqs.filter((f) => f.q.trim() || f.a.trim()).length}
+        onApply={handleApplyBulkFaqs}
+      />
+
+      {/* Bulk Consultation Time Slots Modal */}
+      <BulkStringListModal
+        isOpen={isBulkSlotsOpen}
+        onClose={() => setIsBulkSlotsOpen(false)}
+        title="Bulk Add Consultation Time Slots"
+        itemLabel="Time Slot"
+        placeholder={`Paste consultation time slots (one per line)...\ne.g.\n09:00 AM - 09:30 AM\n10:00 AM - 10:30 AM\n11:00 AM - 11:30 AM\n02:00 PM - 02:30 PM\n03:00 PM - 03:30 PM`}
+        sampleItems={SAMPLE_TIME_SLOTS}
+        isNumbered={false}
+        existingCount={availableTimeSlots.filter((s) => s.trim().length > 0).length}
+        onApply={handleApplyBulkSlots}
+      />
     </form>
   );
 }

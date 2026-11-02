@@ -1,4 +1,5 @@
 import api from "@/services/api";
+import { SeoMetadata } from "@/types";
 
 export type PujaAvailableMode = "in_person" | "remote" | "hybrid";
 
@@ -94,6 +95,7 @@ export interface AdminPujaServiceDetail {
   significance: string[];
   procedureSteps: string[];
   faqs: PujaFaqItem[];
+  seo?: SeoMetadata;
   createdAt: string;
   updatedAt: string;
 }
@@ -144,6 +146,7 @@ export interface PujaServicePayload {
   significance?: string[];
   procedureSteps?: string[];
   faqs?: PujaFaqItem[];
+  seo?: SeoMetadata;
 }
 
 /**

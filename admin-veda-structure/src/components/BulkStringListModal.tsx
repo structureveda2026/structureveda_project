@@ -30,13 +30,14 @@ export function cleanBulletPrefix(line: string): string {
   let cleaned = line.trim();
 
   // Strip common numbering / step prefixes: "1. ", "1) ", "1: ", "[1] ", "Phase 1: ", "Step 1 - ", "Step 1:"
-  cleaned = cleaned.replace(/^(?:Phase\s*\d+\s*[:\-.]?\s*|Step\s*\d+\s*[:\-.]?\s*|\d+[\.\)\:\-]\s*|\[\d+\]\s*)/i, "");
+  // Note: ensure colon/hyphen after digits is not followed by another digit to avoid stripping time hours (e.g. 09:00 AM)
+  cleaned = cleaned.replace(/^(?:Phase\s*\d+\s*[:\-.]?\s*|Step\s*\d+\s*[:\-.]?\s*|\d+[\.\)]\s*|\d+\s*[:\-]\s*(?!\d)|\[\d+\]\s*)/i, "");
 
   // Strip common bullet characters: •, -, *, ◦, ▪, ▫, ✓, ✔, –, —, >
   cleaned = cleaned.replace(/^[•\-\*\u2022\u25E6\u25AA\u25AB\u2713\u2714\u2013\u2014>]\s*/, "");
 
   // Repeat once more in case of combined prefix like "1. • Item" or "• 1. Item"
-  cleaned = cleaned.replace(/^(?:Phase\s*\d+\s*[:\-.]?\s*|Step\s*\d+\s*[:\-.]?\s*|\d+[\.\)\:\-]\s*|\[\d+\]\s*)/i, "");
+  cleaned = cleaned.replace(/^(?:Phase\s*\d+\s*[:\-.]?\s*|Step\s*\d+\s*[:\-.]?\s*|\d+[\.\)]\s*|\d+\s*[:\-]\s*(?!\d)|\[\d+\]\s*)/i, "");
   cleaned = cleaned.replace(/^[•\-\*\u2022\u25E6\u25AA\u25AB\u2713\u2714\u2013\u2014>]\s*/, "");
 
   return cleaned.trim();

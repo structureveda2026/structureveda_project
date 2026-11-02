@@ -31,6 +31,8 @@ import pathServiceRoutes from "./routes/pathService.routes.js";
 import pathServiceAdminRoutes from "./routes/pathServiceAdmin.routes.js";
 import pathCategoryRoutes from "./routes/pathCategory.routes.js";
 import pathCategoryAdminRoutes from "./routes/pathCategoryAdmin.routes.js";
+import sitemapRoutes from "./routes/sitemap.routes.js";
+import seoPreviewRoutes from "./routes/seoPreview.routes.js";
 
 // Library Module routes (Blogs, Vedas, Mantras & Suktas)
 import {
@@ -102,6 +104,12 @@ app.use("/api/path-services", pathServiceRoutes);
 app.use("/api/admin/path-services", pathServiceAdminRoutes);
 app.use("/api/path-categories", pathCategoryRoutes);
 app.use("/api/admin/path-categories", pathCategoryAdminRoutes);
+
+// Technical SEO: Dynamic Sitemap & Crawler Preview Endpoints
+app.use("/sitemap.xml", sitemapRoutes);
+app.use("/api/sitemap.xml", sitemapRoutes);
+app.use("/api/seo", seoPreviewRoutes);
+app.use("/seo", seoPreviewRoutes);
 
 // Library Module Endpoints (Standard & Aliases)
 app.use("/api/admin/library/blogs", blogAdminRoutes);

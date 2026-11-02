@@ -23,6 +23,8 @@ import PageHeader from "@/components/PageHeader";
 import BulkFaqModal from "@/components/BulkFaqModal";
 import BulkStringListModal from "@/components/BulkStringListModal";
 import CompactRichTextEditor from "@/components/CompactRichTextEditor";
+import SEOSection from "@/components/SEOSection";
+import { SeoMetadata } from "@/types";
 import CompactListManager from "@/components/CompactListManager";
 import { useToast } from "@/context/ToastContext";
 import mediaUploadService from "@/services/mediaUploadService";
@@ -84,6 +86,7 @@ interface FormState {
   significance: string[];
   procedureSteps: string[];
   faqs: PujaFaqItem[];
+  seo: SeoMetadata;
 }
 
 export default function PujaServiceForm() {
@@ -148,6 +151,7 @@ export default function PujaServiceForm() {
     significance: ["Prescribed in ancient Vedic texts"],
     procedureSteps: ["Sankalp & Ganapati Puja", "Mantra Chanting & Abhishek"],
     faqs: [{ question: "Can I participate virtually?", answer: "Yes, high-definition live stream is provided." }],
+    seo: {},
   });
 
   // Load purposes and categories
@@ -212,6 +216,7 @@ export default function PujaServiceForm() {
                 answer: f.answer || f.a || "",
               }))
             : [],
+          seo: data.seo || {},
         });
         setSlugManuallyEdited(true);
       } catch (err: any) {
@@ -578,6 +583,7 @@ export default function PujaServiceForm() {
           answer: (f.answer || f.a || "").trim(),
         }))
         .filter((f) => f.question && f.answer),
+      seo: form.seo,
     };
 
     try {
@@ -1338,6 +1344,18 @@ export default function PujaServiceForm() {
             </div>
           )}
         </div>
+
+        {/* Section: Search Engine Optimization & Social Sharing */}
+        <SEOSection
+          value={form.seo}
+          onChange={(newSeo) => setForm((p) => ({ ...p, seo: newSeo }))}
+          defaultTitle={form.name}
+          defaultDescription={form.shortDescription || form.fullDescription}
+          defaultOgImage={form.bannerImage}
+          defaultSlug={form.slug}
+          serviceTypeLabel="Puja"
+          disabled={submitting}
+        />
 
         {/* Bottom Save Bar */}
         <div className="flex items-center justify-end gap-3 pt-4">

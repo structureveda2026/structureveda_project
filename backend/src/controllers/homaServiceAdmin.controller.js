@@ -5,6 +5,11 @@ import {
   serializeAdminHomaServiceDetail,
   normalizeFaqs,
 } from "../serializers/homaService.serializer.js";
+import {
+  validateSeoInput,
+  normalizeSeo,
+  mergeSeo,
+} from "../services/seo.service.js";
 
 const VALID_ADMIN_SORTS = [
   "name-asc",
@@ -630,11 +635,14 @@ export const createAdminHomaService = async (req, res) => {
       });
     }
 
-    if (typeof seo !== "undefined" && seo !== null && (typeof seo !== "object" || Array.isArray(seo))) {
-      return res.status(400).json({
-        success: false,
-        message: "seo must be an object.",
-      });
+    if (typeof seo !== "undefined" && seo !== null) {
+      const seoValidation = validateSeoInput(seo);
+      if (!seoValidation.valid) {
+        return res.status(400).json({
+          success: false,
+          message: seoValidation.message,
+        });
+      }
     }
 
     // 12. Persistence
@@ -671,7 +679,7 @@ export const createAdminHomaService = async (req, res) => {
       samagri: Array.isArray(samagri) ? samagri : [],
       prasad: prasad ? String(prasad).trim() : null,
       sankalpaFields: typeof sankalpaFields === "object" && sankalpaFields !== null ? sankalpaFields : {},
-      seo: typeof seo === "object" && seo !== null ? seo : {},
+      seo: typeof seo === "object" && seo !== null ? normalizeSeo(seo) : {},
       faqs: normalizeFaqs(faqs),
     });
 
@@ -970,10 +978,15 @@ export const updateAdminHomaService = async (req, res) => {
       service.sankalpaFields = sankalpaFields;
     }
     if (typeof seo !== "undefined") {
-      if (typeof seo !== "object" || seo === null || Array.isArray(seo)) {
-        return res.status(400).json({ success: false, message: "seo must be an object." });
+      if (seo !== null) {
+        const seoValidation = validateSeoInput(seo);
+        if (!seoValidation.valid) {
+          return res.status(400).json({ success: false, message: seoValidation.message });
+        }
+        service.seo = mergeSeo(service.seo, seo);
+      } else {
+        service.seo = {};
       }
-      service.seo = seo;
     }
     if (typeof faqs !== "undefined") {
       if (!Array.isArray(faqs)) {

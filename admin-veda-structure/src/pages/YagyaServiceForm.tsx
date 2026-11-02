@@ -3,9 +3,13 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   Save, Plus, Trash2, HelpCircle, Image as ImageIcon, Upload, X,
   Flame, Clock, Users, MapPin, DollarSign, Calendar, BookOpen,
-  CheckCircle2, Star, Layers,
+  CheckCircle2, Star, Layers, ListPlus,
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
+import BulkFaqModal from "@/components/BulkFaqModal";
+import BulkStringListModal from "@/components/BulkStringListModal";
+import BulkSamagriModal from "@/components/BulkSamagriModal";
+import BulkDailyScheduleModal from "@/components/BulkDailyScheduleModal";
 import { useToast } from "@/context/ToastContext";
 import * as mediaUploadService from "@/services/mediaUploadService";
 import yagyaCategoryAdminService, {
@@ -15,6 +19,8 @@ import yagyaServiceCatalogueService, {
   YagyaPurpose, YagyaFaqItem, YagyaPricingTier, YagyaDailyScheduleItem,
   YagyaSamagriItem, YagyaWhyPerformItem, YagyaProcedureStep,
 } from "@/services/yagyaServiceCatalogueService";
+import SEOSection from "@/components/SEOSection";
+import { SeoMetadata } from "@/types";
 
 const slugify = (str: string) =>
   str.toLowerCase().trim()
@@ -43,6 +49,7 @@ interface FormState {
   procedureSteps: YagyaProcedureStep[];
   faqs: YagyaFaqItem[];
   isFeatured: boolean; isActive: boolean;
+  seo: SeoMetadata;
 }
 
 export default function YagyaServiceForm() {
@@ -62,6 +69,11 @@ export default function YagyaServiceForm() {
   const [bannerUploading, setBannerUploading] = useState(false);
   const [galleryUploading, setGalleryUploading] = useState(false);
   const [galleryProgress, setGalleryProgress] = useState<{ current: number; total: number } | null>(null);
+  const [isFaqBulkModalOpen, setIsFaqBulkModalOpen] = useState(false);
+  const [isWhatsIncludedBulkModalOpen, setIsWhatsIncludedBulkModalOpen] = useState(false);
+  const [isSamagriBulkModalOpen, setIsSamagriBulkModalOpen] = useState(false);
+  const [isSignificanceBulkModalOpen, setIsSignificanceBulkModalOpen] = useState(false);
+  const [isDailyScheduleBulkModalOpen, setIsDailyScheduleBulkModalOpen] = useState(false);
   const bannerInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
@@ -86,6 +98,7 @@ export default function YagyaServiceForm() {
     procedureSteps: [{ step: "01", title: "Sankalp & Ganapati Puja", description: "" }],
     faqs: [{ question: "Can I participate virtually?", answer: "Yes, live stream is provided." }],
     isFeatured: false, isActive: true,
+    seo: {},
   });
 
   useEffect(() => {
@@ -180,6 +193,7 @@ export default function YagyaServiceForm() {
               }))
             : [],
           isFeatured: Boolean(data.isFeatured), isActive: Boolean(data.isActive),
+          seo: data.seo || {},
         });
         setSlugManuallyEdited(true);
       })
@@ -210,6 +224,87 @@ export default function YagyaServiceForm() {
     setForm((p) => { const faqs = [...p.faqs]; faqs[i] = { ...faqs[i], [k]: v }; return { ...p, faqs }; });
   const remFaq = (i: number) =>
     setForm((p) => { const faqs = [...p.faqs]; faqs.splice(i, 1); return { ...p, faqs }; });
+
+  const handleApplyBulkFaqs = (
+    newFaqs: Array<{ question: string; answer: string }>,
+    mode: "append" | "replace"
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+      faqs: mode === "replace" ? newFaqs : [...prev.faqs, ...newFaqs],
+    }));
+    toast.success(
+      `${newFaqs.length} FAQ${newFaqs.length > 1 ? "s" : ""} ${
+        mode === "replace" ? "replaced" : "added to"
+      } Yagya service.`
+    );
+  };
+
+  const handleApplyBulkWhatsIncluded = (
+    newItems: string[],
+    mode: "append" | "replace"
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+      whatsIncluded: mode === "replace" ? newItems : [...prev.whatsIncluded, ...newItems],
+    }));
+    toast.success(
+      `${newItems.length} inclusion item${newItems.length > 1 ? "s" : ""} ${
+        mode === "replace" ? "replaced" : "added to"
+      } What's Included.`
+    );
+  };
+
+  const handleApplyBulkSamagri = (
+    newItems: YagyaSamagriItem[],
+    mode: "append" | "replace"
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+      samagri: mode === "replace" ? newItems : [...prev.samagri, ...newItems],
+    }));
+    toast.success(
+      `${newItems.length} samagri item${newItems.length > 1 ? "s" : ""} ${
+        mode === "replace" ? "replaced" : "added to"
+      } Samagri list.`
+    );
+  };
+
+  const handleApplyBulkSignificance = (
+    newItems: string[],
+    mode: "append" | "replace"
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+      significance:
+        mode === "replace"
+          ? newItems
+          : [...prev.significance, ...newItems],
+    }));
+    toast.success(
+      `${newItems.length} significance point${
+        newItems.length > 1 ? "s" : ""
+      } ${mode === "replace" ? "replaced" : "added to"} Scriptural Significance.`
+    );
+  };
+
+  const handleApplyBulkDailySchedule = (
+    newItems: YagyaDailyScheduleItem[],
+    mode: "append" | "replace"
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+      dailySchedule:
+        mode === "replace"
+          ? newItems
+          : [...prev.dailySchedule, ...newItems],
+    }));
+    toast.success(
+      `${newItems.length} schedule item${
+        newItems.length > 1 ? "s" : ""
+      } ${mode === "replace" ? "replaced" : "added to"} Daily Schedule.`
+    );
+  };
 
   // Pricing tier helpers — includes panditCount
   const addTier = () => setForm((p) => ({ ...p, pricingTiers: [...p.pricingTiers, { label: "", days: 3, price: 0, panditCount: 5 }] }));
@@ -323,6 +418,7 @@ export default function YagyaServiceForm() {
         significance: form.significance.filter((s) => s.trim()),
         procedureSteps: form.procedureSteps.filter((p) => p.title.trim()),
         faqs: form.faqs.filter((f) => f.question.trim()),
+        seo: form.seo,
       };
       if (isEdit && id) {
         await yagyaServiceCatalogueService.updateYagyaService(id, payload);
@@ -628,13 +724,31 @@ export default function YagyaServiceForm() {
 
         {/* S7: Samagri */}
         <div className="card p-5">
-          <div className="flex items-center justify-between mb-4 pb-2 border-b border-cream-100">
-            <h3 className="text-base font-semibold text-charcoal-800 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-saffron-600" /> 7. Samagri (Ritual Materials)
-            </h3>
-            <button type="button" onClick={addSamagri} className="text-xs font-semibold text-saffron-600 hover:text-saffron-700 flex items-center gap-1">
-              <Plus className="w-3.5 h-3.5" /> Add Item
-            </button>
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4 pb-2 border-b border-cream-100">
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-semibold text-charcoal-800 flex items-center gap-2">
+                <Layers className="w-4 h-4 text-saffron-600" /> 7. Samagri (Ritual Materials)
+              </h3>
+              <span className="text-xs font-semibold text-charcoal-500 bg-cream-100 px-2.5 py-0.5 rounded-full border border-cream-200">
+                {form.samagri.length} {form.samagri.length === 1 ? "Item" : "Items"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsSamagriBulkModalOpen(true)}
+                className="text-xs font-semibold text-saffron-600 hover:text-saffron-700 bg-white hover:bg-saffron-50 px-2.5 py-1 rounded-lg border border-saffron-200 transition flex items-center gap-1 shadow-2xs"
+              >
+                <ListPlus className="w-3.5 h-3.5" /> Bulk Add Samagri
+              </button>
+              <button
+                type="button"
+                onClick={addSamagri}
+                className="text-xs font-semibold text-charcoal-700 hover:text-charcoal-900 bg-white hover:bg-cream-100 px-2.5 py-1 rounded-lg border border-cream-200 transition flex items-center gap-1 shadow-2xs"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add Item
+              </button>
+            </div>
           </div>
           <div className="space-y-2 mb-4">
             {form.samagri.map((item, idx) => (
@@ -653,7 +767,25 @@ export default function YagyaServiceForm() {
                 </button>
               </div>
             ))}
-            {form.samagri.length === 0 && <p className="text-xs text-charcoal-400 italic">No samagri items added.</p>}
+            {form.samagri.length === 0 && (
+              <div className="text-center py-6 px-4 rounded-xl border border-dashed border-cream-300 bg-cream-50/40 text-xs text-charcoal-500">
+                No samagri items added. Click{" "}
+                <strong
+                  className="text-saffron-600 cursor-pointer hover:underline"
+                  onClick={() => setIsSamagriBulkModalOpen(true)}
+                >
+                  Bulk Add Samagri
+                </strong>{" "}
+                to paste an inventory list or{" "}
+                <strong
+                  className="text-charcoal-800 cursor-pointer hover:underline"
+                  onClick={addSamagri}
+                >
+                  + Add Item
+                </strong>{" "}
+                to add one manually.
+              </div>
+            )}
           </div>
           <div>
             <label className="label-field">Prasad Description</label>
@@ -664,13 +796,31 @@ export default function YagyaServiceForm() {
 
         {/* S8: Daily Schedule */}
         <div className="card p-5">
-          <div className="flex items-center justify-between mb-4 pb-2 border-b border-cream-100">
-            <h3 className="text-base font-semibold text-charcoal-800 flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-saffron-600" /> 8. Daily Schedule
-            </h3>
-            <button type="button" onClick={addSched} className="text-xs font-semibold text-saffron-600 hover:text-saffron-700 flex items-center gap-1">
-              <Plus className="w-3.5 h-3.5" /> Add Day
-            </button>
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4 pb-2 border-b border-cream-100">
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-semibold text-charcoal-800 flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-saffron-600" /> 8. Daily Schedule
+              </h3>
+              <span className="text-xs font-semibold text-charcoal-500 bg-cream-100 px-2.5 py-0.5 rounded-full border border-cream-200">
+                {form.dailySchedule.length} {form.dailySchedule.length === 1 ? "Day" : "Days"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsDailyScheduleBulkModalOpen(true)}
+                className="text-xs font-semibold text-saffron-600 hover:text-saffron-700 bg-white hover:bg-saffron-50 px-2.5 py-1 rounded-lg border border-saffron-200 transition flex items-center gap-1 shadow-2xs"
+              >
+                <ListPlus className="w-3.5 h-3.5" /> Bulk Add Schedule
+              </button>
+              <button
+                type="button"
+                onClick={addSched}
+                className="text-xs font-semibold text-charcoal-700 hover:text-charcoal-900 bg-white hover:bg-cream-100 px-2.5 py-1 rounded-lg border border-cream-200 transition flex items-center gap-1 shadow-2xs"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add Day
+              </button>
+            </div>
           </div>
           <div className="space-y-3">
             {form.dailySchedule.map((slot, idx) => (
@@ -699,7 +849,25 @@ export default function YagyaServiceForm() {
                 </div>
               </div>
             ))}
-            {form.dailySchedule.length === 0 && <p className="text-xs text-charcoal-400 italic">No schedule days added.</p>}
+            {form.dailySchedule.length === 0 && (
+              <div className="text-center py-6 px-4 rounded-xl border border-dashed border-cream-300 bg-cream-50/40 text-xs text-charcoal-500">
+                No schedule days added. Click{" "}
+                <strong
+                  className="text-saffron-600 cursor-pointer hover:underline"
+                  onClick={() => setIsDailyScheduleBulkModalOpen(true)}
+                >
+                  Bulk Add Schedule
+                </strong>{" "}
+                to paste an itinerary or{" "}
+                <strong
+                  className="text-charcoal-800 cursor-pointer hover:underline"
+                  onClick={addSched}
+                >
+                  + Add Day
+                </strong>{" "}
+                to add one manually.
+              </div>
+            )}
           </div>
         </div>
 
@@ -711,11 +879,29 @@ export default function YagyaServiceForm() {
 
           {/* What's Included — string[] */}
           <div className="mb-5">
-            <div className="flex items-center justify-between mb-2">
-              <label className="label-field mb-0">What's Included</label>
-              <button type="button" onClick={() => addStr("whatsIncluded")} className="text-xs font-semibold text-saffron-600 hover:text-saffron-700 flex items-center gap-1">
-                <Plus className="w-3.5 h-3.5" /> Add
-              </button>
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-2">
+                <label className="label-field mb-0">What's Included</label>
+                <span className="text-xs font-semibold text-charcoal-500 bg-cream-100 px-2 py-0.5 rounded-full border border-cream-200">
+                  {form.whatsIncluded.length}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsWhatsIncludedBulkModalOpen(true)}
+                  className="text-xs font-semibold text-saffron-600 hover:text-saffron-700 bg-white hover:bg-saffron-50 px-2.5 py-1 rounded-lg border border-saffron-200 transition flex items-center gap-1 shadow-2xs"
+                >
+                  <ListPlus className="w-3.5 h-3.5" /> Bulk Add
+                </button>
+                <button
+                  type="button"
+                  onClick={() => addStr("whatsIncluded")}
+                  className="text-xs font-semibold text-charcoal-700 hover:text-charcoal-900 bg-white hover:bg-cream-100 px-2.5 py-1 rounded-lg border border-cream-200 transition flex items-center gap-1 shadow-2xs"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add
+                </button>
+              </div>
             </div>
             <div className="space-y-2">
               {form.whatsIncluded.map((item, idx) => (
@@ -728,6 +914,25 @@ export default function YagyaServiceForm() {
                   </button>
                 </div>
               ))}
+              {form.whatsIncluded.length === 0 && (
+                <div className="text-center py-4 px-3 rounded-xl border border-dashed border-cream-300 bg-cream-50/40 text-xs text-charcoal-500">
+                  No inclusions added. Click{" "}
+                  <strong
+                    className="text-saffron-600 cursor-pointer hover:underline"
+                    onClick={() => setIsWhatsIncludedBulkModalOpen(true)}
+                  >
+                    Bulk Add
+                  </strong>{" "}
+                  to paste a list or{" "}
+                  <strong
+                    className="text-charcoal-800 cursor-pointer hover:underline"
+                    onClick={() => addStr("whatsIncluded")}
+                  >
+                    + Add
+                  </strong>{" "}
+                  to create one.
+                </div>
+              )}
             </div>
           </div>
 
@@ -758,11 +963,29 @@ export default function YagyaServiceForm() {
 
           {/* Significance — string[] */}
           <div className="mb-5">
-            <div className="flex items-center justify-between mb-2">
-              <label className="label-field mb-0">Scriptural Significance</label>
-              <button type="button" onClick={() => addStr("significance")} className="text-xs font-semibold text-saffron-600 hover:text-saffron-700 flex items-center gap-1">
-                <Plus className="w-3.5 h-3.5" /> Add
-              </button>
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-2">
+                <label className="label-field mb-0">Scriptural Significance</label>
+                <span className="text-xs font-semibold text-charcoal-500 bg-cream-100 px-2 py-0.5 rounded-full border border-cream-200">
+                  {form.significance.length}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsSignificanceBulkModalOpen(true)}
+                  className="text-xs font-semibold text-saffron-600 hover:text-saffron-700 bg-white hover:bg-saffron-50 px-2.5 py-1 rounded-lg border border-saffron-200 transition flex items-center gap-1 shadow-2xs"
+                >
+                  <ListPlus className="w-3.5 h-3.5" /> Bulk Add
+                </button>
+                <button
+                  type="button"
+                  onClick={() => addStr("significance")}
+                  className="text-xs font-semibold text-charcoal-700 hover:text-charcoal-900 bg-white hover:bg-cream-100 px-2.5 py-1 rounded-lg border border-cream-200 transition flex items-center gap-1 shadow-2xs"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add
+                </button>
+              </div>
             </div>
             <div className="space-y-2">
               {form.significance.map((item, idx) => (
@@ -774,6 +997,25 @@ export default function YagyaServiceForm() {
                   </button>
                 </div>
               ))}
+              {form.significance.length === 0 && (
+                <div className="text-center py-4 px-3 rounded-xl border border-dashed border-cream-300 bg-cream-50/40 text-xs text-charcoal-500">
+                  No scriptural significance points added. Click{" "}
+                  <strong
+                    className="text-saffron-600 cursor-pointer hover:underline"
+                    onClick={() => setIsSignificanceBulkModalOpen(true)}
+                  >
+                    Bulk Add
+                  </strong>{" "}
+                  to paste references or{" "}
+                  <strong
+                    className="text-charcoal-800 cursor-pointer hover:underline"
+                    onClick={() => addStr("significance")}
+                  >
+                    + Add
+                  </strong>{" "}
+                  to add one manually.
+                </div>
+              )}
             </div>
           </div>
 
@@ -809,13 +1051,31 @@ export default function YagyaServiceForm() {
 
         {/* S10: FAQs */}
         <div className="card p-5">
-          <div className="flex items-center justify-between mb-4 pb-2 border-b border-cream-100">
-            <h3 className="text-base font-semibold text-charcoal-800 flex items-center gap-2">
-              <HelpCircle className="w-4 h-4 text-saffron-600" /> 10. FAQs
-            </h3>
-            <button type="button" onClick={addFaq} className="text-xs font-semibold text-saffron-600 hover:text-saffron-700 flex items-center gap-1">
-              <Plus className="w-3.5 h-3.5" /> Add FAQ
-            </button>
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4 pb-2 border-b border-cream-100">
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-semibold text-charcoal-800 flex items-center gap-2">
+                <HelpCircle className="w-4 h-4 text-saffron-600" /> 10. FAQs
+              </h3>
+              <span className="text-xs font-semibold text-charcoal-500 bg-cream-100 px-2.5 py-0.5 rounded-full border border-cream-200">
+                {form.faqs.length} {form.faqs.length === 1 ? "FAQ" : "FAQs"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsFaqBulkModalOpen(true)}
+                className="text-xs font-semibold text-saffron-600 hover:text-saffron-700 bg-white hover:bg-saffron-50 px-2.5 py-1 rounded-lg border border-saffron-200 transition flex items-center gap-1 shadow-2xs"
+              >
+                <ListPlus className="w-3.5 h-3.5" /> Bulk Add FAQs
+              </button>
+              <button
+                type="button"
+                onClick={addFaq}
+                className="text-xs font-semibold text-charcoal-700 hover:text-charcoal-900 bg-white hover:bg-cream-100 px-2.5 py-1 rounded-lg border border-cream-200 transition flex items-center gap-1 shadow-2xs"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add FAQ
+              </button>
+            </div>
           </div>
           <div className="space-y-3">
             {form.faqs.map((faq, idx) => (
@@ -835,7 +1095,25 @@ export default function YagyaServiceForm() {
                 </div>
               </div>
             ))}
-            {form.faqs.length === 0 && <p className="text-xs text-charcoal-400 italic">No FAQs added.</p>}
+            {form.faqs.length === 0 && (
+              <div className="text-center py-6 px-4 rounded-xl border border-dashed border-cream-300 bg-cream-50/40 text-xs text-charcoal-500">
+                No FAQs added yet. Click{" "}
+                <strong
+                  className="text-saffron-600 cursor-pointer hover:underline"
+                  onClick={() => setIsFaqBulkModalOpen(true)}
+                >
+                  Bulk Add FAQs
+                </strong>{" "}
+                to paste multiple entries or{" "}
+                <strong
+                  className="text-charcoal-800 cursor-pointer hover:underline"
+                  onClick={addFaq}
+                >
+                  + Add FAQ
+                </strong>{" "}
+                to create one manually.
+              </div>
+            )}
           </div>
         </div>
 
@@ -892,6 +1170,18 @@ export default function YagyaServiceForm() {
           </div>
         </div>
 
+        {/* Section: Search Engine Optimization & Social Sharing */}
+        <SEOSection
+          value={form.seo}
+          onChange={(newSeo) => setForm((p) => ({ ...p, seo: newSeo }))}
+          defaultTitle={form.name}
+          defaultDescription={form.shortDescription || form.fullDescription}
+          defaultOgImage={form.bannerImage}
+          defaultSlug={form.slug}
+          serviceTypeLabel="Yagya"
+          disabled={submitting}
+        />
+
         {/* Submit Footer */}
         <div className="flex justify-end gap-3 pb-6">
           <Link to={isEdit && id ? `/admin/yagya-services/${id}` : "/admin/yagya-services"} className="btn-secondary">Cancel</Link>
@@ -901,6 +1191,69 @@ export default function YagyaServiceForm() {
           </button>
         </div>
       </form>
+
+      {/* Bulk FAQ Modal */}
+      <BulkFaqModal
+        isOpen={isFaqBulkModalOpen}
+        onClose={() => setIsFaqBulkModalOpen(false)}
+        onApply={handleApplyBulkFaqs}
+        existingCount={
+          form.faqs.filter((f) => f.question.trim().length > 0).length
+        }
+      />
+
+      {/* Bulk What's Included Modal */}
+      <BulkStringListModal
+        isOpen={isWhatsIncludedBulkModalOpen}
+        onClose={() => setIsWhatsIncludedBulkModalOpen(false)}
+        title="Bulk Add Inclusions (What's Included)"
+        itemLabel="Inclusion"
+        placeholder="Paste inclusions here (one per line)...&#10;e.g.&#10;Vedic Brahmin Dakshina & Guru Dakshina&#10;Pure Desi Cow Ghee & Puja Samagri&#10;Personalized Gotra & Family Sankalp&#10;Consecrated Prasad Shipped to Home"
+        sampleItems={[
+          "Vedic Brahmin Dakshina & Guru Dakshina",
+          "Pure Desi Cow Ghee & Puja Samagri",
+          "Personalized Gotra & Family Sankalp",
+          "Private High-Definition Live Stream",
+          "Consecrated Prasad Shipped to Home",
+        ]}
+        isNumbered={false}
+        existingCount={form.whatsIncluded.filter((s) => s.trim().length > 0).length}
+        onApply={handleApplyBulkWhatsIncluded}
+      />
+
+      {/* Bulk Samagri Modal */}
+      <BulkSamagriModal
+        isOpen={isSamagriBulkModalOpen}
+        onClose={() => setIsSamagriBulkModalOpen(false)}
+        existingCount={form.samagri.filter((s) => s.name.trim().length > 0).length}
+        onApply={handleApplyBulkSamagri}
+      />
+
+      {/* Bulk Scriptural Significance Modal */}
+      <BulkStringListModal
+        isOpen={isSignificanceBulkModalOpen}
+        onClose={() => setIsSignificanceBulkModalOpen(false)}
+        title="Bulk Add Scriptural Significance"
+        itemLabel="Significance Point"
+        placeholder="Paste scriptural significance points here (one per line)...&#10;e.g.&#10;Promotes spiritual purification&#10;Encourages discipline and devotion&#10;Supports traditional Vedic worship&#10;Provides an opportunity for collective prayer"
+        sampleItems={[
+          "Promotes spiritual purification and inner clarity",
+          "Encourages discipline, devotion, and divine surrender",
+          "Supports traditional Vedic worship according to ancient Shastras",
+          "Provides an auspicious opportunity for collective family prayer",
+        ]}
+        isNumbered={false}
+        existingCount={form.significance.filter((s) => s.trim().length > 0).length}
+        onApply={handleApplyBulkSignificance}
+      />
+
+      {/* Bulk Daily Schedule Modal */}
+      <BulkDailyScheduleModal
+        isOpen={isDailyScheduleBulkModalOpen}
+        onClose={() => setIsDailyScheduleBulkModalOpen(false)}
+        existingCount={form.dailySchedule.filter((s) => s.title.trim().length > 0).length}
+        onApply={handleApplyBulkDailySchedule}
+      />
     </div>
   );
 }

@@ -121,6 +121,7 @@ export const serializePublicPujaServiceDetail = (service) => {
       ? service.procedureSteps
       : [],
     faqs: normalizeFaqs(service.faqs),
+    seo: service.seo || {},
     category: service.categoryDetails
       ? {
           id: service.categoryDetails.id,
@@ -269,6 +270,7 @@ export const serializeAdminPujaServiceDetail = (service) => {
       ? service.procedureSteps
       : [],
     faqs: normalizeFaqs(service.faqs),
+    seo: service.seo || {},
     categoryId: service.categoryId || null,
     category: service.categoryDetails
       ? {

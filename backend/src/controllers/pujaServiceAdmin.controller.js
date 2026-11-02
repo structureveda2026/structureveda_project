@@ -6,6 +6,11 @@ import {
   serializeAdminPujaServiceDetail,
   normalizeFaqs,
 } from "../serializers/pujaService.serializer.js";
+import {
+  validateSeoInput,
+  normalizeSeo,
+  mergeSeo,
+} from "../services/seo.service.js";
 
 const VALID_MODES = ["in_person", "remote", "hybrid"];
 const VALID_ADMIN_SORTS = [
@@ -290,6 +295,7 @@ export const createAdminPujaService = async (req, res) => {
       significance = [],
       procedureSteps = [],
       faqs = [],
+      seo,
     } = req.body;
 
     // 1. Required Field Validations
@@ -412,6 +418,17 @@ export const createAdminPujaService = async (req, res) => {
       }
     }
 
+    // SEO Validation
+    if (typeof seo !== "undefined" && seo !== null) {
+      const seoValidation = validateSeoInput(seo);
+      if (!seoValidation.valid) {
+        return res.status(400).json({
+          success: false,
+          message: seoValidation.message,
+        });
+      }
+    }
+
     // 4. Media Validations
     if (bannerImage) {
       if (typeof bannerImage !== "string") {
@@ -485,6 +502,7 @@ export const createAdminPujaService = async (req, res) => {
           significance: Array.isArray(significance) ? significance : [],
           procedureSteps: Array.isArray(procedureSteps) ? procedureSteps : [],
           faqs: normalizeFaqs(faqs),
+          seo: normalizeSeo(seo),
         },
         { transaction: t }
       );
@@ -765,6 +783,22 @@ export const updateAdminPujaService = async (req, res) => {
     if (typeof body.isKashiAvailable !== "undefined") updateFields.isKashiAvailable = Boolean(body.isKashiAvailable);
     if (typeof body.isFeatured !== "undefined") updateFields.isFeatured = Boolean(body.isFeatured);
     if (typeof body.isActive !== "undefined") updateFields.isActive = Boolean(body.isActive);
+
+    // SEO handling with partial update support
+    if (typeof body.seo !== "undefined") {
+      if (body.seo !== null) {
+        const seoValidation = validateSeoInput(body.seo);
+        if (!seoValidation.valid) {
+          return res.status(400).json({
+            success: false,
+            message: seoValidation.message,
+          });
+        }
+        updateFields.seo = mergeSeo(service.seo, body.seo);
+      } else {
+        updateFields.seo = {};
+      }
+    }
 
     // 11. Execute Update within Transaction
     await sequelize.transaction(async (t) => {

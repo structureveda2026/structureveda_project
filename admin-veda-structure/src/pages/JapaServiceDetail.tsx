@@ -181,8 +181,10 @@ export default function JapaServiceDetail() {
   if (!service) return null;
 
   const seoKeywords = Array.isArray(service.seo?.keywords)
-    ? (service.seo.keywords as string[]).join(", ")
-    : (service.seo?.keywords as string) || null;
+    ? service.seo.keywords.join(", ")
+    : typeof service.seo?.keywords === "string"
+      ? (service.seo.keywords as string)
+      : null;
 
   return (
     <div className="space-y-6">
@@ -503,8 +505,10 @@ export default function JapaServiceDetail() {
                   <TagList
                     items={
                       Array.isArray(service.seo.keywords)
-                        ? (service.seo.keywords as string[])
-                        : [(service.seo.keywords as string)]
+                        ? service.seo.keywords
+                        : typeof service.seo.keywords === "string"
+                          ? [service.seo.keywords]
+                          : []
                     }
                     colorClass="bg-blue-50 text-blue-700 border border-blue-200"
                   />

@@ -1,4 +1,5 @@
 import api from "@/services/api";
+import { SeoMetadata } from "@/types";
 
 // --- Shared Types ---
 
@@ -23,13 +24,7 @@ export interface HomaFaqItem {
   answer: string;
 }
 
-export interface HomaSeoData {
-  title?: string;
-  description?: string;
-  keywords?: string[] | string;
-  metaTitle?: string;
-  metaDescription?: string;
-}
+export interface HomaSeoData extends SeoMetadata {}
 
 export interface HomaSankalpaFields {
   gotra?: boolean;

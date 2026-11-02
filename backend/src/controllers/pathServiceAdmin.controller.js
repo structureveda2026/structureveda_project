@@ -5,6 +5,11 @@ import {
   serializeAdminPathServiceDetail,
   normalizeFaqs,
 } from "../serializers/pathService.serializer.js";
+import {
+  validateSeoInput,
+  normalizeSeo,
+  mergeSeo,
+} from "../services/seo.service.js";
 
 const VALID_ADMIN_SORTS = [
   "name-asc",
@@ -714,11 +719,14 @@ export const createAdminPathService = async (req, res) => {
       });
     }
 
-    if (typeof seo !== "undefined" && seo !== null && (typeof seo !== "object" || Array.isArray(seo))) {
-      return res.status(400).json({
-        success: false,
-        message: "seo must be an object.",
-      });
+    if (typeof seo !== "undefined" && seo !== null) {
+      const seoValidation = validateSeoInput(seo);
+      if (!seoValidation.valid) {
+        return res.status(400).json({
+          success: false,
+          message: seoValidation.message,
+        });
+      }
     }
 
     // 13. Persistence
@@ -762,7 +770,7 @@ export const createAdminPathService = async (req, res) => {
       isActive: Boolean(isActive),
       bannerImage: bannerImage ? String(bannerImage).trim() : null,
       galleryImages: Array.isArray(galleryImages) ? galleryImages : [],
-      seo: typeof seo === "object" && seo !== null ? seo : {},
+      seo: typeof seo === "object" && seo !== null ? normalizeSeo(seo) : {},
       faqs: normalizeFaqs(faqs),
     });
 
@@ -1120,10 +1128,15 @@ export const updateAdminPathService = async (req, res) => {
       service.sankalpaFields = sankalpaFields;
     }
     if (typeof seo !== "undefined") {
-      if (typeof seo !== "object" || seo === null || Array.isArray(seo)) {
-        return res.status(400).json({ success: false, message: "seo must be an object." });
+      if (seo !== null) {
+        const seoValidation = validateSeoInput(seo);
+        if (!seoValidation.valid) {
+          return res.status(400).json({ success: false, message: seoValidation.message });
+        }
+        service.seo = mergeSeo(service.seo, seo);
+      } else {
+        service.seo = {};
       }
-      service.seo = seo;
     }
     if (typeof faqs !== "undefined") {
       if (!Array.isArray(faqs)) {

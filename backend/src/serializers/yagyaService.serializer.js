@@ -135,6 +135,7 @@ export const serializePublicYagyaServiceDetail = (service) => {
       ? service.procedureSteps
       : [],
     faqs: normalizeFaqs(service.faqs),
+    seo: service.seo || {},
     category: service.categoryDetails
       ? {
           id: service.categoryDetails.id,
@@ -303,6 +304,7 @@ export const serializeAdminYagyaServiceDetail = (service) => {
       ? service.procedureSteps
       : [],
     faqs: normalizeFaqs(service.faqs),
+    seo: service.seo || {},
     createdAt: service.createdAt || service.created_at,
     updatedAt: service.updatedAt || service.updated_at,
   };

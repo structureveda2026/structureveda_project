@@ -1,6 +1,21 @@
 {
   "rewrites": [
     {
+      "source": "/yagya-puja/:type/:slug",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(facebookexternalhit|Facebot|Twitterbot|WhatsApp|LinkedInBot|TelegramBot|Slackbot|Discordbot).*"
+        }
+      ],
+      "destination": "https://api.vedastructure.com/api/seo/crawler-preview?type=:type&slug=:slug"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "https://api.vedastructure.com/api/sitemap.xml"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

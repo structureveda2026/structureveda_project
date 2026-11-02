@@ -20,6 +20,7 @@ import pathCatalogueService, {
   mapApiPathServiceDetailToUi,
 } from "../services/pathCatalogueService";
 import PathServiceCard from "../components/PathServiceCard";
+import PublicSEO from "../../../components/common/PublicSEO";
 
 const formatBadge = (fmt) => {
   if (fmt === "single_session") return "Single Session";
@@ -158,6 +159,7 @@ const PathServiceDetails = () => {
 
   return (
     <div className="min-h-screen bg-[#faf4e6] text-[#2b241d]">
+      <PublicSEO service={service} serviceType="path" />
       {/* Breadcrumb Navigation */}
       <div className="border-b border-[#ebdcc4] bg-[#fffdfa] px-5 py-3.5 sm:px-8 lg:px-12">
         <div className="mx-auto flex max-w-[1280px] items-center gap-2 text-[12.5px] text-[#78644e]">

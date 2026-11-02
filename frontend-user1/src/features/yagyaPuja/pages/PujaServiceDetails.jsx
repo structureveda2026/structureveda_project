@@ -25,6 +25,7 @@ import {
 import pujaCatalogueService from "../../../services/pujaCatalogueService";
 import PujaServiceCard from "../components/PujaServiceCard";
 import defaultAboutImage from "../../../assets/images/puja_about.png";
+import PublicSEO from "../../../components/common/PublicSEO";
 
 const INSIGHT_ICONS = [ScrollText, Sparkles, BookOpen, Flame, Sun, ShieldCheck];
 
@@ -168,6 +169,7 @@ const PujaServiceDetails = () => {
 
   return (
     <div className="min-h-screen bg-[#fffaf0] text-[#2b241d]">
+      <PublicSEO service={service} serviceType="puja" />
       {/* =========================================================
           1. HERO SECTION WITH GALLERY & BREADCRUMBS
       ========================================================== */}
