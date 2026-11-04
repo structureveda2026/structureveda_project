@@ -593,8 +593,14 @@ export const RitualBookingProvider = ({
   // Field validation errors
   const [errors, setErrors] = useState({});
 
-  // Stale request cancellation controller ref
+  // Stale request cancellation and payload deduplication refs
   const abortControllerRef = useRef(null);
+  const configurationRef = useRef(configuration);
+  useEffect(() => {
+    configurationRef.current = configuration;
+  }, [configuration]);
+  const lastRequestedPayloadKeyRef = useRef("");
+  const currentRequestIdRef = useRef(0);
 
   // ---------------------------------------------------------------------------
   // ACTIVE BOOKING RECOVERY ON MOUNT (PHASE 4B.4B)
@@ -774,22 +780,29 @@ export const RitualBookingProvider = ({
     setAddonsState(Array.isArray(newAddons) ? newAddons : []);
   }, []);
 
-  const addFamilyMember = useCallback(() => {
+  const addFamilyMember = useCallback((memberData) => {
+    const isSyntheticEvent =
+      memberData && (memberData.nativeEvent || memberData._reactName || memberData.target);
+    const safeData =
+      typeof memberData === "object" && memberData !== null && !isSyntheticEvent ? memberData : {};
+
     setFamilyMembers((prev) => [
       ...prev,
       {
-        name: "",
-        relation: "Spouse",
-        gender: "Male",
-        dob: "",
-        gotra: "",
-        rashi: "",
-        nakshatra: "",
+        name: safeData.name || "",
+        relation: safeData.relation || "Spouse",
+        gender: safeData.gender || "Female",
+        dob: safeData.dob || "",
+        gotra: safeData.gotra || "",
+        rashi: safeData.rashi || "",
+        nakshatra: safeData.nakshatra || "",
+        ...safeData,
       },
     ]);
   }, []);
 
   const updateFamilyMember = useCallback((index, partial) => {
+    if (typeof index !== "number" || index < 0) return;
     setFamilyMembers((prev) =>
       prev.map((member, i) => (i === index ? { ...member, ...partial } : member))
     );
@@ -1232,6 +1245,187 @@ export const RitualBookingProvider = ({
    * If any step fails, switches the wizard to that step and scrolls up.
    */
   const validateAllSteps = useCallback(() => {
+    if (
+      resolvedServiceType === "PUJA" || resolvedServiceType === "YAGYA" ||
+      resolvedServiceType === "JAPA" ||
+      resolvedServiceType === "HOMA" ||
+      resolvedServiceType === "PATH"
+    ) {
+      const allErrors = {};
+
+      // 1. Configuration Validation
+      if (resolvedServiceType === "YAGYA") {
+        if (!configuration.days) {
+          allErrors.days = "Please select a Yagya duration.";
+        }
+      } else if (resolvedServiceType === "JAPA") {
+        if (!configuration.japaCount) {
+          allErrors.japaCount = "Please select a Japa recitation count.";
+        }
+        const minP = Number(configuration.minimumPandits || service?.minimumPandits || 1);
+        const maxP = Number(configuration.maximumPandits || service?.maximumPandits || 25);
+        if (!configuration.panditCount || Number(configuration.panditCount) < minP) {
+          allErrors.panditCount = `This Japa requires a minimum of ${minP} officiating Vedic scholars.`;
+        } else if (Number(configuration.panditCount) > maxP) {
+          allErrors.panditCount = `Maximum permitted scholars for this service is ${maxP}.`;
+        }
+      } else if (resolvedServiceType === "HOMA") {
+        if (!configuration.havanCount) {
+          allErrors.havanCount = "Please select the number of Havans.";
+        }
+        if (!configuration.days || Number(configuration.days) < 1) {
+          allErrors.days = "Please select the ritual duration in days.";
+        } else if (Number(configuration.havanCount) === 1 && Number(configuration.days) > 1) {
+          allErrors.days = "1 Havan is performed in a 1-day session. Multi-day requires 3+ Havans.";
+        }
+        const minP = Number(configuration.minimumPandits || service?.minimumPandits || 1);
+        const maxP = Number(configuration.maximumPandits || service?.maximumPandits || 25);
+        if (!configuration.panditCount || Number(configuration.panditCount) < minP) {
+          allErrors.panditCount = `This Homa requires a minimum of ${minP} officiating Vedic scholars.`;
+        } else if (Number(configuration.panditCount) > maxP) {
+          allErrors.panditCount = `Maximum permitted scholars for this service is ${maxP}.`;
+        }
+      } else if (resolvedServiceType === "PATH") {
+        const selectedFormat = configuration.format || configuration.selectedFormat;
+        if (!selectedFormat) {
+          allErrors.format = "Please select a recitation format.";
+        }
+        const isSingle = selectedFormat === "single_session" || selectedFormat === "same_day";
+        if (isSingle) {
+          if (configuration.days && Number(configuration.days) !== 1) {
+            allErrors.days = "A single-session Path recitation must be completed in 1 day.";
+          }
+        } else {
+          const minD = Number(service?.minimumDays) || 1;
+          const maxD = Number(service?.maximumDays) || 9;
+          if (!configuration.days || Number(configuration.days) < minD) {
+            allErrors.days = `This Path requires a minimum of ${minD} day(s).`;
+          } else if (Number(configuration.days) > maxD) {
+            allErrors.days = `Selected duration exceeds the maximum allowed ${maxD} day(s).`;
+          }
+        }
+        const minP = Number(configuration.minimumPandits || service?.minimumPandits || 1);
+        const maxP = Number(configuration.maximumPandits || service?.maximumPandits || 11);
+        if (!configuration.panditCount || Number(configuration.panditCount) < minP) {
+          allErrors.panditCount = `This Path requires a minimum of ${minP} officiating Vedic scholars.`;
+        } else if (Number(configuration.panditCount) > maxP) {
+          allErrors.panditCount = `Maximum permitted scholars for this service is ${maxP}.`;
+        }
+      } else {
+        if (!configuration.durationSelected) {
+          allErrors.durationSelected = "Please select a ceremony duration.";
+        }
+      }
+      const commDate = configuration.bookingDate || configuration.commencementDate;
+      if (!commDate) {
+        allErrors.bookingDate = "Please select an auspicious ceremony date.";
+      } else {
+        const today = new Date().toISOString().split("T")[0];
+        if (commDate < today) {
+          allErrors.bookingDate = "Ceremony date cannot be in the past.";
+        }
+      }
+      const bTime = configuration.bookingTime || configuration.timeSlot;
+      if (!bTime || !bTime.trim()) {
+        allErrors.bookingTime = "Please enter or select a preferred ceremony time.";
+      }
+      if (!allErrors.panditCount && (!configuration.panditCount || Number(configuration.panditCount) < 1)) {
+        allErrors.panditCount = "At least 1 officiating purohit is required.";
+      }
+      if (!configuration.arrangementMode) {
+        allErrors.arrangementMode = "Please select a ceremony arrangement venue.";
+      }
+      if (!configuration.locationType) {
+        allErrors.locationType = "Please select a location classification.";
+      }
+      if (isCalculatingPrice) {
+        allErrors.pricing = "Please wait while authoritative Dakshina is being calculated.";
+      }
+      if (priceError) {
+        allErrors.pricing = "Please resolve the price calculation error before continuing.";
+      }
+
+      // 2. Yajman Details Validation
+      if (!yajmanDetails.name || !yajmanDetails.name.trim()) {
+        allErrors.name = "Please enter the primary Yajman full name.";
+      }
+      if (!yajmanDetails.mobile || !yajmanDetails.mobile.trim()) {
+        allErrors.mobile = "Please provide a valid mobile number for ceremony updates.";
+      } else {
+        const cleanPhone = yajmanDetails.mobile.replace(/\D/g, "");
+        if (cleanPhone.length < 10) {
+          allErrors.mobile = "Please enter a valid 10-digit mobile number.";
+        }
+      }
+      if (yajmanDetails.email && yajmanDetails.email.trim()) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(yajmanDetails.email.trim())) {
+          allErrors.email = "Please enter a valid email address.";
+        }
+      }
+
+      // 3. Sankalp Validation
+      const hasPurpose = sankalpDetails.purpose && sankalpDetails.purpose.trim();
+      const hasIntention = sankalpDetails.mainIntention && sankalpDetails.mainIntention.trim();
+      if (!hasPurpose && !hasIntention) {
+        allErrors.mainIntention = "Please specify a ritual purpose or main intention for the Sankalp.";
+      }
+
+      // 4. Family Members Validation (optional, but name required if member row exists)
+      (familyMembers || []).forEach((member, idx) => {
+        if (!member.name || !member.name.trim()) {
+          allErrors[`familyMember_${idx}_name`] = "Please enter the family member's name.";
+          allErrors.familyMembers = "Please ensure all added family members have a valid name.";
+        }
+      });
+
+      // 5. Location Validation (conditional on venue mode)
+      const locType = configuration.locationType || configuration.arrangementMode;
+      if (locType === "customer_home" || locType === "other") {
+        if (!locationDetails.address || !locationDetails.address.trim()) {
+          allErrors.address = "Please enter the ceremony address.";
+        }
+        if (!locationDetails.city || !locationDetails.city.trim()) {
+          allErrors.city = "Please enter the city.";
+        }
+        if (!locationDetails.state || !locationDetails.state.trim()) {
+          allErrors.state = "Please enter the state.";
+        }
+        if (!locationDetails.pincode || !locationDetails.pincode.trim()) {
+          allErrors.pincode = "Please enter the postal pincode.";
+        } else {
+          const cleanPincode = locationDetails.pincode.replace(/\D/g, "");
+          if (cleanPincode.length !== 6) {
+            allErrors.pincode = "Please enter a valid 6-digit postal pincode.";
+          }
+        }
+      } else if (locType === "temple") {
+        if (!locationDetails.address || !locationDetails.address.trim()) {
+          allErrors.address = "Please enter the temple address or landmark.";
+        }
+        if (!locationDetails.city || !locationDetails.city.trim()) {
+          allErrors.city = "Please enter the city where the mandir is located.";
+        }
+      }
+
+      setErrors(allErrors);
+
+      if (Object.keys(allErrors).length > 0) {
+        const firstErrorKey = Object.keys(allErrors)[0];
+        const errorElement =
+          document.querySelector(`[data-error-field="${firstErrorKey}"]`) ||
+          document.querySelector(`input[name="${firstErrorKey}"]`) ||
+          document.querySelector(".text-red-600");
+        if (errorElement) {
+          errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+        return { isValid: false, errors: allErrors };
+      }
+
+      return { isValid: true };
+    }
+
+    // Original sequential multi-step loop for YAGYA, JAPA, HOMA, PATH
     for (let step = 0; step <= 4; step++) {
       const isValid = validateStep(step);
       if (!isValid) {
@@ -1241,7 +1435,18 @@ export const RitualBookingProvider = ({
       }
     }
     return { isValid: true };
-  }, [validateStep]);
+  }, [
+    resolvedServiceType,
+    service,
+    validateStep,
+    configuration,
+    yajmanDetails,
+    sankalpDetails,
+    familyMembers,
+    locationDetails,
+    isCalculatingPrice,
+    priceError,
+  ]);
 
   /**
    * Maps current context state into the exact payload expected by POST /api/ritual-bookings.
@@ -1846,25 +2051,15 @@ export const RitualBookingProvider = ({
   /**
    * Triggers authoritative price calculation with backend.
    * Cancels in-flight requests to prevent stale out-of-order responses.
+   * Uses payload serialization to prevent duplicate calls for unchanged configurations.
    */
   const calculatePrice = useCallback(
-    async (overrideConfig = null) => {
-      const activeConfig = overrideConfig || configuration;
+    async (overrideConfig = null, isRetry = false) => {
+      const activeConfig = overrideConfig || configurationRef.current;
 
       if (!service?.id || !service?.slug) {
         return;
       }
-
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-
-      const controller = new AbortController();
-      abortControllerRef.current = controller;
-
-      await Promise.resolve();
-      setIsCalculatingPrice(true);
-      setPriceError(null);
 
       let payload;
       if (resolvedServiceType === "YAGYA") {
@@ -1954,37 +2149,70 @@ export const RitualBookingProvider = ({
         };
       }
 
+      const payloadKey = JSON.stringify(payload);
+      if (!isRetry && lastRequestedPayloadKeyRef.current === payloadKey && !priceError) {
+        return;
+      }
+      lastRequestedPayloadKeyRef.current = payloadKey;
+
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+      const requestId = ++currentRequestIdRef.current;
+
+      await Promise.resolve();
+      setIsCalculatingPrice(true);
+      setPriceError(null);
+
       try {
         const response = await ritualBookingService.calculatePrice(payload, controller.signal);
+        if (requestId !== currentRequestIdRef.current) return;
         const breakdown = response?.data || response;
         setPriceBreakdown(breakdown);
         if (resolvedServiceType === "JAPA" && breakdown?.completionDate) {
-          setConfiguration((prev) => ({
-            ...prev,
-            completionDate: breakdown.completionDate,
-            requiredDays: breakdown.requiredDays || prev.requiredDays,
-            totalDailyCapacity: breakdown.totalDailyCapacity || prev.totalDailyCapacity,
-          }));
+          setConfiguration((prev) => {
+            if (
+              prev.completionDate === breakdown.completionDate &&
+              prev.requiredDays === (breakdown.requiredDays || prev.requiredDays) &&
+              prev.totalDailyCapacity === (breakdown.totalDailyCapacity || prev.totalDailyCapacity)
+            ) {
+              return prev;
+            }
+            return {
+              ...prev,
+              completionDate: breakdown.completionDate,
+              requiredDays: breakdown.requiredDays || prev.requiredDays,
+              totalDailyCapacity: breakdown.totalDailyCapacity || prev.totalDailyCapacity,
+            };
+          });
         } else if ((resolvedServiceType === "HOMA" || resolvedServiceType === "PATH") && breakdown?.completionDate) {
-          setConfiguration((prev) => ({
-            ...prev,
-            completionDate: breakdown.completionDate,
-          }));
+          setConfiguration((prev) => {
+            if (prev.completionDate === breakdown.completionDate) return prev;
+            return {
+              ...prev,
+              completionDate: breakdown.completionDate,
+            };
+          });
         }
         setIsCalculatingPrice(false);
         setPriceError(null);
       } catch (err) {
+        if (requestId !== currentRequestIdRef.current) return;
         if (err.name === "AbortError" || err.name === "CanceledError" || err.code === "ERR_CANCELED") {
           return;
         }
         console.error("Ritual price calculation failed:", err);
+        lastRequestedPayloadKeyRef.current = "";
         setPriceError(
           err.response?.data?.message || err.message || "Failed to calculate authoritative price",
         );
         setIsCalculatingPrice(false);
       }
     },
-    [resolvedServiceType, service, configuration, addons],
+    [resolvedServiceType, service, addons],
   );
 
   // Automatically trigger price calculation when service and key parameters change
@@ -1992,18 +2220,8 @@ export const RitualBookingProvider = ({
     if (!service?.id || !service?.slug) return;
 
     let isCancelled = false;
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
 
     const runCalculation = async () => {
-      await Promise.resolve();
-      if (isCancelled) return;
-      setIsCalculatingPrice(true);
-      setPriceError(null);
-
       let payload;
       if (resolvedServiceType === "YAGYA") {
         payload = {
@@ -2092,23 +2310,54 @@ export const RitualBookingProvider = ({
         };
       }
 
+      // Check if this exact payload was already calculated or requested
+      const payloadKey = JSON.stringify(payload);
+      if (lastRequestedPayloadKeyRef.current === payloadKey) {
+        return;
+      }
+      lastRequestedPayloadKeyRef.current = payloadKey;
+
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+      const requestId = ++currentRequestIdRef.current;
+
+      await Promise.resolve();
+      if (isCancelled) return;
+      setIsCalculatingPrice(true);
+      setPriceError(null);
+
       try {
         const response = await ritualBookingService.calculatePrice(payload, controller.signal);
-        if (!isCancelled) {
+        if (!isCancelled && requestId === currentRequestIdRef.current) {
           const breakdown = response?.data || response;
           setPriceBreakdown(breakdown);
           if (resolvedServiceType === "JAPA" && breakdown?.completionDate) {
-            setConfiguration((prev) => ({
-              ...prev,
-              completionDate: breakdown.completionDate,
-              requiredDays: breakdown.requiredDays || prev.requiredDays,
-              totalDailyCapacity: breakdown.totalDailyCapacity || prev.totalDailyCapacity,
-            }));
+            setConfiguration((prev) => {
+              if (
+                prev.completionDate === breakdown.completionDate &&
+                prev.requiredDays === (breakdown.requiredDays || prev.requiredDays) &&
+                prev.totalDailyCapacity === (breakdown.totalDailyCapacity || prev.totalDailyCapacity)
+              ) {
+                return prev;
+              }
+              return {
+                ...prev,
+                completionDate: breakdown.completionDate,
+                requiredDays: breakdown.requiredDays || prev.requiredDays,
+                totalDailyCapacity: breakdown.totalDailyCapacity || prev.totalDailyCapacity,
+              };
+            });
           } else if ((resolvedServiceType === "HOMA" || resolvedServiceType === "PATH") && breakdown?.completionDate) {
-            setConfiguration((prev) => ({
-              ...prev,
-              completionDate: breakdown.completionDate,
-            }));
+            setConfiguration((prev) => {
+              if (prev.completionDate === breakdown.completionDate) return prev;
+              return {
+                ...prev,
+                completionDate: breakdown.completionDate,
+              };
+            });
           }
           setIsCalculatingPrice(false);
           setPriceError(null);
@@ -2116,11 +2365,13 @@ export const RitualBookingProvider = ({
       } catch (err) {
         if (
           !isCancelled &&
+          requestId === currentRequestIdRef.current &&
           err.name !== "AbortError" &&
           err.name !== "CanceledError" &&
           err.code !== "ERR_CANCELED"
         ) {
           console.error("Ritual price calculation failed:", err);
+          lastRequestedPayloadKeyRef.current = "";
           setPriceError(
             err.response?.data?.message || err.message || "Failed to calculate authoritative price",
           );
@@ -2133,7 +2384,6 @@ export const RitualBookingProvider = ({
 
     return () => {
       isCancelled = true;
-      controller.abort();
     };
   }, [
     resolvedServiceType,

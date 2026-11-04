@@ -37,6 +37,11 @@ import StepLocation from "../components/booking/StepLocation";
 import StepAddons from "../components/booking/StepAddons";
 import StepReview from "../components/booking/StepReview";
 import RitualBookingConfirmation from "../components/booking/RitualBookingConfirmation";
+import PujaSinglePageBooking from "../components/booking/PujaSinglePageBooking";
+import YagyaSinglePageBooking from "../components/booking/YagyaSinglePageBooking";
+import JapaSinglePageBooking from "../components/booking/JapaSinglePageBooking";
+import PathSinglePageBooking from "../components/booking/PathSinglePageBooking";
+import HomaSinglePageBooking from "../components/booking/HomaSinglePageBooking";
 
 const STEP_TITLES = [
   "1. Configuration",
@@ -99,6 +104,31 @@ const RitualBookingWizardContent = () => {
   const isYagya = serviceType === "YAGYA";
   const isJapa = serviceType === "JAPA";
   const isHoma = serviceType === "HOMA";
+
+  // Dedicated single-page booking experience for Puja services (Combination: Premium Vedic Experience + Modern Airbnb UX)
+  if (serviceType === "PUJA" || (!serviceType && !isPath && !isHoma && !isJapa && !isYagya)) {
+    return <PujaSinglePageBooking />;
+  }
+
+  // Dedicated single-page booking experience for Yagya services (Shastric Multi-Day Anushthan + Modern Airbnb UX)
+  if (serviceType === "YAGYA" || isYagya) {
+    return <YagyaSinglePageBooking />;
+  }
+
+  // Dedicated single-page booking experience for Japa services (Authentic Mantra Anushthan + Modern Airbnb UX)
+  if (serviceType === "JAPA" || isJapa) {
+    return <JapaSinglePageBooking />;
+  }
+
+  // Dedicated single-page booking experience for Path services (Sacred Scripture Recitation + Modern Airbnb UX)
+  if (serviceType === "PATH" || isPath) {
+    return <PathSinglePageBooking />;
+  }
+
+  // Dedicated single-page booking experience for Homa services (Vedic Fire Oblation + Modern Airbnb UX)
+  if (serviceType === "HOMA" || isHoma) {
+    return <HomaSinglePageBooking />;
+  }
   const fallbackImg = isPath
     ? service?.bannerImage || service?.image || "/assets/c-gita.jpg"
     : isHoma
