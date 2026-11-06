@@ -34,6 +34,7 @@ import {
   VEDIC_NAKSHATRAS,
   FAMILY_RELATIONS,
 } from "../../context/RitualBookingContext";
+import cardYagyaFireImg from "../../../../assets/images/library/cards/card-yagya-fire.jpg";
 
 const ARRANGEMENT_MODE_LABELS = {
   kashi: {
@@ -424,7 +425,7 @@ const HomaSinglePageBooking = () => {
   }, [priceBreakdown, service, activeHavanCount, activeDays]);
 
   const primaryImg =
-    service?.bannerImage || service?.image || "/assets/card-yagya-fire-CIHyRsVH.jpg";
+    service?.bannerImage || service?.image || cardYagyaFireImg;
 
   return (
     <div className="min-h-screen bg-[#FFFDF9] text-[#29231B] pb-24 sm:pb-16">
