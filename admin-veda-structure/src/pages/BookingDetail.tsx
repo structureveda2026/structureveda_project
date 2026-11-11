@@ -200,11 +200,11 @@ export default function BookingDetail() {
     return (
       <div className="space-y-4">
         <Link
-          to="/admin/bookings"
+          to="/admin/bookings/consultations"
           className="inline-flex items-center gap-1.5 text-sm text-charcoal-500 hover:text-charcoal-800 transition"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Bookings</span>
+          <span>Back to Consultations</span>
         </Link>
         <EmptyState
           title="Booking not found"
@@ -253,11 +253,11 @@ export default function BookingDetail() {
       {/* Back Link */}
       <div>
         <Link
-          to="/admin/bookings"
+          to="/admin/bookings/consultations"
           className="inline-flex items-center gap-1.5 text-sm text-charcoal-500 hover:text-charcoal-800 transition"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Bookings</span>
+          <span>Back to Consultations</span>
         </Link>
       </div>
 
