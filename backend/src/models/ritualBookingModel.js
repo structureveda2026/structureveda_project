@@ -191,7 +191,7 @@ const RitualBooking = sequelize.define(
       defaultValue: "Pending",
       field: "payment_status",
       validate: {
-        isIn: [["Pending", "Paid", "Failed", "Refunded"]],
+        isIn: [["Pending", "Paid", "Failed", "Refunded", "Partially Refunded", "Refund Pending", "Refund Failed", "Refund In Progress"]],
       },
     },
     paymentGateway: {
@@ -223,6 +223,11 @@ const RitualBooking = sequelize.define(
       type: DataTypes.STRING(100),
       allowNull: true,
       field: "prasad_tracking_number",
+    },
+    notes: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: "notes",
     },
   },
   {

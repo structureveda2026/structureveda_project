@@ -251,7 +251,7 @@ export default function Bookings() {
                   <tr key={b.id} className="table-row-hover">
                     <td className="px-5 py-3 font-mono font-medium text-charcoal-700">
                       <Link
-                        to={`/admin/bookings/${b.bookingReference || b.id}`}
+                        to={`/admin/bookings/consultations/${b.bookingReference || b.id}`}
                         className="hover:text-saffron-600"
                       >
                         {b.bookingReference}
@@ -289,7 +289,7 @@ export default function Bookings() {
                     </td>
                     <td className="px-5 py-3 text-right">
                       <Link
-                        to={`/admin/bookings/${b.bookingReference || b.id}`}
+                        to={`/admin/bookings/consultations/${b.bookingReference || b.id}`}
                         className="inline-flex p-1.5 rounded-lg text-charcoal-400 hover:bg-cream-100 hover:text-saffron-600 transition"
                         title="View Full Booking Details"
                       >

@@ -1,105 +1,141 @@
-import { Sparkles, Flame, Scroll, CheckCircle2, ArrowRight } from "lucide-react";
+import { Sparkles, Flame, ScrollText, Droplets, CheckCircle2 } from "lucide-react";
+
+const STAGES = [
+  {
+    num: "01",
+    title: "Sankalpa",
+    subtitle: "Sacred Intention",
+    desc: "Formulating the sacred personal, ancestral, or spiritual vow with your Gotra and Nakshatra.",
+    icon: Sparkles,
+  },
+  {
+    num: "02",
+    title: "Agni Sthapana",
+    subtitle: "Fire Invocation",
+    desc: "Kindling the consecrated Agni inside the Shastric Havan Kund using sacred Samidha wood.",
+    icon: Flame,
+  },
+  {
+    num: "03",
+    title: "Veda Mantra",
+    subtitle: "Chanted Swara",
+    desc: "Chanting prescribed Samhita hymns, Suktas, and Beeja mantras by initiated Acharyas.",
+    icon: ScrollText,
+  },
+  {
+    num: "04",
+    title: "Ahuti",
+    subtitle: "Sacred Offerings",
+    desc: "Offering pure cow ghee (ghrita), botanical herbs, and sacred grains directly into the flames.",
+    icon: Droplets,
+  },
+  {
+    num: "05",
+    title: "Purnahuti",
+    subtitle: "Fulfillment",
+    desc: "Final supreme oblation with dry coconut, silk vastra, Aarti, and distribution of Agni Bhasma.",
+    icon: CheckCircle2,
+  },
+];
 
 const HomaConceptSection = () => {
-  const steps = [
-    {
-      num: "01",
-      title: "Sankalpa",
-      desc: "Sacred consecration formulating the personal, family, or spiritual vow.",
-      icon: Sparkles,
-    },
-    {
-      num: "02",
-      title: "Agni",
-      desc: "Kindling the consecrated fire in the Havan Kund with sacred Samidha.",
-      icon: Flame,
-    },
-    {
-      num: "03",
-      title: "Mantra",
-      desc: "Chanting prescribed Vedic hymns and Beeja mantras by initiated Pandits.",
-      icon: Scroll,
-    },
-    {
-      num: "04",
-      title: "Ahuti",
-      desc: "Consecrated offerings of pure cow ghee, sacred herbs, and grains into the flames.",
-      icon: Flame,
-    },
-    {
-      num: "05",
-      title: "Purnahuti",
-      desc: "Final supreme offering completing the fire sacrifice with Aarti and blessings.",
-      icon: CheckCircle2,
-    },
-  ];
-
   return (
-    <section className="border-b border-[#ebdcc4] bg-[#fffdfa] px-5 py-14 sm:px-8 sm:py-20 lg:px-12">
+    <section className="border-b border-[#EAD8B8] bg-[#FFFDF9] px-5 py-14 sm:px-8 sm:py-20 lg:px-12">
       <div className="mx-auto max-w-[1280px]">
-        {/* Header */}
-        <div className="mx-auto max-w-[820px] text-center">
-          <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#b36c1e]">
+        {/* Section Header */}
+        <div className="mx-auto max-w-[780px] text-center">
+          <p className="text-[10.5px] font-bold uppercase tracking-[0.24em] text-[#B7791F]">
             VEDIC FOUNDATIONS
           </p>
-          <h2 className="mt-2.5 font-serif text-[28px] font-semibold text-[#2b241d] sm:text-[36px] lg:text-[40px]">
-            The Sacred Fire at the Heart of the Ritual
+          <h2 className="mt-2.5 font-serif text-[28px] font-semibold text-[#29231B] sm:text-[34px] lg:text-[38px]">
+            The Five Sacred Stages of Homa
           </h2>
-          <div className="mt-4 space-y-2 text-[14.5px] leading-relaxed text-[#685c4f] sm:text-[15.5px]">
-            <p>
-              Homa, commonly referred to as Havan, is a Vedic fire ritual in which prescribed offerings are made into Agni along with Mantra and Sankalpa.
-            </p>
-            <p>
-              Procedure, offerings, Mantra and requirements depend on the selected Homa.
-            </p>
+          <p className="mx-auto mt-3 max-w-[640px] text-[14.5px] leading-relaxed text-[#766D60]">
+            In Vedic cosmology, Agni is revered as Havya-vahana—the divine messenger carrying consecrated oblations directly to the devatas. Every Homa follows a disciplined five-fold sequence.
+          </p>
+        </div>
+
+        {/* ── DESKTOP HORIZONTAL CONNECTED TIMELINE (hidden on mobile, visible on lg) ── */}
+        <div className="hidden lg:block mt-16">
+          {/* Continuous Connecting Guide Rail */}
+          <div className="relative">
+            <div
+              className="absolute top-6 left-[10%] right-[10%] h-[2px] bg-gradient-to-r from-[#EAD8B8] via-[#B7791F] to-[#EAD8B8] z-0"
+              aria-hidden="true"
+            />
+
+            <div className="grid grid-cols-5 gap-4 relative z-10">
+              {STAGES.map((stage) => {
+                const Icon = stage.icon;
+                return (
+                  <div key={stage.num} className="flex flex-col items-center text-center">
+                    {/* Numbered Step Hub */}
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#B7791F] bg-white text-[#B7791F] shadow-[0_4px_12px_rgba(183,121,31,0.18)] transition-transform duration-300 hover:scale-110">
+                      <Icon size={18} />
+                    </div>
+
+                    {/* Step Label */}
+                    <span className="mt-3 text-[10px] font-bold uppercase tracking-widest text-[#B7791F]">
+                      STAGE {stage.num}
+                    </span>
+
+                    {/* Stage Card */}
+                    <div className="mt-2 w-full rounded-2xl border border-[#EAD8B8] bg-[#FFFAF0] p-4.5 shadow-2xs transition-all duration-300 hover:border-[#B7791F] hover:bg-white flex flex-col justify-between flex-1">
+                      <div>
+                        <h3 className="font-serif text-[16.5px] font-bold text-[#29231B]">
+                          {stage.title}
+                        </h3>
+                        <span className="text-[11px] font-medium text-[#B7791F] block mt-0.5">
+                          {stage.subtitle}
+                        </span>
+                        <p className="mt-2 text-[12.5px] leading-relaxed text-[#766D60]">
+                          {stage.desc}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        {/* 5-Step Visual Process Progression */}
-        <div className="mt-12">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            {steps.map((step, idx) => {
-              const Icon = step.icon;
-              return (
-                <div
-                  key={step.title}
-                  className="relative flex flex-col justify-between rounded-[20px] border border-[#e8d5bc] bg-[#fffbf4] p-6 shadow-[0_4px_16px_rgba(80,50,20,0.04)] transition duration-300 hover:border-[#c77722] hover:shadow-[0_8px_24px_rgba(199,119,34,0.12)]"
-                >
-                  <div>
-                    {/* Step Number & Icon */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-bold uppercase tracking-widest text-[#a8641b]">
-                        STEP {step.num}
-                      </span>
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#f6ecdc] text-[#a8641b]">
-                        <Icon size={16} />
-                      </div>
-                    </div>
+        {/* ── MOBILE / TABLET CONNECTED VERTICAL TIMELINE (visible on <lg) ── */}
+        <div className="lg:hidden mt-10 relative">
+          {/* Vertical Connecting Guide Rail */}
+          <div
+            className="absolute top-4 bottom-4 left-5 w-[2px] bg-gradient-to-b from-[#EAD8B8] via-[#B7791F] to-[#EAD8B8]"
+            aria-hidden="true"
+          />
 
-                    <h3 className="mt-4 font-serif text-[19px] font-bold text-[#2b241d]">
-                      {step.title}
-                    </h3>
-                    <p className="mt-1.5 text-[13px] leading-relaxed text-[#6d5e4f]">
-                      {step.desc}
-                    </p>
+          <div className="space-y-6">
+            {STAGES.map((stage) => {
+              const Icon = stage.icon;
+              return (
+                <div key={stage.num} className="relative flex items-start gap-4 pl-1">
+                  {/* Step Node */}
+                  <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-[#B7791F] bg-white text-[#B7791F] shadow-xs">
+                    <Icon size={16} />
                   </div>
 
-                  {idx < steps.length - 1 && (
-                    <div className="hidden lg:absolute -right-3 top-1/2 -translate-y-1/2 z-10 text-[#d4872b]">
-                      <ArrowRight size={16} />
+                  {/* Step Card */}
+                  <div className="flex-1 rounded-2xl border border-[#EAD8B8] bg-[#FFFAF0] p-4 shadow-2xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#B7791F]">
+                        STAGE {stage.num} • {stage.subtitle}
+                      </span>
                     </div>
-                  )}
+                    <h3 className="mt-1 font-serif text-[16px] font-bold text-[#29231B]">
+                      {stage.title}
+                    </h3>
+                    <p className="mt-1.5 text-[12.5px] leading-relaxed text-[#766D60]">
+                      {stage.desc}
+                    </p>
+                  </div>
                 </div>
               );
             })}
           </div>
-        </div>
-
-        {/* Shastric Procedural Note */}
-        <div className="mx-auto mt-10 max-w-[820px] rounded-2xl border border-[#e4d1b8] bg-[#fbf5eb] p-4 text-center text-[13px] text-[#6d5c4b]">
-          <p>
-            <strong>Agni as the Divine Messenger:</strong> In the Rigveda, Agni is revered as *Havya-vahana*—the sacred bearer of oblations to the celestial realm. Each Ahuti is offered with precise Swaha intonation according to traditional Vidhi.
-          </p>
         </div>
       </div>
     </section>
