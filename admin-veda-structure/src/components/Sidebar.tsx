@@ -8,6 +8,7 @@ import {
   ChevronDown,
   X,
   Sparkles,
+  CalendarCheck,
 } from "lucide-react";
 import Logo from "./Logo";
 
@@ -142,6 +143,25 @@ const LIBRARY_ITEMS: LibrarySubItem[] = [
   },
 ];
 
+
+interface BookingSubItem {
+  label: string;
+  path: string;
+  exact?: boolean;
+}
+
+/**
+ * Centralized Booking Management Navigation
+ */
+const BOOKING_ITEMS: BookingSubItem[] = [
+  { label: "Booking Overview", path: "/admin/booking-overview" },
+  { label: "All Bookings", path: "/admin/bookings", exact: true },
+  { label: "Ritual Bookings", path: "/admin/bookings/rituals" },
+  { label: "Community Puja Bookings", path: "/admin/bookings/community-puja" },
+  { label: "Astrologer Consultations", path: "/admin/bookings/consultations" },
+  { label: "Payments", path: "/admin/payments" },
+];
+
 interface SidebarProps {
   collapsed: boolean;
   mobileOpen: boolean;
@@ -186,6 +206,33 @@ export default function Sidebar({
     location.pathname.startsWith("/admin/purana-itihasa") ||
     location.pathname.startsWith("/admin/puranas") ||
     location.pathname.startsWith("/admin/itihasas");
+
+
+  // Route matches for Booking Management umbrella
+  const isBookingActive =
+    location.pathname.startsWith("/admin/booking-overview") ||
+    location.pathname.startsWith("/admin/bookings") ||
+    location.pathname.startsWith("/admin/payments");
+
+  // Accordion state for Booking Management
+  const [isBookingOpen, setIsBookingOpen] = useState(true);
+
+  // Auto-expand Booking Management whenever a booking route is active
+  useEffect(() => {
+    if (isBookingActive) {
+      setIsBookingOpen(true);
+    }
+  }, [location.pathname, isBookingActive]);
+
+  const isBookingItemActive = (item: BookingSubItem) => {
+    if (item.exact) {
+      return location.pathname === item.path;
+    }
+    return (
+      location.pathname === item.path ||
+      location.pathname.startsWith(item.path + "/")
+    );
+  };
 
   // Accordion state for Yagya & Puja parent
   const [isYagyaPujaOpen, setIsYagyaPujaOpen] = useState(true);
@@ -448,7 +495,72 @@ export default function Sidebar({
           </NavLink>
         )}
 
-        {/* 2. Astrologers Management */}
+
+        {/* 2. Booking Management */}
+        {collapsed ? (
+          <NavLink
+            to="/admin/bookings"
+            className={`flex items-center justify-center w-10 h-10 mx-auto rounded-lg transition group relative ${
+              isBookingActive
+                ? "bg-saffron-500 text-white"
+                : "text-charcoal-500 hover:bg-cream-100"
+            }`}
+            title="Booking Management"
+          >
+            <CalendarCheck className="w-5 h-5" />
+            {isBookingActive && (
+              <span className="absolute -left-3 top-1/2 -translate-y-1/2 w-1 h-6 bg-saffron-500 rounded-r-full" />
+            )}
+          </NavLink>
+        ) : (
+          <div>
+            <button
+              type="button"
+              onClick={() => setIsBookingOpen((prev) => !prev)}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition cursor-pointer ${
+                isBookingActive
+                  ? "bg-saffron-50 text-saffron-700 font-semibold"
+                  : "text-charcoal-600 hover:bg-cream-100"
+              }`}
+              aria-expanded={isBookingOpen}
+            >
+              <CalendarCheck
+                className={`w-[18px] h-[18px] ${
+                  isBookingActive ? "text-saffron-600" : "text-charcoal-400"
+                }`}
+              />
+              <span className="flex-1 text-left font-semibold">Booking Management</span>
+              <ChevronDown
+                className={`w-4 h-4 text-charcoal-400 transition-transform ${
+                  isBookingOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+            {isBookingOpen && (
+              <div className="mt-1 ml-6 pl-3 border-l border-cream-200 space-y-0.5">
+                {BOOKING_ITEMS.map((item) => {
+                  const active = isBookingItemActive(item);
+                  return (
+                    <NavLink
+                      key={item.label}
+                      to={item.path}
+                      onClick={handleLinkClick}
+                      className={`block px-3 py-1.5 rounded-lg text-[13px] transition ${
+                        active
+                          ? "text-saffron-700 font-semibold bg-saffron-50/70"
+                          : "text-charcoal-500 hover:text-charcoal-700 hover:bg-cream-50 font-normal"
+                      }`}
+                    >
+                      {item.label}
+                    </NavLink>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 3. Astrologers Management */}
         {collapsed ? (
           <NavLink
             to="/admin/astrologers"

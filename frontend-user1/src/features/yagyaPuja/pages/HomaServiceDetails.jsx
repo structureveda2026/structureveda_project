@@ -1,24 +1,40 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   Flame,
   ArrowRight,
   ChevronLeft,
   ChevronRight,
   MapPin,
-  Package,
   CheckCircle2,
-  Info,
   Sparkles,
   AlertCircle,
-} from 'lucide-react';
-import { HOMA_CATALOGUE_LIST } from '../data/homaCatalogueData';
+  Users,
+  ShieldCheck,
+  Clock,
+  Calendar,
+  Gift,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
+import { HOMA_CATALOGUE_LIST } from "../data/homaCatalogueData";
 import homaCatalogueService, {
   mapApiHomaServiceDetailToUi,
-} from '../../../services/homaCatalogueService';
-import HomaServiceCard from '../components/HomaServiceCard';
-import PublicSEO from '../../../components/common/PublicSEO';
+  getHomaFallbackImage,
+  getHomaServiceGallery,
+  isUnresolvableAsset,
+} from "../../../services/homaCatalogueService";
+import HomaServiceCard from "../components/HomaServiceCard";
+import HomaSamagriSection from "../components/HomaSamagriSection";
+import PublicSEO from "../../../components/common/PublicSEO";
+import cardYagyaFireImg from "../../../assets/images/library/cards/card-yagya-fire.jpg";
 
+/**
+ * Standardized HomaServiceDetails Page
+ * Design C Concept: Premium Gallery (55%) + Floating Booking Panel (45%)
+ * Dynamic customer detail experience across ALL Vedic Homa ceremonies.
+ * Route: /yagya-puja/homa/:slug
+ */
 export default function HomaServiceDetails() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -26,19 +42,17 @@ export default function HomaServiceDetails() {
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [currentSlide, setCurrentSlide] = useState(0);
-
-  // Configuration demonstrator state
-  const [selectedHavanCount, setSelectedHavanCount] = useState(1);
-  const [selectedDays, setSelectedDays] = useState(1);
-  const [selectedLocation, setSelectedLocation] = useState('Kashi');
-  const [sankalpaScope, setSankalpaScope] = useState('Family');
+  const [galleryImgErrors, setGalleryImgErrors] = useState({});
+  const [relatedHomas, setRelatedHomas] = useState([]);
+  const [openFaqIndex, setOpenFaqIndex] = useState(0);
 
   // Fetch service details from authoritative API with static fallback on failure
   useEffect(() => {
     let isMounted = true;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setCurrentSlide(0);
+    setGalleryImgErrors({});
 
     async function loadService() {
       try {
@@ -47,9 +61,6 @@ export default function HomaServiceDetails() {
 
         if (data) {
           setService(data);
-          setSelectedHavanCount(data.availableHavanCounts?.[0] || 1);
-          setSelectedDays(data.availableDays?.[0] || 1);
-          setSelectedLocation(data.kashiAvailable ? 'Kashi' : 'Remote');
           document.title = `${data.name} | Vedic Homa & Havan | Veda Structure`;
           setLoading(false);
         } else {
@@ -58,9 +69,6 @@ export default function HomaServiceDetails() {
           if (fallback) {
             const mapped = mapApiHomaServiceDetailToUi(fallback);
             setService(mapped);
-            setSelectedHavanCount(mapped.availableHavanCounts?.[0] || 1);
-            setSelectedDays(mapped.availableDays?.[0] || 1);
-            setSelectedLocation(mapped.kashiAvailable ? 'Kashi' : 'Remote');
             document.title = `${mapped.name} | Vedic Homa & Havan | Veda Structure`;
             setLoading(false);
           } else {
@@ -70,18 +78,20 @@ export default function HomaServiceDetails() {
         }
       } catch (err) {
         if (!isMounted) return;
-        console.warn(`Homa service detail API error for ${slug}, engaging fallback:`, err?.message || err);
+        console.warn(
+          `Homa service detail API error for ${slug}, engaging fallback:`,
+          err?.message || err
+        );
         const fallback = HOMA_CATALOGUE_LIST.find((h) => h.slug === slug);
         if (fallback) {
           const mapped = mapApiHomaServiceDetailToUi(fallback);
           setService(mapped);
-          setSelectedHavanCount(mapped.availableHavanCounts?.[0] || 1);
-          setSelectedDays(mapped.availableDays?.[0] || 1);
-          setSelectedLocation(mapped.kashiAvailable ? 'Kashi' : 'Remote');
           document.title = `${mapped.name} | Vedic Homa & Havan | Veda Structure`;
           setLoading(false);
         } else {
-          setError("Unable to load ceremony details. Please check your connection and try again.");
+          setError(
+            "Unable to load ceremony details. Please check your connection and try again."
+          );
           setLoading(false);
         }
       }
@@ -94,16 +104,68 @@ export default function HomaServiceDetails() {
     };
   }, [slug]);
 
+  // Dynamic related homas from active catalogue API
+  useEffect(() => {
+    let isMounted = true;
+    async function loadRelated() {
+      try {
+        const res = await homaCatalogueService.getHomaServices({ limit: 12 });
+        if (!isMounted) return;
+        const all = Array.isArray(res?.services) ? res.services : [];
+        const candidates = all.filter(
+          (h) => h.slug !== slug && h.id !== service?.id
+        );
+
+        // Prioritize ceremonies from the same category first
+        const currentCat = service?.category?.slug || service?.categoryId;
+        const sorted = candidates.sort((a, b) => {
+          const aMatch =
+            a.category?.slug === currentCat || a.categoryId === currentCat;
+          const bMatch =
+            b.category?.slug === currentCat || b.categoryId === currentCat;
+          if (aMatch && !bMatch) return -1;
+          if (!aMatch && bMatch) return 1;
+          return 0;
+        });
+
+        const top3 = sorted.slice(0, 3);
+        if (top3.length > 0) {
+          setRelatedHomas(top3);
+        } else {
+          setRelatedHomas(
+            HOMA_CATALOGUE_LIST.filter((h) => h.slug !== slug)
+              .slice(0, 3)
+              .map(mapApiHomaServiceDetailToUi)
+          );
+        }
+      } catch {
+        if (!isMounted) return;
+        setRelatedHomas(
+          HOMA_CATALOGUE_LIST.filter((h) => h.slug !== slug)
+            .slice(0, 3)
+            .map(mapApiHomaServiceDetailToUi)
+        );
+      }
+    }
+
+    if (slug) {
+      loadRelated();
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [slug, service?.id, service?.category?.slug, service?.categoryId]);
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#faf4e6] flex flex-col items-center justify-center p-8">
+      <div className="min-h-screen bg-[#FFFCF6] flex flex-col items-center justify-center p-8">
         <div className="relative mb-4">
-          <Flame className="w-12 h-12 text-[#b36c1e] animate-pulse" />
+          <Flame className="w-12 h-12 text-[#B77920] animate-pulse" />
         </div>
-        <h3 className="font-serif text-xl font-bold text-[#2b241d] mb-2">
+        <h3 className="font-serif text-xl font-bold text-[#30251C] mb-2">
           Loading Sacred Homa Ceremony...
         </h3>
-        <p className="text-sm text-[#78644e]">
+        <p className="text-sm text-[#766D60]">
           Consulting Vedic repository and ritual parameters.
         </p>
       </div>
@@ -112,18 +174,18 @@ export default function HomaServiceDetails() {
 
   if (error || !service) {
     return (
-      <div className="min-h-screen bg-[#faf4e6] flex flex-col items-center justify-center p-8">
-        <div className="bg-[#fffdf9] p-8 rounded-2xl border border-[#ebdcc4] max-w-md text-center shadow-md">
-          <AlertCircle className="w-12 h-12 text-[#b36c1e] mx-auto mb-4" />
-          <h3 className="font-serif text-xl font-bold text-[#2b241d] mb-2">
+      <div className="min-h-screen bg-[#FFFCF6] flex flex-col items-center justify-center p-8">
+        <div className="bg-white p-8 rounded-2xl border border-[#EAD8BC] max-w-md text-center shadow-md">
+          <AlertCircle className="w-12 h-12 text-[#B77920] mx-auto mb-4" />
+          <h3 className="font-serif text-xl font-bold text-[#30251C] mb-2">
             Ceremony Not Found
           </h3>
-          <p className="text-sm text-[#78644e] mb-6">
+          <p className="text-sm text-[#766D60] mb-6">
             {error || "The requested Vedic Homa ritual could not be found."}
           </p>
           <Link
             to="/yagya-puja/homa"
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#b36c1e] hover:bg-[#8a4e0c] text-white font-semibold text-xs uppercase tracking-wider rounded-xl transition-all"
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#B77920] hover:bg-[#A06416] text-white font-semibold text-xs uppercase tracking-wider rounded-xl transition-all"
           >
             <ChevronLeft className="w-4 h-4" />
             <span>Return to Homa Catalogue</span>
@@ -133,624 +195,634 @@ export default function HomaServiceDetails() {
     );
   }
 
-  const galleryImages =
+  // Safe visual asset resolution with fallback guarantee
+  const fallbackImg =
+    (service.slug ? getHomaFallbackImage(service.slug) : null) || cardYagyaFireImg;
+
+  const rawGallery =
     Array.isArray(service.gallery) && service.gallery.length > 0
       ? service.gallery
       : Array.isArray(service.galleryImages) && service.galleryImages.length > 0
-      ? service.galleryImages
-      : [service.image || service.bannerImage];
+        ? service.galleryImages
+        : getHomaServiceGallery(service.slug, service.image || fallbackImg);
 
-  const relatedHomas = HOMA_CATALOGUE_LIST.filter(
-    (h) => h.slug !== service.slug
-  ).slice(0, 3).map(mapApiHomaServiceDetailToUi);
+  const galleryImages = (
+    rawGallery.length > 0 ? rawGallery : [service.image || fallbackImg]
+  ).map((img, idx) => {
+    if (galleryImgErrors[idx]) return fallbackImg;
+    if (isUnresolvableAsset(img)) {
+      return fallbackImg;
+    }
+    return img || fallbackImg;
+  });
 
-  // Approximate illustrative preview calculations
-  const havanMultiplier =
-    typeof selectedHavanCount === 'number' ? selectedHavanCount : 3;
-  const estimatedPandits = Math.min(
-    service.maximumPandits || 11,
-    Math.max(
-      service.minimumPandits || 2,
-      Math.ceil(havanMultiplier * 0.8) + (selectedDays > 1 ? 1 : 0)
-    )
-  );
+  // Top 3 curated views for Design C Gallery (1 primary + 2-3 supporting thumbnails)
+  const displayThumbnails = galleryImages.slice(0, 3);
+  const totalSlides = displayThumbnails.length;
+
+  const handlePrevSlide = () => {
+    setCurrentSlide((prev) => (prev === 0 ? totalSlides - 1 : prev - 1));
+  };
+
+  const handleNextSlide = () => {
+    setCurrentSlide((prev) => (prev === totalSlides - 1 ? 0 : prev + 1));
+  };
+
+  // Service FAQs from API response
+  const serviceFaqs = Array.isArray(service.faqs) && service.faqs.length > 0
+    ? service.faqs
+    : Array.isArray(service.faq) && service.faq.length > 0
+      ? service.faq
+      : [];
+
+  const startingPrice = Number(service.startingPrice || service.basePrice || 0);
+
+  const handleBookNow = () => {
+    navigate(`/yagya-puja/homa/${service.slug}/book`, {
+      state: {
+        service,
+        configuration: {
+          havanCount: service.availableHavanCounts?.[0] || 1,
+          days: service.availableDays?.[0] || 1,
+          location: service.kashiAvailable !== false ? "kashi" : "remote",
+        },
+      },
+    });
+  };
+
+  const havanCounts =
+    Array.isArray(service.availableHavanCounts) &&
+      service.availableHavanCounts.length > 0
+      ? service.availableHavanCounts
+      : [1, 3, 5];
+
+  const durationDays =
+    Array.isArray(service.availableDays) && service.availableDays.length > 0
+      ? service.availableDays
+      : [1, 2];
+
+  const minPandits = service.minimumPandits || 2;
+  const maxPandits =
+    service.maximumPandits || service.recommendedPandits || 7;
 
   return (
-    <div className="min-h-screen bg-[#faf4e6] text-[#2b241d]">
+    <div className="min-h-screen bg-[#FFFCF6] text-[#30251C] pb-24 lg:pb-16">
       <PublicSEO service={service} serviceType="homa" />
-      {/* Breadcrumb Navigation */}
-      <div className="border-b border-[#ebdcc4] bg-[#fffdfa] px-5 py-3.5 sm:px-8 lg:px-12">
-        <div className="mx-auto flex max-w-[1280px] items-center gap-2 text-[12.5px] text-[#78644e]">
-          <Link to="/" className="hover:text-[#a8641b]">
+
+      {/* ── 1. BREADCRUMB NAVIGATION ── */}
+      <nav
+        aria-label="Breadcrumb"
+        className="border-b border-[#EAD8BC] bg-[#F8F1E6]/60 px-4 py-3 sm:px-6 lg:px-8"
+      >
+        <div className="mx-auto flex max-w-[1360px] items-center gap-2 text-[12px] text-[#766D60]">
+          <Link to="/" className="hover:text-[#B77920] transition-colors">
             Home
           </Link>
           <span>/</span>
-          <Link to="/yagya-puja" className="hover:text-[#a8641b]">
-            Yagya & Puja
+          <Link to="/yagya-puja" className="hover:text-[#B77920] transition-colors">
+            Yagya &amp; Puja
           </Link>
           <span>/</span>
-          <Link to="/yagya-puja/homa" className="hover:text-[#a8641b]">
-            Homa & Havan
+          <Link to="/yagya-puja/homa" className="hover:text-[#B77920] transition-colors">
+            Homa &amp; Havan
           </Link>
+          {service.categoryDetails?.slug && (
+            <>
+              <span>/</span>
+              <Link
+                to={`/yagya-puja/homa/category/${service.categoryDetails.slug}`}
+                className="hover:text-[#B77920] transition-colors"
+              >
+                {service.categoryDetails.name}
+              </Link>
+            </>
+          )}
           <span>/</span>
-          <span className="font-semibold text-[#2b241d]">{service.name}</span>
+          <span className="font-semibold text-[#30251C] truncate">
+            {service.name}
+          </span>
         </div>
-      </div>
+      </nav>
 
-      {/* Main Detail Header Section */}
-      <section className="border-b border-[#ebdcc4] bg-[#fffdf9] px-5 py-10 sm:px-8 sm:py-14 lg:px-12">
-        <div className="mx-auto max-w-[1280px]">
-          <div className="grid gap-10 lg:grid-cols-12 lg:gap-14">
-            {/* Gallery Column */}
-            <div className="lg:col-span-6">
-              <div className="relative overflow-hidden rounded-[26px] border border-[#d6b78d] bg-[#22170f] shadow-[0_12px_36px_rgba(60,40,20,0.12)]">
-                <div className="relative h-[360px] w-full sm:h-[420px]">
+      {/* ── 2. MAIN SERVICE HERO: DESIGN C (PREMIUM GALLERY ~55% + FLOATING BOOKING PANEL ~45%) ── */}
+      <section className="border-b border-[#EAD8BC] bg-gradient-to-b from-[#FFFCF6] via-[#F8F1E6]/30 to-[#FFFCF6] px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-14">
+        <div className="mx-auto max-w-[1360px]">
+          <div className="grid items-start gap-8 lg:grid-cols-12 lg:gap-10">
+            {/* ══ LEFT COLUMN: PREMIUM IMAGE GALLERY (APPROX 55% / 7 COLS) ══ */}
+            <div className="lg:col-span-7 space-y-3.5">
+              {/* Primary Service Image Frame */}
+              <div className="relative overflow-hidden rounded-[22px] border border-[#EAD8BC] bg-[#241A12] shadow-sm">
+                <div className="relative aspect-[4/3] sm:aspect-[16/10] w-full overflow-hidden">
                   <img
-                    src={galleryImages[currentSlide]}
-                    alt={service.name}
-                    className="h-full w-full object-cover"
+                    src={displayThumbnails[currentSlide] || galleryImages[0] || fallbackImg}
+                    alt={`${service.name} - Ceremony View ${currentSlide + 1}`}
+                    className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+                    loading="eager"
+                    onError={() =>
+                      setGalleryImgErrors((prev) => ({
+                        ...prev,
+                        [currentSlide]: true,
+                      }))
+                    }
                   />
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
-                  {/* Slider controls if multiple images */}
-                  {galleryImages.length > 1 && (
+                  {/* Previous / Next Slide Controls */}
+                  {totalSlides > 1 && (
                     <>
                       <button
                         type="button"
-                        onClick={() =>
-                          setCurrentSlide((prev) =>
-                            prev === 0 ? galleryImages.length - 1 : prev - 1
-                          )
-                        }
-                        className="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-xs hover:bg-black/80 cursor-pointer"
-                        aria-label="Previous image"
+                        onClick={handlePrevSlide}
+                        className="absolute left-3.5 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-xs transition hover:bg-black/85 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B77920]"
+                        aria-label="Previous ceremony image"
                       >
                         <ChevronLeft size={20} />
                       </button>
                       <button
                         type="button"
-                        onClick={() =>
-                          setCurrentSlide((prev) =>
-                            prev === galleryImages.length - 1 ? 0 : prev + 1
-                          )
-                        }
-                        className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-xs hover:bg-black/80 cursor-pointer"
-                        aria-label="Next image"
+                        onClick={handleNextSlide}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-xs transition hover:bg-black/85 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B77920]"
+                        aria-label="Next ceremony image"
                       >
                         <ChevronRight size={20} />
                       </button>
                     </>
                   )}
 
-                  {/* Image counter */}
-                  {galleryImages.length > 1 && (
-                    <div className="absolute bottom-4 left-4 rounded-full bg-black/65 px-3 py-1 text-[11px] font-medium text-[#faf4e6] backdrop-blur-xs">
-                      {currentSlide + 1} / {galleryImages.length}
-                    </div>
-                  )}
-
-                  {/* Category Pill on Image */}
+                  {/* Floating Category Pill */}
                   <div className="absolute top-4 left-4">
-                    <span className="px-3 py-1 rounded-full bg-[#1f1711]/85 border border-[#ebdcc4]/40 text-[11px] uppercase tracking-wider text-[#e89b4f] font-semibold backdrop-blur-xs">
-                      {service.homaType}
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1F1711]/85 border border-white/20 text-[10.5px] uppercase tracking-wider text-[#F5CE6F] font-semibold backdrop-blur-md shadow-xs">
+                      <Sparkles size={11} className="text-[#EAB12C]" />
+                      {service.homaType || "Vedic Fire Ceremony"}
                     </span>
                   </div>
-                </div>
 
-                {/* Thumbnails */}
-                {galleryImages.length > 1 && (
-                  <div className="flex gap-2.5 overflow-x-auto bg-[#1c130d] p-3">
-                    {galleryImages.map((img, idx) => (
+                  {/* Image Counter Badge (1/3, 2/3, etc.) */}
+                  <div className="absolute top-4 right-4 rounded-full bg-black/60 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur-xs border border-white/10">
+                    {currentSlide + 1} / {totalSlides}
+                  </div>
+                </div>
+              </div>
+
+              {/* Supporting Images Row (Design C) */}
+              {totalSlides > 1 && (
+                <div
+                  className={`grid gap-3 ${totalSlides === 2 ? "grid-cols-2" : "grid-cols-3"
+                    }`}
+                >
+                  {displayThumbnails.map((img, idx) => {
+                    const isActive = currentSlide === idx;
+                    return (
                       <button
                         key={idx}
                         type="button"
                         onClick={() => setCurrentSlide(idx)}
-                        className={`h-16 w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-all ${
-                          currentSlide === idx
-                            ? 'border-[#c77722] opacity-100'
-                            : 'border-transparent opacity-60 hover:opacity-80'
-                        }`}
+                        className={`group relative overflow-hidden rounded-[16px] border-2 transition-all duration-300 cursor-pointer aspect-[16/10] bg-[#241A12] ${isActive
+                            ? "border-[#B77920] border-[#B7791F] shadow-sm ring-2 ring-[#B77920]/25"
+                            : "border-[#EAD8BC] opacity-75 hover:opacity-100 hover:border-[#B77920]/60"
+                          }`}
+                        aria-label={`View ceremony image ${idx + 1}`}
                       >
                         <img
                           src={img}
-                          alt=""
-                          className="h-full w-full object-cover"
+                          alt={`${service.name} view ${idx + 1}`}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          onError={() =>
+                            setGalleryImgErrors((prev) => ({
+                              ...prev,
+                              [idx]: true,
+                            }))
+                          }
                         />
+                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                        {isActive && (
+                          <span className="absolute bottom-1.5 left-2 rounded-full bg-[#B77920] px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white shadow-xs">
+                            Active View
+                          </span>
+                        )}
                       </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Service Badges */}
-              <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="bg-[#faf6ee] p-3 rounded-xl border border-[#ebdcc4] text-center">
-                  <span className="text-[10px] uppercase text-[#7d6854] block">
-                    Starting Dakshina
-                  </span>
-                  <span className="text-sm font-bold font-serif text-[#2a221b]">
-                    ₹{(service.startingPrice || 0).toLocaleString('en-IN')}
-                  </span>
+                    );
+                  })}
                 </div>
-                <div className="bg-[#faf6ee] p-3 rounded-xl border border-[#ebdcc4] text-center">
-                  <span className="text-[10px] uppercase text-[#7d6854] block">
-                    Supported Havans
-                  </span>
-                  <span className="text-sm font-bold font-serif text-[#2a221b]">
-                    {(service.availableHavanCounts || []).join(', ')}
-                  </span>
-                </div>
-                <div className="bg-[#faf6ee] p-3 rounded-xl border border-[#ebdcc4] text-center">
-                  <span className="text-[10px] uppercase text-[#7d6854] block">
-                    Pandit Scale
-                  </span>
-                  <span className="text-sm font-bold font-serif text-[#2a221b]">
-                    {service.minimumPandits}–{service.maximumPandits} Acharyas
-                  </span>
-                </div>
-                <div className="bg-[#faf6ee] p-3 rounded-xl border border-[#ebdcc4] text-center">
-                  <span className="text-[10px] uppercase text-[#7d6854] block">
-                    Daily Hours
-                  </span>
-                  <span className="text-sm font-bold font-serif text-[#2a221b]">
-                    {String(service.dailyHours || '').toLowerCase().includes('hour')
-                      ? service.dailyHours
-                      : `${service.dailyHours || '3 – 4'} hrs / day`}
-                  </span>
-                </div>
-              </div>
+              )}
             </div>
 
-            {/* Overview & Quick Info Column */}
-            <div className="lg:col-span-6 flex flex-col justify-between">
+            {/* ══ RIGHT COLUMN: CEREMONY INFORMATION & FLOATING BOOKING PANEL (APPROX 45% / 5 COLS) ══ */}
+            <div className="lg:col-span-5 space-y-4 sm:space-y-5">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#faf3e3] border border-[#ebdcc4] text-xs font-semibold uppercase tracking-wider text-[#b36c1e] mb-3">
-                  <Flame className="w-3.5 h-3.5" />
-                  <span>VEDIC FIRE CEREMONY SPECIFICATION</span>
+                {/* 1. Category / Specification Label */}
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F8F1E6] border border-[#EAD8BC] text-[11px] font-bold uppercase tracking-[0.2em] text-[#B77920] mb-2.5">
+                  <Flame size={12} className="text-[#C77722]" />
+                  <span>{service.homaType || "Vedic Fire Ceremony"}</span>
                 </div>
 
-                <h1 className="text-3xl sm:text-4xl font-serif text-[#2a221b] mb-3">
+                {/* 2. Service Title in Elegant Serif Typography */}
+                <h1 className="font-serif text-[30px] sm:text-[34px] lg:text-[38px] font-bold text-[#30251C] leading-[1.2] tracking-tight mb-1.5">
                   {service.name}
                 </h1>
 
-                <p className="text-sm text-[#7d6854] font-serif italic mb-4">
-                  "{service.purpose}"
+                {/* 3. Short Spiritual Tagline (if available) */}
+                {service.purpose && (
+                  <p className="font-serif italic text-[13.5px] sm:text-[14px] text-[#B77920] leading-snug mb-2.5">
+                    "{service.purpose}"
+                  </p>
+                )}
+
+                {/* 4. Short Service Description (2-3 lines) */}
+                <p className="text-[13.5px] sm:text-[14px] text-[#5C4E3F] leading-relaxed line-clamp-3 mb-4">
+                  {service.description || service.shortDescription}
                 </p>
 
-                <p className="text-sm text-[#524437] leading-relaxed mb-6">
-                  {service.description}
-                </p>
-
-                {/* Location Availability Alert */}
-                <div className="bg-[#faf6ee] rounded-xl p-4 border border-[#ebdcc4] mb-6">
-                  <h4 className="text-xs uppercase tracking-wider font-bold text-[#44362b] mb-2 flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-[#b36c1e]" />
-                    <span>Location & Venue Eligibility</span>
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2
-                        className={`w-4 h-4 ${
-                          service.kashiAvailable
-                            ? 'text-[#2b7a35]'
-                            : 'text-gray-300'
-                        }`}
-                      />
-                      <span>
-                        Kashi Kshetra: {service.kashiAvailable ? 'Available' : 'Not Supported'}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2
-                        className={`w-4 h-4 ${
-                          service.remoteAvailable
-                            ? 'text-[#2b7a35]'
-                            : 'text-gray-300'
-                        }`}
-                      />
-                      <span>
-                        Remote Live Stream: {service.remoteAvailable ? 'Available' : 'Not Supported'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Required Vedic Skills */}
-                <div className="mb-6">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#44362b] mb-2">
-                    Prescribed Pandit Qualifications:
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {(Array.isArray(service.requiredSkills) ? service.requiredSkills : []).map((skill, idx) => (
-                      <span
-                        key={idx}
-                        className="text-xs bg-[#f4ebe1] text-[#6b553e] px-2.5 py-1 rounded-md border border-[#ebdcc4]"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Jump to demonstrator CTA */}
-              <div className="pt-6 border-t border-[#ebdcc4]">
-                <a
-                  href="#configuration-demonstrator"
-                  className="w-full py-3.5 bg-[#b36c1e] hover:bg-[#8a4e0c] text-white font-semibold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
-                >
-                  <span>Configure Ritual Parameters</span>
-                  <ArrowRight className="w-4 h-4" />
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Service-Specific Configuration Demonstrator Area */}
-      <section
-        className="py-16 bg-[#faf6ee] border-b border-[#e8dfd1]"
-        id="configuration-demonstrator"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mb-10">
-            <span className="text-xs uppercase tracking-widest text-[#b36c1e] font-semibold">
-              ILLUSTRATIVE SERVICE CONFIGURATOR
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-serif text-[#2a221b] mt-1 mb-2">
-              Configure {service.name}
-            </h2>
-            <p className="text-xs sm:text-sm text-[#685847]">
-              Select from this service's specific authorized Havan counts, day durations, and venue availability.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Left Options Form (Illustrative) */}
-            <div className="lg:col-span-7 bg-white rounded-2xl p-6 sm:p-8 border border-[#ebdcc4] shadow-xs space-y-6">
-              {/* Architecture Preview Banner */}
-              <div className="bg-[#fff9ed] border border-[#ebdcc4] p-3.5 rounded-xl flex items-start gap-3">
-                <Info className="w-4 h-4 text-[#b36c1e] shrink-0 mt-0.5" />
-                <div className="text-xs text-[#7d6854]">
-                  <strong className="text-[#3b2d22]">Architecture Preview:</strong> Parameters below react directly to{' '}
-                  <span className="font-semibold">{service.name}</span>'s catalogue data. Live pricing engine and schedule confirmation will activate upon full platform release.
-                </div>
-              </div>
-
-              {/* 1. Select Havan Count */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#44362b] mb-2">
-                  1. Supported Number of Havan:
-                </label>
-                <div className="flex flex-wrap gap-2.5">
-                  {service.availableHavanCounts.map((cnt) => (
-                    <button
-                      key={cnt}
-                      type="button"
-                      onClick={() => setSelectedHavanCount(cnt)}
-                      className={`px-4 py-2 rounded-xl text-xs font-medium border transition-all ${
-                        selectedHavanCount === cnt
-                          ? 'bg-[#b36c1e] text-white border-[#b36c1e] shadow-xs'
-                          : 'bg-[#fbf9f4] border-[#ebdcc4] text-[#685847] hover:bg-white'
-                      }`}
-                    >
-                      {cnt === 'Custom' ? 'Custom' : `${cnt} Havan`}
-                    </button>
-                  ))}
-                </div>
-                <p className="text-[11px] text-[#8c7863] mt-1.5">
-                  Every Homa does not support every count. Only scripturally viable options are shown.
-                </p>
-              </div>
-
-              {/* 2. Select Days */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#44362b] mb-2">
-                  2. Ritual Duration (Days):
-                </label>
-                <div className="flex flex-wrap gap-2.5">
-                  {service.availableDays.map((day) => (
-                    <button
-                      key={day}
-                      type="button"
-                      onClick={() => setSelectedDays(day)}
-                      className={`px-4 py-2 rounded-xl text-xs font-medium border transition-all ${
-                        selectedDays === day
-                          ? 'bg-[#b36c1e] text-white border-[#b36c1e] shadow-xs'
-                          : 'bg-[#fbf9f4] border-[#ebdcc4] text-[#685847] hover:bg-white'
-                      }`}
-                    >
-                      {day} {day === 1 ? 'Day' : 'Days'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* 3. Location */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#44362b] mb-2">
-                  3. Ritual Location:
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    disabled={!service.kashiAvailable}
-                    onClick={() => setSelectedLocation('Kashi')}
-                    className={`p-3 rounded-xl border text-left text-xs transition-all ${
-                      !service.kashiAvailable
-                        ? 'opacity-40 bg-gray-100 border-gray-200 cursor-not-allowed'
-                        : selectedLocation === 'Kashi'
-                        ? 'bg-[#faf3e3] border-[#b36c1e] text-[#2a221b] ring-1 ring-[#b36c1e]'
-                        : 'bg-[#fbf9f4] border-[#ebdcc4] text-[#685847]'
-                    }`}
-                  >
-                    <span className="font-semibold block text-sm">Kashi (Varanasi)</span>
-                    <span className="text-[11px] text-[#8c7863]">
-                      {service.kashiAvailable ? 'Conducted at sacred kshetra' : 'Not available for this Homa'}
+                {/* 5. Kashi and Remote Availability Indicators */}
+                <div className="flex flex-wrap items-center gap-2 mb-4">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-[#EAD8BC] bg-[#F8F1E6]/80 px-2.5 py-1 text-[11.5px] font-medium text-[#30251C]">
+                    <CheckCircle2
+                      size={13}
+                      className={
+                        service.kashiAvailable !== false
+                          ? "text-[#2E7D32]"
+                          : "text-gray-400"
+                      }
+                    />
+                    <span>
+                      Kashi Sanctum (Varanasi):{" "}
+                      <strong className="font-semibold">
+                        {service.kashiAvailable !== false
+                          ? "Available"
+                          : "Not Supported"}
+                      </strong>
                     </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    disabled={!service.remoteAvailable}
-                    onClick={() => setSelectedLocation('Remote')}
-                    className={`p-3 rounded-xl border text-left text-xs transition-all ${
-                      !service.remoteAvailable
-                        ? 'opacity-40 bg-gray-100 border-gray-200 cursor-not-allowed'
-                        : selectedLocation === 'Remote'
-                        ? 'bg-[#faf3e3] border-[#b36c1e] text-[#2a221b] ring-1 ring-[#b36c1e]'
-                        : 'bg-[#fbf9f4] border-[#ebdcc4] text-[#685847]'
-                    }`}
-                  >
-                    <span className="font-semibold block text-sm">Remote Live Stream</span>
-                    <span className="text-[11px] text-[#8c7863]">
-                      {service.remoteAvailable ? 'HD Live Sankalpa transmission' : 'Not available for this Homa'}
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              {/* 4. Sankalpa Scope */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#44362b] mb-2">
-                  4. Sankalpa Dedication Scope:
-                </label>
-                <div className="grid grid-cols-3 gap-2 text-xs">
-                  {['Individual', 'Couple', 'Family'].map((sc) => (
-                    <button
-                      key={sc}
-                      type="button"
-                      onClick={() => setSankalpaScope(sc)}
-                      className={`py-2 px-3 rounded-lg border text-center font-medium transition-all ${
-                        sankalpaScope === sc
-                          ? 'bg-[#2a221b] text-white border-[#2a221b]'
-                          : 'bg-[#fbf9f4] border-[#ebdcc4] text-[#685847]'
-                      }`}
-                    >
-                      {sc}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Right Summary Card */}
-            <div className="lg:col-span-5 bg-[#2a221b] text-white rounded-2xl p-6 sm:p-8 border border-[#44362b] flex flex-col justify-between shadow-lg">
-              <div>
-                <div className="flex items-center justify-between pb-4 border-b border-[#44362b] mb-5">
-                  <span className="text-[10px] uppercase tracking-widest font-semibold text-[#c77722]">
-                    CONFIGURATION SUMMARY
                   </span>
-                  <span className="text-[10px] uppercase font-mono bg-[#3d3126] text-[#e89b4f] px-2 py-0.5 rounded border border-[#524437]">
-                    PREVIEW
+
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-[#EAD8BC] bg-[#F8F1E6]/80 px-2.5 py-1 text-[11.5px] font-medium text-[#30251C]">
+                    <CheckCircle2
+                      size={13}
+                      className={
+                        service.remoteAvailable !== false
+                          ? "text-[#2E7D32]"
+                          : "text-gray-400"
+                      }
+                    />
+                    <span>
+                      Remote Live Stream:{" "}
+                      <strong className="font-semibold">
+                        {service.remoteAvailable !== false
+                          ? "Available"
+                          : "Not Supported"}
+                      </strong>
+                    </span>
                   </span>
                 </div>
 
-                <h3 className="font-serif text-xl text-[#faf4e6] mb-1">
-                  {service.name}
-                </h3>
-                <p className="text-xs text-[#d1c7bc] mb-5">
-                  {service.shortDescription}
-                </p>
+                {/* 6. Compact Ceremony Specification Panel (2x2 Grid) */}
+                <div className="rounded-[20px] border border-[#EAD8BC] bg-[#F8F1E6]/60 p-4 shadow-2xs">
+                  <div className="grid grid-cols-2 divide-x divide-y divide-[#EAD8BC]/60">
+                    {/* Supported Havans */}
+                    <div className="pr-3 pb-3">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#8A7966] block">
+                        Supported Havans
+                      </span>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {havanCounts.map((cnt) => (
+                          <span
+                            key={cnt}
+                            className="inline-flex items-center gap-1 rounded-md border border-[#EAD8BC] bg-white px-2 py-0.5 text-[11px] font-semibold text-[#B77920]"
+                          >
+                            <Flame size={10} className="text-[#C77722]" />
+                            {cnt} {cnt === 1 ? "Havan" : "Havans"}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
 
-                <div className="space-y-3 text-xs bg-[#1f1711] p-4 rounded-xl border border-[#3d3126] mb-6">
-                  <div className="flex justify-between">
-                    <span className="text-[#a39382]">Havan Count:</span>
-                    <span className="font-semibold text-[#faf4e6]">
-                      {selectedHavanCount} Havan
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#a39382]">Duration:</span>
-                    <span className="font-semibold text-[#faf4e6]">
-                      {selectedDays} {selectedDays === 1 ? 'Day' : 'Days'} ({service.dailyHours}h / day)
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#a39382]">Location:</span>
-                    <span className="font-semibold text-[#faf4e6]">
-                      {selectedLocation}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#a39382]">Dedication:</span>
-                    <span className="font-semibold text-[#faf4e6]">
-                      {sankalpaScope} Sankalpa
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#a39382]">Required Pandits:</span>
-                    <span className="font-semibold text-[#faf4e6]">
-                      {estimatedPandits} Acharyas (Estimated)
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#a39382]">Samagri Status:</span>
-                    <span className="font-semibold text-[#66bb6a]">
-                      Verified Shastric Included
-                    </span>
-                  </div>
-                  <div className="flex justify-between pt-2 border-t border-[#3d3126] text-sm">
-                    <span className="text-[#a39382]">Starting Dakshina:</span>
-                    <span className="font-bold text-[#e89b4f] font-serif">
-                      ₹{service.startingPrice.toLocaleString('en-IN')}*
-                    </span>
+                    {/* Available Durations */}
+                    <div className="pl-3 pb-3">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#8A7966] block">
+                        Available Durations
+                      </span>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {durationDays.map((d) => (
+                          <span
+                            key={d}
+                            className="inline-flex items-center gap-1 rounded-md border border-[#EAD8BC] bg-white px-2 py-0.5 text-[11px] font-semibold text-[#5C4E3F]"
+                          >
+                            <Calendar size={10} className="text-[#C77722]" />
+                            {d} {d === 1 ? "Day" : "Days"}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Pandit Requirements */}
+                    <div className="pr-3 pt-3">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#8A7966] block">
+                        Pandit Scale
+                      </span>
+                      <div className="mt-1 flex items-center gap-1.5 text-[12.5px] font-bold text-[#30251C]">
+                        <Users size={12} className="text-[#B77920]" />
+                        <span>
+                          {minPandits}–{maxPandits} Acharyas
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Daily Ceremony Hours */}
+                    <div className="pl-3 pt-3">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#8A7966] block">
+                        Daily Ritual Hours
+                      </span>
+                      <div className="mt-1 flex items-center gap-1.5 text-[12.5px] font-bold text-[#30251C]">
+                        <Clock size={12} className="text-[#B77920]" />
+                        <span>{service.dailyHours || "3 – 4 Hours Daily"}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <p className="text-[11px] text-[#9c8b7c] leading-relaxed">
-                  * Starting dakshina provides an initial baseline. Custom samagri additions, location dakshina, and exact dates will be confirmed during the upcoming booking release.
-                </p>
-              </div>
-
-              <div className="pt-6 border-t border-[#44362b] mt-6">
-                <button
-                  type="button"
-                  onClick={() =>
-                    navigate(`/yagya-puja/homa/${service.slug}/book`, {
-                      state: {
-                        service,
-                        configuration: {
-                          havanCount: selectedHavanCount,
-                          days: selectedDays,
-                          location: selectedLocation,
-                          sankalpaScope,
-                        },
-                      },
-                    })
-                  }
-                  className="w-full py-3 bg-[#c77722] hover:bg-[#b36c1e] text-white text-xs uppercase tracking-wider font-semibold rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <span>Proceed to Booking</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Samagri & Sankalpa Specification Details */}
-      <section className="py-16 bg-[#fffdf9] border-b border-[#e8dfd1]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            {/* Samagri Itemization */}
-            <div className="bg-[#faf6ee] p-7 rounded-2xl border border-[#ebdcc4]">
-              <div className="flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-[#b36c1e] mb-2">
-                <Package className="w-4 h-4" />
-                <span>Sacred Samagri Specifications</span>
-              </div>
-              <h3 className="font-serif text-xl text-[#2a221b] mb-4">
-                Materials Provided for {service.name}
-              </h3>
-              <p className="text-xs text-[#685847] mb-5">
-                Every fire offering is sourced per classical recommendations to ensure pure smoke and sattvic atmosphere:
-              </p>
-
-              <div className="space-y-3">
-                {service.samagri && service.samagri.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between p-3 rounded-xl bg-white border border-[#ebdcc4] text-xs"
-                  >
-                    <span className="font-semibold text-[#2a221b]">{item.item || item.name}</span>
-                    <span
-                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${
-                        item.status === 'Included'
-                          ? 'bg-[#eaf5ea] text-[#2b7a35] border border-[#c1e2c6]'
-                          : 'bg-[#faf3e3] text-[#b36c1e] border border-[#ebdcc4]'
-                      }`}
-                    >
-                      {item.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Required Sankalpa Fields */}
-            <div className="bg-[#faf6ee] p-7 rounded-2xl border border-[#ebdcc4]">
-              <div className="flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-[#b36c1e] mb-2">
-                <Sparkles className="w-4 h-4" />
-                <span>Sankalpa Parameters</span>
-              </div>
-              <h3 className="font-serif text-xl text-[#2a221b] mb-4">
-                Information Required for Agni Sankalpa
-              </h3>
-              <p className="text-xs text-[#685847] mb-5">
-                The coordinating Acharya invokes the supreme deities referencing the following sacred coordinates:
-              </p>
-
-              <div className="space-y-3">
-                {(Array.isArray(service.sankalpaFields)
-                  ? service.sankalpaFields
-                  : typeof service.sankalpaFields === 'object' && service.sankalpaFields !== null
-                  ? Object.entries(service.sankalpaFields)
-                      .filter(([, val]) => Boolean(val))
-                      .map(([key]) => {
-                        if (key === 'name') return 'Yajamana / Devotee Full Name';
-                        if (key === 'gotra') return 'Family Vedic Gotra';
-                        if (key === 'nakshatra') return 'Janma Nakshatra (Birth Star)';
-                        if (key === 'rashi') return 'Janma Rashi (Moon Sign)';
-                        if (key === 'familyMembers') return 'Co-Yajamana & Family Names';
-                        if (key === 'specialSankalpa') return 'Specific Sankalpa Intent / Prayer';
-                        return key.charAt(0).toUpperCase() + key.slice(1);
-                      })
-                  : ['Yajamana Name', 'Family Gotra', 'Janma Nakshatra', 'Special Prayer Intent']
-                ).map((field, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-start gap-3 p-3 rounded-xl bg-white border border-[#ebdcc4] text-xs"
-                  >
-                    <CheckCircle2 className="w-4 h-4 text-[#b36c1e] shrink-0 mt-0.5" />
+                {/* 7. Floating Booking Panel (Design C) */}
+                <div className="mt-5 rounded-[22px] border border-[#EAD8BC] bg-white p-5 shadow-[0_8px_24px_rgba(48,37,28,0.06)] space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
-                      <span className="font-semibold text-[#2a221b] block">{field}</span>
-                      <span className="text-[11px] text-[#7d6854]">
-                        Essential coordinate for authentic Vedic dedication during fire kindling.
+                      <span className="text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#8A7966] block">
+                        Starting Dakshina
+                      </span>
+                      <div className="flex items-baseline gap-2 mt-0.5">
+                        <span className="font-serif text-[30px] sm:text-[32px] font-bold text-[#B77920]">
+                          ₹{startingPrice.toLocaleString("en-IN")}
+                        </span>
+                        <span className="text-[11.5px] text-[#766D60]">
+                          (All-inclusive Shastric Vidhi)
+                        </span>
+                      </div>
+                      <span className="mt-0.5 block text-[10.5px] text-[#A39682]">
+                        * Baseline configuration. Authoritative Dakshina configured on booking.
                       </span>
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={handleBookNow}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#B77920] to-[#C77722] hover:brightness-105 px-7 py-3 text-[13px] font-bold uppercase tracking-wider text-white shadow-sm transition-all active:scale-98 cursor-pointer shrink-0"
+                    >
+                      <span>Book Homa Ceremony</span>
+                      <ArrowRight size={15} />
+                    </button>
                   </div>
-                ))}
+
+                  {/* 8. Small Trust Indicators */}
+                  <div className="pt-3.5 border-t border-[#F2E6D5] flex flex-wrap items-center gap-3.5 text-[11.5px] text-[#766D60]">
+                    <span className="flex items-center gap-1.5">
+                      <CheckCircle2 size={13} className="text-[#2E7D32]" />
+                      Initiated Vedic Purohits & Acharyas
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <CheckCircle2 size={13} className="text-[#2E7D32]" />
+                      Verified Shastric Samagri Included
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <ShieldCheck size={13} className="text-[#2E7D32]" />
+                      Gotra & Nakshatra Sankalpa Guaranteed
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Related / Other Homa Services */}
-      <section className="py-16 bg-[#faf6ee]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-10 gap-4">
-            <div>
-              <span className="text-xs uppercase tracking-widest text-[#b36c1e] font-semibold">
-                COMPREHENSIVE AGNI RITUALS
-              </span>
-              <h3 className="text-2xl font-serif text-[#2a221b] mt-1">
-                Other Traditional Homa Services
-              </h3>
+      {/* ── 3. PANDIT QUALIFICATIONS & AGNI SANKALPA COORDINATES ── */}
+      <section className="py-14 sm:py-18 bg-[#FFFCF6] border-b border-[#EAD8BC]">
+        <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+            {/* Prescribed Pandit Qualifications */}
+            <div className="flex flex-col justify-between bg-[#F8F1E6]/70 p-6 sm:p-8 rounded-[22px] border border-[#EAD8BC] shadow-2xs">
+              <div>
+                <div className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-bold text-[#B77920] mb-2">
+                  <Users className="w-4 h-4 text-[#C77722]" />
+                  <span>Prescribed Pandit Qualifications</span>
+                </div>
+                <h3 className="font-serif text-[22px] sm:text-[24px] text-[#30251C] font-bold mb-2">
+                  Initiated Acharyas for {service.name}
+                </h3>
+                <p className="text-[13.5px] leading-relaxed text-[#766D60] mb-5">
+                  Fire oblations demand strict adherence to Vedic pronunciation, swara chanting, and continuous Agnihotra discipline:
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {(Array.isArray(service.requiredSkills)
+                    ? service.requiredSkills
+                    : [
+                      "Vedic Agnihotra Specialist",
+                      "Shukla Yajurveda / Rigveda Samhita Vidhi",
+                      "Kashi Kshetra Initiated Scholar",
+                    ]
+                  ).map((skill, idx) => (
+                    <span
+                      key={idx}
+                      className="inline-flex items-center gap-1.5 text-[12px] bg-white text-[#5C4E3F] px-3.5 py-2 rounded-xl border border-[#EAD8BC] font-medium shadow-2xs"
+                    >
+                      <Sparkles size={11} className="text-[#C77722]" />
+                      <span>{skill}</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-6 pt-4 border-t border-[#EAD8BC]/70 flex items-center gap-2 text-[12px] text-[#766D60]">
+                <ShieldCheck size={14} className="text-[#2E7D32] shrink-0" />
+                <span>
+                  All Acharyas are background-verified and initiated in hereditary Vedic Shakhas.
+                </span>
+              </div>
             </div>
-            <Link
-              to="/yagya-puja/homa"
-              className="text-xs font-semibold text-[#b36c1e] hover:underline flex items-center gap-1"
-            >
-              <span>View All Services</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {relatedHomas.map((h) => (
-              <HomaServiceCard
-                key={h.id || h.slug}
-                service={h}
-                homa={h}
-                onConfigure={(selected) => navigate(`/yagya-puja/homa/${selected.slug}`)}
-              />
-            ))}
+            {/* Agni Sankalpa Coordinates */}
+            <div className="flex flex-col justify-between bg-[#F8F1E6]/70 p-6 sm:p-8 rounded-[22px] border border-[#EAD8BC] shadow-2xs">
+              <div>
+                <div className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-bold text-[#B77920] mb-2">
+                  <Sparkles className="w-4 h-4 text-[#C77722]" />
+                  <span>Agni Sankalpa Coordinates</span>
+                </div>
+                <h3 className="font-serif text-[22px] sm:text-[24px] text-[#30251C] font-bold mb-2">
+                  Required Devotee Information
+                </h3>
+                <p className="text-[13.5px] leading-relaxed text-[#766D60] mb-5">
+                  The Acharya invokes the supreme deities referencing your personal cosmic coordinates during the preliminary invocation:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[12.5px]">
+                  <div className="flex items-center gap-2.5 bg-white p-3.5 rounded-xl border border-[#EAD8BC] shadow-2xs">
+                    <CheckCircle2 className="w-4 h-4 text-[#B77920] shrink-0" />
+                    <span className="font-medium text-[#30251C]">
+                      Yajamana Full Name
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2.5 bg-white p-3.5 rounded-xl border border-[#EAD8BC] shadow-2xs">
+                    <CheckCircle2 className="w-4 h-4 text-[#B77920] shrink-0" />
+                    <span className="font-medium text-[#30251C]">
+                      Vedic Gotra (or Kashyapa)
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2.5 bg-white p-3.5 rounded-xl border border-[#EAD8BC] shadow-2xs">
+                    <CheckCircle2 className="w-4 h-4 text-[#B77920] shrink-0" />
+                    <span className="font-medium text-[#30251C]">
+                      Janma Nakshatra (Star)
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2.5 bg-white p-3.5 rounded-xl border border-[#EAD8BC] shadow-2xs">
+                    <CheckCircle2 className="w-4 h-4 text-[#B77920] shrink-0" />
+                    <span className="font-medium text-[#30251C]">
+                      Specific Prayer Intention
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 pt-4 border-t border-[#EAD8BC]/70 flex items-center gap-2 text-[12px] text-[#766D60]">
+                <CheckCircle2 size={14} className="text-[#B77920] shrink-0" />
+                <span>
+                  Up to 5 immediate family members can be linked into the primary Sankalpa.
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
+
+      {/* ── 3. CONSECRATED PRASAD & SACRED DISPATCH ── */}
+      {service.prasad && (
+        <section className="py-10 bg-[#FFFAF0] border-b border-[#EAD8BC]" id="consecrated-prasad">
+          <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="rounded-[22px] border border-[#EAD8BC] bg-white p-6 sm:p-8 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#F8F1E6] border border-[#EAD8BC] text-[#B77920]">
+                  <Gift size={24} />
+                </div>
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FFFAF0] border border-[#EAD8BC] text-[10.5px] font-bold uppercase tracking-wider text-[#B77920] mb-1.5">
+                    <span>Consecrated Shastric Prasad</span>
+                  </div>
+                  <h3 className="font-serif text-[20px] sm:text-[22px] font-bold text-[#30251C]">
+                    Blessed Prasad &amp; Sacred Bhasma Dispatch
+                  </h3>
+                  <p className="mt-2 text-[14px] leading-relaxed text-[#594533] max-w-3xl">
+                    {service.prasad}
+                  </p>
+                </div>
+              </div>
+              <div className="shrink-0 flex items-center gap-2 rounded-xl border border-[#C1E2C6] bg-[#EAF5EA] px-3.5 py-2 text-[12px] font-semibold text-[#2B7A35]">
+                <ShieldCheck size={16} />
+                <span>Dispatched Post-Purnahuti</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── 4. SACRED SAMAGRI & INCLUSIONS ── */}
+      {/* Sacred Samagri Specifications Section */}
+      <HomaSamagriSection service={service} />
+
+      {/* ── 5. CEREMONY FREQUENTLY ASKED QUESTIONS ── */}
+      {serviceFaqs.length > 0 && (
+        <section className="py-14 sm:py-18 bg-[#FFFCF6] border-b border-[#EAD8BC]" id="ceremony-faqs">
+          <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
+              <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#B77920] block mb-2">
+                CEREMONY QUESTIONS &amp; ANSWERS
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-serif text-[#30251C] font-bold">
+                Frequently Asked Questions
+              </h2>
+              <p className="text-sm text-[#735F4C] mt-2 leading-relaxed">
+                Authoritative Shastric guidance on {service.name}, ritual vidhi, and participation.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-5xl mx-auto">
+              {serviceFaqs.map((faq, idx) => {
+                const qText = faq.question || faq.q || "";
+                const aText = faq.answer || faq.a || "";
+                const isOpen = openFaqIndex === idx;
+
+                return (
+                  <div
+                    key={idx}
+                    className="rounded-[18px] border border-[#EAD8BC] bg-[#FFFDF9] overflow-hidden transition-all shadow-2xs hover:border-[#B77920]"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaqIndex(isOpen ? -1 : idx)}
+                      className="w-full flex items-center justify-between p-4 sm:p-5 text-left cursor-pointer gap-3"
+                      aria-expanded={isOpen}
+                    >
+                      <span className="font-serif text-[15px] sm:text-[16px] font-bold text-[#30251C] leading-snug">
+                        {qText}
+                      </span>
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F8F1E6] text-[#B77920]">
+                        {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                      </span>
+                    </button>
+                    {isOpen && (
+                      <div className="px-4 pb-4 sm:px-5 sm:pb-5 text-[13.5px] leading-relaxed text-[#594533] border-t border-[#F2E8D8] pt-3">
+                        {aText}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── 5. RELATED HOMA CEREMONIES ── */}
+      {relatedHomas.length > 0 && (
+        <section className="py-14 sm:py-18 bg-[#F8F1E6]/50 border-b border-[#EAD8BC]">
+          <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-2xl mx-auto mb-10">
+              <span className="text-[10.5px] uppercase tracking-widest text-[#B77920] font-bold">
+                RELATED TRADITIONS
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-serif text-[#30251C] mt-1 font-bold">
+                Other Sacred Homa Ceremonies
+              </h2>
+              <p className="mt-2 text-[13.5px] text-[#766D60]">
+                Explore related canonical Vedic fire rituals consecrated in the sacred fire tradition.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {relatedHomas.map((rel) => (
+                <HomaServiceCard
+                  key={rel.id || rel.slug}
+                  service={rel}
+                  mode="related"
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── 6. MOBILE STICKY BOTTOM BOOKING BAR ── */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-[#EAD8BC] bg-white/95 backdrop-blur-md px-4 py-3 shadow-lg">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <span className="block text-[10px] uppercase tracking-wider font-bold text-[#766D60]">
+              Starting Dakshina
+            </span>
+            <span className="font-serif text-[19px] font-bold text-[#B77920]">
+              ₹{startingPrice.toLocaleString("en-IN")}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={handleBookNow}
+            className="flex-1 max-w-[220px] rounded-xl bg-gradient-to-r from-[#B77920] to-[#C77722] py-2.5 text-center text-[12.5px] font-bold uppercase tracking-wider text-white shadow-md hover:brightness-105 transition cursor-pointer flex items-center justify-center gap-1.5"
+          >
+            <span>Book Ceremony</span>
+            <ArrowRight size={14} />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

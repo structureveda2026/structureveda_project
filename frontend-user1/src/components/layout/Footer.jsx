@@ -1,12 +1,17 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import {
   Award,
   Globe2,
   ShieldCheck,
   PackageCheck,
+  Mail,
+  Phone,
+  MapPin,
+  ExternalLink,
 } from "lucide-react";
 
-const Footer = () => {
+export default function Footer() {
   return (
     <footer className="relative overflow-hidden border-t-2 border-[#ebd399] bg-gradient-to-b from-[#fffbf4] via-[#fbf2de] to-[#f5e3bc] text-[#24170a] font-sans shadow-inner">
       {/* Ambient Warm Golden Aura Glows */}
@@ -20,12 +25,12 @@ const Footer = () => {
         <div className="mx-auto max-w-[1240px]">
           {/* Sacred Vedic Shloka Bar */}
           <div className="text-center mb-6">
-            <p className="font-serif text-[18px] sm:text-[21px] font-bold text-[#7a3b02] tracking-wide leading-snug drop-shadow-xs">
+            <p className="font-serif text-[17px] sm:text-[21px] font-bold text-[#7a3b02] tracking-wide leading-snug drop-shadow-xs">
               <span className="text-[#d97706] mr-2 select-none">✦</span>
               ॐ असतो मा सद्गमय । तमसो मा ज्योतिर्गमय । मृत्योर्मा अमृतं गमय ॥
               <span className="text-[#d97706] ml-2 select-none">✦</span>
             </p>
-            <p className="mt-1 font-serif text-[12.5px] sm:text-[13.5px] text-[#5e442c] italic">
+            <p className="mt-1 font-serif text-[12px] sm:text-[13.5px] text-[#5e442c] italic">
               “Lead us from ignorance to truth, from darkness to light, from mortality to immortality.” — Brihadaranyaka Upanishad
             </p>
           </div>
@@ -77,58 +82,88 @@ const Footer = () => {
       </div>
 
       {/* =========================================================
-          MAIN FOOTER COLUMNS
+          MAIN FOOTER: TWO-COLUMN ARCHITECTURE (DESKTOP)
       ========================================================== */}
-      <div className="mx-auto max-w-[1240px] px-6 py-10 sm:py-12 sm:px-8 lg:px-10">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1.2fr_1fr] lg:gap-12">
-          {/* BRAND COLUMN */}
-          <div>
-            <Link to="/" className="mb-4 flex w-fit items-center gap-3 group">
-              {/* Luxury Gilded Logo Emblem */}
-              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#d99426] via-[#f7ce68] to-[#c98218] text-[#1a1106] shadow-[0_4px_16px_rgba(217,148,38,0.35)] border border-[#ffea9f]/70 transition-transform duration-300 group-hover:scale-105">
-                <svg
-                  viewBox="0 0 50 50"
-                  className="h-7 w-7"
-                  aria-hidden="true"
-                >
-                  <circle cx="25" cy="25" r="7" fill="#1a1106" />
-                  <path
-                    d="M25 3
-                       C29 8 32 10 37 11
-                       C35 16 37 20 45 22
-                       C40 25 40 30 45 33
-                       C38 34 35 38 36 45
-                       C31 41 27 42 25 47
-                       C22 42 18 41 13 45
-                       C14 38 11 34 5 33
-                       C10 30 10 25 5 22
-                       C13 20 15 16 13 11
-                       C18 10 21 8 25 3Z"
-                    fill="none"
-                    stroke="#1a1106"
-                    strokeWidth="2.5"
-                  />
-                  <circle cx="25" cy="25" r="3" fill="#ffd777" />
-                </svg>
+      <div className="mx-auto max-w-[1240px] px-6 py-12 sm:px-8 lg:px-10">
+        <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+          {/* COLUMN 1: BRAND IDENTITY & VERIFIED CONTACT (5 COLS) */}
+          <div className="lg:col-span-5 flex flex-col justify-between">
+            <div>
+              {/* Brand Header */}
+              <Link to="/" className="mb-4 flex w-fit items-center gap-3 group">
+                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#d99426] via-[#f7ce68] to-[#c98218] text-[#1a1106] shadow-[0_4px_16px_rgba(217,148,38,0.35)] border border-[#ffea9f]/70 transition-transform duration-300 group-hover:scale-105">
+                  <svg
+                    viewBox="0 0 50 50"
+                    className="h-7 w-7"
+                    aria-hidden="true"
+                  >
+                    <circle cx="25" cy="25" r="7" fill="#1a1106" />
+                    <path
+                      d="M25 3
+                         C29 8 32 10 37 11
+                         C35 16 37 20 45 22
+                         C40 25 40 30 45 33
+                         C38 34 35 38 36 45
+                         C31 41 27 42 25 47
+                         C22 42 18 41 13 45
+                         C14 38 11 34 5 33
+                         C10 30 10 25 5 22
+                         C13 20 15 16 13 11
+                         C18 10 21 8 25 3Z"
+                      fill="none"
+                      stroke="#1a1106"
+                      strokeWidth="2.5"
+                    />
+                    <circle cx="25" cy="25" r="3" fill="#ffd777" />
+                  </svg>
+                </div>
+
+                <div>
+                  <h2 className="font-serif text-[22px] font-bold tracking-tight text-[#24170a] group-hover:text-[#b36a18] transition-colors">
+                    VEDA STRUCTURE
+                  </h2>
+                  <p className="text-[9.5px] font-bold uppercase tracking-[0.26em] text-[#b46814]">
+                    WISDOM, WORLDWIDE
+                  </p>
+                </div>
+              </Link>
+
+              <p className="max-w-[420px] text-[13.5px] leading-relaxed text-[#5e4b38]">
+                Making wisdom easier through online worldwide. Authentic Vedic rituals, sacred prasadam, guided courses, and traditional Acharyas—organized with modern transparency and spiritual discipline.
+              </p>
+
+              {/* Verified Contact Details Card */}
+              <div className="mt-6 space-y-2.5 rounded-2xl border border-[#ebd09b] bg-white/70 p-4 backdrop-blur-xs max-w-[420px]">
+                <div className="flex items-center gap-3 text-[13px] text-[#4c3a29]">
+                  <Mail size={16} className="text-[#b46814] shrink-0" />
+                  <a
+                    href="mailto:support@vedastructure.com"
+                    className="hover:text-[#b36a18] transition-colors font-medium"
+                  >
+                    support@vedastructure.com
+                  </a>
+                </div>
+
+                <div className="flex items-center gap-3 text-[13px] text-[#4c3a29]">
+                  <Phone size={16} className="text-[#b46814] shrink-0" />
+                  <a
+                    href="https://wa.me/919876543210"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-[#b36a18] transition-colors font-medium"
+                  >
+                    +91 98765 43210 (WhatsApp &amp; Support)
+                  </a>
+                </div>
+
+                <div className="flex items-center gap-3 text-[13px] text-[#4c3a29]">
+                  <MapPin size={16} className="text-[#b46814] shrink-0" />
+                  <span>Spiritual Sanctum: Kashi (Varanasi), Uttar Pradesh, India</span>
+                </div>
               </div>
+            </div>
 
-              <div>
-                <h2 className="font-serif text-[21px] font-bold tracking-tight text-[#24170a] group-hover:text-[#b36a18] transition-colors">
-                  VEDA STRUCTURE
-                </h2>
-                <p className="text-[9.5px] font-bold uppercase tracking-[0.26em] text-[#b46814]">
-                  WISDOM, WORLDWIDE
-                </p>
-              </div>
-            </Link>
-
-            <p className="max-w-[340px] text-[13.5px] leading-relaxed text-[#5e4b38]">
-              Making wisdom easier through online worldwide. Sacred products,
-              authentic prasadam, guided courses and trusted experts, all in one
-              calm place.
-            </p>
-
-            {/* Social Icons */}
+            {/* Social Channels */}
             <div className="mt-6 flex flex-wrap items-center gap-2.5">
               {[
                 {
@@ -188,7 +223,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={soc.name}
-                  className={`grid h-10 w-10 place-items-center rounded-2xl border border-[#ebd09b] bg-white text-[#6b4c24] shadow-[0_3px_10px_rgba(180,120,40,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:scale-105 active:scale-95 ${soc.hoverClass}`}
+                  className={`grid h-9.5 w-9.5 place-items-center rounded-xl border border-[#ebd09b] bg-white text-[#6b4c24] shadow-[0_3px_10px_rgba(180,120,40,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:scale-105 active:scale-95 ${soc.hoverClass}`}
                 >
                   {soc.svg}
                 </a>
@@ -196,121 +231,139 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* EXPLORE */}
-          <div>
-            <h3 className="mb-4 font-serif text-[14px] font-bold uppercase tracking-[0.16em] text-[#874204] flex items-center gap-2">
-              <span className="text-[#d97706]">✦</span>
-              EXPLORE
-            </h3>
+          {/* COLUMN 2: ORGANIZED NAVIGATION GROUPS (7 COLS) */}
+          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-8">
+            {/* SUB-COL 1: SACRED RITUALS */}
+            <div>
+              <h3 className="mb-4 font-serif text-[13.5px] font-bold uppercase tracking-[0.16em] text-[#874204] flex items-center gap-1.5">
+                <span className="text-[#d97706]">✦</span>
+                SACRED RITUALS
+              </h3>
 
-            <nav className="flex flex-col gap-2.5">
-              {[
-                { label: "Home", path: "/" },
-                { label: "Veda Library", path: "https://veda-library-five.vercel.app/library", isExternal: true },
-                { label: "Shop", path: "/shop" },
-                { label: "Prasadam", path: "/prasad" },
-                { label: "Courses", path: "/courses" },
-                { label: "Upcoming Puja", path: "/puja/upcoming" },
-                { label: "Book a Consultancy", path: "/book-consultation" },
-              ].map((link) => link.isExternal ? (
-                <a
-                  key={link.label}
-                  href={link.path}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center gap-2 text-[13.5px] font-medium text-[#4c3a29] transition-all duration-200 hover:text-[#b36a18] hover:translate-x-1"
-                >
-                  <span className="text-[10px] text-amber-600/70 group-hover:text-[#b36a18]">›</span>
-                  <span>{link.label}</span>
-                </a>
-              ) : (
-                <Link
-                  key={link.label}
-                  to={link.path}
-                  className="group flex items-center gap-2 text-[13.5px] font-medium text-[#4c3a29] transition-all duration-200 hover:text-[#b36a18] hover:translate-x-1"
-                >
-                  <span className="text-[10px] text-amber-600/70 group-hover:text-[#b36a18]">›</span>
-                  <span>{link.label}</span>
-                </Link>
-              ))}
-            </nav>
-          </div>
+              <nav className="flex flex-col gap-2.5">
+                {[
+                  { label: "Puja Ceremonies", path: "/yagya-puja/puja" },
+                  { label: "Vedic Yagya", path: "/yagya-puja/yagya" },
+                  { label: "Japa Anushthana", path: "/yagya-puja/japa" },
+                  { label: "Shastric Path", path: "/yagya-puja/path" },
+                  { label: "Vedic Homa & Havan", path: "/yagya-puja/homa" },
+                  { label: "All Sacred Services", path: "/yagya-puja" },
+                ].map((link) => (
+                  <Link
+                    key={link.label}
+                    to={link.path}
+                    className="group flex items-center gap-2 text-[13.5px] font-medium text-[#4c3a29] transition-all duration-200 hover:text-[#b36a18] hover:translate-x-1"
+                  >
+                    <span className="text-[10px] text-amber-600/70 group-hover:text-[#b36a18]">›</span>
+                    <span>{link.label}</span>
+                  </Link>
+                ))}
+              </nav>
+            </div>
 
-          {/* CUSTOMER SUPPORT */}
-          <div>
-            <h3 className="mb-4 font-serif text-[14px] font-bold uppercase tracking-[0.16em] text-[#874204] flex items-center gap-2">
-              <span className="text-[#d97706]">✦</span>
-              CUSTOMER SUPPORT
-            </h3>
+            {/* SUB-COL 2: PLATFORM & RESOURCES */}
+            <div>
+              <h3 className="mb-4 font-serif text-[13.5px] font-bold uppercase tracking-[0.16em] text-[#874204] flex items-center gap-1.5">
+                <span className="text-[#d97706]">✦</span>
+                RESOURCES
+              </h3>
 
-            <nav className="flex flex-col gap-2.5">
-              {[
-                { label: "Contact Us", path: "/contact" },
-                { label: "FAQs", path: "/faqs" },
-                { label: "Shipping & Delivery", path: "/shipping" },
-                { label: "Returns & Refunds", path: "/returns" },
-                { label: "Privacy Policy", path: "/privacy" },
-                { label: "Terms & Conditions", path: "/terms" },
-              ].map((link) => (
-                <Link
-                  key={link.label}
-                  to={link.path}
-                  className="group flex items-center gap-2 text-[13.5px] font-medium text-[#4c3a29] transition-all duration-200 hover:text-[#b36a18] hover:translate-x-1"
-                >
-                  <span className="text-[10px] text-amber-600/70 group-hover:text-[#b36a18]">›</span>
-                  <span>{link.label}</span>
-                </Link>
-              ))}
-            </nav>
-          </div>
+              <nav className="flex flex-col gap-2.5">
+                {[
+                  { label: "Sacred Shop", path: "/shop" },
+                  { label: "Temple Prasadam", path: "/prasad" },
+                  { label: "Vedic Courses", path: "/courses" },
+                  { label: "Upcoming Puja", path: "/puja/upcoming" },
+                  { label: "Book Consultation", path: "/book-consultation" },
+                  { label: "Veda Library", path: "https://veda-library-five.vercel.app/library", isExternal: true },
+                ].map((link) =>
+                  link.isExternal ? (
+                    <a
+                      key={link.label}
+                      href={link.path}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-center gap-2 text-[13.5px] font-medium text-[#4c3a29] transition-all duration-200 hover:text-[#b36a18] hover:translate-x-1"
+                    >
+                      <span className="text-[10px] text-amber-600/70 group-hover:text-[#b36a18]">›</span>
+                      <span>{link.label}</span>
+                      <ExternalLink size={11} className="text-[#99734e] opacity-70 group-hover:opacity-100" />
+                    </a>
+                  ) : (
+                    <Link
+                      key={link.label}
+                      to={link.path}
+                      className="group flex items-center gap-2 text-[13.5px] font-medium text-[#4c3a29] transition-all duration-200 hover:text-[#b36a18] hover:translate-x-1"
+                    >
+                      <span className="text-[10px] text-amber-600/70 group-hover:text-[#b36a18]">›</span>
+                      <span>{link.label}</span>
+                    </Link>
+                  )
+                )}
+              </nav>
+            </div>
 
-          {/* MY ACCOUNT */}
-          <div>
-            <h3 className="mb-4 font-serif text-[14px] font-bold uppercase tracking-[0.16em] text-[#874204] flex items-center gap-2">
-              <span className="text-[#d97706]">✦</span>
-              MY ACCOUNT
-            </h3>
+            {/* SUB-COL 3: CUSTOMER CARE & ACCOUNT */}
+            <div>
+              <h3 className="mb-4 font-serif text-[13.5px] font-bold uppercase tracking-[0.16em] text-[#874204] flex items-center gap-1.5">
+                <span className="text-[#d97706]">✦</span>
+                CUSTOMER CARE
+              </h3>
 
-            <nav className="flex flex-col gap-2.5">
-              {[
-                { label: "Login", path: "/login" },
-                { label: "My Orders", path: "/orders" },
-                { label: "My Bookings", path: "/bookings" },
-                { label: "My Courses", path: "/my-courses" },
-                { label: "Wishlist", path: "/wishlist" },
-              ].map((link) => (
-                <Link
-                  key={link.label}
-                  to={link.path}
-                  className="group flex items-center gap-2 text-[13.5px] font-medium text-[#4c3a29] transition-all duration-200 hover:text-[#b36a18] hover:translate-x-1"
-                >
-                  <span className="text-[10px] text-amber-600/70 group-hover:text-[#b36a18]">›</span>
-                  <span>{link.label}</span>
-                </Link>
-              ))}
-            </nav>
+              <nav className="flex flex-col gap-2.5">
+                {[
+                  { label: "Contact Us", path: "/contact" },
+                  { label: "Common FAQs", path: "/faqs" },
+                  { label: "My Bookings", path: "/bookings" },
+                  { label: "My Orders", path: "/orders" },
+                  { label: "Shipping & Delivery", path: "/shipping" },
+                  { label: "Returns & Refunds", path: "/returns" },
+                ].map((link) => (
+                  <Link
+                    key={link.label}
+                    to={link.path}
+                    className="group flex items-center gap-2 text-[13.5px] font-medium text-[#4c3a29] transition-all duration-200 hover:text-[#b36a18] hover:translate-x-1"
+                  >
+                    <span className="text-[10px] text-amber-600/70 group-hover:text-[#b36a18]">›</span>
+                    <span>{link.label}</span>
+                  </Link>
+                ))}
+              </nav>
+            </div>
           </div>
         </div>
       </div>
 
       {/* =========================================================
-          BOTTOM COPYRIGHT BAR
+          BOTTOM LEGAL & COPYRIGHT BAR
       ========================================================== */}
-      <div className="border-t border-[#e2c589] bg-[#ebd8ad]/70 py-4.5 px-6 lg:px-10">
-        <div className="mx-auto flex max-w-[1240px] flex-col gap-2.5 text-[12px] text-[#6b543e] sm:flex-row sm:items-center sm:justify-between">
+      <div className="border-t border-[#e2c589] bg-[#ebd8ad]/75 py-4 px-6 lg:px-10">
+        <div className="mx-auto flex max-w-[1240px] flex-col gap-3 text-[12px] text-[#6b543e] sm:flex-row sm:items-center sm:justify-between">
           <p>© 2026 Veda Structure. All rights reserved.</p>
 
-          <p className="flex items-center gap-1.5 font-serif text-[13px] font-semibold text-[#874204]">
-            <span className="text-[#d97706]">✦</span>
-            <span>Making Wisdom Easier Through Online Worldwide</span>
-            <span className="text-[#d97706]">✦</span>
-          </p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <Link to="/privacy" className="hover:text-[#b36a18] transition-colors underline-offset-2 hover:underline">
+              Privacy Policy
+            </Link>
+            <span className="text-amber-800/40">·</span>
+            <Link to="/terms" className="hover:text-[#b36a18] transition-colors underline-offset-2 hover:underline">
+              Terms &amp; Conditions
+            </Link>
+            <span className="text-amber-800/40">·</span>
+            <Link to="/shipping" className="hover:text-[#b36a18] transition-colors underline-offset-2 hover:underline">
+              Shipping Policy
+            </Link>
+            <span className="text-amber-800/40">·</span>
+            <Link to="/returns" className="hover:text-[#b36a18] transition-colors underline-offset-2 hover:underline">
+              Refunds &amp; Cancellations
+            </Link>
+          </div>
 
-          <p className="text-[11.5px] text-[#8a6e53]">Sanatan Dharma Sanctuary</p>
+          <p className="font-serif text-[12px] font-semibold text-[#874204]">
+            Sanatan Dharma Sanctuary · Varanasi
+          </p>
         </div>
       </div>
     </footer>
   );
-};
-
-export default Footer;
+}

@@ -2,11 +2,6 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import homaCatalogueService from "../../../services/homaCatalogueService";
 import HomaServiceCard from "../components/HomaServiceCard";
-import HomaSamagriSection from "../components/HomaSamagriSection";
-import HomaPanditTeamSection from "../components/HomaPanditTeamSection";
-import HomaKashiSection from "../components/HomaKashiSection";
-import HomaFaqSection from "../components/HomaFaqSection";
-import HomaFinalCta from "../components/HomaFinalCta";
 import {
   Sparkles,
   RefreshCw,
@@ -20,25 +15,29 @@ import {
   Flame,
 } from "lucide-react";
 
-import defaultHomaImg from "../../../assets/images/puja-mrityunjaya.jpg";
-import pujaMrityunjayaImg from "../../../assets/images/puja-mrityunjaya.jpg";
-import pujaNavagrahaImg from "../../../assets/images/puja-navagraha.jpg";
-import pujaRudrabhishekImg from "../../../assets/images/puja-rudrabhishek.jpg";
-import pujaLakshmiImg from "../../../assets/images/puja-lakshmi.jpg";
-import pujaGaneshImg from "../../../assets/images/puja-ganesh.jpg";
-import vastuImg from "../../../assets/images/c-vastu.jpg";
-import yagyaHeroImg from "../../../assets/images/yagya_hero.png";
+import cardYagyaFireImg from "../../../assets/images/library/cards/card-yagya-fire.jpg";
+import yagyaSacredFireCardImg from "../../../assets/images/yagya_sacred_fire_card.jpg";
+import yagyaFireRitualImg from "../../../assets/images/yagya/yagya-fire-ritual.webp.png";
+import yagyaPurnahutiImg from "../../../assets/images/yagya/yagya-purnahuti.webp.png";
+import yagyaSacredFireDetailImg from "../../../assets/images/yagya/yagya-sacred-fire-detail.webp.png";
+import bannerFireRitualImg from "../../../assets/images/library/banners/banner-fire-ritual.png";
+import bannerRitualSetupImg from "../../../assets/images/library/banners/banner-ritual-setup.png";
+import navagrahaHeroSacredFireImg from "../../../assets/images/homa/navagraha-hero-sacred-fire.jpg";
+import NavagrahaCategoryView from "../components/navagraha/NavagrahaCategoryView";
+import HomaCategoryView from "../components/HomaCategoryView";
 
-// Canonical fallback images per category slug if category.image is null
+// Canonical authentic Homa fire ceremony fallback images per category slug
 const CATEGORY_SLUG_IMAGES = {
-  "shiva-rudra-homa": pujaRudrabhishekImg,
-  "ganapati-homa": pujaGaneshImg,
-  "durga-chandi-homa": pujaLakshmiImg,
-  "lakshmi-kubera-homa": pujaLakshmiImg,
-  "navagraha-planetary-homa": pujaNavagrahaImg,
-  "vastu-griha-homa": vastuImg,
-  "ayushya-longevity-homa": yagyaHeroImg || pujaMrityunjayaImg,
+  "shiva-rudra-homa": yagyaFireRitualImg,
+  "ganapati-homa": yagyaSacredFireDetailImg,
+  "durga-chandi-homa": yagyaPurnahutiImg,
+  "lakshmi-kubera-homa": cardYagyaFireImg,
+  "navagraha-planetary-homa": navagrahaHeroSacredFireImg || yagyaSacredFireCardImg,
+  "vastu-griha-homa": bannerFireRitualImg,
+  "ayushya-longevity-homa": bannerRitualSetupImg,
 };
+
+const defaultHomaImg = yagyaSacredFireCardImg;
 
 const HAVAN_COUNT_OPTIONS = [
   { label: "All Havan Counts", value: "All" },
@@ -384,6 +383,29 @@ const HomaCategoryListing = () => {
           </button>
         </div>
       </main>
+    );
+  }
+
+  // Universal 5-Section Editorial Experience across ALL Homa Categories
+  if (!categoryNotFound && !categoryError) {
+    if (categorySlug === "navagraha-planetary-homa") {
+      return (
+        <NavagrahaCategoryView
+          category={category}
+          service={services[0]}
+          servicesLoading={servicesLoading}
+          categoryLoading={categoryLoading}
+        />
+      );
+    }
+
+    return (
+      <HomaCategoryView
+        category={category}
+        services={services}
+        servicesLoading={servicesLoading}
+        categoryLoading={categoryLoading}
+      />
     );
   }
 
@@ -775,13 +797,7 @@ const HomaCategoryListing = () => {
         </div>
       </section>
 
-      {/* ── SUPPORTING HOMA SECTIONS ── */}
-      <HomaSamagriSection />
-      <HomaPanditTeamSection />
-      <HomaKashiSection />
-      <HomaFaqSection />
-      <HomaFinalCta />
-    </div>
+          </div>
   );
 };
 

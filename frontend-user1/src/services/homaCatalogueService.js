@@ -14,15 +14,35 @@ import pujaKashiImg from "../assets/images/puja-kashi.jpg";
 import samagriImg from "../assets/images/p-samagri.jpg";
 import vastuImg from "../assets/images/c-vastu.jpg";
 import yagyaHeroImg from "../assets/images/yagya_hero.png";
+import navagrahaRitualShowcaseImg from "../assets/images/homa/navagraha-ritual-showcase.jpg";
+import deviDurgaImg from "../assets/images/devi_durga_card.jpg";
+
+import navagrahaHeroSacredFireImg from "../assets/images/homa/navagraha-hero-sacred-fire.jpg";
+import navagrahaMandalaYantraImg from "../assets/images/homa/navagraha-mandala-yantra.jpg";
+import navagrahaSacredSamagriImg from "../assets/images/homa/navagraha-sacred-samagri.jpg";
+import shivaHeroImg from "../assets/images/homa/shiva-rudra-homa-hero.jpg";
+import homaHeroMorningSanctumImg from "../assets/images/homa/homa-hero-morning-sanctum.jpg";
+import homaHeroKashiCeremonyImg from "../assets/images/homa/homa-hero-kashi-ceremony.jpg";
+import yagyaFireRitualImg from "../assets/images/yagya/yagya-fire-ritual.webp.png";
+import yagyaSacredFireDetailImg from "../assets/images/yagya/yagya-sacred-fire-detail.webp.png";
+import yagyaPurnahutiImg from "../assets/images/yagya/yagya-purnahuti.webp.png";
+import cardYagyaFireImg from "../assets/images/library/cards/card-yagya-fire.jpg";
+import bannerFireRitualImg from "../assets/images/library/banners/banner-fire-ritual.png";
+import samagriPushpaImg from "../assets/images/samagri/samagri-pushpa-bilva.jpg";
+import samagriHavanMixImg from "../assets/images/samagri/samagri-havan-mix.jpg";
+import samagriSpecialAhutiImg from "../assets/images/samagri/samagri-special-ahuti.jpg";
+import samagriGheeImg from "../assets/images/samagri/samagri-desi-ghee.jpg";
+import samagriCopperKundImg from "../assets/images/samagri/samagri-copper-agni-kund.jpg";
+import samagriHerbalImg from "../assets/images/samagri/samagri-herbal-decoction.jpg";
 
 /**
  * Slug to fallback image lookup for Homa services
  */
 const SLUG_IMAGE_MAP = {
   "maha-mrityunjaya-homa": pujaMrityunjayaImg,
-  "navagraha-homa": pujaNavagrahaImg,
+  "navagraha-homa": navagrahaRitualShowcaseImg || pujaNavagrahaImg,
   "ganapati-homa": pujaGaneshImg,
-  "durga-chandi-homa": pujaLakshmiImg,
+  "durga-chandi-homa": deviDurgaImg || pujaLakshmiImg,
   "lakshmi-kubera-homa": pujaLakshmiImg,
   "rudra-homa": pujaRudrabhishekImg,
   "vastu-shanti-homa": vastuImg,
@@ -34,6 +54,78 @@ const SLUG_IMAGE_MAP = {
  */
 export const getHomaFallbackImage = (slug) => {
   return SLUG_IMAGE_MAP[slug] || defaultHomaImg;
+};
+
+/**
+ * Resolves a curated multi-image gallery of authentic Vedic ritual photos for each Homa service
+ */
+export const getHomaServiceGallery = (slug, primaryImage) => {
+  const baseImg = primaryImage || getHomaFallbackImage(slug);
+  switch (slug) {
+    case "navagraha-homa":
+      return [
+        navagrahaRitualShowcaseImg,
+        navagrahaHeroSacredFireImg,
+        navagrahaMandalaYantraImg,
+        navagrahaSacredSamagriImg,
+      ];
+    case "maha-mrityunjaya-homa":
+      return [
+        pujaMrityunjayaImg,
+        shivaHeroImg,
+        samagriPushpaImg,
+        homaHeroKashiCeremonyImg,
+      ];
+    case "rudra-homa":
+      return [
+        pujaRudrabhishekImg,
+        shivaHeroImg,
+        samagriPushpaImg,
+        homaHeroKashiCeremonyImg,
+      ];
+    case "ganapati-homa":
+      return [
+        pujaGaneshImg,
+        yagyaSacredFireDetailImg,
+        samagriHavanMixImg,
+        homaHeroMorningSanctumImg,
+      ];
+    case "durga-chandi-homa":
+      return [
+        deviDurgaImg,
+        yagyaPurnahutiImg,
+        samagriSpecialAhutiImg,
+        homaHeroKashiCeremonyImg,
+      ];
+    case "lakshmi-kubera-homa":
+      return [
+        pujaLakshmiImg,
+        cardYagyaFireImg,
+        samagriGheeImg,
+        homaHeroMorningSanctumImg,
+      ];
+    case "vastu-shanti-homa":
+      return [
+        vastuImg,
+        bannerFireRitualImg,
+        samagriCopperKundImg,
+        homaHeroMorningSanctumImg,
+      ];
+    case "ayushya-homa":
+      return [
+        yagyaHeroImg,
+        homaHeroMorningSanctumImg,
+        samagriHerbalImg,
+        homaHeroKashiCeremonyImg,
+      ];
+    default:
+      return [
+        baseImg,
+        homaHeroMorningSanctumImg,
+        samagriHavanMixImg,
+        homaHeroKashiCeremonyImg,
+      ];
+  }
 };
 
 /**
@@ -72,13 +164,55 @@ export const normalizeHomaPurpose = (item) => {
 };
 
 /**
+ * Safely identifies whether an asset URL is a legacy unresolvable relative path
+ * that does not exist in Vite's public or built asset tree.
+ */
+export const isUnresolvableAsset = (url) => {
+  if (!url || typeof url !== "string") return true;
+  const trimmed = url.trim();
+  if (!trimmed) return true;
+
+  // External URLs (Cloudinary, CDN, S3) are always valid
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) return false;
+
+  // Data URLs or blobs are valid
+  if (trimmed.startsWith("data:") || trimmed.startsWith("blob:")) return false;
+
+  // Static images located in Vite public folder (/images/...) are valid
+  if (trimmed.startsWith("/images/")) return false;
+
+  // Vite development mode asset paths
+  if (trimmed.startsWith("/src/") || trimmed.startsWith("/@fs/")) return false;
+
+  // Vite production built assets have an 8-character build hash, e.g. /assets/name-XXXXXXXX.ext
+  if (trimmed.startsWith("/assets/")) {
+    const isViteHashed = /\-[A-Za-z0-9_-]{8}\.[a-zA-Z0-9]+$/.test(trimmed);
+    if (isViteHashed) {
+      return false;
+    }
+    // Any unhashed /assets/... from DB seed (like /assets/puja-rudrabhishek.jpg) is unresolvable
+    return true;
+  }
+
+  // Any relative path that doesn't start with / is unresolvable
+  if (!trimmed.startsWith("/")) return true;
+
+  return false;
+};
+
+/**
  * Normalizes a single listing or detail item from GET /api/homa-services or GET /api/homa-services/:slug
  */
 export const mapApiHomaServiceToUi = (item) => {
   if (!item) return null;
 
   const fallbackImg = getHomaFallbackImage(item.slug);
-  const primaryImage = item.bannerImage || item.image || fallbackImg;
+  const rawImg = !isUnresolvableAsset(item.bannerImage)
+    ? item.bannerImage
+    : !isUnresolvableAsset(item.image)
+    ? item.image
+    : null;
+  const primaryImage = rawImg || fallbackImg;
 
   const startingPrice = Number(item.startingPrice) || Number(item.basePrice) || 11000;
   const basePrice = Number(item.basePrice) || startingPrice;
@@ -131,23 +265,31 @@ export const mapApiHomaServiceToUi = (item) => {
       ? item.active
       : true;
 
-  const gallery =
+  const rawGallery =
     Array.isArray(item.gallery) && item.gallery.length > 0
       ? item.gallery
       : Array.isArray(item.galleryImages) && item.galleryImages.length > 0
       ? item.galleryImages
-      : [primaryImage, samagriImg, pujaKashiImg];
+      : [];
+
+  const cleanGallery = Array.from(
+    new Set(
+      rawGallery
+        .filter((img) => !isUnresolvableAsset(img))
+        .filter(Boolean)
+    )
+  );
+
+  const curatedGallery = getHomaServiceGallery(item.slug, primaryImage);
+  // PRESERVE ADMIN UPLOADS: If admin uploaded 1 or more valid images, preserve them;
+  // only fall back to curated multi-slide gallery if no valid images exist.
+  const gallery = cleanGallery.length > 0 ? cleanGallery : curatedGallery;
 
   const samagri = Array.isArray(item.samagri)
     ? item.samagri.map((s) =>
         typeof s === "string" ? { name: s, status: "Included" } : s
       )
-    : [
-        { name: "Havan Samagri", status: "Included" },
-        { name: "Pure Cow Ghrita", status: "Included" },
-        { name: "Samidha Woods", status: "Included" },
-        { name: "Sacred Bhasma Consecration", status: "Included" },
-      ];
+    : [];
 
   const faqs = Array.isArray(item.faqs)
     ? item.faqs
@@ -473,6 +615,7 @@ const homaCatalogueService = {
   normalizeRequiredSkills,
   normalizeHomaPurpose,
   getHomaFallbackImage,
+  getHomaServiceGallery,
 };
 
 export default homaCatalogueService;

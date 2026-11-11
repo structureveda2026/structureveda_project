@@ -42,6 +42,16 @@ import Astrologers from "@/pages/Astrologers";
 import AstrologerDetail from "@/pages/AstrologerDetail";
 import AstrologerForm from "@/pages/AstrologerForm";
 import AstrologerPackages from "@/pages/AstrologerPackages";
+import BookingOverview from "@/pages/BookingOverview";
+import AllBookings from "@/pages/AllBookings";
+import RitualBookings from "@/pages/RitualBookings";
+import RitualBookingDetail from "@/pages/RitualBookingDetail";
+import CommunityPujaBookings from "@/pages/CommunityPujaBookings";
+import CommunityPujaBookingDetail from "@/pages/CommunityPujaBookingDetail";
+import Bookings from "@/pages/Bookings";
+import BookingDetail from "@/pages/BookingDetail";
+import Payments from "@/pages/Payments";
+
 
 
 // Veda Library Module (Blogs, Vedas, Mantras & Suktas)
@@ -76,6 +86,31 @@ export default function App() {
                 element={<Navigate to="/admin/dashboard" replace />}
               />
               <Route path="dashboard" element={<Dashboard />} />
+
+              {/* Booking Management Module */}
+              <Route path="booking-overview" element={<BookingOverview />} />
+              <Route path="bookings" element={<AllBookings />} />
+              <Route path="bookings/all" element={<AllBookings />} />
+
+              {/* Ritual Bookings (Puja, Yagya, Homa, Japa, Path) */}
+              <Route path="bookings/rituals" element={<RitualBookings />} />
+              <Route path="bookings/rituals/:id" element={<RitualBookingDetail />} />
+
+              {/* Community Puja Bookings */}
+              <Route path="bookings/community-puja" element={<CommunityPujaBookings />} />
+              <Route path="bookings/community-puja/:id" element={<CommunityPujaBookingDetail />} />
+
+              {/* Astrologer Consultations */}
+              <Route path="bookings/consultations" element={<Bookings />} />
+              <Route path="bookings/consultations/:id" element={<BookingDetail />} />
+              <Route path="bookings/:id" element={<BookingDetail />} />
+
+              {/* Payments & Transactions */}
+              <Route path="payments" element={<Payments />} />
+
+              {/* Legacy orders alias */}
+              <Route path="orders" element={<Navigate to="/admin/bookings" replace />} />
+
 
               {/* Astrologers */}
               <Route path="astrologers" element={<Astrologers />} />

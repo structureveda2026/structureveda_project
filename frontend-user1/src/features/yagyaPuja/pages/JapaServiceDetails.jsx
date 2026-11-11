@@ -311,7 +311,7 @@ const JapaServiceDetails = () => {
                     state={{ service, selectedVariant }}
                     className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#b56e20] to-[#cb832c] px-6 py-3 text-[13.5px] font-bold text-white shadow-md hover:brightness-105"
                   >
-                    <span>Talk to a Vedic Scholar</span>
+                    <span>Book Japa Anushthan</span>
                     <ArrowRight size={14} />
                   </Link>
                 </div>
@@ -425,7 +425,7 @@ const JapaServiceDetails = () => {
                   state={{ service, selectedVariant }}
                   className="rounded-full bg-[#2b241d] px-5 py-2.5 text-[13px] font-bold text-[#f7ecd5] hover:bg-[#a8641b] hover:text-white"
                 >
-                  Consult Acharya
+                  Book Japa Anushthan
                 </Link>
               </div>
             </div>

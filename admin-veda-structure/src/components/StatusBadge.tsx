@@ -71,6 +71,21 @@ const statusConfig: Record<string, { bg: string; text: string; dot: string }> =
       text: "text-charcoal-600",
       dot: "bg-charcoal-400",
     },
+    "Partially Refunded": {
+      bg: "bg-purple-50",
+      text: "text-purple-700",
+      dot: "bg-purple-500",
+    },
+    "Refund In Progress": {
+      bg: "bg-orange-50",
+      text: "text-orange-700",
+      dot: "bg-orange-500",
+    },
+    "Not Integrated": {
+      bg: "bg-charcoal-100",
+      text: "text-charcoal-500",
+      dot: "bg-charcoal-400",
+    },
     Approved: {
       bg: "bg-green-50",
       text: "text-green-700",
