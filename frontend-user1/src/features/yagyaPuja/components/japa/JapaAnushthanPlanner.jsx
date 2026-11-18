@@ -11,7 +11,7 @@ import {
   Check,
   BookOpen,
 } from "lucide-react";
-import plannerImg from "../../../../assets/images/japa-anushthan-planner.jpg";
+import plannerBannerImg from "../../../../assets/images/japa-planner-banner.jpg";
 import { resolveJapaImage } from "../../../../services/japaCatalogueService";
 
 const formatCount = (count) => {
@@ -30,14 +30,14 @@ const getCountTierDescription = (count) => {
 };
 
 /**
- * Section 03: Final Split Vedic Japa Anushthan Planner (Option 2 - Split Vedic Experience)
+ * Section 03: Top Image + Full-Width Interactive Japa Anushthan Planner
  * 
- * Composition:
- * - LEFT (approx 40%): Authentic Vedic Devotional Photography with restrained dark overlay & core capability highlights.
- * - RIGHT (approx 60%): Spacious, accessible interactive ceremony planner with 3-col ceremony selector,
- *   service-specific count options, 4-col subtle plan breakdown, and authoritative booking CTA.
+ * Layout:
+ * - TOP: Wide, panoramic devotional image banner (100% width across the container).
+ * - BELOW IMAGE: Full-width spacious interactive planner (Introduction, 4-Step Indicator,
+ *   3-col Service Grid, 4-col Count Selector, 4-col Summary Panel, and Booking CTA).
  * 
- * Preserves backend pricing engine, available count restrictions, duration calculation, and Purohit squad rules.
+ * Preserves backend pricing engine, service-specific count availability, duration logic, and Purohit rules.
  */
 const JapaAnushthanPlanner = ({ services = [], initialSearch = "", className = "" }) => {
   const [selectedSlug, setSelectedSlug] = useState(
@@ -109,285 +109,309 @@ const JapaAnushthanPlanner = ({ services = [], initialSearch = "", className = "
   const dailyHours = currentService.dailyHours || "4 Hours Daily";
   const dailyCapacity = currentService.dailyCapacityPerPandit || 2000;
 
+  const isBookingDisabled = !selectedSlug || !activeCount || !matchedVariant;
+
   return (
     <section
       id="anushthan-planner"
       className={`relative border-b border-[#ead8bc] bg-[#fdfaf5] px-4 py-16 sm:px-6 sm:py-24 lg:px-8 ${className}`}
     >
-      <div className="mx-auto max-w-[1340px]">
-        {/* Unified 2-Column Split Container (~40% Left Image, ~60% Right Planner) */}
-        <div className="overflow-hidden rounded-[32px] border border-[#ead8bc] bg-[#fffdfa] shadow-[0_20px_50px_rgba(48,37,28,0.06)] grid grid-cols-1 lg:grid-cols-12 min-h-[660px]">
+      <div className="mx-auto max-w-[1400px]">
+        {/* Unified Container: Top Image Banner + Full-Width Planner Below */}
+        <div className="overflow-hidden rounded-[32px] border border-[#ead8bc] bg-[#fffdfa] shadow-[0_20px_50px_rgba(48,37,28,0.06)]">
           
           {/* ══════════════════════════════════════════════════════════════
-              LEFT PANEL: VEDIC DEVOTIONAL IMAGE (Approx 40% Desktop)
+              1. TOP: FULL-WIDTH PANORAMIC IMAGE BANNER (100% Width)
              ══════════════════════════════════════════════════════════════ */}
-          <div className="relative min-h-[420px] sm:min-h-[480px] lg:min-h-full lg:col-span-5 flex flex-col justify-between overflow-hidden bg-[#181009] p-7 sm:p-9 lg:p-10">
-            {/* Authentic Japa Sanctum Devotional Photography */}
+          <div className="relative w-full aspect-[16/6] min-h-[220px] sm:min-h-[280px] md:min-h-[320px] lg:min-h-[360px] max-h-[420px] overflow-hidden bg-[#181009]">
+            {/* Panoramic Devotional Image */}
             <img
-              src={plannerImg}
-              alt="Sacred Vedic Mantra Japa Anushthan Altar"
-              className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-1000 ease-out hover:scale-105"
+              src={plannerBannerImg}
+              alt="Sacred Vedic Japa Anushthan Sanctum"
+              className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-1000 ease-out hover:scale-[1.02]"
               onError={(e) => {
-                e.currentTarget.src = "/images/japa/japa-anushthan-planner.jpg";
+                e.currentTarget.src = "/images/japa/japa-planner-banner.jpg";
               }}
             />
 
-            {/* Controlled Depth Vignette Overlay */}
+            {/* Subtle Gradient Overlay for Depth and Contrast */}
             <div
               aria-hidden="true"
-              className="absolute inset-0 bg-gradient-to-t from-[#140c06]/95 via-[#140c06]/45 to-transparent"
+              className="absolute inset-0 bg-gradient-to-t from-[#140c06]/85 via-[#140c06]/25 to-transparent"
             />
 
-            {/* Subtle Ambient Radial Glow */}
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -left-12 top-1/3 h-56 w-56 rounded-full bg-[#eab12c]/15 blur-[65px]"
-            />
-
-            {/* Top Sanctum Badge */}
-            <div className="relative z-10 flex items-center justify-between">
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-[#f5ce6f]/40 bg-[#1b1208]/85 px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#f5ce6f] backdrop-blur-md shadow-xs">
+            {/* Top Badge over Banner */}
+            <div className="absolute top-4 left-5 sm:top-6 sm:left-8 z-10">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-[#f5ce6f]/40 bg-[#1b1208]/85 px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider text-[#f5ce6f] backdrop-blur-md shadow-xs">
                 <Sparkles size={11} className="text-[#f5ce6f]" />
-                <span>Vedic Anushthan Vidhi</span>
+                <span>Vedic Anushthan Vidhi • Sacred Chanting Tradition</span>
               </div>
-              <span className="rounded-full border border-[#f5ce6f]/25 bg-[#1b1208]/80 px-2.5 py-0.5 text-[10.5px] font-medium text-[#d9c9b5] backdrop-blur-md">
-                108-Bead Rosary
-              </span>
             </div>
 
-            {/* Compact Dark Translucent Bottom Information Panel */}
-            <div className="relative z-10 mt-auto pt-16">
-              <div className="rounded-2xl border border-[#f5ce6f]/25 bg-[#170e06]/85 p-5 sm:p-6 backdrop-blur-md shadow-lg">
-                <div className="flex items-center gap-2 text-[#f5ce6f]">
-                  <BookOpen size={15} />
-                  <span className="text-[11.5px] font-bold uppercase tracking-widest text-[#f5ce6f]">
-                    Sacred Chanting Discipline
-                  </span>
-                </div>
-
-                <h3 className="mt-2 font-serif text-[20px] sm:text-[22px] font-bold leading-snug text-[#fffdfa]">
-                  Authentic Mantra Japa
-                </h3>
-
-                <p className="mt-2 text-[13px] leading-relaxed text-[#ede1d1]">
-                  Disciplined recitation performed by qualified Vedic Purohits with proper Sankalpa, prescribed counts and traditional procedures.
-                </p>
-
-                {/* Capability Highlights */}
-                <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-medium text-[#fce8c8]">
-                  <span className="inline-flex items-center gap-1 rounded-md bg-[#2d1f11]/90 px-2.5 py-1 border border-[#f5ce6f]/20">
-                    <Check size={11} className="text-[#f5ce6f]" /> Scriptural Method
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-md bg-[#2d1f11]/90 px-2.5 py-1 border border-[#f5ce6f]/20">
-                    <Check size={11} className="text-[#f5ce6f]" /> Qualified Purohits
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-md bg-[#2d1f11]/90 px-2.5 py-1 border border-[#f5ce6f]/20">
-                    <Check size={11} className="text-[#f5ce6f]" /> Kashi Kshetra
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-md bg-[#2d1f11]/90 px-2.5 py-1 border border-[#f5ce6f]/20">
-                    <Check size={11} className="text-[#f5ce6f]" /> Remote Sankalpa
-                  </span>
-                </div>
+            {/* Bottom Bar over Banner */}
+            <div className="absolute bottom-4 left-5 sm:bottom-6 sm:left-8 right-5 sm:right-8 z-10 flex flex-wrap items-center justify-between gap-3 text-white">
+              <div className="flex items-center gap-2">
+                <BookOpen size={17} className="text-[#f5ce6f]" />
+                <span className="font-serif text-[16px] sm:text-[19px] font-bold tracking-wide text-[#fffdfa] drop-shadow-sm">
+                  Authentic Mantra Japa &amp; Purascharana
+                </span>
+              </div>
+              <div className="hidden sm:flex items-center gap-4 text-[12px] font-medium text-[#fce8c8] drop-shadow-sm">
+                <span className="flex items-center gap-1"><Check size={13} className="text-[#f5ce6f]" /> Scriptural Method</span>
+                <span className="flex items-center gap-1"><Check size={13} className="text-[#f5ce6f]" /> Qualified Purohits</span>
+                <span className="flex items-center gap-1"><Check size={13} className="text-[#f5ce6f]" /> Kashi Kshetra</span>
+                <span className="flex items-center gap-1"><Check size={13} className="text-[#f5ce6f]" /> Remote Sankalpa</span>
               </div>
             </div>
           </div>
 
           {/* ══════════════════════════════════════════════════════════════
-              RIGHT PANEL: INTERACTIVE JAPA PLANNER (Approx 60% Desktop)
+              2. BELOW IMAGE: FULL-WIDTH INTERACTIVE PLANNER
              ══════════════════════════════════════════════════════════════ */}
-          <div className="flex flex-col justify-between p-6 sm:p-10 lg:p-12 lg:col-span-7 bg-[#fffcf7]">
-            <div>
-              {/* Planner Heading */}
+          <div className="p-6 sm:p-10 lg:p-14 bg-[#fffcf7]">
+            
+            {/* ── Planner Introduction (Centered) ── */}
+            <div className="text-center max-w-[820px] mx-auto">
               <div className="inline-flex items-center gap-1.5 rounded-full border border-[#b77920]/30 bg-[#fbf5eb] px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#8a561c]">
                 <Calculator size={12} className="text-[#b77920]" />
                 <span>INTERACTIVE ANUSHTHAN PLANNER</span>
               </div>
 
-              <h2 className="mt-3 font-serif text-[28px] sm:text-[34px] lg:text-[36px] font-bold tracking-tight text-[#30251c]">
+              <h2 className="mt-3 font-serif text-[28px] sm:text-[34px] lg:text-[38px] font-bold tracking-tight text-[#30251c]">
                 Calculate Your Sacred Japa Plan
               </h2>
 
-              <p className="mt-2 text-[14.5px] leading-relaxed text-[#6b5845]">
+              <p className="mt-2.5 text-[15px] sm:text-[16px] leading-relaxed text-[#6b5845]">
                 Choose your Mantra Japa and prescribed recitation count. Review the applicable duration, Purohit requirements and authoritative Dakshina before continuing.
               </p>
+            </div>
 
-              {/* ── STEP 1: CHOOSE MANTRA JAPA CEREMONY ── */}
-              <div className="mt-8 pt-6 border-t border-[#f0e3ce]">
-                <div className="flex items-center justify-between">
-                  <label className="text-[12.5px] font-bold uppercase tracking-wider text-[#30251c]">
-                    Step 1: Choose Mantra Japa Ceremony
-                  </label>
-                  <span className="text-[11.5px] font-medium text-[#8a725b]">
-                    {services.length} Consecrated Ceremonies
+            {/* ── Step Progress Indicator (Horizontal 4-Step Track) ── */}
+            <div className="mt-8 max-w-[900px] mx-auto">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 p-2 rounded-2xl bg-[#f8f1e6]/70 border border-[#ead8bc]/80">
+                {/* Step 1 */}
+                <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-white border border-[#b77920]/40 shadow-xs">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#b77920] text-white text-[11px] font-bold">
+                    ✓
                   </span>
+                  <div className="min-w-0">
+                    <span className="block text-[10px] uppercase font-bold text-[#b77920] tracking-wider">Step 1</span>
+                    <span className="block text-[12px] font-bold text-[#30251c] truncate">Select Mantra</span>
+                  </div>
                 </div>
 
-                {/* 3-Column Responsive Grid on Desktop */}
-                <div className="mt-3.5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[260px] overflow-y-auto pr-1.5">
-                  {services.map((svc) => {
-                    const isSelected = svc.slug === selectedSlug;
-                    const svcImg = resolveJapaImage(svc);
-                    return (
-                      <button
-                        key={svc.slug || svc.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedSlug(svc.slug);
-                          if (Array.isArray(svc.availableCounts) && svc.availableCounts.length > 0) {
-                            setSelectedCount(svc.availableCounts[0]);
-                          }
-                        }}
-                        className={`flex items-center gap-3 rounded-2xl border p-2.5 text-left transition-all cursor-pointer ${
-                          isSelected
-                            ? "border-[#b77920] bg-[#fbf5eb] ring-2 ring-[#b77920]/80 shadow-xs"
-                            : "border-[#ead8bc] bg-white hover:border-[#b77920]/60 hover:bg-[#faf6f0]"
-                        }`}
-                      >
-                        {/* Ceremony Thumbnail */}
-                        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-[#f5ecd9] border border-[#ead8bc]">
-                          <img
-                            src={svcImg}
-                            alt={svc.name}
-                            className="h-full w-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.src = "/images/japa/p-mala.jpg";
-                            }}
-                          />
-                        </div>
-
-                        <div className="min-w-0 flex-1">
-                          <span className="block text-[13px] font-bold text-[#30251c] truncate">
-                            {svc.name}
-                          </span>
-                          <span className="block text-[11px] text-[#8a725b] truncate">
-                            {svc.deity || svc.category?.name || "Vedic Tradition"}
-                          </span>
-                        </div>
-
-                        {isSelected && (
-                          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#b77920] text-white">
-                            <Check size={12} />
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* ── STEP 2: SELECT ANUSHTHAN COUNT ── */}
-              <div className="mt-8 pt-6 border-t border-[#f0e3ce]">
-                <div className="flex items-center justify-between">
-                  <label className="text-[12.5px] font-bold uppercase tracking-wider text-[#30251c]">
-                    Step 2: Select Recitation Count
-                  </label>
-                  <span className="text-[11.5px] font-medium text-[#8a725b]">
-                    Prescribed for {currentService.name}
+                {/* Step 2 */}
+                <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-white border border-[#b77920]/40 shadow-xs">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#b77920] text-white text-[11px] font-bold">
+                    2
                   </span>
+                  <div className="min-w-0">
+                    <span className="block text-[10px] uppercase font-bold text-[#b77920] tracking-wider">Step 2</span>
+                    <span className="block text-[12px] font-bold text-[#30251c] truncate">Select Count</span>
+                  </div>
                 </div>
 
-                <div className="mt-3.5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                  {availableCounts.map((cnt) => {
-                    const isCountActive = cnt === activeCount;
-                    return (
-                      <button
-                        key={cnt}
-                        type="button"
-                        onClick={() => setSelectedCount(cnt)}
-                        className={`flex items-center justify-between rounded-2xl border p-3.5 transition-all cursor-pointer ${
-                          isCountActive
-                            ? "border-[#b77920] bg-[#fbf5eb] ring-2 ring-[#b77920]/80 shadow-xs"
-                            : "border-[#ead8bc] bg-white hover:border-[#b77920]/60 hover:bg-[#faf6f0]"
-                        }`}
-                      >
-                        <div className="text-left">
-                          <span className="block text-[13.5px] font-bold text-[#30251c]">
-                            {formatCount(cnt)}
-                          </span>
-                          <span className="block text-[10.5px] text-[#8a725b]">
-                            {getCountTierDescription(cnt)}
-                          </span>
-                        </div>
-                        {isCountActive && (
-                          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#b77920] text-white">
-                            <Check size={12} />
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
+                {/* Step 3 */}
+                <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-white border border-[#ead8bc] shadow-2xs">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#ead8bc] text-[#735e4b] text-[11px] font-bold">
+                    3
+                  </span>
+                  <div className="min-w-0">
+                    <span className="block text-[10px] uppercase font-bold text-[#8a725b] tracking-wider">Step 3</span>
+                    <span className="block text-[12px] font-bold text-[#5c4a39] truncate">Review Plan</span>
+                  </div>
                 </div>
-              </div>
 
-              {/* ── STEP 3: YOUR JAPA PLAN SUMMARY ── */}
-              <div className="mt-8 pt-6 border-t border-[#f0e3ce]">
-                <label className="text-[12.5px] font-bold uppercase tracking-wider text-[#30251c]">
-                  Step 3: Authoritative Breakdown & Inclusions
-                </label>
-
-                {/* 4 Balanced Information Columns with Subtle Dividers */}
-                <div className="mt-3.5 grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[#ead8bc] rounded-2xl border border-[#ead8bc] bg-[#faf6f0] p-4 sm:p-5">
-                  {/* Metric 1: Duration */}
-                  <div className="p-3 text-left">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase text-[#8a561c]">
-                      <Clock size={13} className="text-[#b77920]" />
-                      <span>Duration</span>
-                    </div>
-                    <div className="mt-1.5 font-serif text-[18px] font-bold text-[#30251c]">
-                      {estimatedDuration}
-                    </div>
-                    <span className="block text-[11px] text-[#8a725b] mt-0.5">{dailyHours}</span>
-                  </div>
-
-                  {/* Metric 2: Purohit Squad */}
-                  <div className="p-3 text-left">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase text-[#8a561c]">
-                      <Users size={13} className="text-[#b77920]" />
-                      <span>Purohit Squad</span>
-                    </div>
-                    <div className="mt-1.5 font-serif text-[18px] font-bold text-[#30251c]">
-                      {recommendedPandits} Vedic Priests
-                    </div>
-                    <span className="block text-[11px] text-[#8a725b] mt-0.5">Min. {minimumPandits} Scholars</span>
-                  </div>
-
-                  {/* Metric 3: Recitation Count */}
-                  <div className="p-3 text-left">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase text-[#8a561c]">
-                      <Hash size={13} className="text-[#b77920]" />
-                      <span>Recitations</span>
-                    </div>
-                    <div className="mt-1.5 font-serif text-[18px] font-bold text-[#30251c]">
-                      {activeCount.toLocaleString("en-IN")}
-                    </div>
-                    <span className="block text-[11px] text-[#8a725b] mt-0.5">Consecrated Tally</span>
-                  </div>
-
-                  {/* Metric 4: Authoritative Dakshina */}
-                  <div className="p-3 text-left">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase text-[#8a561c]">
-                      <Sparkles size={13} className="text-[#b77920]" />
-                      <span>Dakshina</span>
-                    </div>
-                    <div className="mt-1.5 font-serif text-[18px] font-bold text-[#30251c]">
-                      ₹{Number(displayPrice).toLocaleString("en-IN")}
-                    </div>
-                    <span className="block text-[11px] text-[#8a725b] mt-0.5">Authoritative Base</span>
+                {/* Step 4 */}
+                <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-white border border-[#ead8bc] shadow-2xs">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#ead8bc] text-[#735e4b] text-[11px] font-bold">
+                    4
+                  </span>
+                  <div className="min-w-0">
+                    <span className="block text-[10px] uppercase font-bold text-[#8a725b] tracking-wider">Step 4</span>
+                    <span className="block text-[12px] font-bold text-[#5c4a39] truncate">Continue</span>
                   </div>
                 </div>
               </div>
             </div>
 
+            {/* ── STEP 1: CHOOSE MANTRA JAPA CEREMONY (Full Width, 3 Columns on Desktop) ── */}
+            <div className="mt-10 pt-8 border-t border-[#f0e3ce]">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                <label className="text-[13px] sm:text-[14px] font-bold uppercase tracking-wider text-[#30251c]">
+                  Step 1: Choose Mantra Japa Ceremony
+                </label>
+                <span className="text-[12px] font-medium text-[#8a725b] bg-[#fbf5eb] px-3 py-1 rounded-full border border-[#ead8bc]">
+                  {services.length} Consecrated Ceremonies Available
+                </span>
+              </div>
+
+              {/* Spacious 3-Column Grid on Desktop */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                {services.map((svc) => {
+                  const isSelected = svc.slug === selectedSlug;
+                  const svcImg = resolveJapaImage(svc);
+                  return (
+                    <button
+                      key={svc.slug || svc.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedSlug(svc.slug);
+                        if (Array.isArray(svc.availableCounts) && svc.availableCounts.length > 0) {
+                          setSelectedCount(svc.availableCounts[0]);
+                        }
+                      }}
+                      className={`flex items-center gap-3.5 rounded-2xl border p-4 text-left transition-all cursor-pointer min-h-[76px] ${
+                        isSelected
+                          ? "border-[#b77920] bg-[#fbf5eb] ring-2 ring-[#b77920]/80 shadow-sm"
+                          : "border-[#ead8bc] bg-white hover:border-[#b77920]/60 hover:bg-[#faf6f0] shadow-2xs"
+                      }`}
+                    >
+                      {/* Ceremony Thumbnail */}
+                      <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-[#f5ecd9] border border-[#ead8bc]">
+                        <img
+                          src={svcImg}
+                          alt={svc.name}
+                          className="h-full w-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = "/images/japa/p-mala.jpg";
+                          }}
+                        />
+                      </div>
+
+                      {/* Full Readable Service Name and Tradition */}
+                      <div className="min-w-0 flex-1">
+                        <span className="block text-[14px] sm:text-[14.5px] font-bold text-[#30251c] leading-snug">
+                          {svc.name}
+                        </span>
+                        <span className="block text-[12px] text-[#8a725b] mt-0.5">
+                          {svc.deity || svc.category?.name || "Vedic Tradition"}
+                        </span>
+                      </div>
+
+                      {isSelected && (
+                        <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#b77920] text-white">
+                          <Check size={12} />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ── STEP 2: SELECT RECITATION COUNT (Full Width, 4 Columns on Desktop) ── */}
+            <div className="mt-10 pt-8 border-t border-[#f0e3ce]">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                <label className="text-[13px] sm:text-[14px] font-bold uppercase tracking-wider text-[#30251c]">
+                  Step 2: Select Recitation Count
+                </label>
+                <span className="text-[12px] font-medium text-[#8a725b]">
+                  Prescribed Shastric options for <strong className="text-[#30251c]">{currentService.name}</strong>
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {availableCounts.map((cnt) => {
+                  const isCountActive = cnt === activeCount;
+                  return (
+                    <button
+                      key={cnt}
+                      type="button"
+                      onClick={() => setSelectedCount(cnt)}
+                      className={`flex items-center justify-between rounded-2xl border p-4 transition-all cursor-pointer ${
+                        isCountActive
+                          ? "border-[#b77920] bg-[#fbf5eb] ring-2 ring-[#b77920]/80 shadow-sm"
+                          : "border-[#ead8bc] bg-white hover:border-[#b77920]/60 hover:bg-[#faf6f0] shadow-2xs"
+                      }`}
+                    >
+                      <div className="text-left">
+                        <span className="block text-[14.5px] font-bold text-[#30251c]">
+                          {formatCount(cnt)}
+                        </span>
+                        <span className="block text-[11.5px] text-[#8a725b] mt-0.5">
+                          {getCountTierDescription(cnt)}
+                        </span>
+                      </div>
+                      {isCountActive && (
+                        <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#b77920] text-white">
+                          <Check size={12} />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ── STEP 3: YOUR JAPA PLAN SUMMARY (Full Width, 4 Even Columns) ── */}
+            <div className="mt-10 pt-8 border-t border-[#f0e3ce]">
+              <label className="block text-[13px] sm:text-[14px] font-bold uppercase tracking-wider text-[#30251c] mb-4">
+                Step 3: Authoritative Breakdown & Inclusions
+              </label>
+
+              {/* 4 Balanced Information Columns with Subtle Dividers */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-0 lg:divide-x divide-[#ead8bc] rounded-2xl border border-[#ead8bc] bg-[#faf6f0] p-5 sm:p-7 shadow-xs">
+                {/* Metric 1: Duration */}
+                <div className="p-3 text-left">
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase text-[#8a561c]">
+                    <Clock size={14} className="text-[#b77920]" />
+                    <span>Duration</span>
+                  </div>
+                  <div className="mt-2 font-serif text-[20px] sm:text-[22px] font-bold text-[#30251c]">
+                    {estimatedDuration}
+                  </div>
+                  <span className="block text-[11.5px] text-[#8a725b] mt-0.5">{dailyHours}</span>
+                </div>
+
+                {/* Metric 2: Purohit Squad */}
+                <div className="p-3 text-left">
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase text-[#8a561c]">
+                    <Users size={14} className="text-[#b77920]" />
+                    <span>Purohit Squad</span>
+                  </div>
+                  <div className="mt-2 font-serif text-[20px] sm:text-[22px] font-bold text-[#30251c]">
+                    {recommendedPandits} Vedic Priests
+                  </div>
+                  <span className="block text-[11.5px] text-[#8a725b] mt-0.5">Min. {minimumPandits} Scholars</span>
+                </div>
+
+                {/* Metric 3: Recitation Count */}
+                <div className="p-3 text-left">
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase text-[#8a561c]">
+                    <Hash size={14} className="text-[#b77920]" />
+                    <span>Recitations</span>
+                  </div>
+                  <div className="mt-2 font-serif text-[20px] sm:text-[22px] font-bold text-[#30251c]">
+                    {activeCount.toLocaleString("en-IN")}
+                  </div>
+                  <span className="block text-[11.5px] text-[#8a725b] mt-0.5">Consecrated Tally</span>
+                </div>
+
+                {/* Metric 4: Authoritative Dakshina */}
+                <div className="p-3 text-left">
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase text-[#8a561c]">
+                    <Sparkles size={14} className="text-[#b77920]" />
+                    <span>Dakshina</span>
+                  </div>
+                  <div className="mt-2 font-serif text-[20px] sm:text-[22px] font-bold text-[#30251c]">
+                    ₹{Number(displayPrice).toLocaleString("en-IN")}
+                  </div>
+                  <span className="block text-[11.5px] text-[#8a725b] mt-0.5">Authoritative Base</span>
+                </div>
+              </div>
+            </div>
+
             {/* ── FOOTER ACTION: BOOKING CTA ── */}
-            <div className="mt-8 pt-6 border-t border-[#f0e3ce] flex flex-col sm:flex-row items-center justify-between gap-5">
-              <div className="flex items-center gap-2 text-[12.5px] text-[#6b5845]">
-                <ShieldCheck size={17} className="text-[#b77920] shrink-0" />
+            <div className="mt-10 pt-8 border-t border-[#f0e3ce] flex flex-col sm:flex-row items-center justify-between gap-5">
+              <div className="flex items-center gap-2.5 text-[13px] text-[#6b5845]">
+                <ShieldCheck size={18} className="text-[#b77920] shrink-0" />
                 <span>
                   Strict daily tally metrics: {dailyCapacity} Japa per Purohit daily under senior Acharya supervision.
                 </span>
               </div>
 
-              {!selectedSlug || !activeCount || !matchedVariant ? (
+              {isBookingDisabled ? (
                 <button
                   type="button"
                   disabled
@@ -406,6 +430,7 @@ const JapaAnushthanPlanner = ({ services = [], initialSearch = "", className = "
                 </Link>
               )}
             </div>
+
           </div>
 
         </div>

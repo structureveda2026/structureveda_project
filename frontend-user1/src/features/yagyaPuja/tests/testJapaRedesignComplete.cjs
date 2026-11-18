@@ -182,18 +182,17 @@ runTest("5.1 Vedic Mantra Japa Catalogue section and component are cleanly remov
   assert(!fs.existsSync(compPath), "JapaCatalogueSection.jsx file should be removed");
 });
 
-// 6. Section 03: Premium Image-Integrated Anushthan Planner (Option 2 - Split Vedic Experience)
-runTest("6.1 JapaAnushthanPlanner has 2-column image layout and authoritative calculations", () => {
+// 6. Section 03: Top Panoramic Image Banner + Full-Width Planner Layout
+runTest("6.1 JapaAnushthanPlanner has top panoramic banner and full-width content below", () => {
   const file = fs.readFileSync(
     path.join(__dirname, "../components/japa/JapaAnushthanPlanner.jsx"),
     "utf8"
   );
-  assert(file.includes("japa-anushthan-planner.jpg"), "Must import dedicated planner image");
+  assert(file.includes("plannerBannerImg") || file.includes("japa-planner-banner.jpg"), "Must import panoramic banner image");
+  assert(!file.includes("lg:col-span-5") && !file.includes("lg:col-span-7"), "Must eliminate left-right 40/60 split");
   assert(file.includes("INTERACTIVE ANUSHTHAN PLANNER"), "Eyebrow mismatch");
   assert(file.includes("Calculate Your Sacred Japa Plan"), "Headline mismatch");
   assert(file.includes("Choose your Mantra Japa and prescribed recitation count"), "Description mismatch");
-  assert(file.includes("lg:col-span-5"), "Must have 5-col image layout on desktop (approx 40%)");
-  assert(file.includes("lg:col-span-7"), "Must have 7-col interactive controls layout on desktop (approx 60%)");
   assert(file.includes("Step 1: Choose Mantra Japa Ceremony"), "Missing Step 1 label");
   assert(file.includes("Step 2: Select Recitation Count"), "Missing Step 2 label");
   assert(file.includes("Step 3: Authoritative Breakdown & Inclusions"), "Missing Step 3 label");
@@ -202,18 +201,14 @@ runTest("6.1 JapaAnushthanPlanner has 2-column image layout and authoritative ca
   assert(file.includes("resolveJapaImage"), "Must resolve service thumbnails");
 });
 
-runTest("6.2 Option 2 Split Vedic Experience features authentic overlay and 3-column service grid", () => {
+runTest("6.2 JapaAnushthanPlanner includes step progress indicator, 3-col service grid, and 4-col summary", () => {
   const file = fs.readFileSync(
     path.join(__dirname, "../components/japa/JapaAnushthanPlanner.jsx"),
     "utf8"
   );
-  assert(file.includes("Authentic Mantra Japa"), "Missing Authentic Mantra Japa heading in left panel");
-  assert(file.includes("Disciplined recitation performed by qualified Vedic Purohits"), "Missing approved overlay description");
-  assert(file.includes("Scriptural Method"), "Missing Scriptural Method highlight");
-  assert(file.includes("Qualified Purohits"), "Missing Qualified Purohits highlight");
-  assert(file.includes("Kashi Kshetra"), "Missing Kashi Kshetra highlight");
-  assert(file.includes("Remote Sankalpa"), "Missing Remote Sankalpa highlight");
-  assert(file.includes("lg:grid-cols-3"), "Must have 3 columns for service selection on desktop");
+  assert(file.includes("Select Mantra") && file.includes("Select Count") && file.includes("Review Plan") && file.includes("Continue"), "Must have 4-step progress indicator");
+  assert(file.includes("lg:grid-cols-3"), "Must have 3-column service grid on desktop");
+  assert(file.includes("lg:grid-cols-4"), "Must have 4 columns for count and summary on desktop");
   assert(file.includes("divide-x"), "Must use subtle column dividers in summary");
 });
 
