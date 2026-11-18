@@ -28,13 +28,15 @@ import pujaLakshmiImg from "../../../assets/images/puja-lakshmi.jpg";
 import pujaGaneshImg from "../../../assets/images/puja-ganesh.jpg";
 import pujaVishnuImg from "../../../assets/images/puja-vishnu.jpg";
 import mantraImg from "../../../assets/images/c-mantra.jpg";
+import deviDurgaImg from "../../../assets/images/devi_durga_card.jpg";
+import deityHanumanImg from "../../../assets/images/deity-hanuman.jpg";
 
 // Canonical fallback images per category slug if category.image is not provided
 const CATEGORY_SLUG_IMAGES = {
   "shiva-mantra-japa": pujaMrityunjayaImg,
   "gayatri-vedic-japa": mantraImg,
-  "durga-shakti-japa": pujaRudrabhishekImg,
-  "hanuman-raksha-japa": pujaVishnuImg,
+  "durga-shakti-japa": deviDurgaImg || pujaRudrabhishekImg,
+  "hanuman-raksha-japa": deityHanumanImg || pujaVishnuImg,
   "ganapati-siddhi-japa": pujaGaneshImg,
   "lakshmi-prosperity-japa": pujaLakshmiImg,
   "navagraha-planetary-japa": pujaNavagrahaImg,

@@ -443,6 +443,33 @@ const Navbar = () => {
             >
               Shop
             </a>
+            {/* Shop Link */}
+            <a
+              href="https://store.vedastructure.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full px-3.5 py-2 whitespace-nowrap text-[13.5px] 2xl:text-[14px] font-semibold text-[#2c2217] transition-all hover:bg-amber-500/10 hover:text-[#b36a18]"
+            >
+              Shop
+            </a>
+            {/* Tirth  */}
+            <a
+              href="https://veda-puja-booking-spuu.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full px-3.5 py-2 whitespace-nowrap text-[13.5px] 2xl:text-[14px] font-semibold text-[#2c2217] transition-all hover:bg-amber-500/10 hover:text-[#b36a18]"
+            >
+              Tirth
+            </a>
+            {/* Shop Link */}
+            <a
+              href="https://learn-veda.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full px-3.5 py-2 whitespace-nowrap text-[13.5px] 2xl:text-[14px] font-semibold text-[#2c2217] transition-all hover:bg-amber-500/10 hover:text-[#b36a18]"
+            >
+              Course
+            </a>
           </div>
         </div>
       </nav>

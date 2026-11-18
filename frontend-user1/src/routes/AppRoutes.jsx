@@ -90,6 +90,7 @@ const AppRoutes = () => {
         <Route path="/yagya-puja/yagya/:slug/booking-status" element={<YagyaBookingStatus />} />
         <Route path="/yagya-puja/japa" element={<JapaCatalogueListing />} />
         <Route path="/yagya-puja/japa/all" element={<JapaAllCatalogueListing />} />
+        <Route path="/yagya-puja/japa/categories" element={<JapaAllCatalogueListing />} />
         <Route path="/yagya-puja/japa/category/:categorySlug" element={<JapaCategoryListing />} />
         <Route path="/yagya-puja/japa/:slug" element={<JapaServiceDetails />} />
         <Route path="/yagya-puja/japa/:slug/book" element={<RitualBookingWizard serviceType="JAPA" />} />
