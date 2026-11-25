@@ -83,15 +83,15 @@ export default function NavagrahaCategoryView({
   const samagriList = Array.isArray(service?.samagri) && service.samagri.length > 0
     ? service.samagri
     : [
-        { name: "Havan Samagri", status: "Included" },
-        { name: "Pure Cow Ghrita", status: "Included" },
-        { name: "9 Planetary Sacred Woods", status: "Included" },
-        { name: "Navadhanya (9 Grains)", status: "Included" },
-        { name: "9 Colored Cloths", status: "Included" },
-        { name: "Special Offerings (Planetary Herbs)", status: "Included" },
-        { name: "Flowers", status: "Included" },
-        { name: "Navagraha Yantra Archana", status: "Optional" },
-      ];
+      { name: "Havan Samagri", status: "Included" },
+      { name: "Pure Cow Ghrita", status: "Included" },
+      { name: "9 Planetary Sacred Woods", status: "Included" },
+      { name: "Navadhanya (9 Grains)", status: "Included" },
+      { name: "9 Colored Cloths", status: "Included" },
+      { name: "Special Offerings (Planetary Herbs)", status: "Included" },
+      { name: "Flowers", status: "Included" },
+      { name: "Navagraha Yantra Archana", status: "Optional" },
+    ];
 
   const featuredImageSrc = !featuredImgError
     ? navagrahaRitualShowcaseImg
@@ -581,11 +581,10 @@ export default function NavagrahaCategoryView({
                           <span className="font-medium text-[#29231B]">{itemName}</span>
                         </div>
                         <span
-                          className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider ${
-                            isOptional
-                              ? "border border-[#EAD8B8] bg-[#FAF0DC] text-[#A05C12]"
-                              : "border border-[#C8E6C9] bg-[#E8F5E9] text-[#2E7D32]"
-                          }`}
+                          className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider ${isOptional
+                            ? "border border-[#EAD8B8] bg-[#FAF0DC] text-[#A05C12]"
+                            : "border border-[#C8E6C9] bg-[#E8F5E9] text-[#2E7D32]"
+                            }`}
                         >
                           {itemStatus}
                         </span>
@@ -647,9 +646,8 @@ export default function NavagrahaCategoryView({
                       </span>
                       <ChevronDown
                         size={17}
-                        className={`shrink-0 text-[#B7791F] transition-transform duration-300 ${
-                          isOpen ? "rotate-180" : ""
-                        }`}
+                        className={`shrink-0 text-[#B7791F] transition-transform duration-300 ${isOpen ? "rotate-180" : ""
+                          }`}
                       />
                     </button>
                     {isOpen && (
@@ -683,9 +681,8 @@ export default function NavagrahaCategoryView({
                       </span>
                       <ChevronDown
                         size={17}
-                        className={`shrink-0 text-[#B7791F] transition-transform duration-300 ${
-                          isOpen ? "rotate-180" : ""
-                        }`}
+                        className={`shrink-0 text-[#B7791F] transition-transform duration-300 ${isOpen ? "rotate-180" : ""
+                          }`}
                       />
                     </button>
                     {isOpen && (

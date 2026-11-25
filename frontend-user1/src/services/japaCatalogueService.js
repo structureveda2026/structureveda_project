@@ -14,27 +14,156 @@ import pujaVishnuImg from "../assets/images/puja-vishnu.jpg";
 import pujaKashiImg from "../assets/images/puja-kashi.jpg";
 import malaImg from "../assets/images/p-mala.jpg";
 import mantraImg from "../assets/images/c-mantra.jpg";
+import meditationImg from "../assets/images/c-meditation.jpg";
 import rudrakshaImg from "../assets/images/p-rudraksha.jpg";
+import samagriImg from "../assets/images/p-samagri.jpg";
+import deviDurgaImg from "../assets/images/devi_durga_card.jpg";
+import deityHanumanImg from "../assets/images/deity-hanuman.jpg";
 
 /**
- * Slug to fallback image lookup
+ * Safely identifies whether an asset URL is a legacy unresolvable relative path
+ * that does not exist in Vite's public or built asset tree.
  */
-const SLUG_IMAGE_MAP = {
+export const isUnresolvableAsset = (url) => {
+  if (!url || typeof url !== "string") return true;
+  const trimmed = url.trim();
+  if (!trimmed) return true;
+
+  // External URLs (Cloudinary, CDN, S3) are always valid
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) return false;
+
+  // Data URLs or blobs are valid
+  if (trimmed.startsWith("data:") || trimmed.startsWith("blob:")) return false;
+
+  // Static images located in Vite public folder (/images/...) are valid
+  if (trimmed.startsWith("/images/")) return false;
+
+  // Vite development mode asset paths
+  if (trimmed.startsWith("/src/") || trimmed.startsWith("/@fs/")) return false;
+
+  // Vite production built assets have an 8-character build hash, e.g. /assets/name-XXXXXXXX.ext
+  if (trimmed.startsWith("/assets/")) {
+    const isViteHashed = /\-[A-Za-z0-9_-]{8}\.[a-zA-Z0-9]+$/.test(trimmed);
+    if (isViteHashed) {
+      return false;
+    }
+    // Any unhashed /assets/... from DB seed (like /assets/puja-rudrabhishek.jpg) is unresolvable
+    return true;
+  }
+
+  // Any relative path that doesn't start with / is unresolvable
+  if (!trimmed.startsWith("/")) return true;
+
+  return false;
+};
+
+/**
+ * Slug to fallback image lookup covering all 8 canonical database slugs and legacy aliases
+ */
+export const SLUG_IMAGE_MAP = {
+  // 8 Canonical Database Slugs
   "maha-mrityunjaya-japa": pujaMrityunjayaImg,
+  "navagraha-mantra-japa": pujaNavagrahaImg,
+  "gayatri-mantra-japa": meditationImg || mantraImg,
+  "durga-saptashati-mantra-japa": deviDurgaImg,
+  "hanuman-mantra-japa": deityHanumanImg || pujaVishnuImg,
+  "ganapati-atharvashirsha-japa": pujaGaneshImg,
+  "maha-lakshmi-shri-suktam-japa": pujaLakshmiImg,
+  "shiva-panchakshari-japa": pujaRudrabhishekImg,
+
+  // Legacy/Alias Slugs
   "navagraha-shanti-japa": pujaNavagrahaImg,
-  "gayatri-mantra-japa": mantraImg,
-  "durga-navarna-japa": pujaRudrabhishekImg,
-  "hanuman-moola-mantra-japa": pujaVishnuImg,
+  "durga-navarna-japa": deviDurgaImg,
+  "hanuman-moola-mantra-japa": deityHanumanImg || pujaVishnuImg,
   "ganesh-atharvashirsha-japa": pujaGaneshImg,
   "maha-lakshmi-japa": pujaLakshmiImg,
-  "om-namah-shivaya-japa": pujaKashiImg,
+  "om-namah-shivaya-japa": pujaRudrabhishekImg,
+};
+
+/**
+ * Category slug to image lookup
+ */
+export const CATEGORY_IMAGE_MAP = {
+  "shiva-mantra-japa": pujaMrityunjayaImg,
+  "gayatri-vedic-japa": mantraImg,
+  "durga-shakti-japa": deviDurgaImg,
+  "hanuman-raksha-japa": deityHanumanImg || pujaVishnuImg,
+  "ganapati-siddhi-japa": pujaGaneshImg,
+  "lakshmi-prosperity-japa": pujaLakshmiImg,
+  "navagraha-planetary-japa": pujaNavagrahaImg,
 };
 
 /**
  * Resolves a reliable fallback image for a Japa service
  */
 export const getJapaFallbackImage = (slug) => {
-  return SLUG_IMAGE_MAP[slug] || defaultJapaImg;
+  return (slug && SLUG_IMAGE_MAP[slug]) || defaultJapaImg;
+};
+
+/**
+ * Multi-tier reliable image resolution:
+ * 1. Valid Admin-uploaded service image (Cloudinary, data:, /images/...)
+ * 2. Service-specific mapped Vite asset
+ * 3. Japa category fallback image
+ * 4. Default neutral Vedic fallback
+ */
+export const resolveJapaImage = (item) => {
+  if (!item) return defaultJapaImg;
+
+  // 1. Valid Admin-uploaded image
+  if (item.bannerImage && !isUnresolvableAsset(item.bannerImage)) {
+    return item.bannerImage;
+  }
+  if (item.image && !isUnresolvableAsset(item.image)) {
+    return item.image;
+  }
+
+  // 2. Correctly mapped local Vite-imported image by service slug
+  if (item.slug && SLUG_IMAGE_MAP[item.slug]) {
+    return SLUG_IMAGE_MAP[item.slug];
+  }
+
+  // 3. Appropriate Japa category fallback image
+  const categorySlug = item.category?.slug || item.categorySlug || item.categoryId;
+  if (categorySlug && CATEGORY_IMAGE_MAP[categorySlug]) {
+    return CATEGORY_IMAGE_MAP[categorySlug];
+  }
+
+  // 4. Default neutral Vedic fallback
+  return defaultJapaImg;
+};
+
+/**
+ * Resolves curated multi-image gallery of authentic Vedic ritual photos for each Japa service
+ */
+export const getJapaServiceGallery = (slug, primaryImage) => {
+  const baseImg = primaryImage || getJapaFallbackImage(slug);
+  switch (slug) {
+    case "maha-mrityunjaya-japa":
+      return [pujaMrityunjayaImg, pujaRudrabhishekImg, malaImg, pujaKashiImg];
+    case "navagraha-mantra-japa":
+    case "navagraha-shanti-japa":
+      return [pujaNavagrahaImg, samagriImg, malaImg, pujaKashiImg];
+    case "gayatri-mantra-japa":
+      return [meditationImg, mantraImg, malaImg, pujaKashiImg];
+    case "durga-saptashati-mantra-japa":
+    case "durga-navarna-japa":
+      return [deviDurgaImg, samagriImg, rudrakshaImg, pujaKashiImg];
+    case "hanuman-mantra-japa":
+    case "hanuman-moola-mantra-japa":
+      return [deityHanumanImg || pujaVishnuImg, rudrakshaImg, malaImg, pujaKashiImg];
+    case "ganapati-atharvashirsha-japa":
+    case "ganesh-atharvashirsha-japa":
+      return [pujaGaneshImg, samagriImg, malaImg, pujaKashiImg];
+    case "maha-lakshmi-shri-suktam-japa":
+    case "maha-lakshmi-japa":
+      return [pujaLakshmiImg, samagriImg, malaImg, pujaKashiImg];
+    case "shiva-panchakshari-japa":
+    case "om-namah-shivaya-japa":
+      return [pujaRudrabhishekImg, pujaMrityunjayaImg, rudrakshaImg, pujaKashiImg];
+    default:
+      return [baseImg, malaImg, rudrakshaImg, pujaKashiImg];
+  }
 };
 
 /**
@@ -43,8 +172,7 @@ export const getJapaFallbackImage = (slug) => {
 export const mapApiJapaServiceToUi = (item) => {
   if (!item) return null;
 
-  const fallbackImg = getJapaFallbackImage(item.slug);
-  const primaryImage = item.bannerImage || item.image || fallbackImg;
+  const primaryImage = resolveJapaImage(item);
 
   const formattedPrice =
     item.formattedPrice && !item.formattedPrice.includes("?")
@@ -79,6 +207,17 @@ export const mapApiJapaServiceToUi = (item) => {
           dailyCapacity: Number(item.dailyCapacityPerPandit) || 2000,
         };
       });
+
+  const rawGallery = Array.isArray(item.gallery) && item.gallery.length > 0
+    ? item.gallery
+    : (Array.isArray(item.galleryImages) && item.galleryImages.length > 0 ? item.galleryImages : []);
+
+  const sanitizedGallery = rawGallery
+    .filter((img) => !isUnresolvableAsset(img));
+
+  const resolvedGallery = sanitizedGallery.length > 0
+    ? sanitizedGallery
+    : getJapaServiceGallery(item.slug, primaryImage);
 
   return {
     ...item,
@@ -122,12 +261,8 @@ export const mapApiJapaServiceToUi = (item) => {
     active: typeof item.isActive === "boolean" ? item.isActive : (typeof item.active === "boolean" ? item.active : true),
     image: primaryImage,
     bannerImage: primaryImage,
-    gallery: Array.isArray(item.gallery) && item.gallery.length > 0
-      ? item.gallery
-      : (Array.isArray(item.galleryImages) && item.galleryImages.length > 0 ? item.galleryImages : [primaryImage, malaImg, rudrakshaImg]),
-    galleryImages: Array.isArray(item.galleryImages) && item.galleryImages.length > 0
-      ? item.galleryImages
-      : (Array.isArray(item.gallery) && item.gallery.length > 0 ? item.gallery : [primaryImage, malaImg, rudrakshaImg]),
+    gallery: resolvedGallery,
+    galleryImages: resolvedGallery,
     samagri: Array.isArray(item.samagri) && item.samagri.length > 0
       ? item.samagri
       : ["Japa Mala", "Gangajal", "Pavitra Bhasma", "Dhoop & Deepam", "Sandalwood Paste", "Pure Ghee"],
@@ -323,6 +458,9 @@ const japaCatalogueService = {
   mapApiJapaServiceToUi,
   mapApiJapaServiceDetailToUi,
   getJapaFallbackImage,
+  resolveJapaImage,
+  getJapaServiceGallery,
+  isUnresolvableAsset,
 };
 
 export default japaCatalogueService;

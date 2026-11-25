@@ -13,12 +13,14 @@ import {
   Package,
   ShieldCheck,
   CheckCircle2,
-  ChevronDown,
   Info,
 } from "lucide-react";
 import { JAPA_CATALOGUE_LIST } from "../data/japaCatalogueData";
 import japaCatalogueService, {
   mapApiJapaServiceDetailToUi,
+  mapApiJapaServiceToUi,
+  getJapaFallbackImage,
+  getJapaServiceGallery,
 } from "../../../services/japaCatalogueService";
 import JapaServiceCard from "../components/JapaServiceCard";
 import PublicSEO from "../../../components/common/PublicSEO";
@@ -39,7 +41,8 @@ const JapaServiceDetails = () => {
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
-  const [openFaqIndex, setOpenFaqIndex] = useState(0);
+  const [slideImageErrors, setSlideImageErrors] = useState({});
+  const [relatedServices, setRelatedServices] = useState([]);
 
   // Fetch service details from authoritative API with fallback on failure
   useEffect(() => {
@@ -48,6 +51,7 @@ const JapaServiceDetails = () => {
     setError(null);
     setCurrentSlide(0);
     setSelectedVariantIndex(0);
+    setSlideImageErrors({});
 
     async function loadService() {
       try {
@@ -88,6 +92,24 @@ const JapaServiceDetails = () => {
 
     loadService();
 
+    // Load related services dynamically
+    japaCatalogueService
+      .getJapaServices({ limit: 4 })
+      .then((res) => {
+        if (isMounted && res && Array.isArray(res.services)) {
+          setRelatedServices(res.services.filter((s) => s.slug !== slug).slice(0, 3));
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setRelatedServices(
+            JAPA_CATALOGUE_LIST.filter((j) => j.slug !== slug)
+              .slice(0, 3)
+              .map(mapApiJapaServiceToUi)
+          );
+        }
+      });
+
     return () => {
       isMounted = false;
     };
@@ -99,9 +121,9 @@ const JapaServiceDetails = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-[65vh] flex-col items-center justify-center bg-[#fffaf0] p-6 text-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-3 border-[#c77722] border-t-transparent" />
-        <p className="mt-4 font-serif text-[18px] text-[#5c4d3c]">
+      <div className="flex min-h-[65vh] flex-col items-center justify-center bg-[#fffcf6] p-6 text-center">
+        <div className="h-11 w-11 animate-spin rounded-full border-3 border-[#b77920] border-t-transparent" />
+        <p className="mt-4 font-serif text-[17px] text-[#5c4d3c]">
           Loading Sacred Mantra Japa Service...
         </p>
       </div>
@@ -110,19 +132,19 @@ const JapaServiceDetails = () => {
 
   if (error || !service) {
     return (
-      <div className="flex min-h-[65vh] flex-col items-center justify-center bg-[#fffaf0] p-6 text-center">
-        <div className="max-w-[480px] rounded-2xl border border-[#ebd8bc] bg-[#fffdfa] p-8 shadow-sm">
-          <Sparkles size={36} className="mx-auto text-[#c77722]" />
-          <h2 className="mt-3 font-serif text-[24px] font-bold text-[#2b241d]">
+      <div className="flex min-h-[65vh] flex-col items-center justify-center bg-[#fffcf6] p-6 text-center">
+        <div className="max-w-[480px] rounded-2xl border border-[#ead8bc] bg-[#fffdfa] p-8 shadow-xs">
+          <Sparkles size={36} className="mx-auto text-[#b77920]" />
+          <h2 className="mt-3 font-serif text-[24px] font-bold text-[#30251c]">
             Mantra Japa Not Found
           </h2>
-          <p className="mt-2 text-[14px] text-[#75695c]">
+          <p className="mt-2 text-[14px] text-[#6b5845]">
             {error || "The requested Japa service could not be located."}
           </p>
           <div className="mt-6 flex justify-center gap-3">
             <Link
               to="/yagya-puja/japa"
-              className="rounded-full bg-[#b56e20] px-6 py-2.5 text-[13px] font-bold text-white hover:bg-[#8f5211]"
+              className="rounded-full bg-[#b77920] px-6 py-2.5 text-[13px] font-bold text-white transition-all hover:bg-[#8f5211]"
             >
               Back to Japa Catalogue
             </Link>
@@ -132,11 +154,13 @@ const JapaServiceDetails = () => {
     );
   }
 
-  // Gallery slider
+  const fallbackBaseImg = getJapaFallbackImage(service.slug);
+
+  // Gallery resolution with guaranteed fallback
   const galleryImages =
     Array.isArray(service.gallery) && service.gallery.length > 0
       ? service.gallery
-      : [service.image];
+      : getJapaServiceGallery(service.slug, service.image);
 
   const selectedVariant =
     service.variants && service.variants[selectedVariantIndex]
@@ -146,44 +170,51 @@ const JapaServiceDetails = () => {
           label: `${formatCount(service.availableCounts?.[0] || 11000)} Japa`,
           startingPrice: service.startingPrice,
           estimatedDuration: service.completionWindow || "3-4 Days",
-          minimumPandits: service.minimumPandits,
-          recommendedPandits: service.recommendedPandits,
+          minimumPandits: service.minimumPandits || 2,
+          recommendedPandits: service.recommendedPandits || 3,
         };
 
-  const relatedJapas = JAPA_CATALOGUE_LIST.filter(
-    (j) => j.slug !== service.slug
-  ).slice(0, 3);
+  const handleSlideError = (idx) => {
+    setSlideImageErrors((prev) => ({ ...prev, [idx]: true }));
+  };
+
+  const currentSlideSrc = slideImageErrors[currentSlide]
+    ? fallbackBaseImg
+    : galleryImages[currentSlide] || fallbackBaseImg;
 
   return (
-    <div className="min-h-screen bg-[#faf4e6] text-[#2b241d]">
+    <div className="min-h-screen bg-[#fffcf6] text-[#30251c]">
       <PublicSEO service={service} serviceType="japa" />
+
       {/* Breadcrumb Navigation */}
-      <div className="border-b border-[#ebdcc4] bg-[#fffdfa] px-5 py-3.5 sm:px-8 lg:px-12">
+      <div className="border-b border-[#ead8bc] bg-[#fffdfa] px-5 py-3.5 sm:px-8 lg:px-12">
         <div className="mx-auto flex max-w-[1280px] items-center gap-2 text-[12.5px] text-[#78644e]">
-          <Link to="/" className="hover:text-[#a8641b]">Home</Link>
+          <Link to="/" className="hover:text-[#b77920]">Home</Link>
           <span>/</span>
-          <Link to="/yagya-puja" className="hover:text-[#a8641b]">Yagya & Puja</Link>
+          <Link to="/yagya-puja" className="hover:text-[#b77920]">Yagya & Puja</Link>
           <span>/</span>
-          <Link to="/yagya-puja/japa" className="hover:text-[#a8641b]">Japa</Link>
+          <Link to="/yagya-puja/japa" className="hover:text-[#b77920]">Japa</Link>
           <span>/</span>
-          <span className="font-semibold text-[#2b241d]">{service.name}</span>
+          <span className="font-semibold text-[#30251c]">{service.name}</span>
         </div>
       </div>
 
       {/* Main Detail Header Section */}
-      <section className="border-b border-[#ebdcc4] bg-[#fffdf9] px-5 py-10 sm:px-8 sm:py-14 lg:px-12">
+      <section className="border-b border-[#ead8bc] bg-[#fffcf6] px-5 py-10 sm:px-8 sm:py-14 lg:px-12">
         <div className="mx-auto max-w-[1280px]">
           <div className="grid gap-10 lg:grid-cols-12 lg:gap-14">
+            
             {/* Gallery Column */}
             <div className="lg:col-span-6">
-              <div className="relative overflow-hidden rounded-[26px] border border-[#d6b78d] bg-[#22170f] shadow-[0_12px_36px_rgba(60,40,20,0.12)]">
-                <div className="relative h-[360px] w-full sm:h-[420px]">
+              <div className="relative overflow-hidden rounded-[24px] border border-[#ead8bc] bg-[#f5ecd9] shadow-sm">
+                <div className="relative h-[360px] w-full sm:h-[420px] bg-[#f5ecd9]">
                   <img
-                    src={galleryImages[currentSlide]}
+                    src={currentSlideSrc}
                     alt={service.name}
-                    className="h-full w-full object-cover"
+                    onError={() => handleSlideError(currentSlide)}
+                    className="h-full w-full object-cover transition-opacity duration-300"
                   />
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#241a12]/60 via-transparent to-transparent" />
 
                   {/* Slider controls if multiple images */}
                   {galleryImages.length > 1 && (
@@ -195,7 +226,7 @@ const JapaServiceDetails = () => {
                             prev === 0 ? galleryImages.length - 1 : prev - 1
                           )
                         }
-                        className="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-xs hover:bg-black/80"
+                        className="absolute left-3.5 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-[#1e150d]/70 text-white backdrop-blur-xs hover:bg-[#1e150d] cursor-pointer"
                       >
                         <ChevronLeft size={20} />
                       </button>
@@ -206,7 +237,7 @@ const JapaServiceDetails = () => {
                             prev === galleryImages.length - 1 ? 0 : prev + 1
                           )
                         }
-                        className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-xs hover:bg-black/80"
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-[#1e150d]/70 text-white backdrop-blur-xs hover:bg-[#1e150d] cursor-pointer"
                       >
                         <ChevronRight size={20} />
                       </button>
@@ -216,21 +247,29 @@ const JapaServiceDetails = () => {
 
                 {/* Thumbnails */}
                 {galleryImages.length > 1 && (
-                  <div className="flex gap-2.5 bg-[#1b120a] p-3">
-                    {galleryImages.map((img, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        onClick={() => setCurrentSlide(i)}
-                        className={`relative h-16 w-20 overflow-hidden rounded-lg border-2 transition ${
-                          currentSlide === i
-                            ? "border-[#e09e38]"
-                            : "border-transparent opacity-60 hover:opacity-100"
-                        }`}
-                      >
-                        <img src={img} alt="" className="h-full w-full object-cover" />
-                      </button>
-                    ))}
+                  <div className="flex gap-2.5 bg-[#fffdfa] border-t border-[#ead8bc] p-3 overflow-x-auto">
+                    {galleryImages.map((img, i) => {
+                      const thumbSrc = slideImageErrors[i] ? fallbackBaseImg : img;
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setCurrentSlide(i)}
+                          className={`relative h-16 w-20 shrink-0 overflow-hidden rounded-xl border-2 transition-all cursor-pointer ${
+                            currentSlide === i
+                              ? "border-[#b77920] shadow-xs"
+                              : "border-[#ead8bc] opacity-70 hover:opacity-100"
+                          }`}
+                        >
+                          <img
+                            src={thumbSrc}
+                            alt=""
+                            onError={() => handleSlideError(i)}
+                            className="h-full w-full object-cover"
+                          />
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -241,75 +280,75 @@ const JapaServiceDetails = () => {
               <div>
                 {/* Eyebrow & Badges */}
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full border border-[#d8b584] bg-[#fbf3e4] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#8e5a1e]">
-                    VEDIC JAPA SERVICE
+                  <span className="rounded-full border border-[#ead8bc] bg-[#fbf6ed] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#8a561c]">
+                    VEDIC JAPA ANUSHTHAN
                   </span>
                   {service.kashiAvailable && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[#f4e4cd] px-3 py-1 text-[11px] font-bold text-[#8a571c]">
-                      <MapPin size={11} />
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[#f4e7d3] px-3 py-1 text-[11px] font-bold text-[#7a4814]">
+                      <MapPin size={11} className="text-[#b77920]" />
                       Kashi Kshetra
                     </span>
                   )}
                   {service.remoteAvailable && (
-                    <span className="rounded-full bg-[#eee5d8] px-3 py-1 text-[11px] font-bold text-[#685c4f]">
-                      Remote Available
+                    <span className="rounded-full bg-[#f0e4d0] px-3 py-1 text-[11px] font-bold text-[#6b5845]">
+                      Remote Sankalpa
                     </span>
                   )}
                 </div>
 
-                <h1 className="mt-4 font-serif text-[32px] font-bold leading-tight text-[#2b241d] sm:text-[40px]">
+                <h1 className="mt-4 font-serif text-[30px] sm:text-[38px] font-bold leading-tight text-[#30251c]">
                   {service.name}
                 </h1>
 
                 {/* Mantra Display Box */}
                 {service.mantra && (
-                  <div className="mt-4 rounded-2xl border border-[#ebd6be] bg-[#faf3e5] p-4">
-                    <span className="block text-[10.5px] font-bold uppercase tracking-widest text-[#8a571c]">
-                      VEDIC MANTRA TEXT
+                  <div className="mt-4 rounded-2xl border border-[#ead8bc] bg-[#faf3e8] p-4 sm:p-5">
+                    <span className="block text-[10.5px] font-bold uppercase tracking-widest text-[#8a561c]">
+                      SACRED MANTRA TEXT
                     </span>
-                    <p className="mt-1 font-serif text-[16.5px] font-medium leading-relaxed text-[#553b1e]">
+                    <p className="mt-1.5 font-serif text-[17px] sm:text-[18px] font-medium leading-relaxed text-[#50371a]">
                       {service.mantra}
                     </p>
                     {service.mantraMeaning && (
-                      <p className="mt-2 text-[12.5px] italic text-[#735d46]">
+                      <p className="mt-2 text-[13px] italic text-[#6e563d]">
                         {service.mantraMeaning}
                       </p>
                     )}
                   </div>
                 )}
 
-                <p className="mt-4 text-[14.5px] leading-relaxed text-[#5c4e3f]">
+                <p className="mt-4 text-[14.5px] leading-relaxed text-[#5c4d3c]">
                   {service.description}
                 </p>
 
                 {/* Purpose Note */}
                 <div className="mt-4 flex items-center gap-2 text-[13px] text-[#7d674b]">
-                  <Sparkles size={14} className="text-[#c77722]" />
+                  <Sparkles size={14} className="text-[#b77920]" />
                   <span>
-                    Traditional Context: <strong>{service.purpose}</strong>
+                    Traditional Sankalpa: <strong className="text-[#30251c]">{service.purpose}</strong>
                   </span>
                 </div>
               </div>
 
               {/* Price & Action Strip */}
-              <div className="mt-8 rounded-2xl border border-[#e4d1b8] bg-[#fbf5eb] p-5">
+              <div className="mt-8 rounded-2xl border border-[#ead8bc] bg-[#fffdfa] p-5 shadow-xs">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div>
                     <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a725b]">
-                      Starting From
+                      Starting Dakshina
                     </span>
-                    <div className="font-serif text-[28px] font-bold text-[#2b241d]">
+                    <div className="font-serif text-[28px] font-bold text-[#30251c]">
                       ₹{service.startingPrice?.toLocaleString("en-IN")}
                     </div>
                     <span className="text-[11px] text-[#8c7a68]">
-                      Includes Sankalpa and designated priest team
+                      Includes personal Gotra Sankalpa & designated Purohit team
                     </span>
                   </div>
 
                   <Link
                     to={`/yagya-puja/japa/${service.slug}/book`}
                     state={{ service, selectedVariant }}
-                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#b56e20] to-[#cb832c] px-6 py-3 text-[13.5px] font-bold text-white shadow-md hover:brightness-105"
+                    className="inline-flex items-center gap-2 rounded-full bg-[#b77920] px-7 py-3.5 text-[13.5px] font-bold text-white shadow-xs transition-all hover:bg-[#8f5211] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b77920] cursor-pointer"
                   >
                     <span>Book Japa Anushthan</span>
                     <ArrowRight size={14} />
@@ -317,21 +356,22 @@ const JapaServiceDetails = () => {
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </section>
 
       {/* Configurable Count Selector for this Specific Service */}
-      <section className="border-b border-[#ebdcc4] bg-[#faf4e6] px-5 py-14 sm:px-8 lg:px-12">
+      <section className="border-b border-[#ead8bc] bg-[#f8f1e6] px-5 py-14 sm:px-8 lg:px-12">
         <div className="mx-auto max-w-[1280px]">
           <div className="text-center">
-            <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#b36c1e]">
+            <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#b77920]">
               SERVICE SPECIFIC RECITATIONS
             </span>
-            <h2 className="mt-2 font-serif text-[28px] font-semibold text-[#2b241d] sm:text-[34px]">
+            <h2 className="mt-2 font-serif text-[28px] sm:text-[34px] font-bold text-[#30251c]">
               Prescribed Counts for {service.name}
             </h2>
-            <p className="mx-auto mt-2 max-w-[620px] text-[14px] text-[#685c4f]">
+            <p className="mx-auto mt-2 max-w-[620px] text-[14px] text-[#6b5845]">
               Select from the classical Anushthan counts traditionally approved for this specific Mantra.
             </p>
           </div>
@@ -347,49 +387,49 @@ const JapaServiceDetails = () => {
                   onClick={() => setSelectedVariantIndex(idx)}
                   className={`relative flex cursor-pointer flex-col justify-between rounded-[22px] border p-6 transition-all duration-300 ${
                     isSelected
-                      ? "border-[#c77722] bg-white shadow-[0_10px_30px_rgba(199,119,34,0.15)] ring-2 ring-[#c77722]"
-                      : "border-[#e6d3ba] bg-[#fffaf1] hover:border-[#c77722] hover:bg-white"
+                      ? "border-[#b77920] bg-white shadow-[0_10px_30px_rgba(183,121,32,0.15)] ring-2 ring-[#b77920]"
+                      : "border-[#ead8bc] bg-[#fffcf6] hover:border-[#b77920] hover:bg-white"
                   }`}
                 >
                   <div>
                     <div className="flex items-center justify-between">
-                      <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase text-[#8a571c]">
-                        <Hash size={12} className="text-[#c77722]" />
-                        Variant {idx + 1}
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase text-[#8a561c]">
+                        <Hash size={12} className="text-[#b77920]" />
+                        Tier {idx + 1}
                       </span>
                       {isSelected && (
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#c77722] text-white">
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#b77920] text-white">
                           <CheckCircle2 size={13} />
                         </span>
                       )}
                     </div>
 
-                    <h3 className="mt-3 font-serif text-[22px] font-bold text-[#2b241d]">
+                    <h3 className="mt-3 font-serif text-[22px] font-bold text-[#30251c]">
                       {v.label || `${formatCount(v.count)} Japa`}
                     </h3>
 
-                    <div className="mt-4 space-y-2 border-t border-[#f0e1cb] pt-3 text-[12.5px] text-[#6d5b4a]">
+                    <div className="mt-4 space-y-2 border-t border-[#f0e3ce] pt-3 text-[12.5px] text-[#6b5845]">
                       <div className="flex items-center justify-between">
                         <span className="flex items-center gap-1">
-                          <Calendar size={12} className="text-[#c77722]" /> Duration:
+                          <Calendar size={12} className="text-[#b77920]" /> Duration:
                         </span>
-                        <span className="font-semibold text-[#2b241d]">{v.estimatedDuration}</span>
+                        <span className="font-semibold text-[#30251c]">{v.estimatedDuration}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="flex items-center gap-1">
-                          <Users size={12} className="text-[#c77722]" /> Team:
+                          <Users size={12} className="text-[#b77920]" /> Team:
                         </span>
-                        <span className="font-semibold text-[#2b241d]">{v.minimumPandits} – {v.recommendedPandits} Priests</span>
+                        <span className="font-semibold text-[#30251c]">{v.minimumPandits} – {v.recommendedPandits} Priests</span>
                       </div>
-                      <div className="flex items-center justify-between pt-1 font-bold text-[#2b241d]">
+                      <div className="flex items-center justify-between pt-1 font-bold text-[#30251c]">
                         <span>Starting Price:</span>
-                        <span className="text-[#a8641b]">₹{v.startingPrice?.toLocaleString("en-IN")}</span>
+                        <span className="text-[#b77920]">₹{v.startingPrice?.toLocaleString("en-IN")}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-5 pt-3 border-t border-[#f0e1cb]">
-                    <span className={`block text-center text-[12px] font-bold ${isSelected ? "text-[#c77722]" : "text-[#8a725b]"}`}>
+                  <div className="mt-5 pt-3 border-t border-[#f0e3ce]">
+                    <span className={`block text-center text-[12px] font-bold ${isSelected ? "text-[#b77920]" : "text-[#8a725b]"}`}>
                       {isSelected ? "Selected Configuration" : "Click to Select"}
                     </span>
                   </div>
@@ -399,16 +439,16 @@ const JapaServiceDetails = () => {
           </div>
 
           {/* Selected Plan Summary Banner */}
-          <div className="mx-auto mt-10 max-w-[800px] rounded-[24px] border border-[#d8c3a1] bg-[#fffdfa] p-6 shadow-xs">
+          <div className="mx-auto mt-10 max-w-[800px] rounded-[24px] border border-[#ead8bc] bg-[#fffdfa] p-6 shadow-xs">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <span className="rounded-full bg-[#faedd9] px-3 py-0.5 text-[10.5px] font-bold uppercase text-[#8a571c]">
+                <span className="rounded-full bg-[#f4e7d3] px-3 py-0.5 text-[10.5px] font-bold uppercase text-[#7a4814]">
                   Active Selection Preview
                 </span>
-                <h4 className="mt-1 font-serif text-[20px] font-bold text-[#2b241d]">
+                <h4 className="mt-1 font-serif text-[20px] font-bold text-[#30251c]">
                   {selectedVariant.label} Plan
                 </h4>
-                <p className="text-[12.5px] text-[#786959]">
+                <p className="text-[12.5px] text-[#6b5845]">
                   {selectedVariant.estimatedDuration} • {selectedVariant.minimumPandits}–{selectedVariant.recommendedPandits} Vedic Priests
                 </p>
               </div>
@@ -416,14 +456,14 @@ const JapaServiceDetails = () => {
               <div className="flex items-center gap-3">
                 <div className="text-right">
                   <span className="block text-[10.5px] font-bold uppercase text-[#8a725b]">Starting At</span>
-                  <span className="font-serif text-[22px] font-bold text-[#2b241d]">
+                  <span className="font-serif text-[22px] font-bold text-[#30251c]">
                     ₹{selectedVariant.startingPrice?.toLocaleString("en-IN")}
                   </span>
                 </div>
                 <Link
                   to={`/yagya-puja/japa/${service.slug}/book`}
                   state={{ service, selectedVariant }}
-                  className="rounded-full bg-[#2b241d] px-5 py-2.5 text-[13px] font-bold text-[#f7ecd5] hover:bg-[#a8641b] hover:text-white"
+                  className="rounded-full bg-[#b77920] px-5 py-2.5 text-[13px] font-bold text-white transition-all hover:bg-[#8f5211]"
                 >
                   Book Japa Anushthan
                 </Link>
@@ -435,12 +475,12 @@ const JapaServiceDetails = () => {
 
       {/* Samagri & Inclusions Section */}
       {service.samagri && service.samagri.length > 0 && (
-        <section className="border-b border-[#ebdcc4] bg-[#fffdf9] px-5 py-12 sm:px-8 lg:px-12">
+        <section className="border-b border-[#ead8bc] bg-[#fffcf6] px-5 py-12 sm:px-8 lg:px-12">
           <div className="mx-auto max-w-[1280px]">
-            <h3 className="font-serif text-[24px] font-bold text-[#2b241d]">
+            <h3 className="font-serif text-[24px] font-bold text-[#30251c]">
               Ritual Inclusions & Samagri
             </h3>
-            <p className="mt-1 text-[13.5px] text-[#6d5c4b]">
+            <p className="mt-1 text-[13.5px] text-[#6b5845]">
               Tailored materials specifically prescribed for {service.name}.
             </p>
 
@@ -448,17 +488,17 @@ const JapaServiceDetails = () => {
               {service.samagri.map((item) => (
                 <span
                   key={item}
-                  className="inline-flex items-center gap-2 rounded-xl border border-[#e2cca8] bg-[#faf2e3] px-3.5 py-2 text-[13px] font-semibold text-[#5c421f]"
+                  className="inline-flex items-center gap-2 rounded-xl border border-[#ead8bc] bg-[#faf3e8] px-3.5 py-2 text-[13px] font-semibold text-[#5c421f]"
                 >
-                  <Package size={14} className="text-[#b36c1e]" />
+                  <Package size={14} className="text-[#b77920]" />
                   {item}
                 </span>
               ))}
             </div>
 
             {service.prasad && (
-              <div className="mt-6 rounded-2xl border border-[#ebd8c1] bg-[#faf5ec] p-4 text-[13px] text-[#6b5845]">
-                <strong>Prasad Provision:</strong> {service.prasad}
+              <div className="mt-6 rounded-2xl border border-[#ead8bc] bg-[#fffdfa] p-4 text-[13px] text-[#6b5845]">
+                <strong className="text-[#30251c]">Prasad Provision:</strong> {service.prasad}
               </div>
             )}
           </div>
@@ -466,28 +506,30 @@ const JapaServiceDetails = () => {
       )}
 
       {/* Related Japa Services */}
-      <section className="px-5 py-14 sm:px-8 lg:px-12">
-        <div className="mx-auto max-w-[1280px]">
-          <div className="flex items-center justify-between">
-            <h3 className="font-serif text-[26px] font-bold text-[#2b241d]">
-              Explore Other Mantra Japa Services
-            </h3>
-            <Link
-              to="/yagya-puja/japa"
-              className="inline-flex items-center gap-1.5 text-[13px] font-bold text-[#a8641b] hover:underline"
-            >
-              <span>All Japa</span>
-              <ArrowRight size={14} />
-            </Link>
-          </div>
+      {relatedServices.length > 0 && (
+        <section className="px-5 py-14 sm:px-8 lg:px-12">
+          <div className="mx-auto max-w-[1280px]">
+            <div className="flex items-center justify-between">
+              <h3 className="font-serif text-[26px] font-bold text-[#30251c]">
+                Explore Other Mantra Japa Services
+              </h3>
+              <Link
+                to="/yagya-puja/japa"
+                className="inline-flex items-center gap-1.5 text-[13px] font-bold text-[#b77920] hover:underline"
+              >
+                <span>All Japa</span>
+                <ArrowRight size={14} />
+              </Link>
+            </div>
 
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {relatedJapas.map((rel) => (
-              <JapaServiceCard key={rel.id} service={rel} />
-            ))}
+            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {relatedServices.map((rel) => (
+                <JapaServiceCard key={rel.id || rel.slug} service={rel} />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 };

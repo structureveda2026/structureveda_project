@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import MainLayout from "../components/layout/MainLayout";
 import AuthLayout from "../layouts/AuthLayout";
@@ -18,6 +18,9 @@ import Signup from "../features/auth/pages/Signup";
 
 import Favorites from "../pages/Favorites";
 import NotFound from "../pages/NotFound";
+import LegalPolicyPage from "../pages/LegalPolicyPage";
+import ContactPage from "../pages/ContactPage";
+import FAQsPage from "../pages/FAQsPage";
 
 import PujaListing from "../features/puja/pages/PujaListing";
 import UpcomingPujaAll from "../features/puja/pages/UpcomingPujaAll";
@@ -90,6 +93,7 @@ const AppRoutes = () => {
         <Route path="/yagya-puja/yagya/:slug/booking-status" element={<YagyaBookingStatus />} />
         <Route path="/yagya-puja/japa" element={<JapaCatalogueListing />} />
         <Route path="/yagya-puja/japa/all" element={<JapaAllCatalogueListing />} />
+        <Route path="/yagya-puja/japa/categories" element={<JapaAllCatalogueListing />} />
         <Route path="/yagya-puja/japa/category/:categorySlug" element={<JapaCategoryListing />} />
         <Route path="/yagya-puja/japa/:slug" element={<JapaServiceDetails />} />
         <Route path="/yagya-puja/japa/:slug/book" element={<RitualBookingWizard serviceType="JAPA" />} />
@@ -153,6 +157,28 @@ const AppRoutes = () => {
         {/* Favorites */}
         <Route path="/favorites" element={<Favorites />} />
         <Route path="/wishlist" element={<Favorites />} />
+
+        {/* =====================================================
+            LEGAL, SUPPORT & KNOWLEDGE BASE (CANONICAL + REDIRECTS)
+        ====================================================== */}
+        {/* Canonical Legal Policy Routes */}
+        <Route path="/privacy" element={<LegalPolicyPage policyType="privacy" />} />
+        <Route path="/terms" element={<LegalPolicyPage policyType="terms" />} />
+        <Route path="/refund-policy" element={<LegalPolicyPage policyType="refund" />} />
+        <Route path="/shipping-policy" element={<LegalPolicyPage policyType="shipping" />} />
+
+        {/* Canonical Support & FAQ Routes */}
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/faqs" element={<FAQsPage />} />
+
+        {/* Safe Legacy Policy & Support Redirects */}
+        <Route path="/privacy-policy" element={<Navigate to="/privacy" replace />} />
+        <Route path="/terms-and-conditions" element={<Navigate to="/terms" replace />} />
+        <Route path="/returns" element={<Navigate to="/refund-policy" replace />} />
+        <Route path="/refunds" element={<Navigate to="/refund-policy" replace />} />
+        <Route path="/shipping" element={<Navigate to="/shipping-policy" replace />} />
+        <Route path="/faq" element={<Navigate to="/faqs" replace />} />
+        <Route path="/contact-us" element={<Navigate to="/contact" replace />} />
 
         {/* Auth */}
         <Route element={<AuthLayout />}>

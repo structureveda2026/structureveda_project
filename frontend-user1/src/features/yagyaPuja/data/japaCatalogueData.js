@@ -10,6 +10,8 @@ import mantraImg from "../../../assets/images/c-mantra.jpg";
 import meditationImg from "../../../assets/images/c-meditation.jpg";
 import rudrakshaImg from "../../../assets/images/p-rudraksha.jpg";
 import samagriImg from "../../../assets/images/p-samagri.jpg";
+import deviDurgaImg from "../../../assets/images/devi_durga_card.jpg";
+import deityHanumanImg from "../../../assets/images/deity-hanuman.jpg";
 
 /**
  * 6 Purpose Categories for Mantra Japa (Client Specified)
@@ -237,8 +239,8 @@ export const JAPA_CATALOGUE_LIST = [
     mantraMeaning: "Potent Shakti Navarna mantra for courage, protection, removing obstacles, and supreme spiritual strength.",
     shortDescription: "Revered Shakti chanting invoking the grace of Maa Durga for fortitude and shielding against adversities.",
     description: "Performed with the divine nine-syllable Navarna mantra alongside Saptashati recitation, this Japa provides spiritual protection and resilience.",
-    image: pujaLakshmiImg,
-    gallery: [pujaLakshmiImg, samagriImg, mantraImg],
+    image: deviDurgaImg,
+    gallery: [deviDurgaImg, samagriImg, mantraImg],
     purpose: "Inner resilience, spiritual protection and fortitude",
     purposeCategory: "protection",
     purposeCategories: ["protection", "special-sankalpa", "spiritual-practice"],
@@ -276,8 +278,8 @@ export const JAPA_CATALOGUE_LIST = [
     mantraMeaning: "Invoking Bhagwan Hanuman for courage, overcoming fear, dispelling negativity, and inner resolve.",
     shortDescription: "Devotional recitation focused on unshakeable courage, discipline, and removal of deep-seated fears.",
     description: "The Hanuman Moola Mantra Japa brings immense mental stamina, protection from negative afflictions, and clarity of intention.",
-    image: rudrakshaImg,
-    gallery: [rudrakshaImg, malaImg, pujaKashiImg],
+    image: deityHanumanImg,
+    gallery: [deityHanumanImg, malaImg, pujaKashiImg],
     purpose: "Courage, overcoming obstacles and protection",
     purposeCategory: "protection",
     purposeCategories: ["protection", "shanti-wellbeing"],
