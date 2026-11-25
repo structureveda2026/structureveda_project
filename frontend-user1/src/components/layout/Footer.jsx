@@ -22,21 +22,7 @@ import {
   Truck,
 } from "lucide-react";
 
-/**
- * VEDA STRUCTURE CANONICAL FOOTER
- * Modern, responsive 4-column layout conforming to the authentic visual identity:
- * - Background: #FFFCF6
- * - Secondary Background: #F8F1E6
- * - Antique Gold: #B77920
- * - Deep Umber: #30251C
- * - Border: #EAD8BC
- *
- * Column Architecture:
- * - Column 1: Brand & Spiritual Sanctum (Logo, mission, verified Kashi sanctum, support email, verified social media)
- * - Column 2: Sacred Rituals (7 canonical ritual routes with 32px icon containers)
- * - Column 3: Wisdom & Consultations (4 canonical routes with matching 32px icon containers)
- * - Column 4: Trust & Policies (6 canonical Phase 1 routes with matching 32px icon containers)
- */
+
 
 const SACRED_RITUAL_LINKS = [
   { label: "Puja Ceremonies", path: "/yagya-puja/puja", icon: Flower2 },
