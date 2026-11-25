@@ -16,6 +16,7 @@ import {
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { logoutUser } from "../../features/auth/authSlice";
 import { useToast } from "../ui/toastContext";
+import vedaLogo from "../../assets/images/brand/veda-logo.png";
 
 // Featured astrologers for navbar dropdown
 const NAVBAR_ASTROLOGERS = [
@@ -113,33 +114,12 @@ const Navbar = () => {
             className="group flex shrink-0 items-center gap-2.5 sm:gap-3 transition-opacity hover:opacity-95"
             onClick={() => setIsMenuOpen(false)}
           >
-            {/* Logo Icon with Gilded Medallion */}
-            <div className="grid h-[40px] w-[40px] sm:h-[42px] sm:w-[42px] place-items-center rounded-2xl bg-gradient-to-br from-[#d99426] via-[#f7ce68] to-[#c98218] shadow-[0_4px_14px_rgba(217,148,38,0.25)] border border-[#ffea9f]/80 transition-transform duration-300 group-hover:scale-105">
-              <svg
-                viewBox="0 0 48 48"
-                className="h-5.5 w-5.5 sm:h-6 sm:w-6"
-                aria-hidden="true"
-              >
-                <circle cx="24" cy="24" r="5" fill="#1a1106" />
-                <path
-                  d="M24 4 C29 10 30 15 24 20 C18 15 19 10 24 4Z"
-                  fill="#1a1106"
-                />
-                <path
-                  d="M44 24 C38 29 33 30 28 24 C33 18 38 19 44 24Z"
-                  fill="#1a1106"
-                />
-                <path
-                  d="M24 44 C19 38 18 33 24 28 C30 33 29 38 24 44Z"
-                  fill="#1a1106"
-                />
-                <path
-                  d="M4 24 C10 19 15 18 20 24 C15 30 10 29 4 24Z"
-                  fill="#1a1106"
-                />
-                <circle cx="24" cy="24" r="2.5" fill="#ffd777" />
-              </svg>
-            </div>
+            {/* Official Brand Emblem */}
+            <img
+              src={vedaLogo}
+              alt="Veda Structure Emblem"
+              className="h-[40px] w-[40px] sm:h-[42px] sm:w-[42px] shrink-0 rounded-full object-contain drop-shadow-xs transition-transform duration-300 group-hover:scale-105"
+            />
 
             {/* Logo Text */}
             <div className="hidden sm:block">
