@@ -383,14 +383,6 @@ const Navbar = () => {
               )}
             </div>
 
-            {/* Upcoming Puja Link */}
-            <Link
-              to="/puja/upcoming"
-              className="rounded-full px-3.5 py-2 whitespace-nowrap text-[13.5px] 2xl:text-[14px] font-semibold text-[#2c2217] transition-all hover:bg-amber-500/10 hover:text-[#b36a18]"
-            >
-              Upcoming Puja
-            </Link>
-
             {/* Yagya & Puja — Opens dedicated landing in new tab */}
             <div>
               <button
@@ -434,23 +426,14 @@ const Navbar = () => {
               Community
             </Link>
 
-            {/* Shop Link */}
+            {/* Store Link */}
             <a
               href="https://store.vedastructure.com/"
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-full px-3.5 py-2 whitespace-nowrap text-[13.5px] 2xl:text-[14px] font-semibold text-[#2c2217] transition-all hover:bg-amber-500/10 hover:text-[#b36a18]"
             >
-              Shop
-            </a>
-            {/* Shop Link */}
-            <a
-              href="https://store.vedastructure.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full px-3.5 py-2 whitespace-nowrap text-[13.5px] 2xl:text-[14px] font-semibold text-[#2c2217] transition-all hover:bg-amber-500/10 hover:text-[#b36a18]"
-            >
-              Shop
+              Store
             </a>
             {/* Tirth  */}
             <a
@@ -521,15 +504,6 @@ const Navbar = () => {
               )}
             </div>
 
-            {/* Upcoming Puja */}
-            <Link
-              to="/puja/upcoming"
-              onClick={() => setIsMenuOpen(false)}
-              className="border-b border-[#ebdcc2] py-3 text-[14px] font-bold text-[#241c15]"
-            >
-              Upcoming Puja
-            </Link>
-
             {/* Yagya & Puja — Opens dedicated landing in new tab (mobile) */}
             <div className="border-b border-[#ebdcc2] pb-2">
               <button
@@ -579,7 +553,7 @@ const Navbar = () => {
               <ArrowRight size={14} className="text-[#8a7c6b]" />
             </Link>
 
-            {/* Shop */}
+            {/* Store */}
             <a
               href="https://store.vedastructure.com/"
               target="_blank"
@@ -589,7 +563,7 @@ const Navbar = () => {
             >
               <div className="flex items-center gap-1.5">
                 <ShoppingBag size={15} />
-                <span>Shop</span>
+                <span>Store</span>
               </div>
               <ArrowRight size={14} className="text-[#8a7c6b]" />
             </a>
