@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X, ArrowRight, Sparkles } from "lucide-react";
+import vedaLogo from "../../assets/images/brand/veda-logo.png";
 
 const VishalNavbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -19,20 +20,12 @@ const VishalNavbar = () => {
           to="/"
           className="group flex shrink-0 items-center gap-3 transition-opacity hover:opacity-85"
         >
-          {/* Logo Icon */}
-          <div className="flex h-[42px] w-[42px] items-center justify-center">
-            <svg viewBox="0 0 48 48" className="h-full w-full" aria-hidden="true">
-              <circle cx="24" cy="24" r="5" fill="#c88918" />
-              <path d="M24 4 C29 10 30 15 24 20 C18 15 19 10 24 4Z" fill="#8c6a2f" />
-              <path d="M44 24 C38 29 33 30 28 24 C33 18 38 19 44 24Z" fill="#8c6a2f" />
-              <path d="M24 44 C19 38 18 33 24 28 C30 33 29 38 24 44Z" fill="#8c6a2f" />
-              <path d="M4 24 C10 19 15 18 20 24 C15 30 10 29 4 24Z" fill="#8c6a2f" />
-              <path d="M10 10 C18 11 22 14 21 20 C15 21 11 18 10 10Z" fill="#a47a32" />
-              <path d="M38 10 C37 18 33 21 27 20 C26 14 30 11 38 10Z" fill="#a47a32" />
-              <path d="M38 38 C30 37 26 34 27 28 C33 27 37 30 38 38Z" fill="#a47a32" />
-              <path d="M10 38 C11 30 15 27 21 28 C22 34 18 37 10 38Z" fill="#a47a32" />
-            </svg>
-          </div>
+          {/* Official Brand Emblem */}
+          <img
+            src={vedaLogo}
+            alt="Veda Structure Emblem"
+            className="h-[42px] w-[42px] shrink-0 rounded-full object-contain drop-shadow-xs transition-transform duration-300 group-hover:scale-105"
+          />
 
           <div>
             <p className="font-serif text-[20px] leading-none tracking-[-0.02em] text-[#2b241d]">

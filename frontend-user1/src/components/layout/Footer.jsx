@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import vedaLogo from "../../assets/images/brand/veda-logo.png";
 import {
   Mail,
   MapPin,
@@ -98,32 +99,11 @@ export default function Footer() {
             <div>
               {/* Brand Header */}
               <Link to="/" className="flex w-fit items-center gap-3 group">
-                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#d99426] via-[#f7ce68] to-[#c98218] text-[#1a1106] shadow-xs border border-[#ffea9f]/70 transition-transform duration-300 group-hover:scale-105">
-                  <svg
-                    viewBox="0 0 50 50"
-                    className="h-6 w-6"
-                    aria-hidden="true"
-                  >
-                    <circle cx="25" cy="25" r="7" fill="#1a1106" />
-                    <path
-                      d="M25 3
-                         C29 8 32 10 37 11
-                         C35 16 37 20 45 22
-                         C40 25 40 30 45 33
-                         C38 34 35 38 36 45
-                         C31 41 27 42 25 47
-                         C22 42 18 41 13 45
-                         C14 38 11 34 5 33
-                         C10 30 10 25 5 22
-                         C13 20 15 16 13 11
-                         C18 10 21 8 25 3Z"
-                      fill="none"
-                      stroke="#1a1106"
-                      strokeWidth="2.5"
-                    />
-                    <circle cx="25" cy="25" r="3" fill="#ffd777" />
-                  </svg>
-                </div>
+                <img
+                  src={vedaLogo}
+                  alt="Veda Structure Emblem"
+                  className="h-11 w-11 shrink-0 rounded-full object-contain drop-shadow-xs transition-transform duration-300 group-hover:scale-105"
+                />
 
                 <div>
                   <span className="font-serif text-[20px] font-bold tracking-tight text-[#24170a] group-hover:text-[#B77920] transition-colors block leading-tight">
