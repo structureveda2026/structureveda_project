@@ -71,6 +71,8 @@ import {
   PuranaItihasaShlokaListPage,
   PuranaItihasaShlokaFormPage,
   MantraStotraBranchesPage,
+  MantraStotraListPage,
+  MantraStotraUploadWizardPage,
 } from "@/modules/library";
 
 export default function App() {
@@ -252,7 +254,7 @@ export default function App() {
               <Route path="library/purana-itihasa/shlokas/new" element={<PuranaItihasaShlokaFormPage />} />
               <Route path="library/purana-itihasa/shlokas/:shlokaId/edit" element={<PuranaItihasaShlokaFormPage />} />
 
-              {/* Veda Library Module - Puranas (पुराण) */}
+              {/* Veda Library Module - Puranas */}
               <Route path="library/puranas" element={<PuranaItihasaListPage />} />
               <Route path="library/puranas/new" element={<PuranaItihasaFormPage />} />
               <Route path="library/puranas/:id" element={<PuranaItihasaStructureTreePage />} />
@@ -261,7 +263,7 @@ export default function App() {
               <Route path="library/puranas/:id/shlokas" element={<PuranaItihasaShlokaListPage />} />
               <Route path="library/puranas/:id/shlokas/new" element={<PuranaItihasaShlokaFormPage />} />
 
-              {/* Veda Library Module - Itihasa (इतिहास) */}
+              {/* Veda Library Module - Itihasa */}
               <Route path="library/itihasas" element={<PuranaItihasaListPage />} />
               <Route path="library/itihasas/new" element={<PuranaItihasaFormPage />} />
               <Route path="library/itihasas/:id" element={<PuranaItihasaStructureTreePage />} />
@@ -270,15 +272,15 @@ export default function App() {
               <Route path="library/itihasas/:id/shlokas" element={<PuranaItihasaShlokaListPage />} />
               <Route path="library/itihasas/:id/shlokas/new" element={<PuranaItihasaShlokaFormPage />} />
 
-              {/* Veda Library Module - Upanishads (उपनिषद्) */}
-              <Route path="library/upanishads" element={<VedaListPage category="upanishad" title="Upanishads (उपनिषद्)" />} />
+              {/* Veda Library Module - Upanishads */}
+              <Route path="library/upanishads" element={<VedaListPage category="upanishad" title="Upanishads" />} />
               <Route path="library/upanishads/new" element={<VedaFormPage />} />
               <Route path="library/upanishads/:id" element={<VedaTreePage />} />
               <Route path="library/upanishads/:id/edit" element={<VedaFormPage />} />
               <Route path="library/upanishads/:id/structure" element={<VedaTreePage />} />
 
-              {/* Veda Library Module - Darshana (दर्शन शास्त्र) */}
-              <Route path="library/darshanas" element={<VedaListPage category="darshana" title="Darshana (दर्शन शास्त्र)" />} />
+              {/* Veda Library Module - Darshana */}
+              <Route path="library/darshanas" element={<VedaListPage category="darshana" title="Darshana" />} />
               <Route path="library/darshanas/new" element={<VedaFormPage />} />
               <Route path="library/darshanas/:id" element={<VedaTreePage />} />
               <Route path="library/darshanas/:id/edit" element={<VedaFormPage />} />
@@ -290,15 +292,34 @@ export default function App() {
               <Route path="library/mantras/:id" element={<MantraDetailPage />} />
               <Route path="library/mantras/:id/edit" element={<MantraFormPage />} />
 
-              {/* Mantra-Stotra Branches & Subcategories (उप-विभाग एवं शाखाएँ) */}
+              {/* Mantra-Stotra Branches & Subcategories */}
+              {/* Legacy combined route */}
               <Route path="library/mantra-stotra-branches" element={<MantraStotraBranchesPage />} />
               <Route path="library/branches" element={<MantraStotraBranchesPage />} />
               <Route path="mantra-stotra-branches" element={<MantraStotraBranchesPage />} />
               <Route path="branches" element={<MantraStotraBranchesPage />} />
+              {/* Separated Mantra Branches */}
+              <Route path="library/mantra-branches" element={<MantraStotraBranchesPage defaultCategory="mantra" />} />
+              <Route path="mantra-branches" element={<MantraStotraBranchesPage defaultCategory="mantra" />} />
+              {/* Separated Stotra Branches */}
+              <Route path="library/stotra-branches" element={<MantraStotraBranchesPage defaultCategory="stotra" />} />
+              <Route path="stotra-branches" element={<MantraStotraBranchesPage defaultCategory="stotra" />} />
+              {/* Mantra & Stotra Items Management */}
+              <Route path="library/mantra-stotra-items" element={<MantraStotraListPage />} />
+              <Route path="mantra-stotra-items" element={<MantraStotraListPage />} />
+              {/* Guided 2-Step Upload Wizard (Canonical + Aliases + Edit) */}
+              <Route path="library/mantra-stotra-upload" element={<MantraStotraUploadWizardPage />} />
+              <Route path="library/mantra-stotra-upload/edit/:id" element={<MantraStotraUploadWizardPage />} />
+              <Route path="library/mantra-stotra-upload/:type" element={<MantraStotraUploadWizardPage />} />
+              <Route path="library/mantra-stotra/upload" element={<MantraStotraUploadWizardPage />} />
+              <Route path="library/mantra-stotra/upload/edit/:id" element={<MantraStotraUploadWizardPage />} />
+              <Route path="library/mantra-stotra/upload/:type" element={<MantraStotraUploadWizardPage />} />
+              <Route path="mantra-stotra-upload" element={<MantraStotraUploadWizardPage />} />
+              <Route path="mantra-stotra-upload/edit/:id" element={<MantraStotraUploadWizardPage />} />
+              <Route path="mantra-stotra-upload/:type" element={<MantraStotraUploadWizardPage />} />
 
               {/* Direct Veda Aliases */}
-              <Route path="vedas" element={<VedaListPage />} />
-              <Route path="vedas/new" element={<VedaFormPage />} />
+              <Route path="vedas" element={<VedaListPage />} />              <Route path="vedas/new" element={<VedaFormPage />} />
               <Route path="vedas/:id" element={<VedaTreePage />} />
               <Route path="vedas/:id/edit" element={<VedaFormPage />} />
               <Route path="vedas/:id/structure" element={<VedaTreePage />} />
@@ -319,13 +340,13 @@ export default function App() {
               <Route path="itihasas/:id/shlokas" element={<PuranaItihasaShlokaListPage />} />
               <Route path="itihasas/:id/shlokas/new" element={<PuranaItihasaShlokaFormPage />} />
 
-              <Route path="upanishads" element={<VedaListPage category="upanishad" title="Upanishads (उपनिषद्)" />} />
+              <Route path="upanishads" element={<VedaListPage category="upanishad" title="Upanishads" />} />
               <Route path="upanishads/new" element={<VedaFormPage />} />
               <Route path="upanishads/:id" element={<VedaTreePage />} />
               <Route path="upanishads/:id/edit" element={<VedaFormPage />} />
               <Route path="upanishads/:id/structure" element={<VedaTreePage />} />
 
-              <Route path="darshanas" element={<VedaListPage category="darshana" title="Darshana (दर्शन शास्त्र)" />} />
+              <Route path="darshanas" element={<VedaListPage category="darshana" title="Darshana" />} />
               <Route path="darshanas/new" element={<VedaFormPage />} />
               <Route path="darshanas/:id" element={<VedaTreePage />} />
               <Route path="darshanas/:id/edit" element={<VedaFormPage />} />

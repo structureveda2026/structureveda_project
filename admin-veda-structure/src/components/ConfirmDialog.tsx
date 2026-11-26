@@ -52,6 +52,7 @@ export default function ConfirmDialog({
     confirmVariant === 'danger';
   const actionText = confirmText || confirmLabel || 'Confirm';
   const resolvedCancelText = cancelText || cancelLabel || 'Cancel';
+  const busy = Boolean(loading || isLoading);
 
   return (
     <Modal isOpen={showOpen} onClose={handleClose} title={title} size="sm">
@@ -62,12 +63,21 @@ export default function ConfirmDialog({
         <p className="text-sm text-charcoal-600 pt-3">{message}</p>
       </div>
       <div className="flex justify-end gap-3 mt-6">
-        <button onClick={handleClose} className="btn-secondary">{cancelText}</button>
         <button
-          onClick={async () => { await onConfirm(); handleClose(); }}
-          className={isDanger ? 'btn-danger' : 'btn-primary'}
+          type="button"
+          onClick={handleClose}
+          disabled={busy}
+          className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {actionText}
+          {resolvedCancelText}
+        </button>
+        <button
+          type="button"
+          onClick={async () => { await onConfirm(); handleClose(); }}
+          disabled={busy}
+          className={`${isDanger ? 'btn-danger' : 'btn-primary'} disabled:opacity-50 disabled:cursor-not-allowed`}
+        >
+          {busy ? 'Processing...' : actionText}
         </button>
       </div>
     </Modal>

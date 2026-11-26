@@ -7,25 +7,28 @@ import {
   Scroll,
   Languages,
   BookOpen,
-  Volume2,
-  Info,
   Flame,
-  CheckCircle2,
   ChevronRight,
-  Eye,
   Copy,
   Check,
   Plus,
 } from "lucide-react";
-import PageHeader from "@/components/PageHeader";
 import { useToast } from "@/context/ToastContext";
-import type { PuranaItihasaShloka, PadapathaItem } from "../types/puranaItihasa.types";
+import type { PuranaItihasaShloka } from "../types/puranaItihasa.types";
 import { PuranaItihasaAdminService } from "../services/puranaItihasa.service";
 import PadapathaEditor from "../components/PadapathaEditor";
 import {
   GRANTHA_CATALOGUE,
   INITIAL_PURANA_ITIHASA_SHLOKAS,
 } from "../constants/puranaShloka.constants";
+
+function getErrorMessage(err: unknown, fallback: string): string {
+  if (err && typeof err === "object" && "message" in err) {
+    const msg = (err as { message?: unknown }).message;
+    if (typeof msg === "string" && msg.trim()) return msg;
+  }
+  return fallback;
+}
 
 export const PuranaItihasaShlokaFormPage: React.FC = () => {
   const { id, shlokaId } = useParams<{ id?: string; shlokaId?: string }>();
@@ -55,15 +58,15 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
     vedaId: effectiveGranthaId || "shrimad-bhagavata",
     textId: effectiveGranthaId || "shrimad-bhagavata",
     nodeId: "",
-    vedaName: "श्रीमद्भागवत महापुराण",
-    shakha: "गीताप्रेस गोरखपुर • व्यास परम्परा",
-    textName: "प्रथम स्कन्ध, अध्याय १",
-    sectionRef: "स्कन्ध १, अध्याय १, श्लोक १",
-    mantraNumber: "१.१.१",
-    rishi: "महर्षि वेदव्यास",
-    devata: "परमेश्वर",
-    chhanda: "अनुष्टुप्",
-    svara: "वैदिक पाठ",
+    vedaName: "Shrimad Bhagavata Mahapurana",
+    shakha: "Gita Press Gorakhpur • Vyasa Tradition",
+    textName: "Skandha 1, Chapter 1",
+    sectionRef: "Skandha 1, Chapter 1, Shloka 1",
+    mantraNumber: "1.1.1",
+    rishi: "Maharshi Vedavyasa",
+    devata: "Supreme Lord",
+    chhanda: "Anushtup",
+    svara: "Vedic Chanting",
     sanskrit: "",
     hindiTranslation: "",
     englishTranslation: "",
@@ -86,7 +89,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
           let data: PuranaItihasaShloka | null = null;
           try {
             data = await PuranaItihasaAdminService.getShlokaById(effectiveShlokaId);
-          } catch (_) {
+          } catch {
             // fallback
           }
 
@@ -103,10 +106,10 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
               padapatha: data.padapatha || [],
             });
           } else {
-            showToast("श्लोक नहीं मिला, कृपया पुनः प्रयास करें", "error");
+            showToast("Shloka not found, please try again", "error");
           }
-        } catch (err: any) {
-          showToast(err.message || "श्लोक लोड करने में विफल", "error");
+        } catch (err: unknown) {
+          showToast(getErrorMessage(err, "Failed to load shloka"), "error");
         } finally {
           setLoading(false);
         }
@@ -120,12 +123,12 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
           ...prev,
           vedaId: matched.id,
           textId: matched.id,
-          vedaName: matched.name,
+          vedaName: matched.enName || matched.name,
           textName: matched.sections[0] || "",
         }));
       }
     }
-  }, [effectiveShlokaId, effectiveGranthaId, isEditing]);
+  }, [effectiveShlokaId, effectiveGranthaId, isEditing, showToast]);
 
   // Handle Grantha selector change
   const handleGranthaSelect = (gId: string) => {
@@ -135,7 +138,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
         ...prev,
         vedaId: matched.id,
         textId: matched.id,
-        vedaName: matched.name,
+        vedaName: matched.enName || matched.name,
         textName: matched.sections[0] || "",
       }));
     }
@@ -146,7 +149,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
     if (formData.sanskrit) {
       navigator.clipboard.writeText(formData.sanskrit);
       setCopied(true);
-      showToast("संस्कृत श्लोक कॉपी किया गया", "success");
+      showToast("Sanskrit shloka copied to clipboard", "success");
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -157,13 +160,13 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
 
     const errs: Record<string, string> = {};
     if (!formData.mantraNumber?.trim()) {
-      errs.mantraNumber = "श्लोक संख्या (Ref) अनिवार्य है (e.g. १.१.१ अथवा २.४७)";
+      errs.mantraNumber = "Shloka Number (Ref) is required (e.g. 1.1.1 or 2.47)";
     }
     if (!formData.sanskrit?.trim()) {
-      errs.sanskrit = "मूल संस्कृत श्लोक अनिवार्य है";
+      errs.sanskrit = "Original Sanskrit shloka is required";
     }
     if (!formData.hindiTranslation?.trim()) {
-      errs.hindiTranslation = "हिन्दी भावार्थ अनिवार्य है, कृपया इसे भरें";
+      errs.hindiTranslation = "Hindi meaning is required, please fill it in";
     }
 
     if (Object.keys(errs).length > 0) {
@@ -197,10 +200,10 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
 
       if (isEditing && effectiveShlokaId) {
         await PuranaItihasaAdminService.updateShloka(effectiveShlokaId, payload);
-        showToast("श्लोक सफलतापूर्वक अद्यतन (Updated) किया गया!", "success");
+        showToast("Shloka updated successfully!", "success");
       } else {
         await PuranaItihasaAdminService.createShloka(textId, payload);
-        showToast("नया श्लोक सफलतापूर्वक जोड़ा गया!", "success");
+        showToast("New shloka added successfully!", "success");
       }
 
       if (continueAdding) {
@@ -222,8 +225,8 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
         // Navigate back to shlokas list
         navigate(`/admin/purana-itihasa/${textId}/shlokas`);
       }
-    } catch (err: any) {
-      showToast(err.message || "श्लोक सहेजने में त्रुटि हुई", "error");
+    } catch (err: unknown) {
+      showToast(getErrorMessage(err, "Error saving shloka"), "error");
     } finally {
       setSaving(false);
     }
@@ -239,11 +242,15 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
       <div className="py-20 text-center">
         <div className="w-8 h-8 border-4 border-saffron-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
         <p className="text-xs font-bold text-charcoal-700">
-          श्लोक डेटा लोड हो रहा है...
+          Loading shloka data...
         </p>
       </div>
     );
   }
+
+  const granthaDisplayName =
+    GRANTHA_CATALOGUE.find((g) => g.id === formData.vedaId)?.enName ||
+    formData.vedaName;
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -253,25 +260,25 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
           to="/admin/dashboard"
           className="hover:text-saffron-700 transition-colors"
         >
-          डैशबोर्ड
+          Dashboard
         </Link>
         <ChevronRight className="w-3.5 h-3.5 text-charcoal-400" />
         <Link
           to="/admin/purana-itihasa"
           className="hover:text-saffron-700 transition-colors"
         >
-          पुराण एवं इतिहास आर्काइव
+          Purana &amp; Itihasa Archive
         </Link>
         <ChevronRight className="w-3.5 h-3.5 text-charcoal-400" />
         <Link
           to={backUrl}
           className="hover:text-saffron-700 transition-colors"
         >
-          श्लोक प्रबन्धन
+          Shloka Management
         </Link>
         <ChevronRight className="w-3.5 h-3.5 text-charcoal-400" />
         <span className="text-charcoal-900 font-bold">
-          {isEditing ? "श्लोक सम्पादन" : "नया श्लोक जोड़ें"}
+          {isEditing ? "Edit Shloka" : "Add Shloka"}
         </span>
       </nav>
 
@@ -281,21 +288,21 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-saffron-600 text-white shadow-2xs">
               <Scroll className="w-3.5 h-3.5" />
-              <span>{isEditing ? "श्लोक सम्पादन" : "नूतन श्लोक रचना"}</span>
+              <span>{isEditing ? "Edit Shloka" : "New Shloka"}</span>
             </span>
             <span className="text-xs font-bold text-charcoal-600 bg-white/80 px-2 py-0.5 rounded-md border border-cream-200">
-              {formData.vedaName}
+              {granthaDisplayName}
             </span>
           </div>
 
           <h1 className="text-xl md:text-2xl font-serif font-bold text-charcoal-900">
             {isEditing
-              ? `श्लोक सम्पादन: ${formData.mantraNumber || formData.sectionRef}`
-              : "नया श्लोक जोड़ें (Add New Shloka / Verse)"}
+              ? `Edit Shloka: ${formData.mantraNumber || formData.sectionRef}`
+              : "Add New Shloka / Verse"}
           </h1>
 
           <p className="text-xs text-charcoal-600 leading-relaxed">
-            मूल श्लोक (Sanskrit), पदच्छेद (Padapatha), त्रिभाषी भावार्थ (हिन्दी, English, हिंग्लिश) एवं शास्त्रीय व्याख्या सहेजें।
+            Save original Sanskrit verse, Padapatha breakdown, 3-language meanings (Hindi, English, Hinglish), and shastric commentary.
           </p>
         </div>
 
@@ -304,7 +311,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
           className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-cream-100 border border-cream-300 text-charcoal-700 text-xs font-bold transition-all shadow-2xs self-start sm:self-auto"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>श्लोक सूची पर लौटें</span>
+          <span>Back to Shloka List</span>
         </Link>
       </div>
 
@@ -320,7 +327,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
           }`}
         >
           <BookOpen className="w-4 h-4" />
-          <span>१. ग्रंथ संदर्भ एवं मूल श्लोक</span>
+          <span>1. Grantha Reference &amp; Sanskrit Text</span>
         </button>
 
         <button
@@ -333,7 +340,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
           }`}
         >
           <Languages className="w-4 h-4" />
-          <span>२. त्रिभाषी भावार्थ (३ भाषाएं)</span>
+          <span>2. 3-Language Meanings</span>
         </button>
 
         <button
@@ -346,7 +353,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
           }`}
         >
           <Sparkles className="w-4 h-4" />
-          <span>३. पदच्छेद एवं पदार्थ (Padapatha)</span>
+          <span>3. Padapatha Breakdown</span>
           {formData.padapatha && formData.padapatha.length > 0 && (
             <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-saffron-200 text-saffron-900 font-bold">
               {formData.padapatha.length}
@@ -364,7 +371,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
           }`}
         >
           <Flame className="w-4 h-4" />
-          <span>४. शास्त्रीय संदर्भ एवं विन्यास</span>
+          <span>4. Shastric Context &amp; Settings</span>
         </button>
       </div>
 
@@ -375,34 +382,34 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
           <div className="bg-white p-6 rounded-2xl border border-cream-200 shadow-2xs space-y-5">
             <h3 className="font-serif text-sm font-bold text-charcoal-900 border-b border-cream-100 pb-2.5 flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-saffron-600" />
-              <span>ग्रंथ चयन एवं श्लोक संदर्भ विवरण</span>
+              <span>Grantha Selection &amp; Shloka Reference</span>
             </h3>
 
             {/* Grantha & Chapter Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                  पुराण / इतिहास ग्रंथ *
+                  Purana / Itihasa Grantha *
                 </label>
                 <select
                   value={formData.vedaId || ""}
                   onChange={(e) => handleGranthaSelect(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none bg-white font-medium"
                 >
-                  <optgroup label="अष्टादश महापुराण">
+                  <optgroup label="18 Mahapuranas">
                     {GRANTHA_CATALOGUE.filter((g) => g.category === "purana").map(
                       (g) => (
                         <option key={g.id} value={g.id}>
-                          {g.name}
+                          {g.enName}
                         </option>
                       )
                     )}
                   </optgroup>
-                  <optgroup label="इतिहास एवं महाकाव्य">
+                  <optgroup label="Itihasa & Epics">
                     {GRANTHA_CATALOGUE.filter((g) => g.category === "itihasa").map(
                       (g) => (
                         <option key={g.id} value={g.id}>
-                          {g.name}
+                          {g.enName}
                         </option>
                       )
                     )}
@@ -412,7 +419,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                  खण्ड / पर्व / स्कन्ध / अध्याय
+                  Section / Parva / Skandha / Chapter
                 </label>
                 <input
                   type="text"
@@ -420,14 +427,14 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, textName: e.target.value })
                   }
-                  placeholder="e.g. प्रथम स्कन्ध, अध्याय १ या भीष्मपर्व अध्याय २५"
+                  placeholder="e.g. Skandha 1, Chapter 1 or Bhishma Parva Chapter 25"
                   className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                  श्लोक संख्या (Shloka Number / Ref) *
+                  Shloka Number / Ref *
                 </label>
                 <input
                   type="text"
@@ -438,7 +445,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                       setFormErrors((prev) => ({ ...prev, mantraNumber: "" }));
                     }
                   }}
-                  placeholder="e.g. १.१.१ अथवा २.४७"
+                  placeholder="e.g. 1.1.1 or 2.47"
                   className={`w-full px-3 py-2 rounded-xl text-xs font-mono font-bold text-saffron-800 border ${
                     formErrors.mantraNumber ? "border-red-400 focus:ring-red-200" : "border-cream-300 focus:border-saffron-500"
                   } focus:outline-none`}
@@ -452,7 +459,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                  विस्तृत संदर्भ (Section Reference)
+                  Detailed Section Reference
                 </label>
                 <input
                   type="text"
@@ -460,14 +467,14 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, sectionRef: e.target.value })
                   }
-                  placeholder="e.g. स्कन्ध १, अध्याय १, श्लोक १"
+                  placeholder="e.g. Skandha 1, Chapter 1, Shloka 1"
                   className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                  संस्करण / परम्परा विवरण
+                  Edition / Tradition
                 </label>
                 <input
                   type="text"
@@ -475,14 +482,14 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, shakha: e.target.value })
                   }
-                  placeholder="e.g. गीताप्रेस गोरखपुर संस्करण • व्यास परम्परा"
+                  placeholder="e.g. Gita Press Gorakhpur Edition • Vyasa Tradition"
                   className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                  छन्द (Metre)
+                  Meter (Chhanda)
                 </label>
                 <input
                   type="text"
@@ -490,7 +497,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, chhanda: e.target.value })
                   }
-                  placeholder="e.g. अनुष्टुप्, शार्दूलविक्रीड़ित, मालिनी, उपजाति"
+                  placeholder="e.g. Anushtup, Shardulavikridita, Malini, Upajati"
                   className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none"
                 />
               </div>
@@ -501,11 +508,11 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-charcoal-700 flex items-center gap-1.5">
                   <Scroll className="w-4 h-4 text-saffron-600" />
-                  <span>मूल संस्कृत श्लोक (Original Sanskrit Shloka) *</span>
+                  <span>Original Sanskrit Shloka (Devanagari) *</span>
                 </label>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-charcoal-400">फ़ॉन्ट आकार:</span>
+                  <span className="text-[11px] text-charcoal-400">Font Size:</span>
                   <div className="flex items-center gap-1 bg-cream-100 p-0.5 rounded-md">
                     <button
                       type="button"
@@ -514,7 +521,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                         fontSize === "sm" ? "bg-white text-saffron-700 shadow-2xs" : "text-charcoal-500"
                       }`}
                     >
-                      छोटा
+                      Small
                     </button>
                     <button
                       type="button"
@@ -523,7 +530,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                         fontSize === "md" ? "bg-white text-saffron-700 shadow-2xs" : "text-charcoal-500"
                       }`}
                     >
-                      मध्यम
+                      Medium
                     </button>
                     <button
                       type="button"
@@ -532,7 +539,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                         fontSize === "lg" ? "bg-white text-saffron-700 shadow-2xs" : "text-charcoal-500"
                       }`}
                     >
-                      बड़ा
+                      Large
                     </button>
                   </div>
 
@@ -546,7 +553,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                     ) : (
                       <Copy className="w-3 h-3" />
                     )}
-                    <span>कॉपी</span>
+                    <span>Copy</span>
                   </button>
                 </div>
               </div>
@@ -575,7 +582,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                 <p className="text-xs text-red-600 mt-1">{formErrors.sanskrit}</p>
               )}
               <p className="text-[11px] text-charcoal-400">
-                वैदिक अवग्रह (ऽ), विराम (।) एवं पूर्णविराम (॥) सहित मूल संस्कृत पाठ दर्ज करें।
+                Enter the original Sanskrit text with Vedic avagraha, danda, and double danda marks.
               </p>
             </div>
 
@@ -586,8 +593,8 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                 onClick={() => setActiveTab("translations")}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-saffron-50 hover:bg-saffron-100 border border-saffron-300 text-saffron-800 text-xs font-bold transition-all cursor-pointer shadow-2xs"
               >
-                <span>अगला चरण: बहुभाषी भावार्थ</span>
-                <span>➔</span>
+                <span>Next Step: 3-Language Meanings</span>
+                <span>→</span>
               </button>
             </div>
           </div>
@@ -598,16 +605,16 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
           <div className="bg-white p-6 rounded-2xl border border-cream-200 shadow-2xs space-y-5">
             <h3 className="font-serif text-sm font-bold text-charcoal-900 border-b border-cream-100 pb-2.5 flex items-center gap-2">
               <Languages className="w-4 h-4 text-saffron-600" />
-              <span>त्रिभाषी भावार्थ एवं अनुवाद (3-Language Translations)</span>
+              <span>3-Language Meanings &amp; Translations</span>
             </h3>
 
             {/* 1. Hindi Bhavartha */}
             <div className="space-y-1.5">
               <label className="block text-xs font-bold text-charcoal-800 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-saffron-600" />
-                <span>१. हिन्दी भावार्थ (Hindi Bhavartha) *</span>
+                <span>1. Hindi Meaning (Bhavartha) *</span>
                 <span className="text-[11px] text-saffron-700 font-normal">
-                  (अनिवार्य)
+                  (Required)
                 </span>
               </label>
               <textarea
@@ -628,7 +635,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                 <p className="text-xs text-red-600 mt-1">{formErrors.hindiTranslation}</p>
               )}
               <p className="text-[11px] text-charcoal-400">
-                गीताप्रेस गोरखपुर अथवा प्रामाणिक आचार्यों के भाष्य के अनुसार सरल एवं सुबोध हिन्दी व्याख्या।
+                Clear and accessible Hindi explanation aligned with authentic traditional commentaries.
               </p>
             </div>
 
@@ -636,9 +643,9 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
             <div className="space-y-1.5 pt-2 border-t border-cream-100">
               <label className="block text-xs font-bold text-charcoal-800 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-blue-600" />
-                <span>२. English Translation</span>
+                <span>2. English Translation</span>
                 <span className="text-[11px] text-charcoal-400 font-normal">
-                  (वैकल्पिक / Optional)
+                  (Optional)
                 </span>
               </label>
               <textarea
@@ -659,9 +666,9 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
             <div className="space-y-1.5 pt-2 border-t border-cream-100">
               <label className="block text-xs font-bold text-charcoal-800 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-orange-600" />
-                <span>३. हिंग्लिश व्याख्या (Hinglish Explanation)</span>
+                <span>3. Hinglish Explanation</span>
                 <span className="text-[11px] text-charcoal-400 font-normal">
-                  (वैकल्पिक / Optional)
+                  (Optional)
                 </span>
               </label>
               <textarea
@@ -677,7 +684,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                 className="w-full p-3.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none leading-relaxed"
               />
               <p className="text-[11px] text-charcoal-400">
-                युवा पीढ़ी एवं आधुनिक पाठकों हेतु बोलचाल की भाषा में व्याख्या।
+                Conversational Romanized Hindi explanation for younger and modern readers.
               </p>
             </div>
 
@@ -688,15 +695,15 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                 onClick={() => setActiveTab("content")}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cream-50 hover:bg-cream-100 border border-cream-300 text-charcoal-700 text-xs font-bold transition-all cursor-pointer"
               >
-                <span>⬅ पिछला चरण: मूल श्लोक</span>
+                <span>← Previous: Original Shloka</span>
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("padapatha")}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-saffron-50 hover:bg-saffron-100 border border-saffron-300 text-saffron-800 text-xs font-bold transition-all cursor-pointer shadow-2xs"
               >
-                <span>अगला चरण: पदच्छेद व पदार्थ</span>
-                <span>➔</span>
+                <span>Next: Padapatha Breakdown</span>
+                <span>→</span>
               </button>
             </div>
           </div>
@@ -719,15 +726,15 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                 onClick={() => setActiveTab("translations")}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cream-50 hover:bg-cream-100 border border-cream-300 text-charcoal-700 text-xs font-bold transition-all cursor-pointer"
               >
-                <span>⬅ पिछला चरण: भावार्थ</span>
+                <span>← Previous: Meanings</span>
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("shastric")}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-saffron-50 hover:bg-saffron-100 border border-saffron-300 text-saffron-800 text-xs font-bold transition-all cursor-pointer shadow-2xs"
               >
-                <span>अगला चरण: शास्त्रीय संदर्भ</span>
-                <span>➔</span>
+                <span>Next: Shastric Context</span>
+                <span>→</span>
               </button>
             </div>
           </div>
@@ -738,14 +745,14 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
           <div className="bg-white p-6 rounded-2xl border border-cream-200 shadow-2xs space-y-5">
             <h3 className="font-serif text-sm font-bold text-charcoal-900 border-b border-cream-100 pb-2.5 flex items-center gap-2">
               <Flame className="w-4 h-4 text-saffron-600" />
-              <span>ऋषि, देवता, शास्त्रीय संदर्भ एवं विन्यास</span>
+              <span>Rishi, Deity, Shastric Context &amp; Settings</span>
             </h3>
 
             {/* Rishi / Devata Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                  वक्ता / ऋषि (Speaker / Rishi)
+                  Speaker / Rishi
                 </label>
                 <input
                   type="text"
@@ -753,14 +760,14 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, rishi: e.target.value })
                   }
-                  placeholder="e.g. महर्षि वेदव्यास, श्रीशुकदेव, भगवान् श्रीकृष्ण"
+                  placeholder="e.g. Maharshi Vedavyasa, Shukadeva Goswami, Lord Sri Krishna"
                   className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                  देवता / मुख्य आराध्य (Chief Deity)
+                  Deity / Worshipped Form
                 </label>
                 <input
                   type="text"
@@ -768,7 +775,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, devata: e.target.value })
                   }
-                  placeholder="e.g. भगवान् नारायण, महादेव शिव, भगवती दुर्गा"
+                  placeholder="e.g. Lord Narayana, Mahadeva Shiva, Goddess Durga"
                   className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none"
                 />
               </div>
@@ -777,7 +784,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
             {/* Shastric Context */}
             <div>
               <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                शास्त्रीय संदर्भ एवं दार्शनिक महत्त्व (Shastric Context)
+                Shastric Context &amp; Philosophical Significance
               </label>
               <textarea
                 rows={3}
@@ -785,15 +792,15 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, shastricContext: e.target.value })
                 }
-                placeholder="श्रीमद्भागवत का सर्वोच्च मंगलाचरण श्लोक (गायत्री-मंत्र-गर्भित)। ब्रह्मसूत्र के 'जन्माद्यस्य यतः' सूत्र का साक्षात भाष्य।"
-                className="w-full p-3.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari leading-relaxed"
+                placeholder="e.g. Supreme invocation shloka of Shrimad Bhagavatam, directly commenting on the Brahma Sutra 'Janmadyasya Yatah'."
+                className="w-full p-3.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none leading-relaxed"
               />
             </div>
 
             {/* Detailed Commentary / Purport */}
             <div>
               <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                विस्तृत तात्पर्य / भाष्य (Detailed Purport / Commentary)
+                Detailed Purport / Commentary
               </label>
               <textarea
                 rows={4}
@@ -801,8 +808,8 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, purport: e.target.value })
                 }
-                placeholder="आचार्य श्रीधर स्वामी एवं जीव गोस्वामी के अनुसार इस श्लोक का तात्पर्य..."
-                className="w-full p-3.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari leading-relaxed"
+                placeholder="Traditional commentary and philosophical purport according to acharyas..."
+                className="w-full p-3.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none leading-relaxed"
               />
             </div>
 
@@ -810,7 +817,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-3 border-t border-cream-100 items-center">
               <div>
                 <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                  क्रम संख्या (Order Index)
+                  Order Index
                 </label>
                 <input
                   type="number"
@@ -827,7 +834,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                  प्रकाशन स्थिति (Status)
+                  Publication Status
                 </label>
                 <select
                   value={formData.status || "ACTIVE"}
@@ -839,8 +846,8 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                   }
                   className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none bg-white font-medium"
                 >
-                  <option value="ACTIVE">सक्रिय (Active)</option>
-                  <option value="INACTIVE">निष्क्रिय (Inactive)</option>
+                  <option value="ACTIVE">Active</option>
+                  <option value="INACTIVE">Inactive</option>
                 </select>
               </div>
 
@@ -855,11 +862,11 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                     className="w-4 h-4 rounded text-saffron-600 focus:ring-saffron-500 border-cream-300"
                   />
                   <span className="text-xs font-bold text-charcoal-800">
-                    विशेष श्लोक (Mark as Featured)
+                    Mark as Featured
                   </span>
                 </label>
                 <p className="text-[11px] text-charcoal-400 mt-0.5">
-                  मुखपृष्ठ एवं प्रमुख आख्यानों में प्रदर्शित होगा।
+                  Displayed on homepage and featured narratives.
                 </p>
               </div>
             </div>
@@ -871,7 +878,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                 onClick={() => setActiveTab("padapatha")}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cream-50 hover:bg-cream-100 border border-cream-300 text-charcoal-700 text-xs font-bold transition-all cursor-pointer"
               >
-                <span>⬅ पिछला चरण: पदच्छेद</span>
+                <span>← Previous: Padapatha</span>
               </button>
             </div>
           </div>
@@ -880,7 +887,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
         {/* 5. FORM ACTIONS */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-cream-200 bg-white p-4 rounded-2xl shadow-2xs">
           <div className="text-xs text-charcoal-400">
-            * आवश्यक फ़ील्ड्स (संस्कृत श्लोक एवं हिन्दी भावार्थ अनिवार्य हैं)
+            * Required fields (Original Sanskrit shloka and Hindi meaning are mandatory)
           </div>
 
           <div className="flex items-center gap-2.5 flex-wrap">
@@ -888,7 +895,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
               to={backUrl}
               className="px-4 py-2 rounded-xl text-xs font-bold text-charcoal-600 hover:bg-cream-100 transition-colors"
             >
-              रद्द करें
+              Cancel
             </Link>
 
             {!isEditing && (
@@ -899,7 +906,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
                 className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 text-xs font-bold transition-all cursor-pointer shadow-2xs disabled:opacity-50"
               >
                 <Plus className="w-4 h-4" />
-                <span>सहेजें एवं अगला जोड़ें (Save & Add Next)</span>
+                <span>Save &amp; Add Next</span>
               </button>
             )}
 
@@ -909,7 +916,7 @@ export const PuranaItihasaShlokaFormPage: React.FC = () => {
               className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-saffron-600 hover:bg-saffron-700 text-white text-xs font-bold shadow-xs transition-all disabled:opacity-50 cursor-pointer"
             >
               <Save className="w-4 h-4" />
-              <span>{saving ? "सहेजा जा रहा है..." : "सहेजें एवं बंद करें (Save & Close)"}</span>
+              <span>{saving ? "Saving..." : "Save & Close"}</span>
             </button>
           </div>
         </div>

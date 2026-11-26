@@ -15,9 +15,7 @@ import {
   BookOpen,
   Share2,
   Search,
-  FileText,
   Tag,
-  ExternalLink,
   TrendingUp,
   ShieldCheck,
 } from "lucide-react";
@@ -47,15 +45,16 @@ export default function BlogDetailPage() {
       try {
         const data = await blogService.getAdminBlogById(id);
         setBlog(data);
-      } catch (err: any) {
-        showError(err?.message || "Failed to load blog post details");
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Failed to load blog post details";
+        showError(message);
         navigate("/admin/library/blogs");
       } finally {
         setIsLoading(false);
       }
     };
     fetchBlog();
-  }, [id]);
+  }, [id, navigate, showError]);
 
   const handleCopyLink = () => {
     if (!blog) return;
@@ -73,8 +72,9 @@ export default function BlogDetailPage() {
       await blogService.deleteBlog(blog.id);
       showSuccess("Article deleted successfully");
       navigate("/admin/library/blogs");
-    } catch (err: any) {
-      showError(err?.message || "Failed to delete article");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to delete article";
+      showError(msg || "Failed to delete article");
     } finally {
       setIsDeleting(false);
     }
@@ -212,7 +212,7 @@ export default function BlogDetailPage() {
                   : "text-charcoal-600 hover:text-charcoal-900"
               }`}
             >
-              🇮🇳 हिन्दी {hasHindi ? "✓" : "(draft)"}
+              Hindi {hasHindi ? "✓" : "(draft)"}
             </button>
           </div>
 
@@ -298,7 +298,7 @@ export default function BlogDetailPage() {
               <div className="space-y-3">
                 <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-charcoal-500">
                   <span className="bg-cream-100 px-2.5 py-1 rounded-lg border border-cream-200/60">
-                    {activeLang === "en" ? "🇬🇧 English Edition" : "🇮🇳 हिन्दी संस्करण"}
+                    {activeLang === "en" ? "English Edition" : "Hindi Edition"}
                   </span>
                   <span>•</span>
                   <span className="flex items-center gap-1 font-mono text-[11px] text-saffron-700 bg-saffron-50 px-2 py-0.5 rounded border border-saffron-200/50">
@@ -388,7 +388,7 @@ export default function BlogDetailPage() {
                     `<p className="text-charcoal-400 italic">${
                       activeLang === "en"
                         ? "No English content provided for this article."
-                        : "हिन्दी संस्करण अभी उपलब्ध नहीं है।"
+                        : "Hindi edition is not available yet."
                     }</p>`,
                 }}
               />
@@ -468,7 +468,7 @@ export default function BlogDetailPage() {
               <div className="flex items-center justify-between py-1.5 border-b border-cream-100">
                 <span className="text-charcoal-400">Languages:</span>
                 <span className="font-semibold text-emerald-700">
-                  English {hasHindi ? "+ हिन्दी" : "(Hindi pending)"}
+                  English {hasHindi ? "+ Hindi" : "(Hindi pending)"}
                 </span>
               </div>
               <div className="flex items-center justify-between py-1.5 border-b border-cream-100">

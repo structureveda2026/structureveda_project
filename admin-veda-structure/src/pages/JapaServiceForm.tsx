@@ -30,9 +30,7 @@ import BulkStringListModal from "@/components/BulkStringListModal";
 import BulkNumberListModal from "@/components/BulkNumberListModal";
 import { useToast } from "@/context/ToastContext";
 import mediaUploadService from "@/services/mediaUploadService";
-import japaCategoryAdminService, {
-  AdminJapaCategory,
-} from "@/services/japaCategoryAdminService";
+import japaCategoryAdminService from "@/services/japaCategoryAdminService";
 import japaServiceCatalogueService, {
   JapaPurpose,
   JapaCountVariant,
@@ -218,18 +216,22 @@ export default function JapaServiceForm() {
     setCategoriesError("");
     japaServiceCatalogueService
       .getCategories()
-      .then((res: any) => {
+      .then((res: unknown) => {
         if (isMounted) {
-          const list = Array.isArray(res) ? res : (res?.data || []);
+          const list = Array.isArray(res)
+            ? res
+            : ((res as { data?: Array<{ id: string; name: string; slug?: string }> })?.data || []);
           setCategories(list);
         }
       })
       .catch((err) => {
         console.warn("Could not load Japa categories from catalogue, trying admin service:", err);
         return japaCategoryAdminService.getCategories({ isActive: "true" })
-          .then((res: any) => {
+          .then((res: unknown) => {
             if (isMounted) {
-              const list = Array.isArray(res) ? res : (res?.data || []);
+              const list = Array.isArray(res)
+                ? res
+                : ((res as { data?: Array<{ id: string; name: string; slug?: string }> })?.data || []);
               setCategories(list);
             }
           });
@@ -901,7 +903,7 @@ export default function JapaServiceForm() {
 
             <div className="md:col-span-2">
               <label htmlFor="japa-mantra" className="label-field">
-                Vedic Mantra (देवनागरी मूल पाठ) <span className="text-red-500">*</span>
+                Vedic Mantra (Original Devanagari Text) <span className="text-red-500">*</span>
               </label>
               <textarea
                 id="japa-mantra"

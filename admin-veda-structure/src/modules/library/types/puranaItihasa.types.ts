@@ -1,4 +1,4 @@
-import type { VedaNode, VedaMantra, PadapathaItem } from "./veda.types";
+import type { VedaNode, PadapathaItem } from "./veda.types";
 export type { PadapathaItem };
 
 export type GunaClassification = "sattvika" | "rajasa" | "tamasa" | "nirguna" | "none";
@@ -10,20 +10,20 @@ export type GranthaStatus = "ACTIVE" | "INACTIVE" | "DRAFT";
 export interface PuranaItihasaGrantha {
   id: string;
   slug: string;
-  name: string; // Hindi Name e.g. "विष्णु पुराण"
+  name: string; // Hindi/Sanskrit Name e.g. "Vishnu Purana" (Devanagari)
   enName: string; // English Name e.g. "Vishnu Purana"
   hinglishName?: string; // Hinglish Name e.g. "Vishnu Puran"
   category: GranthaCategory;
   guna: GunaClassification;
-  chiefDeity: string; // e.g. "भगवान् विष्णु"
-  primaryRishis: string; // e.g. "महर्षि पराशर, मैत्रेय मुनि"
-  shlokaCount?: string | number; // e.g. "२३,०००" or 7000
-  adhyayaCount?: string | number; // e.g. "१२६"
+  chiefDeity: string; // e.g. "Lord Vishnu"
+  primaryRishis: string; // e.g. "Maharshi Parashara, Maitreya Muni"
+  shlokaCount?: string | number; // e.g. "23,000" or 7000
+  adhyayaCount?: string | number; // e.g. "126"
   khandaCount?: string | number;
   parvaCount?: string | number;
   skandhaCount?: string | number;
-  stats?: string; // e.g. "६ अंश • १२६ अध्याय • ७,००० श्लोक"
-  eyebrow?: string; // e.g. "वैष्णव महापुराण • पराशर मुनि प्रोक्त"
+  stats?: string; // e.g. "6 Amshas • 126 Adhyayas • 7,000 Shlokas"
+  eyebrow?: string; // e.g. "Vaishnava Mahapurana • Expounded by Parashara Muni"
   intro?: string; // Brief intro
   overviewText?: string; // Detailed overview
   desc?: string;
@@ -39,7 +39,7 @@ export interface PuranaItihasaGrantha {
     classification?: string;
     shlokaCount?: string;
     adhyayaCount?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
   rishis?: Array<{ name: string; role?: string; avatar?: string }>;
   deities?: Array<{ name: string; title?: string; image?: string }>;
@@ -58,36 +58,36 @@ export interface PuranaItihasaGrantha {
 
 export interface PhilosophicalJewel {
   id: string;
-  title: string; // Devanagari e.g. "दुर्गा सप्तशती (देवी माहात्म्य)"
+  title: string; // Devanagari title
   enTitle: string; // "Durga Saptashati (Devi Mahatmya)"
-  sourceGrantha: string; // "मार्कण्डेय पुराण (अध्याय ८१-९३)"
+  sourceGrantha: string; // "Markandeya Purana (Ch. 81-93)"
   sourcePuranaId: string; // "markandeya-purana"
-  shlokaCount: string; // "७०० श्लोक (त्रयोदश अध्याय)"
-  chiefDeity: string; // "भगवती महादुर्गा (महाकाली, महालक्ष्मी, महासरस्वती)"
-  speaker: string; // "मेधा ऋषि (राजा सुरथ व समाधि वैश्य के प्रति)"
-  keyTheme: string; // "मधु-कैटभ, महिषासुर, शुम्भ-निशुम्भ वध एवं नवदुर्गा पराक्रम"
-  philosophicalSignificance: string; // "शाक्त परम्परा का शिरोमणि स्तोत्र ग्रंथ, चण्डी पाठ का मूल"
+  shlokaCount: string; // "700 Shlokas (13 Chapters)"
+  chiefDeity: string; // "Goddess Mahadurga (Mahakali, Mahalakshmi, Mahasaraswati)"
+  speaker: string; // "Medha Rishi (to King Suratha & Samadhi Vaishya)"
+  keyTheme: string; // "Slaying of Madhu-Kaitabha, Mahishasura, Shumbha-Nishumbha"
+  philosophicalSignificance: string; // "Supreme Shakta stotra scripture, source of Chandi Path"
   popularStotras: string[];
   status: "ACTIVE" | "INACTIVE";
 }
 
 export interface UpapuranaItem {
   id: string;
-  name: string; // Devanagari e.g. "सनत्कुमार पुराण"
+  name: string; // Devanagari name
   enName: string; // "Sanatkumara Purana"
-  chiefDeity: string; // "भगवान् ब्रह्मा / सनत्कुमार"
-  associatedRishi: string; // "सनत्कुमार महर्षि"
-  approxShlokas: string; // "३,५०० श्लोक"
-  tradition: "वैष्णव" | "शैव" | "शाक्त" | "सौर" | "ब्राह्म";
+  chiefDeity: string; // "Lord Brahma / Sanatkumara"
+  associatedRishi: string; // "Maharshi Sanatkumara"
+  approxShlokas: string; // "3,500 Shlokas"
+  tradition: "Vaishnava" | "Shaiva" | "Shakta" | "Saura" | "Brahma";
   summary: string;
   status: GranthaStatus;
 }
 
 export interface ShastricCharacteristic {
   id: number;
-  sanskritName: string; // e.g. "सर्ग (Sarga)"
+  sanskritName: string; // e.g. "Sarga (Primary Creation)"
   enName: string;
-  shlokaRef: string; // "श्रीमद्भागवत १२.७.९ / २.१०.१"
+  shlokaRef: string; // "Shrimad Bhagavatam 12.7.9 / 2.10.1"
   definition: string;
   puranicSignificance: string;
   examplesInGranthas: string;
@@ -104,7 +104,7 @@ export type PuranaItihasaCategory = GranthaCategory;
 export type PuranaItihasaStatus = GranthaStatus;
 export type PuranaItihasaText = PuranaItihasaGrantha;
 
-export interface PuranaItihasaNode extends VedaNode {}
+export type PuranaItihasaNode = VedaNode;
 
 export interface PuranaItihasaShloka {
   id: string;
@@ -134,17 +134,17 @@ export interface PuranaItihasaShloka {
   audioUrl?: string;
   createdAt?: string;
   updatedAt?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface PuranaItihasaTaxonomy {
-  nodes?: VedaNode[] | any[];
-  mahapuranas?: any[];
-  upapuranas?: any[];
-  itihasas?: any[];
-  akhyanas?: any[];
-  dashaLakshanas?: any[];
-  [key: string]: any;
+  nodes?: VedaNode[] | unknown[];
+  mahapuranas?: unknown[];
+  upapuranas?: unknown[];
+  itihasas?: unknown[];
+  akhyanas?: unknown[];
+  dashaLakshanas?: unknown[];
+  [key: string]: unknown;
 }
 
 export interface PuranaItihasaFilterParams {
@@ -171,8 +171,8 @@ export interface ShlokaFilterParams {
   order?: "ASC" | "DESC";
 }
 
-export interface PuranaItihasaFormData extends Partial<PuranaItihasaGrantha> {}
-export interface ShlokaFormData extends Partial<PuranaItihasaShloka> {}
+export type PuranaItihasaFormData = Partial<PuranaItihasaGrantha>;
+export type ShlokaFormData = Partial<PuranaItihasaShloka>;
 
 export interface PaginatedPuranaItihasaResponse {
   data?: PuranaItihasaText[];

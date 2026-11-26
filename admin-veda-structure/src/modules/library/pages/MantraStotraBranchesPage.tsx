@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
-  Sparkles,
   Plus,
   Search,
   Edit,
   Trash2,
   RefreshCw,
-  Eye,
   CheckCircle2,
-  AlertCircle,
   X,
   Layers,
   BookOpen,
@@ -16,22 +14,28 @@ import {
   Scroll,
   ArrowUp,
   ArrowDown,
+  LayoutGrid,
+  List,
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { useToast } from "@/context/ToastContext";
 import libraryBranchService, {
   LibraryBranch,
-  DEFAULT_MANTRA_BRANCHES,
+  getDefaultBranches,
 } from "../services/libraryBranch.service";
 
-export default function MantraStotraBranchesPage() {
+type MantraStotraBranchesPageProps = { defaultCategory?: "mantra" | "stotra" };
+
+export default function MantraStotraBranchesPage({ defaultCategory }: MantraStotraBranchesPageProps) {
   const { showSuccess, showError, showInfo } = useToast();
+  const categorySlug = defaultCategory || "mantra-stotra";
+  const categoryLabel = defaultCategory === "stotra" ? "Stotra" : "Mantra";
 
   const [branches, setBranches] = useState<LibraryBranch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState<"all" | "sukta" | "stotra">("all");
+  const [viewMode, setViewMode] = useState<"cards" | "list">("cards");
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,8 +47,8 @@ export default function MantraStotraBranchesPage() {
   const [enName, setEnName] = useState("");
   const [slug, setSlug] = useState("");
   const [desc, setDesc] = useState("");
-  const [stats, setStats] = useState("१०+ स्तोत्र व मंत्र");
-  const [badge, setBadge] = useState("स्तोत्र व मंत्र");
+  const [stats, setStats] = useState("10+ Mantras & Stotras");
+  const [badge, setBadge] = useState("Mantras & Stotras");
   const [deity, setDeity] = useState("");
   const [imageKey, setImageKey] = useState("");
   const [orderIndex, setOrderIndex] = useState(1);
@@ -57,11 +61,11 @@ export default function MantraStotraBranchesPage() {
   const fetchBranches = async () => {
     setIsLoading(true);
     try {
-      const data = await libraryBranchService.getBranches("mantra-stotra");
+      const data = await libraryBranchService.getBranches(categorySlug);
       setBranches(data);
     } catch (err: any) {
       showError(err?.message || "Failed to load mantra branches");
-      setBranches(DEFAULT_MANTRA_BRANCHES);
+      setBranches(getDefaultBranches(categorySlug));
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +73,7 @@ export default function MantraStotraBranchesPage() {
 
   useEffect(() => {
     fetchBranches();
-  }, []);
+  }, [categorySlug]);
 
   const openCreateModal = () => {
     setEditingBranch(null);
@@ -77,8 +81,8 @@ export default function MantraStotraBranchesPage() {
     setEnName("");
     setSlug("");
     setDesc("");
-    setStats("१०+ स्तोत्र व मंत्र");
-    setBadge("स्तोत्र व मंत्र");
+    setStats(defaultCategory === "stotra" ? "10+ Stotras" : "10+ Mantras");
+    setBadge(defaultCategory === "stotra" ? "Stotra" : "Vedic Mantra");
     setDeity("");
     setImageKey("");
     setOrderIndex(branches.length + 1);
@@ -92,8 +96,10 @@ export default function MantraStotraBranchesPage() {
     setEnName(branch.enName || "");
     setSlug(branch.slug);
     setDesc(branch.desc || "");
-    setStats(branch.stats || "१०+ स्तोत्र व मंत्र");
-    setBadge(branch.badge || "स्तोत्र व मंत्र");
+    setStats(
+      branch.stats || (defaultCategory === "stotra" ? "10+ Stotras" : "10+ Mantras")
+    );
+    setBadge(branch.badge || (defaultCategory === "stotra" ? "Stotra" : "Vedic Mantra"));
     setDeity(branch.deity || "");
     setImageKey(branch.imageKey || "");
     setOrderIndex(branch.orderIndex || 1);
@@ -104,7 +110,7 @@ export default function MantraStotraBranchesPage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      showError("शाखा का नाम (Hindi Title) आवश्यक है");
+      showError("Branch name is required");
       return;
     }
 
@@ -115,7 +121,7 @@ export default function MantraStotraBranchesPage() {
         enName: enName.trim() || undefined,
         slug: slug.trim() || name.trim().toLowerCase().replace(/\s+/g, "-"),
         desc: desc.trim() || undefined,
-        stats: stats.trim() || "१०+ स्तोत्र व मंत्र",
+        stats: stats.trim() || (defaultCategory === "stotra" ? "10+ Stotras" : "10+ Mantras"),
         badge: badge.trim() || undefined,
         deity: deity.trim() || undefined,
         imageKey: imageKey.trim() || undefined,
@@ -124,17 +130,17 @@ export default function MantraStotraBranchesPage() {
       };
 
       if (editingBranch) {
-        await libraryBranchService.updateBranch("mantra-stotra", editingBranch.id, payload);
-        showSuccess("शाखा सफलतापूर्वक अपडेट की गई");
+        await libraryBranchService.updateBranch(categorySlug, editingBranch.id, payload);
+        showSuccess("Branch updated successfully");
       } else {
-        await libraryBranchService.createBranch("mantra-stotra", payload);
-        showSuccess("नई शाखा सफलतापूर्वक जोड़ी गई");
+        await libraryBranchService.createBranch(categorySlug, payload);
+        showSuccess("New branch added successfully");
       }
 
       setIsModalOpen(false);
       fetchBranches();
     } catch (err: any) {
-      showError(err?.message || "शाखा सहेजने में विफल");
+      showError(err?.message || "Failed to save branch");
     } finally {
       setIsSaving(false);
     }
@@ -144,12 +150,12 @@ export default function MantraStotraBranchesPage() {
     if (!deleteTarget) return;
     setIsDeleting(true);
     try {
-      await libraryBranchService.deleteBranch("mantra-stotra", deleteTarget.id);
-      showSuccess("शाखा सफलतापूर्वक हटाई गई");
+      await libraryBranchService.deleteBranch(categorySlug, deleteTarget.id);
+      showSuccess("Branch deleted successfully");
       setDeleteTarget(null);
       fetchBranches();
     } catch (err: any) {
-      showError(err?.message || "हटाने में विफल");
+      showError(err?.message || "Failed to delete");
     } finally {
       setIsDeleting(false);
     }
@@ -171,12 +177,12 @@ export default function MantraStotraBranchesPage() {
     setBranches(newBranches);
     try {
       await libraryBranchService.reorderBranches(
-        "mantra-stotra",
+        categorySlug,
         newBranches.map((b) => b.id)
       );
-      showSuccess("शाखाओं का क्रम सफलतापूर्वक अद्यतित किया गया");
+      showSuccess("Branch order updated successfully");
     } catch {
-      showError("क्रम अद्यतित करने में विफल");
+      showError("Failed to update order");
     }
   };
 
@@ -190,35 +196,21 @@ export default function MantraStotraBranchesPage() {
       (b.deity && b.deity.toLowerCase().includes(q));
 
     if (!matchesSearch) return false;
-
-    if (filterType === "sukta") {
-      return (
-        b.name.includes("सूक्त") ||
-        (b.badge && b.badge.includes("सूक्त")) ||
-        (b.desc && b.desc.includes("सूक्त"))
-      );
-    }
-    if (filterType === "stotra") {
-      return (
-        b.name.includes("स्तोत्र") ||
-        (b.badge && b.badge.includes("स्तोत्र")) ||
-        (b.desc && b.desc.includes("स्तोत्र"))
-      );
-    }
+
     return true;
   });
 
   return (
     <div className="space-y-4 animate-fade-in pb-12">
       <PageHeader
-        title="मंत्र, सूक्त एवं स्तोत्र के प्रमुख उप-विभाग एवं शाखाएँ"
-        subtitle="अपनी रुचि के अनुसार किसी भी शाखा या विषय से शुरुआत करें। सभी 7 देव-शाखाओं का गतिशील प्रबंधन।"
+        title={`${categoryLabel} Branches`}
+        subtitle={`Browse ${categoryLabel.toLowerCase()} branches, add content to a branch, and manage its details.`}
         actions={
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
                 fetchBranches();
-                showInfo("शाखा सूची ताज़ा की गई");
+                showInfo("Branch list refreshed");
               }}
               className="p-2 text-charcoal-500 hover:text-charcoal-800 bg-white border border-cream-200 rounded-lg hover:bg-cream-50 transition shadow-2xs"
               title="Refresh"
@@ -230,7 +222,7 @@ export default function MantraStotraBranchesPage() {
               className="flex items-center gap-1.5 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-saffron-600 to-saffron-700 hover:from-saffron-500 hover:to-saffron-600 rounded-lg transition shadow-xs hover:shadow-sm"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>नई शाखा जोड़ें (Add Branch)</span>
+              <span>Add Branch</span>
             </button>
           </div>
         }
@@ -246,7 +238,7 @@ export default function MantraStotraBranchesPage() {
             <div className="text-base sm:text-lg font-bold text-charcoal-900 leading-tight">
               {branches.length} / {branches.length}
             </div>
-            <div className="text-[11px] text-charcoal-500 font-medium">कुल शाखाएँ उपलब्ध</div>
+            <div className="text-[11px] text-charcoal-500 font-medium">Total Branches</div>
           </div>
         </div>
 
@@ -258,7 +250,7 @@ export default function MantraStotraBranchesPage() {
             <div className="text-base sm:text-lg font-bold text-emerald-700 leading-tight">
               {branches.filter((b) => b.status === "ACTIVE").length}
             </div>
-            <div className="text-[11px] text-charcoal-500 font-medium">सक्रिय शाखाएँ (Active)</div>
+            <div className="text-[11px] text-charcoal-500 font-medium">Active Branches</div>
           </div>
         </div>
 
@@ -268,9 +260,9 @@ export default function MantraStotraBranchesPage() {
           </div>
           <div>
             <div className="text-base sm:text-lg font-bold text-amber-700 leading-tight">
-              १२०+
+              120+
             </div>
-            <div className="text-[11px] text-charcoal-500 font-medium">वैदिक मंत्र व स्तोत्र संग्रह</div>
+            <div className="text-[11px] text-charcoal-500 font-medium">Vedic Mantras & Stotras Collection</div>
           </div>
         </div>
 
@@ -280,68 +272,26 @@ export default function MantraStotraBranchesPage() {
           </div>
           <div>
             <div className="text-base sm:text-lg font-bold text-blue-700 leading-tight">
-              ७ प्रमुख देव
+              7 Major Deities
             </div>
-            <div className="text-[11px] text-charcoal-500 font-medium">शिव, विष्णु, देवी, गायत्री आदि</div>
+            <div className="text-[11px] text-charcoal-500 font-medium">Shiva, Vishnu, Devi, Gayatri, etc.</div>
           </div>
         </div>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className="bg-white rounded-xl border border-cream-200/90 shadow-2xs p-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <div className="relative flex-1 min-w-[200px]">
+      {/* Search */}
+      <div className="bg-white rounded-xl border border-cream-200/90 shadow-2xs p-3 flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="relative">
           <Search className="w-3.5 h-3.5 text-charcoal-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="शाखा, ग्रंथ या विषय खोजें (उदा. शिव, विष्णु, देवी, गायत्री, हनुमान)..."
-            className="w-full pl-8 pr-7 py-1.5 text-xs sm:text-sm bg-cream-50/40 border border-cream-200 rounded-lg focus:bg-white focus:ring-1.5 focus:ring-saffron-500/30 focus:border-saffron-500 transition-all placeholder:text-charcoal-400"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery("")}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-charcoal-400 hover:text-charcoal-700"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
+          <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={`Search ${categoryLabel.toLowerCase()} branches...`} className="w-full pl-8 pr-7 py-2 text-sm bg-cream-50/40 border border-cream-200 rounded-lg focus:bg-white focus:ring-1.5 focus:ring-saffron-500/30 focus:border-saffron-500" />
+          {searchQuery && <button onClick={() => setSearchQuery("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-charcoal-400 hover:text-charcoal-700" aria-label="Clear search"><X className="w-3.5 h-3.5" /></button>}
         </div>
-
-        {/* Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-          <span className="text-[11px] font-bold text-charcoal-400 uppercase tracking-wider mr-1">
-            फ़िल्टर:
-          </span>
-          <button
-            onClick={() => setFilterType("all")}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
-              filterType === "all"
-                ? "bg-saffron-600 text-white shadow-2xs"
-                : "bg-cream-100/70 text-charcoal-600 hover:bg-cream-100"
-            }`}
-          >
-            सभी ({branches.length})
+        <div className="flex items-center gap-1 self-end sm:self-auto sm:ml-auto rounded-lg border border-cream-200 bg-cream-50 p-1" role="group" aria-label="Branch display mode">
+          <button type="button" onClick={() => setViewMode("cards")} aria-pressed={viewMode === "cards"} className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold transition ${viewMode === "cards" ? "bg-white text-saffron-700 shadow-2xs" : "text-charcoal-500 hover:text-charcoal-800"}`}>
+            <LayoutGrid className="h-3.5 w-3.5" /> Cards
           </button>
-          <button
-            onClick={() => setFilterType("sukta")}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
-              filterType === "sukta"
-                ? "bg-saffron-600 text-white shadow-2xs"
-                : "bg-cream-100/70 text-charcoal-600 hover:bg-cream-100"
-            }`}
-          >
-            सूक्त
-          </button>
-          <button
-            onClick={() => setFilterType("stotra")}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
-              filterType === "stotra"
-                ? "bg-saffron-600 text-white shadow-2xs"
-                : "bg-cream-100/70 text-charcoal-600 hover:bg-cream-100"
-            }`}
-          >
-            स्तोत्र
+          <button type="button" onClick={() => setViewMode("list")} aria-pressed={viewMode === "list"} className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold transition ${viewMode === "list" ? "bg-white text-saffron-700 shadow-2xs" : "text-charcoal-500 hover:text-charcoal-800"}`}>
+            <List className="h-3.5 w-3.5" /> List
           </button>
         </div>
       </div>
@@ -350,22 +300,22 @@ export default function MantraStotraBranchesPage() {
       {isLoading ? (
         <div className="p-12 text-center text-charcoal-500 bg-white rounded-2xl border border-cream-200">
           <div className="w-7 h-7 border-3 border-saffron-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-          <p className="text-xs font-medium">शाखाएँ लोड हो रही हैं...</p>
+          <p className="text-xs font-medium">Loading branches...</p>
         </div>
       ) : filteredBranches.length === 0 ? (
         <div className="p-12 text-center text-charcoal-500 bg-white rounded-2xl border border-cream-200">
-          <p className="text-sm font-semibold">कोई शाखा नहीं मिली</p>
-          <p className="text-xs mt-1 text-charcoal-400">खोज शब्द बदलें या नई शाखा जोड़ें</p>
+          <p className="text-sm font-semibold">No branches found</p>
+          <p className="text-xs mt-1 text-charcoal-400">Adjust your search or click Add Branch to create a new deity branch.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className={viewMode === "cards" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-3"}>
           {filteredBranches.map((branch, idx) => (
             <div
               key={branch.id}
-              className="bg-white rounded-2xl border border-cream-200/90 shadow-2xs hover:shadow-md transition-all overflow-hidden flex flex-col group"
+              className={`bg-white rounded-2xl border border-cream-200/90 shadow-2xs hover:shadow-md transition-all overflow-hidden flex group ${viewMode === "cards" ? "flex-col" : "flex-col md:flex-row md:items-stretch"}`}
             >
               {/* Card Header & Badges */}
-              <div className="p-4 bg-gradient-to-br from-cream-50/70 via-white to-amber-50/30 border-b border-cream-100 flex items-start justify-between gap-3">
+              <div className={`p-4 bg-gradient-to-br from-cream-50/70 via-white to-amber-50/30 border-b border-cream-100 flex items-start justify-between gap-3 ${viewMode === "list" ? "md:w-1/4 md:border-b-0 md:border-r" : ""}`}>
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 rounded-xl bg-saffron-100 text-saffron-900 border border-saffron-200 flex items-center justify-center font-bold font-serif text-sm shrink-0 shadow-2xs">
                     {idx + 1}
@@ -389,19 +339,19 @@ export default function MantraStotraBranchesPage() {
                       : "bg-charcoal-100 text-charcoal-600 border border-charcoal-200"
                   }`}
                 >
-                  {branch.status === "ACTIVE" ? "सक्रिय" : "निष्क्रिय"}
+                  {branch.status === "ACTIVE" ? "Active" : "Inactive"}
                 </span>
               </div>
 
               {/* Card Body */}
-              <div className="p-4 flex-1 space-y-2.5">
+              <div className={`p-4 flex-1 space-y-2.5 ${viewMode === "list" ? "md:flex md:items-center md:justify-between md:gap-4 md:space-y-0" : ""}`}>
                 <p className="text-xs text-charcoal-600 leading-relaxed line-clamp-2">
                   {branch.desc || "महामृत्युंजय, शिव तांडव, रुद्राष्टकम एवं पञ्चाक्षर मंत्र।"}
                 </p>
 
                 <div className="flex flex-wrap items-center gap-1.5 pt-1">
                   <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200/70">
-                    {branch.stats || "१०+ स्तोत्र व मंत्र"}
+                    {branch.stats || (defaultCategory === "stotra" ? "10+ Stotras" : "10+ Mantras")}
                   </span>
                   {branch.badge && (
                     <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-cream-100 text-charcoal-700 border border-cream-200">
@@ -416,21 +366,22 @@ export default function MantraStotraBranchesPage() {
                 </div>
 
                 <div className="text-[10px] font-mono text-charcoal-400 pt-1">
-                  slug: /library/mantra-stotra/{branch.slug}
+                  slug: /library/{categorySlug}/{branch.slug}
                 </div>
               </div>
 
               {/* Card Actions Footer */}
-              <div className="px-4 py-2.5 bg-cream-50/50 border-t border-cream-100 flex items-center justify-between">
-                <a
-                  href={`/library/mantra-stotra/${branch.slug}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-saffron-600 hover:text-saffron-800 transition"
-                >
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>Explore {branch.slug}</span>
-                </a>
+              <div className={`px-4 py-2.5 bg-cream-50/50 border-t border-cream-100 flex items-center justify-between ${viewMode === "list" ? "md:border-t-0 md:border-l md:flex-col md:items-stretch md:gap-2" : ""}`}>
+                <div className="flex items-center gap-3">
+                  <Link to={`/admin/library/mantra-stotra-items?type=${defaultCategory || (branch.categorySlug === "stotra" ? "stotra" : "mantra")}&branchId=${encodeURIComponent(branch.id)}&branchSlug=${encodeURIComponent(branch.slug)}`} className="inline-flex items-center gap-1 text-xs font-semibold text-saffron-700 hover:text-saffron-900 transition">
+                    <BookOpen className="w-3.5 h-3.5" />
+                    <span>Content ({branch.itemCount ?? 0})</span>
+                  </Link>
+                  <Link to={`/admin/library/mantra-stotra-upload?type=${defaultCategory || (branch.categorySlug === "stotra" ? "stotra" : "mantra")}&branchId=${encodeURIComponent(branch.id)}`} className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-900 transition">
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add content</span>
+                  </Link>
+                </div>
 
                 <div className="flex items-center gap-1">
                   <button
@@ -476,7 +427,7 @@ export default function MantraStotraBranchesPage() {
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-cream-200 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-cream-100">
               <h3 className="font-bold text-base text-charcoal-900 font-serif">
-                {editingBranch ? "शाखा विवरण संपादित करें" : "नई शाखा जोड़ें"}
+                {editingBranch ? `Edit ${categoryLabel} Branch` : `Add New ${categoryLabel} Branch`}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -489,27 +440,27 @@ export default function MantraStotraBranchesPage() {
             <form onSubmit={handleSave} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-bold text-charcoal-800 mb-1">
-                  शाखा का नाम (Hindi Title) <span className="text-red-500">*</span>
+                  Branch Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="उदा. शिव मंत्र एवं स्तोत्र"
+                  placeholder={defaultCategory === "stotra" ? "e.g., Shiva Stotras" : "e.g., Shiva Mantras"}
                   className="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-cream-200 focus:ring-1.5 focus:ring-saffron-500 focus:outline-hidden"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-charcoal-800 mb-1">
-                  अंग्रेज़ी नाम (English Title)
+                  English Name
                 </label>
                 <input
                   type="text"
                   value={enName}
                   onChange={(e) => setEnName(e.target.value)}
-                  placeholder="उदा. Shiva Mantras & Stotras"
+                  placeholder={defaultCategory === "stotra" ? "e.g., Shiva Stotras and Ashtakams" : "e.g., Shiva Mantras and Suktas"}
                   className="w-full px-3 py-2 text-sm rounded-xl border border-cream-200 focus:ring-1.5 focus:ring-saffron-500 focus:outline-hidden"
                 />
               </div>
@@ -523,19 +474,19 @@ export default function MantraStotraBranchesPage() {
                     type="text"
                     value={slug}
                     onChange={(e) => setSlug(e.target.value)}
-                    placeholder="उदा. shiva, vishnu"
+                    placeholder="e.g., shiva, vishnu"
                     className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-cream-200 focus:ring-1.5 focus:ring-saffron-500 focus:outline-hidden"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-charcoal-800 mb-1">
-                    इष्टदेवता Key
+                    Deity Key
                   </label>
                   <input
                     type="text"
                     value={deity}
                     onChange={(e) => setDeity(e.target.value)}
-                    placeholder="उदा. shiva, vishnu, devi"
+                    placeholder="e.g., Shiva, Vishnu, Devi"
                     className="w-full px-3 py-2 text-xs rounded-xl border border-cream-200 focus:ring-1.5 focus:ring-saffron-500 focus:outline-hidden"
                   />
                 </div>
@@ -543,13 +494,13 @@ export default function MantraStotraBranchesPage() {
 
               <div>
                 <label className="block text-xs font-bold text-charcoal-800 mb-1">
-                  शाखा विवरण (Description)
+                  Description
                 </label>
                 <textarea
                   rows={2}
                   value={desc}
                   onChange={(e) => setDesc(e.target.value)}
-                  placeholder="उदा. महामृत्युंजय, शिव तांडव, रुद्राष्टकम एवं पञ्चाक्षर मंत्र।"
+                  placeholder={defaultCategory === "stotra" ? "e.g., Shiva Tandava Stotram, Rudrashtakam, and Lingashtakam" : "e.g., Mahamrityunjaya, Rudra Gayatri, and Panchakshara Mantra"}
                   className="w-full px-3 py-2 text-xs rounded-xl border border-cream-200 focus:ring-1.5 focus:ring-saffron-500 focus:outline-hidden"
                 />
               </div>
@@ -557,25 +508,25 @@ export default function MantraStotraBranchesPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-charcoal-800 mb-1">
-                    मंत्र गणना (Stats Badge)
+                    Stats Label
                   </label>
                   <input
                     type="text"
                     value={stats}
                     onChange={(e) => setStats(e.target.value)}
-                    placeholder="उदा. २५+ स्तोत्र व मंत्र"
+                    placeholder={defaultCategory === "stotra" ? "e.g., 25+ Stotras" : "e.g., 25+ Mantras"}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-cream-200 focus:ring-1.5 focus:ring-saffron-500 focus:outline-hidden"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-charcoal-800 mb-1">
-                    बैज (Badge)
+                    Badge
                   </label>
                   <input
                     type="text"
                     value={badge}
                     onChange={(e) => setBadge(e.target.value)}
-                    placeholder="उदा. स्तोत्र व मंत्र"
+                    placeholder={defaultCategory === "stotra" ? "e.g., Stotra" : "e.g., Vedic Mantra"}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-cream-200 focus:ring-1.5 focus:ring-saffron-500 focus:outline-hidden"
                   />
                 </div>
@@ -584,7 +535,7 @@ export default function MantraStotraBranchesPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-charcoal-800 mb-1">
-                    क्रम (Order Index)
+                    Order Index
                   </label>
                   <input
                     type="number"
@@ -595,15 +546,15 @@ export default function MantraStotraBranchesPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-charcoal-800 mb-1">
-                    स्थिति (Status)
+                    Status
                   </label>
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value as "ACTIVE" | "INACTIVE")}
                     className="w-full px-3 py-2 text-xs font-semibold rounded-xl border border-cream-200 bg-white focus:ring-1.5 focus:ring-saffron-500 focus:outline-hidden"
                   >
-                    <option value="ACTIVE">सक्रिय (ACTIVE)</option>
-                    <option value="INACTIVE">निष्क्रिय (INACTIVE)</option>
+                    <option value="ACTIVE">Active</option>
+                    <option value="INACTIVE">Inactive</option>
                   </select>
                 </div>
               </div>
@@ -614,14 +565,14 @@ export default function MantraStotraBranchesPage() {
                   onClick={() => setIsModalOpen(false)}
                   className="px-4 py-2 text-xs font-semibold text-charcoal-600 hover:bg-cream-100 rounded-xl"
                 >
-                  रद्द करें
+                  Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSaving}
                   className="px-4 py-2 text-xs font-bold text-white bg-saffron-600 hover:bg-saffron-700 rounded-xl transition shadow-xs disabled:opacity-50"
                 >
-                  {isSaving ? "सहेजा जा रहा है..." : editingBranch ? "अपडेट करें" : "शाखा जोड़ें"}
+                  {isSaving ? "Saving..." : editingBranch ? "Update" : "Add Branch"}
                 </button>
               </div>
             </form>
@@ -632,9 +583,9 @@ export default function MantraStotraBranchesPage() {
       {/* Confirm Delete Dialog */}
       <ConfirmDialog
         isOpen={Boolean(deleteTarget)}
-        title="शाखा हटाएं"
+        title="Delete Branch"
         message={`क्या आप निश्चित रूप से '${deleteTarget?.name}' को हटाना चाहते हैं?`}
-        confirmLabel="हटाएं (Delete)"
+        confirmLabel="Delete"
         isDestructive
         isLoading={isDeleting}
         onConfirm={confirmDelete}

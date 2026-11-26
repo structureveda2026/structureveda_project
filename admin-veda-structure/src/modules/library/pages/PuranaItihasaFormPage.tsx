@@ -6,16 +6,10 @@ import {
   BookOpen,
   Sparkles,
   Scroll,
-  CheckCircle2,
   Eye,
   Shield,
-  HelpCircle,
   RefreshCw,
-  Layers,
-  Flame,
-  Award,
 } from "lucide-react";
-import PageHeader from "@/components/PageHeader";
 import { useToast } from "@/context/ToastContext";
 import type {
   PuranaItihasaGrantha,
@@ -54,7 +48,7 @@ export const PuranaItihasaFormPage: React.FC = () => {
     overviewText: "",
     orderIndex: 1,
     status: "ACTIVE",
-    badge: "सात्त्विक महापुराण",
+    badge: "Sattvika Mahapurana",
   });
 
   // Validation Errors
@@ -73,12 +67,13 @@ export const PuranaItihasaFormPage: React.FC = () => {
           if (data) {
             setFormData({
               ...data,
-              stats: data.stats || `${data.adhyayaCount || "अध्याय"} • ${data.shlokaCount || "श्लोक"}`,
+              stats: data.stats || `${data.adhyayaCount || "Chapters"} • ${data.shlokaCount || "Shlokas"}`,
             });
             setAutoSlug(false);
           }
-        } catch (err: any) {
-          showError(err.message || "ग्रंथ विवरण लोड करने में असमर्थ");
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : "Failed to load scripture details";
+          showError(msg || "Failed to load scripture details");
         } finally {
           setLoading(false);
         }
@@ -111,22 +106,22 @@ export const PuranaItihasaFormPage: React.FC = () => {
     const errs: Record<string, string> = {};
 
     if (!formData.name?.trim()) {
-      errs.name = "हिन्दी नाम अनिवार्य है (उदा. ब्रह्म पुराण, विष्णु पुराण)";
+      errs.name = "Hindi name is required (e.g. Brahma Purana, Vishnu Purana)";
     }
     if (!formData.enName?.trim()) {
-      errs.enName = "अंग्रेजी नाम अनिवार्य है (उदा. Vishnu Purana)";
+      errs.enName = "English name is required (e.g. Vishnu Purana)";
     }
     if (!formData.slug?.trim()) {
-      errs.slug = "स्लग (URL पहचानकर्ता) अनिवार्य है";
+      errs.slug = "URL slug is required";
     }
     if (!formData.category) {
-      errs.category = "श्रेणी का चयन करें";
+      errs.category = "Please select a category";
     }
     if (!formData.guna) {
-      errs.guna = "त्रिगुण वर्गीकरण का चयन करें";
+      errs.guna = "Please select a Guna classification";
     }
     if (!formData.chiefDeity?.trim()) {
-      errs.chiefDeity = "प्रधान देव/देवी का नाम लिखें";
+      errs.chiefDeity = "Chief Deity name is required";
     }
 
     setErrors(errs);
@@ -138,7 +133,7 @@ export const PuranaItihasaFormPage: React.FC = () => {
     e.preventDefault();
 
     if (!validateForm()) {
-      showError("कृपया फॉर्म में सभी अनिवार्य क्षेत्रों को सही भरें।");
+      showError("Please complete all required fields in the form.");
       return;
     }
 
@@ -150,10 +145,10 @@ export const PuranaItihasaFormPage: React.FC = () => {
       // Resolve badge
       let badge = formData.badge;
       if (!badge) {
-        if (formData.guna === "sattvika") badge = "सात्त्विक महापुराण";
-        else if (formData.guna === "rajasa") badge = "राजस महापुराण";
-        else if (formData.guna === "tamasa") badge = "तामस महापुराण";
-        else badge = "सनातन ग्रंथ";
+        if (formData.guna === "sattvika") badge = "Sattvika Mahapurana";
+        else if (formData.guna === "rajasa") badge = "Rajasa Mahapurana";
+        else if (formData.guna === "tamasa") badge = "Tamasa Mahapurana";
+        else badge = "Sanatana Grantha";
       }
 
       const payload: Partial<PuranaItihasaGrantha> = {
@@ -165,15 +160,16 @@ export const PuranaItihasaFormPage: React.FC = () => {
 
       if (isEditing && id) {
         await PuranaItihasaAdminService.update(id, payload);
-        showSuccess(`"${formData.name}" का विवरण सफलतापूर्वक अपडेट किया गया!`);
+        showSuccess(`"${formData.enName || formData.name}" updated successfully!`);
       } else {
         await PuranaItihasaAdminService.create(payload);
-        showSuccess(`नया ग्रंथ "${formData.name}" सफलतापूर्वक जोड़ा गया!`);
+        showSuccess(`New scripture "${formData.enName || formData.name}" added successfully!`);
       }
 
       navigate("/admin/purana-itihasa");
-    } catch (err: any) {
-      showError(err.message || "ग्रंथ सहेजने में त्रुटि उत्पन्न हुई");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to save scripture";
+      showError(msg || "Failed to save scripture");
     } finally {
       setSaving(false);
     }
@@ -190,20 +186,20 @@ export const PuranaItihasaFormPage: React.FC = () => {
               className="hover:underline flex items-center gap-1 text-charcoal-500 hover:text-saffron-600"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              पुराण एवं इतिहास सूची (Archive List)
+              Purana &amp; Itihasa Archive
             </Link>
             <span>/</span>
             <span className="text-charcoal-700 font-bold">
-              {isEditing ? `संपादन: ${formData.name || id}` : "नया ग्रंथ जोड़ें"}
+              {isEditing ? `Edit: ${formData.enName || formData.name || id}` : "Add New Scripture"}
             </span>
           </div>
 
           <h1 className="text-2xl font-extrabold text-charcoal-900 font-serif flex items-center gap-2">
             <BookOpen className="w-6 h-6 text-saffron-500" />
-            {isEditing ? `ग्रंथ संपादन: ${formData.name}` : "नया ग्रंथ जोड़ें (Add Grantha)"}
+            {isEditing ? `Edit Scripture: ${formData.enName || formData.name}` : "Add New Grantha"}
           </h1>
           <p className="text-xs text-charcoal-500 mt-1">
-            महापुराण, रामायण, महाभारत, उपपुराण या दार्शनिक ग्रंथ का पूर्ण विवरण, गुण, देवता व सांख्यिकी दर्ज करें।
+            Enter full metadata, Guna classification, presiding deity, and structural statistics for a Mahapurana, Epic, Upapurana, or philosophical work.
           </p>
         </div>
 
@@ -212,7 +208,7 @@ export const PuranaItihasaFormPage: React.FC = () => {
             to="/admin/purana-itihasa"
             className="btn-secondary text-xs"
           >
-            रद्द करें (Cancel)
+            Cancel
           </Link>
           <button
             type="button"
@@ -225,7 +221,7 @@ export const PuranaItihasaFormPage: React.FC = () => {
             ) : (
               <Save className="w-4 h-4" />
             )}
-            <span>{saving ? "सहेजा जा रहा है..." : isEditing ? "परिवर्तन सहेजें (Update)" : "ग्रंथ जोड़ें (Save)"}</span>
+            <span>{saving ? "Saving..." : isEditing ? "Save Changes" : "Add Grantha"}</span>
           </button>
         </div>
       </div>
@@ -233,7 +229,7 @@ export const PuranaItihasaFormPage: React.FC = () => {
       {loading ? (
         <div className="card p-12 text-center text-charcoal-500">
           <RefreshCw className="w-8 h-8 animate-spin mx-auto text-saffron-500 mb-2" />
-          <p className="text-sm font-medium">ग्रंथ विवरण लोड हो रहा है...</p>
+          <p className="text-sm font-medium">Loading scripture details...</p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -244,14 +240,14 @@ export const PuranaItihasaFormPage: React.FC = () => {
               <div className="card p-6 space-y-4">
                 <h3 className="text-base font-bold text-charcoal-900 border-b border-cream-200 pb-2.5 flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-saffron-500" />
-                  <span>१. आधारभूत पहचान (Basic Grantha Identification)</span>
+                  <span>1. Basic Grantha Identification</span>
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {/* Hindi Name */}
                   <div>
                     <label className="label-field">
-                      हिन्दी नाम (Hindi Name) <span className="text-red-500">*</span>
+                      Hindi Name <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -260,7 +256,7 @@ export const PuranaItihasaFormPage: React.FC = () => {
                         setFormData({ ...formData, name: e.target.value });
                         if (errors.name) setErrors({ ...errors, name: "" });
                       }}
-                      placeholder="उदा. ब्रह्म पुराण, विष्णु पुराण"
+                      placeholder="E.g. Brahma Purana / Devanagari title"
                       className={`input-field font-devanagari font-semibold text-sm ${
                         errors.name ? "border-red-400 focus:ring-red-200" : ""
                       }`}
@@ -271,13 +267,13 @@ export const PuranaItihasaFormPage: React.FC = () => {
                   {/* English Name */}
                   <div>
                     <label className="label-field">
-                      अंग्रेजी नाम (English Name) <span className="text-red-500">*</span>
+                      English Name <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       value={formData.enName || ""}
                       onChange={(e) => handleEnNameChange(e.target.value)}
-                      placeholder="उदा. Brahma Purana, Vishnu Purana"
+                      placeholder="E.g. Brahma Purana, Vishnu Purana"
                       className={`input-field text-sm ${
                         errors.enName ? "border-red-400 focus:ring-red-200" : ""
                       }`}
@@ -288,13 +284,13 @@ export const PuranaItihasaFormPage: React.FC = () => {
                   {/* Hinglish Name */}
                   <div>
                     <label className="label-field">
-                      हिंग्लिश नाम (Hinglish Name)
+                      Hinglish Name
                     </label>
                     <input
                       type="text"
                       value={formData.hinglishName || ""}
                       onChange={(e) => setFormData({ ...formData, hinglishName: e.target.value })}
-                      placeholder="उदा. Brahma Puran, Vishnu Puran"
+                      placeholder="E.g. Brahma Puran, Vishnu Puran"
                       className="input-field text-sm font-medium"
                     />
                   </div>
@@ -305,14 +301,14 @@ export const PuranaItihasaFormPage: React.FC = () => {
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
                       <label className="text-sm font-medium text-charcoal-700">
-                        स्लग (URL Slug) <span className="text-red-500">*</span>
+                        URL Slug <span className="text-red-500">*</span>
                       </label>
                       <button
                         type="button"
                         onClick={() => setAutoSlug(!autoSlug)}
                         className="text-[11px] text-saffron-600 hover:underline"
                       >
-                        {autoSlug ? "स्वतः निर्माण चालू" : "स्वतः निर्माण बंद"}
+                        {autoSlug ? "Auto-slug enabled" : "Auto-slug disabled"}
                       </button>
                     </div>
                     <input
@@ -333,12 +329,12 @@ export const PuranaItihasaFormPage: React.FC = () => {
 
                   {/* Eyebrow badge */}
                   <div>
-                    <label className="label-field">आईब्रो शीर्षक (Eyebrow Badge)</label>
+                    <label className="label-field">Eyebrow Badge</label>
                     <input
                       type="text"
                       value={formData.eyebrow || ""}
                       onChange={(e) => setFormData({ ...formData, eyebrow: e.target.value })}
-                      placeholder="उदा. वैष्णव महापुराण • पराशर मुनि प्रोक्त"
+                      placeholder="E.g. Vaishnava Mahapurana • Narrated by Parashara"
                       className="input-field text-xs"
                     />
                   </div>
@@ -349,14 +345,14 @@ export const PuranaItihasaFormPage: React.FC = () => {
               <div className="card p-6 space-y-4">
                 <h3 className="text-base font-bold text-charcoal-900 border-b border-cream-200 pb-2.5 flex items-center gap-2">
                   <Shield className="w-4 h-4 text-emerald-600" />
-                  <span>२. वर्गीकरण, देवता एवं ऋषि (Classification & Tradition)</span>
+                  <span>2. Classification, Deity &amp; Rishis</span>
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Category */}
                   <div>
                     <label className="label-field">
-                      श्रेणी (Category) <span className="text-red-500">*</span>
+                      Category <span className="text-red-500">*</span>
                     </label>
                     <select
                       value={formData.category || "purana"}
@@ -365,17 +361,17 @@ export const PuranaItihasaFormPage: React.FC = () => {
                       }
                       className="input-field text-sm"
                     >
-                      <option value="purana">१८ महापुराण (Mahapurana)</option>
-                      <option value="itihasa">इतिहास एवं महाकाव्य (Itihasa & Epic)</option>
-                      <option value="upapurana">१८ उपपुराण (Upapurana)</option>
-                      <option value="mahakavya">महाकाव्य (Classical Epic)</option>
+                      <option value="purana">18 Mahapuranas (Mahapurana)</option>
+                      <option value="itihasa">Itihasa &amp; Epics (Itihasa)</option>
+                      <option value="upapurana">18 Upapuranas (Upapurana)</option>
+                      <option value="mahakavya">Classical Epic (Mahakavya)</option>
                     </select>
                   </div>
 
                   {/* Guna Classification */}
                   <div>
                     <label className="label-field">
-                      त्रिगुण वर्गीकरण (Guna Classification) <span className="text-red-500">*</span>
+                      Guna Classification <span className="text-red-500">*</span>
                     </label>
                     <select
                       value={formData.guna || "sattvika"}
@@ -385,20 +381,20 @@ export const PuranaItihasaFormPage: React.FC = () => {
                           guna: e.target.value as GunaClassification,
                           badge:
                             e.target.value === "sattvika"
-                              ? "सात्त्विक महापुराण"
+                              ? "Sattvika Mahapurana"
                               : e.target.value === "rajasa"
-                              ? "राजस महापुराण"
+                              ? "Rajasa Mahapurana"
                               : e.target.value === "tamasa"
-                              ? "तामस महापुराण"
-                              : "सनातन ग्रंथ",
+                              ? "Tamasa Mahapurana"
+                              : "Sanatana Grantha",
                         })
                       }
                       className="input-field text-sm font-semibold"
                     >
-                      <option value="sattvika">सात्त्विक (Sattvika - श्रीविष्णु / कृष्ण परम्परा)</option>
-                      <option value="rajasa">राजस (Rajasa - ब्रह्मा / सूर्य / प्रकृति परम्परा)</option>
-                      <option value="tamasa">तामस (Tamasa - महादेव शिव / अग्नि / शक्ति परम्परा)</option>
-                      <option value="nirguna">निर्गुण / अद्वैत (Nirguna / Vedantic)</option>
+                      <option value="sattvika">Sattvika (Vishnu / Krishna Tradition)</option>
+                      <option value="rajasa">Rajasa (Brahma / Surya / Prakriti Tradition)</option>
+                      <option value="tamasa">Tamasa (Shiva / Agni / Shakti Tradition)</option>
+                      <option value="nirguna">Nirguna / Advaita (Vedantic)</option>
                     </select>
                   </div>
                 </div>
@@ -407,7 +403,7 @@ export const PuranaItihasaFormPage: React.FC = () => {
                   {/* Chief Deity */}
                   <div>
                     <label className="label-field">
-                      प्रधान देवता (Chief Deity) <span className="text-red-500">*</span>
+                      Chief Deity <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -416,7 +412,7 @@ export const PuranaItihasaFormPage: React.FC = () => {
                         setFormData({ ...formData, chiefDeity: e.target.value });
                         if (errors.chiefDeity) setErrors({ ...errors, chiefDeity: "" });
                       }}
-                      placeholder="उदा. भगवान् विष्णु, देवाधिदेव महादेव शिव, श्रीकृष्ण"
+                      placeholder="E.g. Lord Vishnu, Mahadeva Shiva, Shri Krishna"
                       className={`input-field ${
                         errors.chiefDeity ? "border-red-400" : ""
                       }`}
@@ -428,12 +424,12 @@ export const PuranaItihasaFormPage: React.FC = () => {
 
                   {/* Primary Rishis / Speakers */}
                   <div>
-                    <label className="label-field">प्रमुख ऋषि / वक्ता (Primary Rishis)</label>
+                    <label className="label-field">Primary Rishis / Speakers</label>
                     <input
                       type="text"
                       value={formData.primaryRishis || ""}
                       onChange={(e) => setFormData({ ...formData, primaryRishis: e.target.value })}
-                      placeholder="उदा. महर्षि पराशर एवं मैत्रेय मुनि, शुकदेव गोस्वामी"
+                      placeholder="E.g. Maharshi Parashara & Maitreya Muni, Shukadeva Goswami"
                       className="input-field"
                     />
                   </div>
@@ -444,42 +440,42 @@ export const PuranaItihasaFormPage: React.FC = () => {
               <div className="card p-6 space-y-4">
                 <h3 className="text-base font-bold text-charcoal-900 border-b border-cream-200 pb-2.5 flex items-center gap-2">
                   <Scroll className="w-4 h-4 text-amber-600" />
-                  <span>३. श्लोक व संरचना सांख्यिकी (Structural Counts & Metrics)</span>
+                  <span>3. Structural Counts &amp; Metrics</span>
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {/* Shlokas Count */}
                   <div>
-                    <label className="label-field">श्लोक संख्या (Shlokas)</label>
+                    <label className="label-field">Shloka Count</label>
                     <input
                       type="text"
                       value={formData.shlokaCount || ""}
                       onChange={(e) => setFormData({ ...formData, shlokaCount: e.target.value })}
-                      placeholder="उदा. २३,००० या १८,०००"
+                      placeholder="E.g. 23,000 or 18,000"
                       className="input-field font-semibold"
                     />
                   </div>
 
                   {/* Adhyayas Count */}
                   <div>
-                    <label className="label-field">अध्याय / सर्ग संख्या</label>
+                    <label className="label-field">Chapters / Sargas Count</label>
                     <input
                       type="text"
                       value={formData.adhyayaCount || ""}
                       onChange={(e) => setFormData({ ...formData, adhyayaCount: e.target.value })}
-                      placeholder="उदा. १२६ अध्याय या ५०० सर्ग"
+                      placeholder="E.g. 126 Chapters or 500 Sargas"
                       className="input-field"
                     />
                   </div>
 
                   {/* Combined Stats Pill */}
                   <div>
-                    <label className="label-field">सार सांख्यिकी (Stats Summary)</label>
+                    <label className="label-field">Stats Summary</label>
                     <input
                       type="text"
                       value={formData.stats || ""}
                       onChange={(e) => setFormData({ ...formData, stats: e.target.value })}
-                      placeholder="उदा. ६ अंश • १२६ अध्याय • ७,००० श्लोक"
+                      placeholder="E.g. 6 Amshas • 126 Chapters • 7,000 Shlokas"
                       className="input-field text-xs"
                     />
                   </div>
@@ -491,7 +487,7 @@ export const PuranaItihasaFormPage: React.FC = () => {
                 <div className="flex items-center justify-between border-b border-cream-200 pb-2.5">
                   <h3 className="text-base font-bold text-charcoal-900 flex items-center gap-2">
                     <BookOpen className="w-4 h-4 text-purple-600" />
-                    <span>४. परिचय एवं विस्तृत अवलोकन (Intro & Overview)</span>
+                    <span>4. Intro &amp; Detailed Overview</span>
                   </h3>
                   <div className="flex items-center gap-1 bg-cream-100 p-0.5 rounded-lg text-xs">
                     <button
@@ -503,7 +499,7 @@ export const PuranaItihasaFormPage: React.FC = () => {
                           : "text-charcoal-500 hover:text-charcoal-800"
                       }`}
                     >
-                      संपादक (Edit)
+                      Edit
                     </button>
                     <button
                       type="button"
@@ -514,19 +510,19 @@ export const PuranaItihasaFormPage: React.FC = () => {
                           : "text-charcoal-500 hover:text-charcoal-800"
                       }`}
                     >
-                      पूर्वावलोकन (Preview)
+                      Preview
                     </button>
                   </div>
                 </div>
 
                 {/* Brief Intro */}
                 <div>
-                  <label className="label-field">संक्षिप्त परिचय (Brief Intro / Tagline)</label>
+                  <label className="label-field">Brief Intro / Tagline</label>
                   <input
                     type="text"
                     value={formData.intro || ""}
                     onChange={(e) => setFormData({ ...formData, intro: e.target.value })}
-                    placeholder="सृष्टि उत्पत्ति, स्थिति, प्रलय तथा भगवान श्रीहरि विष्णु के अवतारों की पावन कथा।"
+                    placeholder="Sacred chronicle of cosmic creation, preservation, dissolution, and the incarnations of Lord Vishnu."
                     className="input-field text-sm"
                   />
                 </div>
@@ -534,7 +530,7 @@ export const PuranaItihasaFormPage: React.FC = () => {
                 {/* Detailed Overview */}
                 <div>
                   <label className="label-field">
-                    विस्तृत विहंगावलोकन (Detailed Overview / Shastric Significance)
+                    Detailed Overview / Shastric Significance
                   </label>
 
                   {activePreviewTab === "edit" ? (
@@ -543,16 +539,16 @@ export const PuranaItihasaFormPage: React.FC = () => {
                         rows={8}
                         value={formData.overviewText || ""}
                         onChange={(e) => setFormData({ ...formData, overviewText: e.target.value })}
-                        placeholder="ग्रंथ का सम्पूर्ण शास्त्रीय इतिहास, प्रमुख आख्यान, वक्ता-श्रोता संवाद, दार्शनिक उपादेयता और सांस्कृतिक महत्त्व यहाँ लिखें..."
+                        placeholder="Write the scripture's historical lineage, key narratives, speaker-listener dialogues, philosophical significance, and cultural importance..."
                         className="input-field font-sans text-sm leading-relaxed p-3.5"
                       />
                       <p className="text-[11px] text-charcoal-400 mt-1">
-                        सुझाव: आप पैराग्राफ, बुलेट पॉइंट्स या मन्त्र सन्दर्भ जोड़ सकते हैं।
+                        Tip: You can include paragraphs, bullet points, or mantra references.
                       </p>
                     </div>
                   ) : (
                     <div className="p-4 bg-cream-50 rounded-xl border border-cream-200 min-h-[200px] text-sm text-charcoal-800 leading-relaxed font-sans whitespace-pre-line">
-                      {formData.overviewText || "कोई विवरण उपलब्ध नहीं है।"}
+                      {formData.overviewText || "No overview text provided."}
                     </div>
                   )}
                 </div>
@@ -564,12 +560,12 @@ export const PuranaItihasaFormPage: React.FC = () => {
               {/* Publishing Controls */}
               <div className="card p-6 space-y-4">
                 <h3 className="text-base font-bold text-charcoal-900 border-b border-cream-200 pb-2.5">
-                  प्रकाशन नियंत्रण (Publishing)
+                  Publishing Controls
                 </h3>
 
                 {/* Status */}
                 <div>
-                  <label className="label-field">प्रकाशन स्थिति (Status)</label>
+                  <label className="label-field">Publication Status</label>
                   <select
                     value={formData.status || "ACTIVE"}
                     onChange={(e) =>
@@ -577,15 +573,15 @@ export const PuranaItihasaFormPage: React.FC = () => {
                     }
                     className="input-field font-semibold text-sm"
                   >
-                    <option value="ACTIVE">सक्रिय (Active - दर्शनीय)</option>
-                    <option value="DRAFT">प्रारूप (Draft - केवल एडमिन)</option>
-                    <option value="INACTIVE">निष्क्रिय (Inactive - अप्रकाशित)</option>
+                    <option value="ACTIVE">Active (Published)</option>
+                    <option value="DRAFT">Draft (Admin Only)</option>
+                    <option value="INACTIVE">Inactive (Hidden)</option>
                   </select>
                 </div>
 
                 {/* Order Index */}
                 <div>
-                  <label className="label-field">क्रम संख्या (Order Index)</label>
+                  <label className="label-field">Order Index</label>
                   <input
                     type="number"
                     value={formData.orderIndex ?? 1}
@@ -593,18 +589,18 @@ export const PuranaItihasaFormPage: React.FC = () => {
                     className="input-field text-sm"
                   />
                   <p className="text-[11px] text-charcoal-400 mt-1">
-                    सूची में प्रदर्शित करने का प्राथमिकता क्रम (१-२५)।
+                    Display priority order in the catalogue (1–25).
                   </p>
                 </div>
 
                 {/* Badge text */}
                 <div>
-                  <label className="label-field">बैज पाठ (Badge Text)</label>
+                  <label className="label-field">Badge Text</label>
                   <input
                     type="text"
                     value={formData.badge || ""}
                     onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
-                    placeholder="उदा. सात्त्विक महापुराण"
+                    placeholder="E.g. Sattvika Mahapurana"
                     className="input-field text-xs"
                   />
                 </div>
@@ -615,7 +611,7 @@ export const PuranaItihasaFormPage: React.FC = () => {
                 <div className="flex items-center justify-between border-b border-cream-200 pb-2">
                   <span className="text-xs font-bold uppercase tracking-wider text-saffron-800 flex items-center gap-1.5">
                     <Eye className="w-3.5 h-3.5 text-saffron-600" />
-                    लाइव कार्ड पूर्वावलोकन
+                    Live Card Preview
                   </span>
                   <span className="text-[10px] text-charcoal-400 font-mono">Card View</span>
                 </div>
@@ -624,36 +620,38 @@ export const PuranaItihasaFormPage: React.FC = () => {
                   <div className="flex items-start justify-between gap-2">
                     <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-saffron-50 text-saffron-700 border border-saffron-200">
                       {formData.category === "purana"
-                        ? "महापुराण"
+                        ? "Mahapurana"
                         : formData.category === "itihasa"
-                        ? "इतिहास"
+                        ? "Itihasa"
                         : formData.category}
                     </span>
 
                     {formData.guna === "sattvika" && (
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        सात्त्विक
+                        Sattvika
                       </span>
                     )}
                     {formData.guna === "rajasa" && (
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                        राजस
+                        Rajasa
                       </span>
                     )}
                     {formData.guna === "tamasa" && (
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-800 border border-purple-200">
-                        तामस
+                        Tamasa
                       </span>
                     )}
                   </div>
 
                   <div>
-                    <h4 className="font-extrabold text-lg text-charcoal-900 font-devanagari">
-                      {formData.name || "ग्रंथ का नाम"}
+                    <h4 className="font-extrabold text-lg text-charcoal-900">
+                      {formData.enName || formData.name || "Grantha Title"}
                     </h4>
-                    <p className="text-xs text-charcoal-500 font-medium">
-                      {formData.enName || "Grantha English Name"}
-                    </p>
+                    {formData.name && formData.name !== formData.enName && (
+                      <p className="text-xs text-charcoal-500 font-medium">
+                        {formData.name}
+                      </p>
+                    )}
                   </div>
 
                   {formData.eyebrow && (
@@ -663,13 +661,13 @@ export const PuranaItihasaFormPage: React.FC = () => {
                   )}
 
                   <p className="text-xs text-charcoal-600 line-clamp-2 leading-relaxed">
-                    {formData.intro || "संक्षिप्त परिचय यहाँ प्रदर्शित होगा..."}
+                    {formData.intro || "Brief introduction will appear here..."}
                   </p>
 
                   <div className="pt-2 border-t border-cream-100 flex items-center justify-between text-[11px] text-charcoal-500">
-                    <span>{formData.chiefDeity || "प्रधान देव"}</span>
+                    <span>{formData.chiefDeity || "Chief Deity"}</span>
                     <span className="font-bold text-charcoal-800">
-                      {formData.shlokaCount || "श्लोक संख्या"}
+                      {formData.shlokaCount || "Shloka Count"}
                     </span>
                   </div>
                 </div>
@@ -687,14 +685,14 @@ export const PuranaItihasaFormPage: React.FC = () => {
                   ) : (
                     <Save className="w-4 h-4" />
                   )}
-                  <span>{isEditing ? "परिवर्तन सहेजें (Update)" : "ग्रंथ जोड़ें (Save)"}</span>
+                  <span>{isEditing ? "Save Changes" : "Add Grantha"}</span>
                 </button>
 
                 <Link
                   to="/admin/purana-itihasa"
                   className="btn-secondary w-full text-center text-xs py-2"
                 >
-                  रद्द करें और वापस सूची पर जाएं
+                  Cancel &amp; Return to List
                 </Link>
               </div>
             </div>

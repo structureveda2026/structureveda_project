@@ -337,10 +337,19 @@ class LibraryBranchService {
         branchTableSynced = true;
       }
 
+      if (hasExplicitId) {
+        const existingById = await LibraryBranch.findByPk(id);
+        if (existingById) {
+          const conflictErr = new Error(`Branch with id '${id}' already exists`);
+          conflictErr.statusCode = 409;
+          throw conflictErr;
+        }
+      }
+
       const existingDb = await LibraryBranch.findOne({
         where: { categorySlug, slug: cleanSlug },
       });
-      if (existingDb && (!hasExplicitId || existingDb.id !== id)) {
+      if (existingDb) {
         const conflictErr = new Error(
           `Branch with slug '${cleanSlug}' already exists in '${categorySlug}'`
         );
@@ -386,11 +395,14 @@ class LibraryBranchService {
 
       console.warn("Database create failed for LibraryBranch, saving to memory store:", dbErr.message);
 
+      if (hasExplicitId && MEMORY_BRANCHES.some((b) => b.id === id)) {
+        const conflictErr = new Error(`Branch with id '${id}' already exists`);
+        conflictErr.statusCode = 409;
+        throw conflictErr;
+      }
+
       const memConflict = MEMORY_BRANCHES.find(
-        (b) =>
-          b.categorySlug === categorySlug &&
-          b.slug === cleanSlug &&
-          (!hasExplicitId || b.id !== id)
+        (b) => b.categorySlug === categorySlug && b.slug === cleanSlug
       );
       if (memConflict) {
         const conflictErr = new Error(
@@ -417,23 +429,21 @@ class LibraryBranchService {
         updatedAt: new Date().toISOString(),
       };
 
-      const existingIdx = hasExplicitId
-        ? MEMORY_BRANCHES.findIndex((b) => b.id === id)
-        : -1;
-      if (existingIdx !== -1) {
-        MEMORY_BRANCHES[existingIdx] = { ...MEMORY_BRANCHES[existingIdx], ...newBranch };
-        return MEMORY_BRANCHES[existingIdx];
-      } else {
-        MEMORY_BRANCHES.push(newBranch);
-        return newBranch;
-      }
+      MEMORY_BRANCHES.push(newBranch);
+      return newBranch;
     }
   }
 
   /**
    * Update existing branch
    */
-  async updateSubcategory(id, data, categorySlug) {
+  async updateSubcategory(id, data = {}, categorySlug) {
+    if (data.name !== undefined && (data.name === null || !String(data.name).trim())) {
+      const err = new Error("Branch name cannot be empty");
+      err.statusCode = 400;
+      throw err;
+    }
+
     const normalizedCat = categorySlug ? normalizeCategorySlug(categorySlug) : undefined;
     const {
       name,
@@ -563,7 +573,7 @@ class LibraryBranchService {
 
       MEMORY_BRANCHES[memIdx] = {
         ...existing,
-        ...(name && { name: String(name).trim() }),
+        ...(typeof name !== "undefined" && { name: String(name).trim() }),
         ...(typeof enName !== "undefined" && { enName: enName ? String(enName).trim() : null }),
         ...(cleanUpdatedSlug && { slug: cleanUpdatedSlug }),
         ...(typeof desc !== "undefined" && { desc: desc ? String(desc).trim() : null }),

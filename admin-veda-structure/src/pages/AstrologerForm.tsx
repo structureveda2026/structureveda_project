@@ -28,7 +28,6 @@ const SAMPLE_TIME_SLOTS = [
 import PageHeader from "@/components/PageHeader";
 import { useToast } from "@/context/ToastContext";
 import astrologerAdminService, {
-  AdminAstrologer,
   UpdateAstrologerInput,
   AstrologerPillar,
   AstrologerFaq,
@@ -138,8 +137,9 @@ export default function AstrologerForm() {
             setAddOnExpress(a.addOnPricing.addOnExpress ?? 400);
           }
         }
-      } catch (err: any) {
-        setError(err?.message || "Failed to load astrologer details.");
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Failed to load astrologer details.";
+        setError(msg || "Failed to load astrologer details.");
       } finally {
         setLoading(false);
       }
@@ -292,8 +292,9 @@ export default function AstrologerForm() {
         if (field === "secondary") setSecondaryImage(res.url);
         toast.success("Image uploaded successfully.");
       }
-    } catch (err: any) {
-      toast.error(err?.message || "Image upload failed.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Image upload failed.";
+      toast.error(msg || "Image upload failed.");
     } finally {
       setUploadingField(null);
     }
@@ -372,8 +373,9 @@ export default function AstrologerForm() {
           navigate("/admin/astrologers");
         }
       }
-    } catch (err: any) {
-      toast.error(err?.message || "Failed to save astrologer profile.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to save astrologer profile.";
+      toast.error(msg || "Failed to save astrologer profile.");
     } finally {
       setSubmitting(false);
     }
@@ -451,7 +453,11 @@ export default function AstrologerForm() {
           <button
             key={tab.key}
             type="button"
-            onClick={() => setActiveTab(tab.key as any)}
+            onClick={() =>
+              setActiveTab(
+                tab.key as "basic" | "media" | "bio" | "pillars" | "faqs" | "slots"
+              )
+            }
             className={`px-4 py-2.5 text-sm font-medium border-b-2 transition cursor-pointer whitespace-nowrap ${
               activeTab === tab.key
                 ? "border-saffron-500 text-saffron-700 font-semibold"
@@ -549,7 +555,7 @@ export default function AstrologerForm() {
 
             <div>
               <label className="block text-xs font-semibold text-charcoal-700 uppercase mb-1">
-                Holy Seat (पीठ)
+                Holy Seat (Peetham)
               </label>
               <input
                 type="text"

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Plus,
@@ -12,10 +12,6 @@ import {
   RefreshCw,
   Calendar,
   Globe,
-  FileText,
-  User,
-  ArrowUpRight,
-  Bookmark,
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import Pagination from "@/components/Pagination";
@@ -44,7 +40,7 @@ export default function BlogListPage() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const pageSize = 8;
 
   const [stats, setStats] = useState({
@@ -58,13 +54,16 @@ export default function BlogListPage() {
   const [blogToDelete, setBlogToDelete] = useState<BlogPost | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const fetchBlogs = async () => {
+  const getErrorMessage = (err: unknown, fallback: string): string =>
+    err instanceof Error && err.message ? err.message : fallback;
+
+  const fetchBlogs = useCallback(async () => {
     setIsLoading(true);
     try {
       const res = await blogService.getAdminBlogs({
         page: currentPage,
         limit: pageSize,
-        search: searchQuery,
+        search: debouncedSearch,
         category: selectedCategory,
         status: selectedStatus,
         postType: selectedPostType !== "All" ? selectedPostType : undefined,
@@ -74,15 +73,14 @@ export default function BlogListPage() {
 
       setBlogs(res?.blogs || []);
       setTotalPages(res?.pagination?.totalPages || 1);
-      setTotalCount(res?.pagination?.total || 0);
-    } catch (err: any) {
-      showError(err?.message || "Failed to load blog posts");
+    } catch (err: unknown) {
+      showError(getErrorMessage(err, "Failed to load blog posts"));
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentPage, pageSize, debouncedSearch, selectedCategory, selectedStatus, selectedPostType, sortBy, sortOrder, showError]);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const data = await blogService.getBlogStats();
       setStats({
@@ -94,23 +92,23 @@ export default function BlogListPage() {
     } catch (err) {
       console.warn("Could not fetch blog stats:", err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchBlogs();
-  }, [currentPage, selectedCategory, selectedStatus, selectedPostType, sortBy, sortOrder]);
+  }, [fetchBlogs]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
       setCurrentPage(1);
-      fetchBlogs();
     }, 300);
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
   useEffect(() => {
     fetchStats();
-  }, []);
+  }, [fetchStats]);
 
   const handleStatusToggle = async (blog: BlogPost) => {
     const newStatus: BlogStatus = blog.status === "Published" ? "Draft" : "Published";
@@ -119,8 +117,8 @@ export default function BlogListPage() {
       showSuccess(`Article status changed to ${newStatus}`);
       fetchBlogs();
       fetchStats();
-    } catch (err: any) {
-      showError(err?.message || "Failed to update article status");
+    } catch (err: unknown) {
+      showError(getErrorMessage(err, "Failed to update article status"));
     }
   };
 
@@ -129,8 +127,8 @@ export default function BlogListPage() {
       await blogService.toggleBlogFeatured(blog.id, !blog.isFeatured);
       showSuccess(blog.isFeatured ? "Removed from featured articles" : "Marked as featured article");
       fetchBlogs();
-    } catch (err: any) {
-      showError(err?.message || "Failed to toggle featured status");
+    } catch (err: unknown) {
+      showError(getErrorMessage(err, "Failed to toggle featured status"));
     }
   };
 
@@ -149,8 +147,8 @@ export default function BlogListPage() {
       setBlogToDelete(null);
       fetchBlogs();
       fetchStats();
-    } catch (err: any) {
-      showError(err?.message || "Failed to delete article");
+    } catch (err: unknown) {
+      showError(getErrorMessage(err, "Failed to delete article"));
     } finally {
       setIsDeleting(false);
     }
@@ -317,7 +315,7 @@ export default function BlogListPage() {
                           </span>
                           {blog.postType && blog.postType !== "article" && (
                             <span className="px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-amber-500 text-white shadow-2xs uppercase">
-                              {blog.postType === "mantra" ? "🕉️ मंत्र" : blog.postType === "sukta" ? "📜 सूक्त" : blog.postType}
+                              {blog.postType === "mantra" ? "Mantra" : blog.postType === "sukta" ? "Sukta" : blog.postType}
                             </span>
                           )}
                         </div>
@@ -541,7 +539,7 @@ export default function BlogListPage() {
                         </span>
                         {blog.postType && blog.postType !== "article" && (
                           <span className="inline-block px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
-                            {blog.postType === "mantra" ? "🕉️ मंत्र" : blog.postType === "sukta" ? "📜 सूक्त" : blog.postType}
+                            {blog.postType === "mantra" ? "Mantra" : blog.postType === "sukta" ? "Sukta" : blog.postType}
                           </span>
                         )}
                       </div>
@@ -672,6 +670,7 @@ export default function BlogListPage() {
         title="Delete Blog Article"
         message={`Are you sure you want to permanently delete "${blogToDelete?.title}"? This action cannot be undone.`}
         confirmText={isDeleting ? "Deleting..." : "Delete Permanently"}
+        cancelText="Cancel"
         type="danger"
       />
     </div>

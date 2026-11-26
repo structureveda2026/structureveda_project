@@ -593,6 +593,14 @@ class LibraryMantraStotraService {
       err.statusCode = 400;
       throw err;
     }
+    if (data.slug !== undefined) {
+      const cleanSlug = sanitizeSlug(data.slug || "");
+      if (data.slug === null || !cleanSlug) {
+        const err = new Error("Slug cannot be empty");
+        err.statusCode = 400;
+        throw err;
+      }
+    }
 
     const updateData = { ...data };
 
@@ -601,6 +609,9 @@ class LibraryMantraStotraService {
     }
     if (updateData.sanskrit !== undefined) {
       updateData.sanskrit = String(updateData.sanskrit).trim();
+    }
+    if (updateData.slug !== undefined) {
+      updateData.slug = sanitizeSlug(updateData.slug || "");
     }
     if (typeof updateData.type !== "undefined") {
       updateData.type = normalizeItemType(updateData.type) === "stotra" ? "stotra" : "mantra";
@@ -627,6 +638,13 @@ class LibraryMantraStotraService {
       data.branchSlug !== undefined &&
       data.branchSlug !== null &&
       String(data.branchSlug).trim() !== "";
+    const clearBranchRequested =
+      !hasBranchId &&
+      !hasBranchSlug &&
+      ((data.branchSlug !== undefined &&
+        (data.branchSlug === null || String(data.branchSlug).trim() === "")) ||
+        (data.branchId !== undefined &&
+          (data.branchId === null || String(data.branchId).trim() === "")));
 
     try {
       const item =
@@ -634,22 +652,32 @@ class LibraryMantraStotraService {
         (await LibraryMantraStotra.findOne({ where: { slug: idOrSlug } }));
 
       if (item) {
-        const targetCategorySlug = updateData.categorySlug || item.categorySlug;
-        if (updateData.slug && updateData.slug !== item.slug) {
-          const cleanSlug = sanitizeSlug(updateData.slug) || updateData.slug;
+        const dbUpdateData = { ...updateData };
+        if (
+          dbUpdateData.type !== undefined &&
+          data.categorySlug === undefined &&
+          dbUpdateData.type !== item.type &&
+          item.categorySlug === item.type
+        ) {
+          dbUpdateData.categorySlug = dbUpdateData.type;
+        }
+
+        const targetCategorySlug = dbUpdateData.categorySlug || item.categorySlug;
+        const targetSlug = dbUpdateData.slug || item.slug;
+
+        if (targetSlug !== item.slug || targetCategorySlug !== item.categorySlug) {
           const conflict = await LibraryMantraStotra.findOne({
             where: {
               categorySlug: targetCategorySlug,
-              slug: cleanSlug,
+              slug: targetSlug,
               id: { [Op.ne]: item.id },
             },
           });
           if (conflict) {
-            const err = new Error(`Slug '${cleanSlug}' already exists in '${targetCategorySlug}'`);
+            const err = new Error(`Slug '${targetSlug}' already exists in '${targetCategorySlug}'`);
             err.statusCode = 409;
             throw err;
           }
-          updateData.slug = cleanSlug;
         }
 
         if (hasBranchId && !hasBranchSlug) {
@@ -657,19 +685,19 @@ class LibraryMantraStotraService {
           const resolvedBranch = await this.resolveBranch({
             branchId: suppliedId,
             categorySlug: targetCategorySlug,
-            type: updateData.type || item.type,
+            type: dbUpdateData.type || item.type,
           });
-          updateData.branchId = suppliedId;
-          updateData.branchSlug = resolvedBranch ? resolvedBranch.slug : item.branchSlug;
+          dbUpdateData.branchId = suppliedId;
+          dbUpdateData.branchSlug = resolvedBranch ? resolvedBranch.slug : null;
         } else if (hasBranchSlug && !hasBranchId) {
           const suppliedSlug = String(data.branchSlug).trim();
           const resolvedBranch = await this.resolveBranch({
             branchSlug: suppliedSlug,
             categorySlug: targetCategorySlug,
-            type: updateData.type || item.type,
+            type: dbUpdateData.type || item.type,
           });
-          updateData.branchId = resolvedBranch ? resolvedBranch.id : null;
-          updateData.branchSlug = resolvedBranch ? resolvedBranch.slug : suppliedSlug;
+          dbUpdateData.branchId = resolvedBranch ? resolvedBranch.id : null;
+          dbUpdateData.branchSlug = resolvedBranch ? resolvedBranch.slug : suppliedSlug;
         } else if (hasBranchId && hasBranchSlug) {
           const suppliedId = String(data.branchId).trim();
           const suppliedSlug = String(data.branchSlug).trim();
@@ -677,13 +705,16 @@ class LibraryMantraStotraService {
             branchId: suppliedId,
             branchSlug: suppliedSlug,
             categorySlug: targetCategorySlug,
-            type: updateData.type || item.type,
+            type: dbUpdateData.type || item.type,
           });
-          updateData.branchId = resolvedBranch ? resolvedBranch.id : suppliedId;
-          updateData.branchSlug = resolvedBranch ? resolvedBranch.slug : suppliedSlug;
+          dbUpdateData.branchId = resolvedBranch ? resolvedBranch.id : suppliedId;
+          dbUpdateData.branchSlug = resolvedBranch ? resolvedBranch.slug : suppliedSlug;
+        } else if (clearBranchRequested) {
+          dbUpdateData.branchId = null;
+          dbUpdateData.branchSlug = null;
         }
 
-        await item.update(updateData);
+        await item.update(dbUpdateData);
         const plain = item.toJSON ? item.toJSON() : { ...item };
         const memIdx = MEMORY_ITEMS.findIndex((i) => i.id === item.id || i.slug === idOrSlug);
         if (memIdx !== -1) {
@@ -716,19 +747,28 @@ class LibraryMantraStotraService {
     }
 
     const current = MEMORY_ITEMS[memIdx];
-    const targetCategorySlug = updateData.categorySlug || current.categorySlug;
+    const memUpdateData = { ...updateData };
+    if (
+      memUpdateData.type !== undefined &&
+      data.categorySlug === undefined &&
+      memUpdateData.type !== current.type &&
+      current.categorySlug === current.type
+    ) {
+      memUpdateData.categorySlug = memUpdateData.type;
+    }
 
-    if (updateData.slug && updateData.slug !== current.slug) {
-      const cleanSlug = sanitizeSlug(updateData.slug) || updateData.slug;
+    const targetCategorySlug = memUpdateData.categorySlug || current.categorySlug;
+    const targetSlug = memUpdateData.slug || current.slug;
+
+    if (targetSlug !== current.slug || targetCategorySlug !== current.categorySlug) {
       const conflict = MEMORY_ITEMS.some(
-        (i) => i.id !== current.id && i.categorySlug === targetCategorySlug && i.slug === cleanSlug
+        (i) => i.id !== current.id && i.categorySlug === targetCategorySlug && i.slug === targetSlug
       );
       if (conflict) {
-        const err = new Error(`Slug '${cleanSlug}' already exists in '${targetCategorySlug}'`);
+        const err = new Error(`Slug '${targetSlug}' already exists in '${targetCategorySlug}'`);
         err.statusCode = 409;
         throw err;
       }
-      updateData.slug = cleanSlug;
     }
 
     if (hasBranchId && !hasBranchSlug) {
@@ -736,19 +776,19 @@ class LibraryMantraStotraService {
       const resolvedBranch = await this.resolveBranch({
         branchId: suppliedId,
         categorySlug: targetCategorySlug,
-        type: updateData.type || current.type,
+        type: memUpdateData.type || current.type,
       });
-      updateData.branchId = suppliedId;
-      updateData.branchSlug = resolvedBranch ? resolvedBranch.slug : current.branchSlug;
+      memUpdateData.branchId = suppliedId;
+      memUpdateData.branchSlug = resolvedBranch ? resolvedBranch.slug : null;
     } else if (hasBranchSlug && !hasBranchId) {
       const suppliedSlug = String(data.branchSlug).trim();
       const resolvedBranch = await this.resolveBranch({
         branchSlug: suppliedSlug,
         categorySlug: targetCategorySlug,
-        type: updateData.type || current.type,
+        type: memUpdateData.type || current.type,
       });
-      updateData.branchId = resolvedBranch ? resolvedBranch.id : null;
-      updateData.branchSlug = resolvedBranch ? resolvedBranch.slug : suppliedSlug;
+      memUpdateData.branchId = resolvedBranch ? resolvedBranch.id : null;
+      memUpdateData.branchSlug = resolvedBranch ? resolvedBranch.slug : suppliedSlug;
     } else if (hasBranchId && hasBranchSlug) {
       const suppliedId = String(data.branchId).trim();
       const suppliedSlug = String(data.branchSlug).trim();
@@ -756,15 +796,18 @@ class LibraryMantraStotraService {
         branchId: suppliedId,
         branchSlug: suppliedSlug,
         categorySlug: targetCategorySlug,
-        type: updateData.type || current.type,
+        type: memUpdateData.type || current.type,
       });
-      updateData.branchId = resolvedBranch ? resolvedBranch.id : suppliedId;
-      updateData.branchSlug = resolvedBranch ? resolvedBranch.slug : suppliedSlug;
+      memUpdateData.branchId = resolvedBranch ? resolvedBranch.id : suppliedId;
+      memUpdateData.branchSlug = resolvedBranch ? resolvedBranch.slug : suppliedSlug;
+    } else if (clearBranchRequested) {
+      memUpdateData.branchId = null;
+      memUpdateData.branchSlug = null;
     }
 
     MEMORY_ITEMS[memIdx] = {
       ...current,
-      ...updateData,
+      ...memUpdateData,
       updatedAt: new Date().toISOString(),
     };
     const [enriched] = await this.attachBranchRefs([MEMORY_ITEMS[memIdx]]);

@@ -10,7 +10,7 @@ export interface VedaQuickInfo {
   mandalCount?: string;
   suktaCount?: string;
   chiefRishis?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface VedaRishi {

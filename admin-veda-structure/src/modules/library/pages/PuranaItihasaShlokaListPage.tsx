@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
 import {
   Scroll,
   Plus,
   Search,
-  Filter,
   RefreshCw,
   Edit,
   Trash2,
@@ -16,28 +15,35 @@ import {
   Sparkles,
   Flame,
   ChevronRight,
-  BookMarked,
-  Layers,
   ArrowLeft,
   CheckCircle2,
   XCircle,
-  Eye,
   Languages,
 } from "lucide-react";
-import PageHeader from "@/components/PageHeader";
 import Pagination from "@/components/Pagination";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { useToast } from "@/context/ToastContext";
-import type { PuranaItihasaShloka } from "../types/puranaItihasa.types";
+import type {
+  PaginatedShlokasResponse,
+  PuranaItihasaShloka,
+} from "../types/puranaItihasa.types";
 import { PuranaItihasaAdminService } from "../services/puranaItihasa.service";
 import {
   GRANTHA_CATALOGUE,
   INITIAL_PURANA_ITIHASA_SHLOKAS,
 } from "../constants/puranaShloka.constants";
 
+function getErrorMessage(err: unknown, fallback: string): string {
+  if (err && typeof err === "object" && "message" in err) {
+    const msg = (err as { message?: unknown }).message;
+    if (typeof msg === "string" && msg.trim()) return msg;
+  }
+  return fallback;
+}
+
 export const PuranaItihasaShlokaListPage: React.FC = () => {
   const { id: routeGranthaId } = useParams<{ id: string }>();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { showToast } = useToast();
 
@@ -81,7 +87,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Fetch shlokas from API with authentic fallback
-  const fetchShlokas = async () => {
+  const fetchShlokas = useCallback(async () => {
     try {
       setLoading(true);
       const res = await PuranaItihasaAdminService.getShlokas(
@@ -101,8 +107,9 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
         fetchedList = res;
         totalCount = res.length;
       } else if (res && typeof res === "object") {
-        fetchedList = (res as any).shlokas || (res as any).data || [];
-        totalCount = (res as any).pagination?.total || fetchedList.length;
+        const paginated = res as PaginatedShlokasResponse;
+        fetchedList = paginated.shlokas || paginated.data || [];
+        totalCount = paginated.pagination?.total || fetchedList.length;
       }
 
       // If backend returns empty, provide authentic fallback data filtered accordingly
@@ -139,7 +146,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
 
       setShlokas(fetchedList);
       setTotal(totalCount);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.warn("API request fallback for Shlokas:", err);
       // Fallback on error
       let pool = [...INITIAL_PURANA_ITIHASA_SHLOKAS];
@@ -156,11 +163,11 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedGranthaId, search, statusFilter, page, limit]);
 
   useEffect(() => {
     fetchShlokas();
-  }, [selectedGranthaId, search, statusFilter, page]);
+  }, [fetchShlokas]);
 
   // Handle Grantha selector change
   const handleGranthaChange = (newGranthaId: string) => {
@@ -175,7 +182,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
   const handleCopy = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
-    showToast("श्लोक क्लिपबोर्ड पर कॉपी किया गया", "success");
+    showToast("Shloka copied to clipboard", "success");
     setTimeout(() => setCopiedId(null), 2000);
   };
 
@@ -185,12 +192,12 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
     try {
       setIsDeleting(true);
       await PuranaItihasaAdminService.deleteShloka(deleteTarget.id);
-      showToast("श्लोक सफलतापूर्वक हटाया गया", "success");
+      showToast("Shloka deleted successfully", "success");
       setShlokas((prev) => prev.filter((s) => s.id !== deleteTarget.id));
       setTotal((prev) => Math.max(0, prev - 1));
       setDeleteTarget(null);
-    } catch (err: any) {
-      showToast(err.message || "श्लोक हटाने में विफल", "error");
+    } catch (err: unknown) {
+      showToast(getErrorMessage(err, "Failed to delete shloka"), "error");
     } finally {
       setIsDeleting(false);
     }
@@ -215,6 +222,13 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
       ? `/admin/purana-itihasa/${selectedGranthaId}/shlokas/new`
       : "/admin/purana-itihasa/shlokas/new";
 
+  const resolveGranthaLabel = (shloka: PuranaItihasaShloka) => {
+    const found = GRANTHA_CATALOGUE.find(
+      (g) => g.id === shloka.vedaId || g.id === shloka.textId
+    );
+    return found?.enName || currentGrantha?.enName || shloka.vedaName || currentGrantha?.name;
+  };
+
   return (
     <div className="space-y-6">
       {/* 1. BREADCRUMBS */}
@@ -223,14 +237,14 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
           to="/admin/dashboard"
           className="hover:text-saffron-700 transition-colors"
         >
-          डैशबोर्ड
+          Dashboard
         </Link>
         <ChevronRight className="w-3.5 h-3.5 text-charcoal-400" />
         <Link
           to="/admin/purana-itihasa"
           className="hover:text-saffron-700 transition-colors"
         >
-          पुराण एवं इतिहास आर्काइव
+          Purana &amp; Itihasa Archive
         </Link>
         {currentGrantha && (
           <>
@@ -239,12 +253,12 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
               to={`/admin/purana-itihasa/${currentGrantha.id}/edit`}
               className="text-saffron-700 font-semibold hover:underline"
             >
-              {currentGrantha.name}
+              {currentGrantha.enName || currentGrantha.name}
             </Link>
           </>
         )}
         <ChevronRight className="w-3.5 h-3.5 text-charcoal-400" />
-        <span className="text-charcoal-900 font-bold">श्लोक प्रबन्धन</span>
+        <span className="text-charcoal-900 font-bold">Shloka Management</span>
       </nav>
 
       {/* 2. HEADER */}
@@ -253,31 +267,31 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
           <div className="flex items-center gap-2.5 flex-wrap">
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-saffron-600 text-white shadow-2xs">
               <Scroll className="w-3.5 h-3.5" />
-              <span>श्लोक एवं भावार्थ आर्काइव</span>
+              <span>Shloka &amp; Meaning Archive</span>
             </span>
             {currentGrantha && (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
                 <BookOpen className="w-3 h-3" />
-                <span>{currentGrantha.name}</span>
+                <span>{currentGrantha.enName || currentGrantha.name}</span>
               </span>
             )}
             <span className="text-xs font-bold text-charcoal-600 bg-white/80 px-2 py-0.5 rounded-md border border-cream-200">
-              कुल श्लोक: {total}
+              Total Shlokas: {total}
             </span>
           </div>
 
           <h1 className="text-xl md:text-2xl font-serif font-bold text-charcoal-900 flex items-center gap-2">
             <span>
               {currentGrantha
-                ? `${currentGrantha.name} — श्लोक प्रबन्धन`
-                : "पुराण एवं इतिहास श्लोक प्रबन्धन (Shloka Management)"}
+                ? `${currentGrantha.enName || currentGrantha.name} — Shloka Management`
+                : "Purana & Itihasa Shloka Management"}
             </span>
           </h1>
 
           <p className="text-xs text-charcoal-600 max-w-3xl leading-relaxed">
             {currentGrantha
-              ? `${currentGrantha.enName} के सभी प्रामाणिक श्लोक, पदच्छेद (Padapatha), त्रिभाषी भावार्थ (हिन्दी, English, हिंग्लिश) एवं शास्त्रीय संदर्भ का सम्पादन व प्रबन्धन करें।`
-              : "१८ महापुराण, १८ उपपुराण, वाल्मीकि रामायण, महाभारत एवं श्रीमद्भगवद्गीता के श्लोकों का सम्पूर्ण वैदिक संग्रह।"}
+              ? `Edit and manage authentic shlokas, Padapatha, 3-language meanings (Hindi, English, Hinglish), and shastric references for ${currentGrantha.enName}.`
+              : "Comprehensive Vedic collection of shlokas from 18 Mahapuranas, 18 Upapuranas, Valmiki Ramayana, Mahabharata, and Shrimad Bhagavad Gita."}
           </p>
         </div>
 
@@ -287,7 +301,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-cream-100 border border-cream-300 text-charcoal-700 text-xs font-bold transition-all shadow-2xs"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>ग्रंथ सूची पर लौटें</span>
+            <span>Back to Grantha List</span>
           </Link>
 
           <Link
@@ -295,7 +309,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-saffron-600 hover:bg-saffron-700 text-white text-xs font-bold transition-all shadow-xs"
           >
             <Plus className="w-4 h-4" />
-            <span>नया श्लोक जोड़ें (Add Shloka)</span>
+            <span>Add Shloka</span>
           </Link>
         </div>
       </div>
@@ -313,7 +327,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              placeholder="सस्कृत श्लोक, हिन्दी भावार्थ, English, हिंग्लिश या श्लोक संख्या खोजें..."
+              placeholder="Search Sanskrit shloka, Hindi meaning, English, Hinglish, or shloka number..."
               className="w-full pl-10 pr-4 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none placeholder:text-charcoal-400"
             />
           </div>
@@ -323,24 +337,24 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
             <select
               value={selectedGranthaId}
               onChange={(e) => handleGranthaChange(e.target.value)}
-              aria-label="ग्रंथ चुनें"
+              aria-label="Select Grantha"
               className="w-full px-3 py-2 rounded-xl text-xs font-medium border border-cream-300 focus:border-saffron-500 focus:outline-none bg-white text-charcoal-800"
             >
-              <option value="all">समस्त ग्रंथ (All Granthas)</option>
-              <optgroup label="अष्टादश महापुराण">
+              <option value="all">All Granthas</option>
+              <optgroup label="18 Mahapuranas">
                 {GRANTHA_CATALOGUE.filter((g) => g.category === "purana").map(
                   (g) => (
                     <option key={g.id} value={g.id}>
-                      {g.name} ({g.enName})
+                      {g.enName}
                     </option>
                   )
                 )}
               </optgroup>
-              <optgroup label="इतिहास एवं महाकाव्य">
+              <optgroup label="Itihasa & Epics">
                 {GRANTHA_CATALOGUE.filter((g) => g.category === "itihasa").map(
                   (g) => (
                     <option key={g.id} value={g.id}>
-                      {g.name} ({g.enName})
+                      {g.enName}
                     </option>
                   )
                 )}
@@ -353,10 +367,10 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
             <select
               value={sectionFilter}
               onChange={(e) => setSectionFilter(e.target.value)}
-              aria-label="खण्ड अथवा अध्याय चुनें"
+              aria-label="Select section or chapter"
               className="w-full px-3 py-2 rounded-xl text-xs font-medium border border-cream-300 focus:border-saffron-500 focus:outline-none bg-white text-charcoal-800"
             >
-              <option value="all">सभी खण्ड/अध्याय</option>
+              <option value="all">All Sections / Chapters</option>
               {currentGrantha?.sections?.map((sec, idx) => (
                 <option key={idx} value={sec}>
                   {sec}
@@ -373,12 +387,12 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
                 setStatusFilter(e.target.value);
                 setPage(1);
               }}
-              aria-label="स्थिति चुनें"
+              aria-label="Select status"
               className="w-full px-3 py-2 rounded-xl text-xs font-medium border border-cream-300 focus:border-saffron-500 focus:outline-none bg-white text-charcoal-800"
             >
-              <option value="ALL">सभी स्थिति</option>
-              <option value="ACTIVE">सक्रिय (Active)</option>
-              <option value="INACTIVE">निष्क्रिय (Inactive)</option>
+              <option value="ALL">All Statuses</option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
             </select>
           </div>
         </div>
@@ -388,7 +402,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <span className="text-charcoal-500 font-bold flex items-center gap-1">
               <Languages className="w-3.5 h-3.5 text-saffron-600" />
-              <span>भाषा प्रदर्शन:</span>
+              <span>Language Display:</span>
             </span>
             <div className="flex items-center gap-1 bg-cream-100/80 p-0.5 rounded-lg border border-cream-200">
               <button
@@ -400,7 +414,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
                     : "text-charcoal-600 hover:text-charcoal-900"
                 }`}
               >
-                तीनों भाषाएं (All 3)
+                All 3
               </button>
               <button
                 type="button"
@@ -411,7 +425,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
                     : "text-charcoal-600 hover:text-charcoal-900"
                 }`}
               >
-                हिन्दी भावार्थ
+                Hindi Meaning
               </button>
               <button
                 type="button"
@@ -433,7 +447,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
                     : "text-charcoal-600 hover:text-charcoal-900"
                 }`}
               >
-                हिंग्लिश
+                Hinglish
               </button>
             </div>
           </div>
@@ -443,10 +457,10 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
               type="button"
               onClick={fetchShlokas}
               className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-charcoal-600 hover:text-charcoal-900 hover:bg-cream-100 transition-colors"
-              title="रिफ्रेश करें"
+              title="Refresh"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-              <span>रिफ्रेश</span>
+              <span>Refresh</span>
             </button>
 
             {/* View Mode Switcher */}
@@ -459,7 +473,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
                     ? "bg-white text-saffron-600 shadow-2xs"
                     : "text-charcoal-400 hover:text-charcoal-600"
                 }`}
-                title="कार्ड दृश्य (Cards View)"
+                title="Cards View"
               >
                 <LayoutGrid className="w-4 h-4" />
               </button>
@@ -471,7 +485,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
                     ? "bg-white text-saffron-600 shadow-2xs"
                     : "text-charcoal-400 hover:text-charcoal-600"
                 }`}
-                title="तालिका दृश्य (Table View)"
+                title="Table View"
               >
                 <TableIcon className="w-4 h-4" />
               </button>
@@ -485,10 +499,10 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
         <div className="py-20 text-center bg-white rounded-2xl border border-cream-200">
           <RefreshCw className="w-8 h-8 text-saffron-500 animate-spin mx-auto mb-3" />
           <p className="text-sm font-bold text-charcoal-700">
-            श्लोक लोड हो रहे हैं...
+            Loading shlokas...
           </p>
           <p className="text-xs text-charcoal-400 mt-1">
-            कृपया प्रतीक्षा करें, प्रामाणिक श्लोक सूची तैयार हो रही है।
+            Please wait while the authentic shloka list is prepared.
           </p>
         </div>
       ) : displayShlokas.length === 0 ? (
@@ -496,11 +510,10 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
           <Scroll className="w-12 h-12 text-saffron-300 mx-auto" />
           <div>
             <h3 className="font-serif text-lg font-bold text-charcoal-800">
-              कोई श्लोक नहीं मिला
+              No shlokas found
             </h3>
             <p className="text-xs text-charcoal-500 mt-1 max-w-md mx-auto">
-              दिए गए फ़िल्टर या खोज के आधार पर कोई श्लोक उपलब्ध नहीं है। नया
-              श्लोक जोड़ने हेतु नीचे दिए गए बटन पर क्लिक करें।
+              No shlokas match the selected filters or search query. Click below to add a new shloka.
             </p>
           </div>
           <Link
@@ -508,7 +521,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-saffron-600 hover:bg-saffron-700 text-white text-xs font-bold transition-all shadow-xs"
           >
             <Plus className="w-4 h-4" />
-            <span>पहला श्लोक जोड़ें</span>
+            <span>Add First Shloka</span>
           </Link>
         </div>
       ) : viewMode === "cards" ? (
@@ -525,12 +538,12 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-mono text-xs font-bold text-saffron-700 bg-saffron-100/70 border border-saffron-200 px-2.5 py-0.5 rounded-md">
-                        {shloka.mantraNumber || shloka.sectionRef || "श्लोक"}
+                        {shloka.mantraNumber || shloka.sectionRef || "Shloka"}
                       </span>
                       {shloka.isFeatured && (
                         <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md border border-amber-300">
                           <Sparkles className="w-3 h-3 text-amber-600" />
-                          <span>विशेष (Featured)</span>
+                          <span>Featured</span>
                         </span>
                       )}
                       <span
@@ -543,19 +556,19 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
                         {shloka.status === "ACTIVE" ? (
                           <>
                             <CheckCircle2 className="w-3 h-3" />
-                            <span>सक्रिय</span>
+                            <span>Active</span>
                           </>
                         ) : (
                           <>
                             <XCircle className="w-3 h-3" />
-                            <span>निष्क्रिय</span>
+                            <span>Inactive</span>
                           </>
                         )}
                       </span>
                     </div>
 
                     <h3 className="font-serif text-sm font-bold text-charcoal-900 group-hover:text-saffron-800 transition-colors">
-                      {shloka.vedaName || currentGrantha?.name}
+                      {resolveGranthaLabel(shloka)}
                     </h3>
                     <p className="text-[11px] text-charcoal-500 font-medium">
                       {shloka.textName || shloka.sectionRef}
@@ -567,7 +580,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
                       type="button"
                       onClick={() => handleCopy(shloka.sanskrit, shloka.id)}
                       className="p-1.5 text-charcoal-400 hover:text-saffron-700 hover:bg-cream-100 rounded-lg transition-colors cursor-pointer"
-                      title="संस्कृत श्लोक कॉपी करें"
+                      title="Copy Sanskrit Shloka"
                     >
                       {copiedId === shloka.id ? (
                         <Check className="w-4 h-4 text-emerald-600" />
@@ -578,7 +591,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
                     <Link
                       to={`/admin/purana-itihasa/shlokas/${shloka.id}/edit`}
                       className="p-1.5 text-charcoal-400 hover:text-saffron-700 hover:bg-cream-100 rounded-lg transition-colors"
-                      title="संपादित करें"
+                      title="Edit"
                     >
                       <Edit className="w-4 h-4" />
                     </Link>
@@ -586,7 +599,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
                       type="button"
                       onClick={() => setDeleteTarget(shloka)}
                       className="p-1.5 text-charcoal-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                      title="हटाएं"
+                      title="Delete"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -597,22 +610,22 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
                 <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[11px]">
                   {shloka.rishi && (
                     <span className="bg-white px-2 py-0.5 rounded border border-cream-200 text-charcoal-600 font-medium">
-                      ऋषि: {shloka.rishi}
+                      Rishi: {shloka.rishi}
                     </span>
                   )}
                   {shloka.devata && (
                     <span className="bg-white px-2 py-0.5 rounded border border-cream-200 text-charcoal-600 font-medium">
-                      देवता: {shloka.devata}
+                      Deity: {shloka.devata}
                     </span>
                   )}
                   {shloka.chhanda && (
                     <span className="bg-white px-2 py-0.5 rounded border border-cream-200 text-charcoal-600 font-medium">
-                      छन्द: {shloka.chhanda}
+                      Meter: {shloka.chhanda}
                     </span>
                   )}
                   {shloka.padapatha && shloka.padapatha.length > 0 && (
                     <span className="bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded font-bold">
-                      पदच्छेद: {shloka.padapatha.length} पद
+                      Padapatha: {shloka.padapatha.length} padas
                     </span>
                   )}
                 </div>
@@ -632,7 +645,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
                     shloka.hindiTranslation && (
                       <div className="space-y-1">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-saffron-700">
-                          हिन्दी भावार्थ:
+                          Hindi Meaning:
                         </span>
                         <p className="text-charcoal-700 leading-relaxed font-devanagari line-clamp-3">
                           {shloka.hindiTranslation}
@@ -656,7 +669,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
                     shloka.hinglishTranslation && (
                       <div className="space-y-1 pt-1.5 border-t border-cream-100">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-orange-700">
-                          हिंग्लिश व्याख्या:
+                          Hinglish Explanation:
                         </span>
                         <p className="text-charcoal-600 leading-relaxed line-clamp-2">
                           {shloka.hinglishTranslation}
@@ -678,7 +691,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
               {/* Card Footer Actions */}
               <div className="px-4 py-3 bg-cream-50/70 border-t border-cream-100 flex items-center justify-between text-xs">
                 <span className="text-[11px] text-charcoal-400">
-                  क्रम: #{shloka.orderIndex || 1}
+                  Order: #{shloka.orderIndex || 1}
                 </span>
 
                 <div className="flex items-center gap-2">
@@ -687,14 +700,14 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
                     onClick={() => setDeleteTarget(shloka)}
                     className="text-charcoal-500 hover:text-red-600 font-bold text-[11px] transition-colors cursor-pointer"
                   >
-                    हटाएं
+                    Delete
                   </button>
                   <Link
                     to={`/admin/purana-itihasa/shlokas/${shloka.id}/edit`}
                     className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-saffron-600 hover:bg-saffron-700 text-white font-bold text-[11px] shadow-2xs transition-colors"
                   >
                     <Edit className="w-3 h-3" />
-                    <span>संपादित करें</span>
+                    <span>Edit</span>
                   </Link>
                 </div>
               </div>
@@ -708,13 +721,13 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
             <table className="w-full text-left text-xs text-charcoal-700">
               <thead className="bg-cream-100/70 border-b border-cream-200 text-charcoal-600 uppercase tracking-wider text-[11px] font-bold">
                 <tr>
-                  <th className="py-3 px-4 w-16">संख्या</th>
-                  <th className="py-3 px-4">ग्रंथ एवं संदर्भ</th>
-                  <th className="py-3 px-4 min-w-[280px]">मूल संस्कृत श्लोक</th>
-                  <th className="py-3 px-4 min-w-[260px]">त्रिभाषी भावार्थ</th>
-                  <th className="py-3 px-4">पदच्छेद</th>
-                  <th className="py-3 px-4">स्थिति</th>
-                  <th className="py-3 px-4 text-right">कार्य (Actions)</th>
+                  <th className="py-3 px-4 w-16">Ref #</th>
+                  <th className="py-3 px-4">Grantha &amp; Reference</th>
+                  <th className="py-3 px-4 min-w-[280px]">Original Sanskrit Shloka</th>
+                  <th className="py-3 px-4 min-w-[260px]">3-Language Meanings</th>
+                  <th className="py-3 px-4">Padapatha</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-cream-100">
@@ -729,13 +742,13 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
 
                     <td className="py-3 px-4 space-y-0.5">
                       <div className="font-bold text-charcoal-900">
-                        {shloka.vedaName || currentGrantha?.name}
+                        {resolveGranthaLabel(shloka)}
                       </div>
                       <div className="text-[11px] text-charcoal-500">
                         {shloka.textName}
                       </div>
                       <div className="flex items-center gap-1 text-[10px] text-charcoal-400">
-                        {shloka.rishi && <span>ऋषि: {shloka.rishi}</span>}
+                        {shloka.rishi && <span>Rishi: {shloka.rishi}</span>}
                         {shloka.chhanda && <span>• {shloka.chhanda}</span>}
                       </div>
                     </td>
@@ -760,7 +773,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
                     <td className="py-3 px-4">
                       {shloka.padapatha && shloka.padapatha.length > 0 ? (
                         <span className="inline-block px-2 py-0.5 rounded text-[11px] font-bold bg-amber-50 text-amber-900 border border-amber-200">
-                          {shloka.padapatha.length} पद
+                          {shloka.padapatha.length} padas
                         </span>
                       ) : (
                         <span className="text-charcoal-300 text-[11px]">-</span>
@@ -775,7 +788,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
                             : "bg-charcoal-100 text-charcoal-600"
                         }`}
                       >
-                        {shloka.status === "ACTIVE" ? "सक्रिय" : "निष्क्रिय"}
+                        {shloka.status === "ACTIVE" ? "Active" : "Inactive"}
                       </span>
                     </td>
 
@@ -785,7 +798,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
                           type="button"
                           onClick={() => handleCopy(shloka.sanskrit, shloka.id)}
                           className="p-1.5 text-charcoal-400 hover:text-saffron-700 hover:bg-cream-100 rounded-lg transition-colors cursor-pointer"
-                          title="कॉपी करें"
+                          title="Copy"
                         >
                           {copiedId === shloka.id ? (
                             <Check className="w-3.5 h-3.5 text-emerald-600" />
@@ -796,7 +809,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
                         <Link
                           to={`/admin/purana-itihasa/shlokas/${shloka.id}/edit`}
                           className="p-1.5 text-charcoal-400 hover:text-saffron-700 hover:bg-cream-100 rounded-lg transition-colors"
-                          title="संपादित करें"
+                          title="Edit"
                         >
                           <Edit className="w-3.5 h-3.5" />
                         </Link>
@@ -804,7 +817,7 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
                           type="button"
                           onClick={() => setDeleteTarget(shloka)}
                           className="p-1.5 text-charcoal-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                          title="हटाएं"
+                          title="Delete"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -832,10 +845,10 @@ export const PuranaItihasaShlokaListPage: React.FC = () => {
       {/* 6. CONFIRM DELETE DIALOG */}
       <ConfirmDialog
         isOpen={Boolean(deleteTarget)}
-        title="श्लोक हटाएं (Confirm Deletion)"
-        message={`क्या आप निश्चित हैं कि आप इस श्लोक (${deleteTarget?.mantraNumber || deleteTarget?.sectionRef || "श्लोक"}) को हटाना चाहते हैं? यह क्रिया अपरिवर्तनीय है।`}
-        confirmLabel={isDeleting ? "हटाया जा रहा है..." : "हाँ, श्लोक हटाएं"}
-        cancelLabel="रद्द करें"
+        title="Delete Shloka"
+        message={`Are you sure you want to delete this shloka (${deleteTarget?.mantraNumber || deleteTarget?.sectionRef || "Shloka"})? This action cannot be undone.`}
+        confirmLabel={isDeleting ? "Deleting..." : "Yes, Delete Shloka"}
+        cancelLabel="Cancel"
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeleteTarget(null)}
       />

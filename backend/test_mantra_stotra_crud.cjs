@@ -355,6 +355,87 @@ async function runTests() {
     }
   });
 
+  await test('POST branch with explicit existing id returns 409 & preserves original branch', async () => {
+    const beforeRes = await request({
+      method: 'GET',
+      path: '/api/admin/library/categories/mantra/subcategories/shiva',
+      headers: authHeaders,
+    });
+    assert.strictEqual(beforeRes.status, 200);
+    const original = beforeRes.data.data.branch;
+    assert.strictEqual(original.id, 'branch-mantra-shiva');
+
+    const adminHijack = await request({
+      method: 'POST',
+      path: '/api/admin/library/categories/mantra/subcategories',
+      headers: authHeaders,
+      body: {
+        id: 'branch-mantra-shiva',
+        slug: 'hijacked-shiva-slug',
+        name: 'Hijacked Admin Branch',
+      },
+    });
+    assert.strictEqual(adminHijack.status, 409);
+    assert.strictEqual(adminHijack.data.success, false);
+
+    const publicHijack = await request({
+      method: 'POST',
+      path: '/api/library/categories/mantra/subcategories',
+      body: {
+        id: 'branch-mantra-shiva',
+        slug: 'hijacked-public-slug',
+        name: 'Hijacked Public Branch',
+      },
+    });
+    assert.strictEqual(publicHijack.status, 409);
+    assert.strictEqual(publicHijack.data.success, false);
+
+    const afterRes = await request({
+      method: 'GET',
+      path: '/api/admin/library/categories/mantra/subcategories/shiva',
+      headers: authHeaders,
+    });
+    assert.strictEqual(afterRes.status, 200);
+    assert.strictEqual(afterRes.data.data.branch.id, original.id);
+    assert.strictEqual(afterRes.data.data.branch.slug, original.slug);
+    assert.strictEqual(afterRes.data.data.branch.name, original.name);
+  });
+
+  await test('PUT branch with empty or whitespace name returns 400 & preserves name', async () => {
+    const beforeRes = await request({
+      method: 'GET',
+      path: '/api/admin/library/categories/mantra/subcategories/shiva',
+      headers: authHeaders,
+    });
+    assert.strictEqual(beforeRes.status, 200);
+    const originalName = beforeRes.data.data.branch.name;
+
+    const wsRes = await request({
+      method: 'PUT',
+      path: '/api/admin/library/categories/mantra/subcategories/branch-mantra-shiva',
+      headers: authHeaders,
+      body: { name: '   ' },
+    });
+    assert.strictEqual(wsRes.status, 400);
+    assert.strictEqual(wsRes.data.success, false);
+
+    const emptyRes = await request({
+      method: 'PUT',
+      path: '/api/admin/library/categories/mantra/subcategories/branch-mantra-shiva',
+      headers: authHeaders,
+      body: { name: '' },
+    });
+    assert.strictEqual(emptyRes.status, 400);
+
+    const afterRes = await request({
+      method: 'GET',
+      path: '/api/admin/library/categories/mantra/subcategories/shiva',
+      headers: authHeaders,
+    });
+    assert.strictEqual(afterRes.status, 200);
+    assert.strictEqual(afterRes.data.data.branch.name, originalName);
+  });
+
   await test('GET /api/library/categories/:categorySlug/subcategories/:slug returns { branch, items } & 404 on unknown', async () => {
     const mantraShiva = await request({
       method: 'GET',
@@ -652,6 +733,113 @@ async function runTests() {
     assert.strictEqual(verifyRes.status, 200);
     assert.strictEqual(verifyRes.data.data.title, 'Test Bilvashtakam Stotra');
     assert.ok(verifyRes.data.data.sanskrit.includes('त्रिदलं'));
+  });
+
+  await test('PUT /api/admin/library/mantra-stotras/:id rejects empty or whitespace slug (400)', async () => {
+    assert.ok(createdMantraId);
+    const emptySlugRes = await request({
+      method: 'PUT',
+      path: `/api/admin/library/mantra-stotras/${createdMantraId}`,
+      headers: authHeaders,
+      body: { slug: '' },
+    });
+    assert.strictEqual(emptySlugRes.status, 400);
+    assert.strictEqual(emptySlugRes.data.success, false);
+
+    const wsSlugRes = await request({
+      method: 'PUT',
+      path: `/api/admin/library/mantra-stotras/${createdMantraId}`,
+      headers: authHeaders,
+      body: { slug: '   ' },
+    });
+    assert.strictEqual(wsSlugRes.status, 400);
+    assert.strictEqual(wsSlugRes.data.success, false);
+
+    const nullSlugRes = await request({
+      method: 'PUT',
+      path: `/api/admin/library/mantra-stotras/${createdMantraId}`,
+      headers: authHeaders,
+      body: { slug: null },
+    });
+    assert.strictEqual(nullSlugRes.status, 400);
+
+    const verifyRes = await request({
+      method: 'GET',
+      path: `/api/admin/library/mantra-stotras/${createdMantraId}`,
+      headers: authHeaders,
+    });
+    assert.strictEqual(verifyRes.status, 200);
+    assert.strictEqual(verifyRes.data.data.slug, createdMantraSlug);
+  });
+
+  await test('PUT /api/admin/library/mantra-stotras/:id handles branchSlug: null, unknown branchId & type switch category sync', async () => {
+    const createRes = await request({
+      method: 'POST',
+      path: '/api/admin/library/mantra-stotras',
+      headers: authHeaders,
+      body: {
+        type: 'mantra',
+        branchSlug: 'shiva',
+        title: 'Temp Edge Sync Mantra',
+        slug: 'temp-edge-sync-mantra',
+        sanskrit: 'ॐ नमः शिवाय',
+      },
+    });
+    assert.strictEqual(createRes.status, 201);
+    const itemId = createRes.data.data.id;
+    assert.strictEqual(createRes.data.data.branchId, 'branch-mantra-shiva');
+
+    try {
+      // 1. branchSlug: null clears branchId and branchSlug
+      const clearRes = await request({
+        method: 'PUT',
+        path: `/api/admin/library/mantra-stotras/${itemId}`,
+        headers: authHeaders,
+        body: { branchSlug: null },
+      });
+      assert.strictEqual(clearRes.status, 200);
+      assert.strictEqual(clearRes.data.data.branchSlug, null);
+      assert.strictEqual(clearRes.data.data.branchId, null);
+      assert.strictEqual(clearRes.data.data.branch, null);
+
+      // 2. Re-attach shiva, then pass unknown branchId -> clears stale branchSlug to null
+      await request({
+        method: 'PUT',
+        path: `/api/admin/library/mantra-stotras/${itemId}`,
+        headers: authHeaders,
+        body: { branchSlug: 'shiva' },
+      });
+      const unknownBranchRes = await request({
+        method: 'PUT',
+        path: `/api/admin/library/mantra-stotras/${itemId}`,
+        headers: authHeaders,
+        body: { branchId: 'nonexistent-id' },
+      });
+      assert.strictEqual(unknownBranchRes.status, 200);
+      assert.strictEqual(unknownBranchRes.data.data.branchId, 'nonexistent-id');
+      assert.strictEqual(unknownBranchRes.data.data.branchSlug, null);
+      assert.strictEqual(unknownBranchRes.data.data.branch, null);
+
+      // 3. Switch type to stotra + branchSlug: vishnu -> syncs categorySlug & branchId to branch-stotra-vishnu
+      const typeSwitchRes = await request({
+        method: 'PUT',
+        path: `/api/admin/library/mantra-stotras/${itemId}`,
+        headers: authHeaders,
+        body: { type: 'stotra', branchSlug: 'vishnu' },
+      });
+      assert.strictEqual(typeSwitchRes.status, 200);
+      assert.strictEqual(typeSwitchRes.data.data.type, 'stotra');
+      assert.strictEqual(typeSwitchRes.data.data.categorySlug, 'stotra');
+      assert.strictEqual(typeSwitchRes.data.data.branchSlug, 'vishnu');
+      assert.strictEqual(typeSwitchRes.data.data.branchId, 'branch-stotra-vishnu');
+      assert.ok(typeSwitchRes.data.data.branch && typeSwitchRes.data.data.branch.id === 'branch-stotra-vishnu');
+    } finally {
+      await request({
+        method: 'DELETE',
+        path: `/api/admin/library/mantra-stotras/${itemId}`,
+        headers: authHeaders,
+      });
+    }
   });
 
   await test('POST /api/admin/library/mantra-stotras/seed seeds idempotently (200)', async () => {
