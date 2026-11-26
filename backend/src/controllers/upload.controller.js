@@ -17,6 +17,11 @@ export const uploadImagesHandler = async (req, res) => {
     }
 
     const folder = req.body.folder || req.query.folder || "veda-structure/uploads";
+    const envPublicUrl = process.env.API_PUBLIC_URL ? process.env.API_PUBLIC_URL.replace(/\/+$/, "") : "";
+    const host = req.get("host");
+    const reqOrigin = host ? `${req.protocol}://${host}` : "";
+    const baseUrl = envPublicUrl || reqOrigin;
+
     const isExplicitMultiple =
       req.query.type === "multiple" ||
       req.body.type === "multiple" ||
@@ -26,7 +31,7 @@ export const uploadImagesHandler = async (req, res) => {
     // Upload files sequentially to preserve user-selected order
     const uploadedImages = [];
     for (const file of rawFiles) {
-      const result = await storageService.uploadImage(file, { folder });
+      const result = await storageService.uploadImage(file, { folder, baseUrl });
       uploadedImages.push(result);
     }
 

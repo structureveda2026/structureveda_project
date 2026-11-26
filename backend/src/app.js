@@ -1,5 +1,15 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const uploadsDir = path.resolve(__dirname, "../uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 import authRoutes from "./routes/auth.routes.js";
 import consultationRoutes from "./routes/consultation.routes.js";
@@ -50,6 +60,8 @@ import {
   upanishadDarshanPublicRoutes,
   libraryBranchAdminRoutes,
   libraryBranchPublicRoutes,
+  libraryMantraStotraAdminRoutes,
+  libraryMantraStotraPublicRoutes,
 } from "./modules/library/index.js";
 
 const app = express();
@@ -69,6 +81,17 @@ app.use(
   }),
 );
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+
+// Static uploads serving with Cross-Origin-Resource-Policy
+app.use(
+  "/uploads",
+  (req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    next();
+  },
+  express.static(uploadsDir)
+);
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({
@@ -128,6 +151,10 @@ app.use("/api/admin/library/categories", libraryBranchAdminRoutes);
 app.use("/api/admin/library", libraryBranchAdminRoutes);
 app.use("/api/library/categories", libraryBranchPublicRoutes);
 app.use("/api/library", libraryBranchPublicRoutes);
+
+// Mantra & Stotra Endpoints
+app.use("/api/admin/library/mantra-stotras", libraryMantraStotraAdminRoutes);
+app.use("/api/library/mantra-stotras", libraryMantraStotraPublicRoutes);
 
 // Veda, Mantra & Grantha Library Endpoints
 app.use("/api/admin/library/vedas", vedaAdminRoutes);

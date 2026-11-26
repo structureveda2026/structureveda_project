@@ -11,7 +11,11 @@
     "start": "node src/server.js",
     "migrate": "sequelize-cli db:migrate --config src/config/config.cjs --migrations-path migrations",
     "migration:status": "sequelize-cli db:migrate:status --config src/config/config.cjs --migrations-path migrations",
-    "migration:undo": "sequelize-cli db:migrate:undo --config src/config/config.cjs --migrations-path migrations"
+    "migration:undo": "sequelize-cli db:migrate:undo --config src/config/config.cjs --migrations-path migrations",
+    "seed:mantra-stotra": "node src/scripts/seedMantraStotra.js",
+    "test:mantra-blog": "node test_mantra_blog_crud.cjs",
+    "test:mantra-stotra": "node test_mantra_stotra_crud.cjs",
+    "test": "node test_mantra_blog_crud.cjs && node test_mantra_stotra_crud.cjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

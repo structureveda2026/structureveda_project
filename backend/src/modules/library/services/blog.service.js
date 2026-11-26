@@ -89,6 +89,7 @@ class BlogService {
       status,
       category,
       postType,
+      deity,
       tag,
       search,
       isFeatured,
@@ -130,6 +131,9 @@ class BlogService {
     }
     if (postType && postType !== "All") {
       where.postType = postType;
+    }
+    if (deity && deity !== "All" && String(deity).trim()) {
+      where.deity = { [Op.iLike]: `%${String(deity).trim()}%` };
     }
     if (typeof isFeatured !== "undefined" && isFeatured !== "") {
       where.isFeatured = isFeatured === "true" || isFeatured === true;
@@ -181,6 +185,10 @@ class BlogService {
       }
       if (postType && postType !== "All") {
         filtered = filtered.filter((b) => (b.postType || "article").toLowerCase() === postType.toLowerCase());
+      }
+      if (deity && deity !== "All" && String(deity).trim()) {
+        const d = String(deity).trim().toLowerCase();
+        filtered = filtered.filter((b) => b.deity && b.deity.toLowerCase().includes(d));
       }
       if (typeof isFeatured !== "undefined" && isFeatured !== "") {
         const featBool = isFeatured === "true" || isFeatured === true;

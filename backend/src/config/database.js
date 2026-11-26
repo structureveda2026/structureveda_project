@@ -26,7 +26,18 @@ export const connectDatabase = async () => {
     await sequelize.authenticate();
 
     console.log("Database connection has been established successfully.");
+    return true;
   } catch (error) {
+    const allowOffline =
+      process.env.ALLOW_DB_OFFLINE === "true" ||
+      (process.env.ALLOW_DB_OFFLINE !== "false" && process.env.NODE_ENV !== "production");
+    if (allowOffline) {
+      console.warn(
+        "⚠️ Unable to connect to the database (running in DB-offline in-memory fallback mode):",
+        error.message,
+      );
+      return false;
+    }
     console.error("Unable to connect to the database:", error.message);
     process.exit(1);
   }
