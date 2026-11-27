@@ -31,20 +31,6 @@ export const DEFAULT_LIBRARY_SECTIONS = [
     isPreset: true,
   },
   {
-    id: "section-sukti",
-    slug: "sukti",
-    name: "सूक्त",
-    enName: "Suktis",
-    label: "Suktis",
-    labelHi: "सूक्त",
-    path: "/suktis",
-    adminPath: "/admin/library/sukti-branches",
-    categorySlug: "mantra-stotra",
-    orderIndex: 3,
-    status: "ACTIVE",
-    isPreset: true,
-  },
-  {
     id: "section-puranas",
     slug: "puranas",
     name: "पुराण",
@@ -223,19 +209,30 @@ class LibrarySectionService {
 
   async deleteSection(idOrSlug) {
     await this.ensureSeeded();
-    try {
-      await LibrarySection.destroy({
-        where: {
-          [Op.or]: [{ id: idOrSlug }, { slug: idOrSlug }],
-          isPreset: false,
-        },
-      });
-    } catch (err) {
-      console.warn("DB delete failed for LibrarySection:", err.message);
+    const cleanId = String(idOrSlug || "").replace(/^section-/, "");
+    const where = {
+      [Op.or]: [
+        { id: idOrSlug },
+        { id: `section-${cleanId}` },
+        { slug: idOrSlug },
+        { slug: cleanId },
+      ],
+    };
+
+    // Do not claim success from the in-memory fallback. A section must be
+    // removed from the database or it will reappear on the next API request.
+    await LibrarySection.destroy({ where });
+    const stillExists = await LibrarySection.findOne({ where });
+    if (stillExists) {
+      throw new Error("Library section still exists after delete; database change was not persisted.");
     }
 
     MEMORY_SECTIONS = MEMORY_SECTIONS.filter(
-      (s) => s.id !== idOrSlug && s.slug !== idOrSlug
+      (s) =>
+        s.id !== idOrSlug &&
+        s.id !== `section-${cleanId}` &&
+        s.slug !== idOrSlug &&
+        s.slug !== cleanId
     );
     return true;
   }
