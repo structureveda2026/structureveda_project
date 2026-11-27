@@ -1,0 +1,73 @@
+name: Deploy Veda Backend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - "scripts/deploy-backend.sh"
+      - ".github/workflows/deploy-backend.yml"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: veda-backend-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy Backend to Hostinger VPS
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate deployment files
+        run: |
+          test -f backend/package.json
+          test -f backend/package-lock.json
+          test -f scripts/deploy-backend.sh
+
+      - name: Configure SSH
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_PORT: ${{ secrets.VPS_SSH_PORT }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/veda_deploy
+          chmod 600 ~/.ssh/veda_deploy
+
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+          ssh-keygen -F "[$VPS_HOST]:$VPS_PORT" -f ~/.ssh/known_hosts
+
+      - name: Deploy backend to VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ secrets.VPS_SSH_PORT }}
+        run: |
+          set -euo pipefail
+
+          ssh \
+            -i ~/.ssh/veda_deploy \
+            -p "$VPS_PORT" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o ConnectTimeout=15 \
+            "$VPS_USER@$VPS_HOST" \
+            "bash /var/www/veda-structure/scripts/deploy-backend.sh"

@@ -16,6 +16,7 @@ import yagyaCatalogueService from "../../../services/yagyaCatalogueService";
 import japaCatalogueService from "../../../services/japaCatalogueService";
 import pathCatalogueService from "../../../services/pathCatalogueService";
 import homaCatalogueService from "../../../services/homaCatalogueService";
+import { SPECIAL_PUJA_CATEGORIES } from "../data/specialPujaData";
 import vedaLogo from "../../../assets/images/brand/veda-logo.png";
 
 /**
@@ -89,6 +90,16 @@ const RITUAL_NAV_TABS = [
     categoryRoutePrefix: null,
     countLabel: "Ceremonies",
   },
+  {
+    id: "special-puja",
+    label: "Special Puja",
+    shortLabel: "Special Puja",
+    path: "/yagya-puja/special-puja",
+    viewAllLabel: "View All Special Pujas & Samskars",
+    heading: "SPECIAL PUJA & SAMSKARS",
+    categoryRoutePrefix: "/yagya-puja/special-puja/",
+    countLabel: "Categories",
+  },
 ];
 
 const YagyaPujaNavBar = () => {
@@ -153,6 +164,16 @@ const YagyaPujaNavBar = () => {
           name: s.name,
           slug: s.slug,
           path: `/yagya-puja/puja/${s.slug}`,
+        }));
+      }
+      case "special-puja": {
+        return SPECIAL_PUJA_CATEGORIES.map((cat) => ({
+          id: cat.id,
+          name: cat.name,
+          slug: cat.slug,
+          count: cat.count,
+          description: cat.tagline,
+          path: cat.path,
         }));
       }
       default:
@@ -427,7 +448,7 @@ const YagyaPujaNavBar = () => {
                 <Menu size={15} />
                 <span>Categories</span>
                 <span className="rounded-full bg-[#ebdcc2]/60 px-1.5 py-0.2 text-[10px]">
-                  6
+                  {RITUAL_NAV_TABS.length}
                 </span>
               </>
             )}
