@@ -7,6 +7,10 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronUp,
+  Mic,
+  MicOff,
+  Bold,
+  Italic,
   Image as ImageIcon,
   Layers,
   Loader2,
@@ -86,41 +90,30 @@ export default function MantraStotraUploadWizardPage() {
 
   const isEditMode = Boolean(editId);
 
-  const rawTypeParam = searchParams.get("type") || routeType;
-  const isTypeScoped =
-    isEditMode || rawTypeParam === "mantra" || rawTypeParam === "stotra";
-  const initialTypeParam: MantraStotraType =
-    rawTypeParam === "stotra" ? "stotra" : "mantra";
+  const rawTypeParam = (searchParams.get("type") || routeType || "").trim().toLowerCase();
+  const isTypeScoped = isEditMode || Boolean(rawTypeParam);
+  const initialTypeParam: string = rawTypeParam || "mantra";
   const initialBranchIdParam = searchParams.get("branchId") || "";
   const initialStepParam = searchParams.get("step") === "2" ? 2 : 1;
   const returnToParam = searchParams.get("returnTo") || "";
 
+  const formatTypeLabel = (type: string) => {
+    if (!type) return "Content";
+    if (type === "mantra") return "Mantra";
+    if (type === "stotra") return "Stotra";
+    if (type === "sukti") return "Sukti";
+    return type.charAt(0).toUpperCase() + type.slice(1);
+  };
+
   // Step & Context State
-  const [step, setStep] = useState<1 | 2>(isEditMode ? 2 : 1);
-  const [contentType, setContentType] =
-    useState<MantraStotraType>(initialTypeParam);
+  const [step, setStep] = useState<1 | 2>(2);
+  const [contentType, setContentType] = useState<string>(initialTypeParam);
   const [branches, setBranches] = useState<LibraryBranch[]>([]);
   const [branchesLoading, setBranchesLoading] = useState(true);
   const [selectedBranchId, setSelectedBranchId] =
     useState<string>(initialBranchIdParam);
   const [itemLoading, setItemLoading] = useState(isEditMode);
   const [isSaving, setIsSaving] = useState(false);
-
-  // Inline Create Branch State
-  const [showCreateBranch, setShowCreateBranch] = useState(false);
-  const [newBranchName, setNewBranchName] = useState("");
-  const [newBranchEnName, setNewBranchEnName] = useState("");
-  const [newBranchSlug, setNewBranchSlug] = useState("");
-  const [newBranchSlugEdited, setNewBranchSlugEdited] = useState(false);
-  const [newBranchDeity, setNewBranchDeity] = useState("");
-  const [newBranchDesc, setNewBranchDesc] = useState("");
-  const [newBranchImageKey, setNewBranchImageKey] = useState("");
-  const [newBranchStatus, setNewBranchStatus] = useState<"ACTIVE" | "INACTIVE">(
-    "ACTIVE"
-  );
-  const [branchImageUploading, setBranchImageUploading] = useState(false);
-  const [creatingBranch, setCreatingBranch] = useState(false);
-  const branchImageInputRef = useRef<HTMLInputElement>(null);
 
   // Step 2 Content Form State
   const [title, setTitle] = useState("");
@@ -153,6 +146,143 @@ export default function MantraStotraUploadWizardPage() {
     { category: "Spiritual", textHi: "", textEn: "" },
   ]);
   const [verses, setVerses] = useState<MantraStotraVerse[]>([]);
+  const sanskritEditorRef = useRef<HTMLDivElement>(null);
+  const isEditorFocusedRef = useRef(false);
+
+  const setEditorRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      sanskritEditorRef.current = node;
+      if (node && !isEditorFocusedRef.current) {
+        const formatted = (sanskrit || "")
+          .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
+          .replace(/\*(.*?)\*/g, "<i>$1</i>")
+          .replace(/\n/g, "<br>");
+        if (node.innerHTML !== formatted) {
+          node.innerHTML = formatted;
+        }
+      }
+    },
+    [sanskrit]
+  );
+
+  useEffect(() => {
+    if (sanskritEditorRef.current && !isEditorFocusedRef.current) {
+      const formatted = (sanskrit || "")
+        .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
+        .replace(/\*(.*?)\*/g, "<i>$1</i>")
+        .replace(/\n/g, "<br>");
+      if (sanskritEditorRef.current.innerHTML !== formatted) {
+        sanskritEditorRef.current.innerHTML = formatted;
+      }
+    }
+  }, [sanskrit, itemLoading]);
+
+  const applySanskritFormat = (format: "bold" | "italic" | "space" | "newline") => {
+    const editor = sanskritEditorRef.current;
+    if (!editor) return;
+    editor.focus();
+
+    if (format === "bold") {
+      document.execCommand("bold", false);
+    } else if (format === "italic") {
+      document.execCommand("italic", false);
+    } else if (format === "space") {
+      document.execCommand("insertText", false, " ");
+    } else if (format === "newline") {
+      document.execCommand("insertLineBreak");
+    }
+
+    setSanskrit(editor.innerHTML);
+  };
+
+  // Inline Create Branch State
+  const [showCreateBranch, setShowCreateBranch] = useState(false);
+  const [newBranchName, setNewBranchName] = useState("");
+  const [newBranchEnName, setNewBranchEnName] = useState("");
+  const [newBranchSlug, setNewBranchSlug] = useState("");
+  const [newBranchSlugEdited, setNewBranchSlugEdited] = useState(false);
+  const [newBranchDeity, setNewBranchDeity] = useState("");
+  const [newBranchDesc, setNewBranchDesc] = useState("");
+  const [newBranchImageKey, setNewBranchImageKey] = useState("");
+  const [newBranchStatus, setNewBranchStatus] = useState<"ACTIVE" | "INACTIVE">(
+    "ACTIVE"
+  );
+  const [branchImageUploading, setBranchImageUploading] = useState(false);
+  const [creatingBranch, setCreatingBranch] = useState(false);
+  const branchImageInputRef = useRef<HTMLInputElement>(null);
+
+  // Voice Speech-to-Text State & Handlers (Web Speech API)
+  const [isListeningSanskrit, setIsListeningSanskrit] = useState(false);
+  const [isListeningHindi, setIsListeningHindi] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  const startVoiceInput = (targetField: "sanskrit" | "hindi") => {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      showError("Voice speech-to-text is not supported in this browser. Please use Chrome or Edge.");
+      return;
+    }
+
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch (e) {}
+      recognitionRef.current = null;
+      setIsListeningSanskrit(false);
+      setIsListeningHindi(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = "hi-IN";
+      recognition.continuous = true;
+      recognition.interimResults = false;
+
+      if (targetField === "sanskrit") setIsListeningSanskrit(true);
+      else setIsListeningHindi(true);
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[event.results.length - 1][0].transcript;
+        if (targetField === "sanskrit") {
+          setSanskrit((prev) => (prev ? `${prev.trim()} ${transcript.trim()}` : transcript.trim()));
+        } else {
+          setHindiTranslation((prev) => (prev ? `${prev.trim()} ${transcript.trim()}` : transcript.trim()));
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.warn("Speech recognition error:", event.error);
+        setIsListeningSanskrit(false);
+        setIsListeningHindi(false);
+        recognitionRef.current = null;
+      };
+
+      recognition.onend = () => {
+        setIsListeningSanskrit(false);
+        setIsListeningHindi(false);
+        recognitionRef.current = null;
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err) {
+      console.error(err);
+      setIsListeningSanskrit(false);
+      setIsListeningHindi(false);
+      recognitionRef.current = null;
+    }
+  };
+
+  const stopVoiceInput = () => {
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch (e) {}
+      recognitionRef.current = null;
+    }
+    setIsListeningSanskrit(false);
+    setIsListeningHindi(false);
+  };
+
+
 
   // Collapsible Optional Sections
   const [showCanonSection, setShowCanonSection] = useState(false);
@@ -170,7 +300,7 @@ export default function MantraStotraUploadWizardPage() {
   }).toString()}`;
 
   const loadBranchesForType = useCallback(
-    async (typeToLoad: MantraStotraType) => {
+    async (typeToLoad: string) => {
       setBranchesLoading(true);
       try {
         const list = await libraryBranchService.getBranches(typeToLoad);
@@ -189,11 +319,11 @@ export default function MantraStotraUploadWizardPage() {
   // Sync contentType when route param or query param changes in create mode
   useEffect(() => {
     if (isEditMode) return;
-    const raw = searchParams.get("type") || routeType;
-    if (raw === "stotra" || raw === "mantra") {
+    const raw = (searchParams.get("type") || routeType || "").trim().toLowerCase();
+    if (raw && raw !== contentType) {
       setContentType(raw);
     }
-  }, [isEditMode, routeType, searchParams]);
+  }, [isEditMode, routeType, searchParams, contentType]);
 
   // Initial load for create mode or query-param quick upload
   useEffect(() => {
@@ -209,10 +339,11 @@ export default function MantraStotraUploadWizardPage() {
         if (matched) {
           setSelectedBranchId(matched.id);
           setDeity((prev) => prev || matched.deity || matched.enName || matched.name);
-          if (initialStepParam === 2) {
-            setStep(2);
-          }
+        } else if (loaded.length > 0 && !selectedBranchId) {
+          setSelectedBranchId(loaded[0].id);
+          setDeity((prev) => prev || loaded[0].deity || loaded[0].enName || loaded[0].name);
         }
+        setStep(2);
       }
     });
     return () => {
@@ -235,8 +366,7 @@ export default function MantraStotraUploadWizardPage() {
       .getItemById(editId)
       .then(async (item) => {
         if (!active) return;
-        const itemType: MantraStotraType =
-          item.type === "stotra" ? "stotra" : "mantra";
+        const itemType = (item.type || item.categorySlug || "mantra").toLowerCase();
         setContentType(itemType);
         await loadBranchesForType(itemType);
         if (!active) return;
@@ -251,7 +381,8 @@ export default function MantraStotraUploadWizardPage() {
         setDeity(item.deity || "");
         setDeityHi(item.deityHi || "");
         setSourceRef(item.sourceRef || "");
-        setSanskrit(item.sanskrit || "");
+        const loadedSanskrit = item.sanskrit || item.keyVerse?.sanskrit || "";
+        setSanskrit(loadedSanskrit);
         setTransliteration(item.transliteration || "");
         setHindiTranslation(item.hindiTranslation || "");
         setEnglishTranslation(item.englishTranslation || "");
@@ -309,7 +440,7 @@ export default function MantraStotraUploadWizardPage() {
     };
   }, [editId, loadBranchesForType, showError]);
 
-  const handleTypeSwitch = (nextType: MantraStotraType) => {
+  const handleTypeSwitch = (nextType: string) => {
     if (nextType === contentType) return;
     setContentType(nextType);
     setSelectedBranchId("");
@@ -368,8 +499,8 @@ export default function MantraStotraUploadWizardPage() {
         deity: newBranchDeity.trim() || newBranchName.trim(),
         desc: newBranchDesc.trim() || undefined,
         imageKey: newBranchImageKey.trim() || undefined,
-        stats: contentType === "stotra" ? "1+ Stotras" : "1+ Mantras",
-        badge: contentType === "stotra" ? "Stotra" : "Vedic Mantra",
+        stats: `1+ ${formatTypeLabel(contentType)}s`,
+        badge: formatTypeLabel(contentType),
         orderIndex: branches.length + 1,
         status: newBranchStatus,
       });
@@ -444,8 +575,7 @@ export default function MantraStotraUploadWizardPage() {
 
   const handleSaveContent = async (mode: "finish" | "another") => {
     if (!selectedBranch) {
-      showError("Please select or create a branch in Step 1 first.");
-      setStep(1);
+      showError("Please select a deity branch above.");
       return;
     }
     if (!title.trim()) {
@@ -481,8 +611,8 @@ export default function MantraStotraUploadWizardPage() {
     const hasVidhi = Object.values(vidhi).some((v) => Boolean(v?.trim()));
 
     const payload: Partial<LibraryMantraStotra> = {
-      type: contentType,
-      categorySlug: contentType,
+      type: contentType as MantraStotraType,
+      categorySlug: contentType as MantraStotraType,
       branchId: selectedBranch.id,
       branchSlug: selectedBranch.slug,
       deity:
@@ -524,23 +654,19 @@ export default function MantraStotraUploadWizardPage() {
       if (isEditMode && editId) {
         await libraryMantraStotraService.updateItem(editId, payload);
         showSuccess(
-          `${contentType === "stotra" ? "Stotra" : "Mantra"} updated successfully.`
+          `${formatTypeLabel(contentType)} updated successfully.`
         );
       } else {
         await libraryMantraStotraService.createItem(payload);
         showSuccess(
-          `${contentType === "stotra" ? "Stotra" : "Mantra"} published successfully.`
+          `${formatTypeLabel(contentType)} published successfully.`
         );
       }
 
       if (mode === "another" && !isEditMode) {
         resetStep2Fields();
       } else if (returnToParam === "branches") {
-        navigate(
-          contentType === "stotra"
-            ? "/admin/library/stotra-branches"
-            : "/admin/library/mantra-branches"
-        );
+        navigate(`/admin/library/${contentType}-branches`);
       } else {
         navigate(
           `/admin/library/mantra-stotra-items?type=${contentType}${
@@ -575,17 +701,15 @@ export default function MantraStotraUploadWizardPage() {
           to={
             isEditMode || returnToParam === "items"
               ? itemsReturnUrl
-              : contentType === "stotra"
-                ? "/admin/library/stotra-branches"
-                : "/admin/library/mantra-branches"
+              : `/admin/library/${contentType}-branches`
           }
           className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-charcoal-500 hover:text-charcoal-800 transition"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>
             {isEditMode || returnToParam === "items"
-              ? "Back to Mantra & Stotra Items"
-              : `Back to ${contentType === "stotra" ? "Stotra Branches" : "Mantra Branches"}`}
+              ? "Back to Items"
+              : `Back to ${formatTypeLabel(contentType)} Branches`}
           </span>
         </Link>
       </div>
@@ -593,512 +717,111 @@ export default function MantraStotraUploadWizardPage() {
       <PageHeader
         title={
           isEditMode
-            ? `Edit ${contentType === "stotra" ? "Stotra" : "Mantra"}`
-            : `Upload ${contentType === "stotra" ? "Stotra" : "Mantra"}`
+            ? `Edit ${formatTypeLabel(contentType)}`
+            : `Upload ${formatTypeLabel(contentType)}`
         }
         subtitle={
           isEditMode
             ? "Update the content details below."
-            : `Just 2 simple steps — pick the ${contentType === "stotra" ? "Stotra" : "Mantra"} branch, then type in the content. That's it!`
+            : "Enter the sacred text and details below to publish."
         }
       />
 
-      {/* 2-Step Stepper */}
-      <div className="bg-white rounded-2xl border border-cream-200 p-4 shadow-2xs">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={() => setStep(1)}
-            className={`flex items-center gap-3 p-3.5 rounded-xl border text-left transition ${
-              step === 1
-                ? "bg-saffron-50 border-saffron-500 shadow-2xs"
-                : "bg-cream-50/50 border-cream-200 hover:bg-cream-50"
-            }`}
-          >
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                step === 1
-                  ? "bg-saffron-600 text-white"
-                  : selectedBranch
-                    ? "bg-emerald-600 text-white"
-                    : "bg-cream-200 text-charcoal-600"
-              }`}
-            >
-              {selectedBranch && step === 2 ? (
-                <Check className="w-4 h-4" />
-              ) : (
-                "1"
-              )}
-            </div>
-            <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-saffron-700">
-                Step 1
-              </div>
-              <div className="text-sm font-bold text-charcoal-900">
-                Pick Category &amp; Branch
-              </div>
-              <div className="text-[11px] text-charcoal-500">
-                {selectedBranch
-                  ? `${contentType === "stotra" ? "Stotra" : "Mantra"} • ${selectedBranch.enName || selectedBranch.name}`
-                  : isTypeScoped
-                    ? `Choose a ${contentType === "stotra" ? "Stotra" : "Mantra"} branch.`
-                    : "Is it a Mantra or Stotra? Which deity is it for?"}
-              </div>
-            </div>
-          </button>
+      
 
-          <button
-            type="button"
-            disabled={!selectedBranch}
-            onClick={() => selectedBranch && setStep(2)}
-            className={`flex items-center gap-3 p-3.5 rounded-xl border text-left transition ${
-              step === 2
-                ? "bg-saffron-50 border-saffron-500 shadow-2xs"
-                : "bg-cream-50/50 border-cream-200 hover:bg-cream-50"
-            } disabled:opacity-50 disabled:cursor-not-allowed`}
-          >
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                step === 2
-                  ? "bg-saffron-600 text-white"
-                  : "bg-cream-200 text-charcoal-600"
-              }`}
-            >
-              2
-            </div>
-            <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-saffron-700">
-                Step 2
-              </div>
-              <div className="text-sm font-bold text-charcoal-900">
-                Enter Sacred Content
-              </div>
-              <div className="text-[11px] text-charcoal-500">
-                Type the Sanskrit text, Hindi/English meaning &amp; more
-              </div>
-            </div>
-          </button>
-        </div>
-      </div>
-
-      {/* STEP 1 */}
-      {step === 1 && (
-        <div className="space-y-6">
-          {!isTypeScoped && (
-          <>
-          {/* Type Selector */}
-          <div className="bg-white rounded-2xl border border-cream-200 p-6 space-y-4 shadow-2xs">
-            <div>
-              <h2 className="text-base font-bold text-charcoal-900">
-                {isTypeScoped
-                  ? `1. Uploading ${contentType === "stotra" ? "Stotra / Hymn" : "Mantra / Sukta"}`
-                  : "1. What type of content are you uploading?"}
-              </h2>
-              <p className="text-xs text-charcoal-500 mt-0.5">
-                {isTypeScoped
-                  ? contentType === "stotra"
-                    ? "Ashtakams, Sahasranamas, Chalisas, Kavachams, and devotional hymns."
-                    : "Beej mantras, Gayatri mantras, Vedic suktas, and Japa chants."
-                  : "Mantras are sacred chants (e.g. Gayatri, Beej). Stotras are devotional hymns (e.g. Chalisa, Ashtakam)."}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {(!isTypeScoped || contentType === "mantra") && (
-              <button
-                type="button"
-                onClick={() => handleTypeSwitch("mantra")}
-                className={`p-4 rounded-xl border-2 text-left transition flex items-start gap-3 ${
-                  contentType === "mantra"
-                    ? "border-saffron-600 bg-saffron-50/70"
-                    : "border-cream-200 hover:border-saffron-300 bg-white"
-                }`}
-              >
-                <div className="w-10 h-10 rounded-xl bg-saffron-100 text-saffron-700 flex items-center justify-center shrink-0">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-charcoal-900">
-                    Mantra / Sukta
-                  </div>
-                  <div className="text-xs text-charcoal-500 mt-0.5">
-                    Beej mantras, Gayatri mantras, Vedic suktas, and Japa chants.
-                  </div>
-                </div>
-              </button>
-              )}
-
-              {(!isTypeScoped || contentType === "stotra") && (
-              <button
-                type="button"
-                onClick={() => handleTypeSwitch("stotra")}
-                className={`p-4 rounded-xl border-2 text-left transition flex items-start gap-3 ${
-                  contentType === "stotra"
-                    ? "border-saffron-600 bg-saffron-50/70"
-                    : "border-cream-200 hover:border-saffron-300 bg-white"
-                }`}
-              >
-                <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-                  <Layers className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-charcoal-900">
-                    Stotra / Hymn
-                  </div>
-                  <div className="text-xs text-charcoal-500 mt-0.5">
-                    Ashtakams, Sahasranamas, Chalisas, Kavachams, and devotional hymns.
-                  </div>
-                </div>
-              </button>
-              )}
-            </div>
-          </div>
-          </>
-          )}
-
-          {/* Branch Selection + Inline Create */}
-          <div className="bg-white rounded-2xl border border-cream-200 p-6 space-y-4 shadow-2xs">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <h2 className="text-base font-bold text-charcoal-900">
-                  {isTypeScoped
-                    ? "1. Which deity or category does this belong to?"
-                    : "2. Which deity or category does this belong to?"}
-                </h2>
-                <p className="text-xs text-charcoal-500 mt-0.5">
-                  Choose an existing group (e.g. "Shiva Mantras") or create a new one with an image.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowCreateBranch((prev) => !prev)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold bg-saffron-50 text-saffron-700 border border-saffron-200 hover:bg-saffron-100 transition self-start"
-              >
-                {showCreateBranch ? (
-                  <>
-                    <X className="w-3.5 h-3.5" />
-                    <span>Cancel New Branch</span>
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Create New Branch</span>
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* Inline Create New Branch Panel */}
-            {showCreateBranch && (
-              <form
-                onSubmit={handleCreateInlineBranch}
-                className="p-5 rounded-2xl bg-cream-50/70 border border-saffron-200 space-y-4"
-              >
-                <h3 className="text-sm font-bold text-charcoal-900">
-                  Create New {contentType === "stotra" ? "Stotra" : "Mantra"} Branch
-                </h3>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-charcoal-800 mb-1">
-                      Group Name (English) <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={newBranchName}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setNewBranchName(val);
-                        if (!newBranchSlugEdited) {
-                          setNewBranchSlug(slugifyText(val));
-                        }
-                      }}
-                      placeholder="e.g. Shiva Stotras"
-                      className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-cream-200 bg-white focus:ring-1.5 focus:ring-saffron-500 focus:outline-hidden"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-charcoal-800 mb-1">
-                      English Display Title (optional)
-                    </label>
-                    <input
-                      type="text"
-                      value={newBranchEnName}
-                      onChange={(e) => setNewBranchEnName(e.target.value)}
-                      placeholder="e.g. Shiva Stotras & Ashtakams"
-                      className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-cream-200 bg-white focus:ring-1.5 focus:ring-saffron-500 focus:outline-hidden"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-charcoal-800 mb-1">
-                      Web Address <span className="font-normal text-charcoal-400">(auto-filled, don't worry)</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={newBranchSlug}
-                      onChange={(e) => {
-                        setNewBranchSlugEdited(true);
-                        setNewBranchSlug(slugifyText(e.target.value));
-                      }}
-                      placeholder="e.g. shiva"
-                      className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-cream-200 bg-white focus:ring-1.5 focus:ring-saffron-500 focus:outline-hidden"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-charcoal-800 mb-1">
-                      Deity / God Name
-                    </label>
-                    <input
-                      type="text"
-                      value={newBranchDeity}
-                      onChange={(e) => setNewBranchDeity(e.target.value)}
-                      placeholder="e.g. Shiva"
-                      className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-cream-200 bg-white focus:ring-1.5 focus:ring-saffron-500 focus:outline-hidden"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-charcoal-800 mb-1">
-                    Description
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={newBranchDesc}
-                    onChange={(e) => setNewBranchDesc(e.target.value)}
-                    placeholder="Short description of this deity branch..."
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-cream-200 bg-white focus:ring-1.5 focus:ring-saffron-500 focus:outline-hidden"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
-                  <div>
-                    <label className="block text-xs font-bold text-charcoal-800 mb-1">
-                      Deity Image Upload
-                    </label>
-                    <input
-                      type="file"
-                      ref={branchImageInputRef}
-                      onChange={handleBranchImageUpload}
-                      accept="image/jpeg,image/png,image/webp"
-                      className="hidden"
-                    />
-                    {isUploadedImageUrl(newBranchImageKey) ? (
-                      <div className="flex items-center gap-3 p-2 bg-white rounded-xl border border-cream-200">
-                        <img
-                          src={resolveMediaUrl(newBranchImageKey)}
-                          alt="New branch deity"
-                          className="w-12 h-12 rounded-lg object-cover border border-cream-200"
-                        />
-                        <div className="flex-1 min-w-0 text-[11px] font-mono text-charcoal-500 truncate">
-                          {newBranchImageKey}
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setNewBranchImageKey("")}
-                          className="p-1 text-charcoal-400 hover:text-red-600"
-                          title="Remove image"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => branchImageInputRef.current?.click()}
-                        disabled={branchImageUploading}
-                        className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border border-dashed border-saffron-300 bg-white text-xs font-semibold text-saffron-700 hover:bg-saffron-50/40 transition"
-                      >
-                        {branchImageUploading ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Uploading...</span>
-                          </>
-                        ) : (
-                          <>
-                            <UploadCloud className="w-4 h-4" />
-                            <span>Upload Deity Image (JPG/PNG/WEBP)</span>
-                          </>
-                        )}
-                      </button>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-charcoal-800 mb-1">
-                      Status
-                    </label>
-                    <select
-                      value={newBranchStatus}
-                      onChange={(e) =>
-                        setNewBranchStatus(
-                          e.target.value as "ACTIVE" | "INACTIVE"
-                        )
-                      }
-                      className="w-full px-3 py-2 text-xs font-semibold rounded-xl border border-cream-200 bg-white focus:ring-1.5 focus:ring-saffron-500 focus:outline-hidden"
-                    >
-                      <option value="ACTIVE">Active</option>
-                      <option value="INACTIVE">Inactive</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-2 pt-2">
-                  <button
-                    type="submit"
-                    disabled={creatingBranch || branchImageUploading}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-saffron-600 hover:bg-saffron-700 transition disabled:opacity-50"
-                  >
-                    {creatingBranch ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span>Creating...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Save Branch &amp; Continue</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {/* Existing Branch Cards */}
-            {branchesLoading ? (
-              <div className="py-10 text-center text-charcoal-500">
-                <Loader2 className="w-6 h-6 animate-spin text-saffron-500 mx-auto mb-2" />
-                <p className="text-xs font-medium">Loading deity branches...</p>
-              </div>
-            ) : branches.length === 0 ? (
-              <div className="py-10 text-center text-charcoal-500 border border-dashed border-cream-200 rounded-xl">
-                <p className="text-sm font-semibold">No branches available yet</p>
-                <p className="text-xs mt-1 text-charcoal-400">
-                  Click &quot;Create New Branch&quot; above to add the first{" "}
-                  {contentType} branch.
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {branches.map((branch) => {
-                  const isSelected =
-                    selectedBranch?.id === branch.id;
-                  const imgUrl = resolveMediaUrl(branch.imageKey);
-
-                  return (
-                    <button
-                      type="button"
-                      key={branch.id}
-                      onClick={() => handleSelectBranch(branch)}
-                      className={`p-3.5 rounded-xl border-2 text-left transition flex items-start gap-3 ${
-                        isSelected
-                          ? "border-saffron-600 bg-saffron-50/70 shadow-xs"
-                          : "border-cream-200 hover:border-saffron-300 bg-white"
-                      }`}
-                    >
-                      {imgUrl ? (
-                        <img
-                          src={imgUrl}
-                          alt={branch.enName || branch.name}
-                          className="w-11 h-11 rounded-lg object-cover border border-cream-200 shrink-0"
-                        />
-                      ) : (
-                        <div className="w-11 h-11 rounded-lg bg-saffron-100 text-saffron-700 flex items-center justify-center shrink-0">
-                          <ImageIcon className="w-5 h-5" />
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-1">
-                          <span className="text-sm font-bold text-charcoal-900 truncate">
-                            {branch.enName || branch.name}
-                          </span>
-                          {isSelected && (
-                            <CheckCircle2 className="w-4 h-4 text-saffron-600 shrink-0" />
-                          )}
-                        </div>
-                        <div className="text-[11px] text-charcoal-500 truncate mt-0.5">
-                          {branch.deity ? `Deity: ${branch.deity}` : branch.slug}
-                        </div>
-                        {branch.stats && (
-                          <div className="text-[10px] font-semibold text-saffron-700 mt-1">
-                            {branch.stats}
-                          </div>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Step 1 Footer */}
-            <div className="flex items-center justify-end pt-4 border-t border-cream-100">
-              <button
-                type="button"
-                disabled={!selectedBranch}
-                onClick={() => setStep(2)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-saffron-600 hover:bg-saffron-700 transition shadow-xs disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <span>Next: Add Content</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* STEP 2 */}
-      {step === 2 && (
-        <div className="space-y-6">
-          {/* Selected Branch Context Banner */}
-          <div className="bg-white rounded-2xl border border-saffron-200 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
-            <div className="flex items-center gap-3">
-              {selectedBranch && resolveMediaUrl(selectedBranch.imageKey) ? (
-                <img
-                  src={resolveMediaUrl(selectedBranch.imageKey)}
-                  alt={selectedBranch.enName || selectedBranch.name}
-                  className="w-11 h-11 rounded-xl object-cover border border-cream-200 shrink-0"
-                />
-              ) : (
-                <div className="w-11 h-11 rounded-xl bg-saffron-100 text-saffron-700 flex items-center justify-center shrink-0">
-                  <Layers className="w-5 h-5" />
-                </div>
-              )}
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-saffron-100 text-saffron-800">
-                    {contentType === "stotra" ? "Stotra" : "Mantra"}
-                  </span>
-                  <span className="text-sm font-bold text-charcoal-900">
-                    {selectedBranch?.enName ||
-                      selectedBranch?.name ||
-                      selectedBranchId}
-                  </span>
-                </div>
-                <p className="text-xs text-charcoal-500 mt-0.5">
-                  Deity: {deity || selectedBranch?.deity || "Not specified"} •
-                  Slug: {selectedBranch?.slug || "—"}
-                </p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setStep(1)}
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-saffron-700 bg-saffron-50 hover:bg-saffron-100 border border-saffron-200 transition self-start sm:self-auto"
-            >
-              Change Branch
-            </button>
-          </div>
-
+      {/* STEP 2 DIRECT FORM */}
+      <div className="space-y-6">
           {/* Core Identity & Sacred Text Card */}
           <div className="bg-white rounded-2xl border border-cream-200 p-6 space-y-5 shadow-2xs">
             <h2 className="text-base font-bold text-charcoal-900 border-b border-cream-100 pb-3">
               Core Information &amp; Sacred Text
             </h2>
 
+            {/* Branch Selection */}
+            <div className="p-4 rounded-xl bg-cream-50/70 border border-cream-200 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <label className="text-xs font-bold text-charcoal-800">
+                    {formatTypeLabel(contentType)} Branch <span className="text-red-500">*</span>
+                  </label>
+                  <p className="text-[11px] text-charcoal-500">
+                    Select the deity or section this {contentType} belongs to.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowCreateBranch((prev) => !prev)}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-saffron-700 hover:text-saffron-800"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>{showCreateBranch ? "Cancel New Branch" : "Add New Branch"}</span>
+                </button>
+              </div>
+
+              {showCreateBranch ? (
+                <div className="p-3 bg-white rounded-xl border border-saffron-200 space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="label-field">Branch Name *</label>
+                      <input
+                        type="text"
+                        value={newBranchName}
+                        onChange={(e) => {
+                          setNewBranchName(e.target.value);
+                          if (!newBranchSlugEdited) {
+                            setNewBranchSlug(slugifyText(e.target.value));
+                          }
+                        }}
+                        placeholder={`e.g. Shiva ${formatTypeLabel(contentType)}s`}
+                        className="input-field"
+                      />
+                    </div>
+                    <div>
+                      <label className="label-field">Deity Name</label>
+                      <input
+                        type="text"
+                        value={newBranchDeity}
+                        onChange={(e) => setNewBranchDeity(e.target.value)}
+                        placeholder="e.g. Shiva"
+                        className="input-field"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      disabled={creatingBranch}
+                      onClick={handleCreateInlineBranch}
+                      className="px-3 py-1.5 text-xs font-bold text-white bg-saffron-600 rounded-lg hover:bg-saffron-700 disabled:opacity-50"
+                    >
+                      {creatingBranch ? "Creating..." : "Save Branch"}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <select
+                  value={selectedBranchId}
+                  onChange={(e) => {
+                    const found = branches.find((b) => b.id === e.target.value || b.slug === e.target.value);
+                    if (found) {
+                      handleSelectBranch(found);
+                    } else {
+                      setSelectedBranchId(e.target.value);
+                    }
+                  }}
+                  className="input-field text-xs font-semibold"
+                >
+                  <option value="">-- Choose a Deity Branch --</option>
+                  {branches.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name} {b.enName ? `(${b.enName})` : ""} {b.deity ? `• ${b.deity}` : ""}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            {/* Title & Identity Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="label-field">
@@ -1115,7 +838,7 @@ export default function MantraStotraUploadWizardPage() {
                       setSlug(slugifyText(val));
                     }
                   }}
-                  placeholder="e.g. Shri Agni Gayatri Mantra"
+                  placeholder={`e.g. Shri Shiva ${formatTypeLabel(contentType)}`}
                   className="input-field"
                 />
               </div>
@@ -1134,9 +857,9 @@ export default function MantraStotraUploadWizardPage() {
               </div>
 
               <div>
-<label className="label-field">
-                    Web Address (auto-filled, don't worry) <span className="text-red-500">*</span>
-                  </label>
+                <label className="label-field">
+                  Web Address (Slug) <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   required
@@ -1145,18 +868,18 @@ export default function MantraStotraUploadWizardPage() {
                     setSlugEdited(true);
                     setSlug(slugifyText(e.target.value));
                   }}
-                  placeholder="e.g. shri-agni-gayatri-mantra"
+                  placeholder="e.g. shri-shiva-mantra"
                   className="input-field font-mono text-xs"
                 />
               </div>
 
               <div>
-                <label className="label-field">Where is this from? (optional)</label>
+                <label className="label-field">Where is this from? (Optional)</label>
                 <input
                   type="text"
                   value={sourceRef}
                   onChange={(e) => setSourceRef(e.target.value)}
-                  placeholder="e.g. Rigveda 1.1.1 / Shiva Purana / Traditional"
+                  placeholder="e.g. Rigveda 1.1.1 / Traditional"
                   className="input-field"
                 />
               </div>
@@ -1167,7 +890,7 @@ export default function MantraStotraUploadWizardPage() {
                   type="text"
                   value={subtitle}
                   onChange={(e) => setSubtitle(e.target.value)}
-                  placeholder="A brief one-liner about this mantra/stotra"
+                  placeholder="Essential essence or significance"
                   className="input-field"
                 />
               </div>
@@ -1178,7 +901,7 @@ export default function MantraStotraUploadWizardPage() {
                   type="text"
                   value={subtitleHi}
                   onChange={(e) => setSubtitleHi(e.target.value)}
-                  placeholder="Optional Hindi one-liner"
+                  placeholder="संक्षिप्त विवरण"
                   className="input-field"
                 />
               </div>
@@ -1189,7 +912,7 @@ export default function MantraStotraUploadWizardPage() {
                   type="text"
                   value={deity}
                   onChange={(e) => setDeity(e.target.value)}
-                  placeholder="e.g. Shiva, Vishnu, Devi, Ganesh"
+                  placeholder="e.g. Shiva, Vishnu, Devi"
                   className="input-field"
                 />
               </div>
@@ -1200,24 +923,108 @@ export default function MantraStotraUploadWizardPage() {
                   type="text"
                   value={deityHi}
                   onChange={(e) => setDeityHi(e.target.value)}
-                  placeholder="Optional Devanagari name (e.g. शिव)"
+                  placeholder="e.g. शिव, विष्णु"
                   className="input-field"
                 />
               </div>
             </div>
 
-            <div>
-              <label className="label-field">
-                Sanskrit Text (Devanagari) <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                rows={4}
-                required
-                value={sanskrit}
-                onChange={(e) => setSanskrit(e.target.value)}
-                placeholder="Paste the authentic Sanskrit mantra or stotra text in Devanagari..."
-                className="input-field font-devanagari text-base"
-              />
+            {/* Sacred Sanskrit Text Area with Pro WYSIWYG Formatting Toolbar */}
+            <div className="space-y-1.5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <label className="text-xs font-bold text-charcoal-800">
+                  Sanskrit Text (Devanagari) <span className="text-red-500">*</span>
+                </label>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  {/* Voice Typing Button (English) */}
+                  <button
+                    type="button"
+                    onClick={() => isListeningSanskrit ? stopVoiceInput() : startVoiceInput("sanskrit")}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition shadow-2xs ${
+                      isListeningSanskrit
+                        ? "bg-red-500 text-white animate-pulse"
+                        : "bg-saffron-50 text-saffron-700 hover:bg-saffron-100 border border-saffron-200"
+                    }`}
+                  >
+                    {isListeningSanskrit ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+                    <span>{isListeningSanskrit ? "Listening... (Stop)" : "Voice Typing"}</span>
+                  </button>
+
+                  {/* Formatting Toolbar: Bold, Italic, Line Break, Space */}
+                  <div className="inline-flex items-center p-0.5 rounded-lg bg-cream-50 border border-cream-200 text-charcoal-700">
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => applySanskritFormat("bold")}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 hover:bg-white hover:shadow-2xs rounded transition text-xs font-bold text-charcoal-800"
+                      title="Bold Selection (Ctrl+B)"
+                    >
+                      <Bold className="w-3.5 h-3.5" />
+                      <span>Bold</span>
+                    </button>
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => applySanskritFormat("italic")}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 hover:bg-white hover:shadow-2xs rounded transition text-xs font-semibold text-charcoal-700"
+                      title="Italic Selection (Ctrl+I)"
+                    >
+                      <Italic className="w-3.5 h-3.5" />
+                      <span>Italic</span>
+                    </button>
+                    <div className="w-px h-3.5 bg-cream-300 mx-1" />
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => applySanskritFormat("newline")}
+                      className="px-2 py-0.5 hover:bg-white hover:shadow-2xs rounded transition text-[11px] font-semibold text-charcoal-600"
+                      title="Insert Line Break"
+                    >
+                      Line Break
+                    </button>
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => applySanskritFormat("space")}
+                      className="px-2 py-0.5 hover:bg-white hover:shadow-2xs rounded transition text-[11px] font-semibold text-charcoal-600"
+                      title="Insert Space"
+                    >
+                      Space
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative">
+                {(!sanskrit || sanskrit === "<br>" || sanskrit.trim() === "") && (
+                  <span className="absolute top-3 left-4 text-charcoal-400 font-devanagari text-base pointer-events-none select-none">
+                    Type or paste sacred Sanskrit text in Devanagari (or use Voice Typing)...
+                  </span>
+                )}
+                <div
+                  ref={setEditorRef}
+                  contentEditable
+                  suppressContentEditableWarning
+                  onFocus={() => { isEditorFocusedRef.current = true; }}
+                  onBlur={() => {
+                    isEditorFocusedRef.current = false;
+                    if (sanskritEditorRef.current) {
+                      setSanskrit(sanskritEditorRef.current.innerHTML);
+                    }
+                  }}
+                  onInput={(e) => {
+                    setSanskrit(e.currentTarget.innerHTML);
+                  }}
+                  className="w-full min-h-[140px] px-4 py-3 rounded-xl border border-cream-200 bg-white focus:ring-2 focus:ring-saffron-500/20 focus:border-saffron-500 focus:outline-hidden font-devanagari text-base leading-relaxed tracking-wide shadow-2xs whitespace-pre-wrap outline-none"
+                />
+                <div className="flex items-center justify-between text-[11px] text-charcoal-400 px-1 pt-1 font-mono">
+                  <span>Pure Devanagari (Visual Formatting)</span>
+                  <span>
+                    {(sanskrit || "").replace(/<[^>]*>/g, "").trim().length} chars • {(sanskrit || "").replace(/<[^>]*>/g, "").trim() ? (sanskrit || "").replace(/<[^>]*>/g, "").trim().split(/\s+/).length : 0} words
+                  </span>
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1232,13 +1039,27 @@ export default function MantraStotraUploadWizardPage() {
                 />
               </div>
               <div>
-                <label className="label-field">Hindi Meaning</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="label-field mb-0">Hindi Meaning</label>
+                  <button
+                    type="button"
+                    onClick={() => isListeningHindi ? stopVoiceInput() : startVoiceInput("hindi")}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-bold transition ${
+                      isListeningHindi
+                        ? "bg-red-500 text-white animate-pulse"
+                        : "bg-saffron-50 text-saffron-700 hover:bg-saffron-100 border border-saffron-200"
+                    }`}
+                  >
+                    {isListeningHindi ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+                    <span>{isListeningHindi ? "Listening... (Stop)" : "Voice Typing"}</span>
+                  </button>
+                </div>
                 <textarea
                   rows={3}
                   value={hindiTranslation}
                   onChange={(e) => setHindiTranslation(e.target.value)}
                   placeholder="Hindi translation / arth..."
-                  className="input-field"
+                  className="input-field font-devanagari"
                 />
               </div>
             </div>
@@ -1252,119 +1073,6 @@ export default function MantraStotraUploadWizardPage() {
                 placeholder="Accessible Hinglish explanation..."
                 className="input-field"
               />
-            </div>
-          </div>
-
-          {/* Benefits Section */}
-          <div className="bg-white rounded-2xl border border-cream-200 p-6 space-y-4 shadow-2xs">
-            <div className="flex items-center justify-between border-b border-cream-100 pb-3">
-              <div>
-                <h2 className="text-base font-bold text-charcoal-900">
-                  Benefits &amp; Spiritual Significance
-                </h2>
-                <p className="text-xs text-charcoal-500">
-                  Add repeatable benefits with category, English text, and Hindi text.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() =>
-                  setBenefits((prev) => [
-                    ...prev,
-                    { category: "Spiritual", textHi: "", textEn: "" },
-                  ])
-                }
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-saffron-50 text-saffron-700 border border-saffron-200 hover:bg-saffron-100"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Add Benefit</span>
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              {benefits.map((benefit, index) => (
-                <div
-                  key={index}
-                  className="p-3.5 rounded-xl bg-cream-50/60 border border-cream-200 grid grid-cols-1 md:grid-cols-12 gap-3 items-start"
-                >
-                  <div className="md:col-span-3">
-                    <label className="block text-[11px] font-bold text-charcoal-700 mb-1">
-                      Category
-                    </label>
-                    <input
-                      type="text"
-                      value={benefit.category || ""}
-                      onChange={(e) =>
-                        setBenefits((prev) =>
-                          prev.map((item, idx) =>
-                            idx === index
-                              ? { ...item, category: e.target.value }
-                              : item
-                          )
-                        )
-                      }
-                      placeholder="e.g. Health, Peace"
-                      className="input-field text-xs"
-                    />
-                  </div>
-                  <div className="md:col-span-4">
-                    <label className="block text-[11px] font-bold text-charcoal-700 mb-1">
-                      Benefit (English)
-                    </label>
-                    <input
-                      type="text"
-                      value={benefit.textEn || ""}
-                      onChange={(e) =>
-                        setBenefits((prev) =>
-                          prev.map((item, idx) =>
-                            idx === index
-                              ? { ...item, textEn: e.target.value }
-                              : item
-                          )
-                        )
-                      }
-                      placeholder="Benefit in English"
-                      className="input-field text-xs"
-                    />
-                  </div>
-                  <div className="md:col-span-4">
-                    <label className="block text-[11px] font-bold text-charcoal-700 mb-1">
-                      Benefit (Hindi)
-                    </label>
-                    <input
-                      type="text"
-                      value={benefit.textHi || ""}
-                      onChange={(e) =>
-                        setBenefits((prev) =>
-                          prev.map((item, idx) =>
-                            idx === index
-                              ? { ...item, textHi: e.target.value }
-                              : item
-                          )
-                        )
-                      }
-                      placeholder="Benefit in Hindi"
-                      className="input-field text-xs"
-                    />
-                  </div>
-                  <div className="md:col-span-1 flex justify-end pt-5">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setBenefits((prev) =>
-                          prev.length > 1
-                            ? prev.filter((_, idx) => idx !== index)
-                            : [{ category: "Spiritual", textHi: "", textEn: "" }]
-                        )
-                      }
-                      className="p-2 text-charcoal-400 hover:text-red-600 rounded-lg hover:bg-red-50"
-                      title="Remove benefit"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
 
@@ -1470,252 +1178,6 @@ export default function MantraStotraUploadWizardPage() {
                 />
               </div>
             </div>
-          </div>
-
-          {/* Optional 6-Fold Canon Anga (Collapsible) */}
-          <div className="bg-white rounded-2xl border border-cream-200 overflow-hidden shadow-2xs">
-            <button
-              type="button"
-              onClick={() => setShowCanonSection((prev) => !prev)}
-              className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-cream-50/60 transition"
-            >
-              <div>
-                <h2 className="text-base font-bold text-charcoal-900">
-                  Optional 6-Fold Canon Anga (Shadanga)
-                </h2>
-                <p className="text-xs text-charcoal-500">
-                  Rishi, Chhandas, Devata, Beejam, Shakti, and Keelakam metadata.
-                </p>
-              </div>
-              {showCanonSection ? (
-                <ChevronUp className="w-5 h-5 text-charcoal-400" />
-              ) : (
-                <ChevronDown className="w-5 h-5 text-charcoal-400" />
-              )}
-            </button>
-
-            {showCanonSection && (
-              <div className="px-6 pb-6 pt-2 border-t border-cream-100 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="label-field">Rishi (Seer)</label>
-                  <input
-                    type="text"
-                    value={canonAnga.rishi || ""}
-                    onChange={(e) =>
-                      setCanonAnga((prev) => ({
-                        ...prev,
-                        rishi: e.target.value,
-                      }))
-                    }
-                    placeholder="e.g. Maharshi Vishwamitra"
-                    className="input-field text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="label-field">Chhandas (Meter)</label>
-                  <input
-                    type="text"
-                    value={canonAnga.chhandas || ""}
-                    onChange={(e) =>
-                      setCanonAnga((prev) => ({
-                        ...prev,
-                        chhandas: e.target.value,
-                      }))
-                    }
-                    placeholder="e.g. Anushtup / Gayatri"
-                    className="input-field text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="label-field">Devata (Presiding Deity)</label>
-                  <input
-                    type="text"
-                    value={canonAnga.devata || ""}
-                    onChange={(e) =>
-                      setCanonAnga((prev) => ({
-                        ...prev,
-                        devata: e.target.value,
-                      }))
-                    }
-                    placeholder="e.g. Lord Shiva"
-                    className="input-field text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="label-field">Beejam (Seed Syllable)</label>
-                  <input
-                    type="text"
-                    value={canonAnga.beejam || ""}
-                    onChange={(e) =>
-                      setCanonAnga((prev) => ({
-                        ...prev,
-                        beejam: e.target.value,
-                      }))
-                    }
-                    placeholder="e.g. Om / Hreem"
-                    className="input-field text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="label-field">Shakti (Power)</label>
-                  <input
-                    type="text"
-                    value={canonAnga.shakti || ""}
-                    onChange={(e) =>
-                      setCanonAnga((prev) => ({
-                        ...prev,
-                        shakti: e.target.value,
-                      }))
-                    }
-                    placeholder="e.g. Parvati / Swaha"
-                    className="input-field text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="label-field">Keelakam (Lock)</label>
-                  <input
-                    type="text"
-                    value={canonAnga.keelakam || ""}
-                    onChange={(e) =>
-                      setCanonAnga((prev) => ({
-                        ...prev,
-                        keelakam: e.target.value,
-                      }))
-                    }
-                    placeholder="e.g. Namah"
-                    className="input-field text-xs"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Optional Multi-Verse Editor (Collapsible) */}
-          <div className="bg-white rounded-2xl border border-cream-200 overflow-hidden shadow-2xs">
-            <button
-              type="button"
-              onClick={() => setShowVersesSection((prev) => !prev)}
-              className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-cream-50/60 transition"
-            >
-              <div>
-                <h2 className="text-base font-bold text-charcoal-900">
-                  Optional Multi-Verse Editor ({verses.length} verses)
-                </h2>
-                <p className="text-xs text-charcoal-500">
-                  Break long Stotras or Suktas into numbered verses with individual meanings.
-                </p>
-              </div>
-              {showVersesSection ? (
-                <ChevronUp className="w-5 h-5 text-charcoal-400" />
-              ) : (
-                <ChevronDown className="w-5 h-5 text-charcoal-400" />
-              )}
-            </button>
-
-            {showVersesSection && (
-              <div className="px-6 pb-6 pt-3 border-t border-cream-100 space-y-4">
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setVerses((prev) => [
-                        ...prev,
-                        {
-                          verseNo: prev.length + 1,
-                          sanskrit: "",
-                          meaningHi: "",
-                          meaningEn: "",
-                        },
-                      ])
-                    }
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-saffron-50 text-saffron-700 border border-saffron-200 hover:bg-saffron-100"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Add Verse</span>
-                  </button>
-                </div>
-
-                {verses.length === 0 ? (
-                  <p className="text-xs text-charcoal-400 text-center py-4">
-                    No verses added yet. Click &quot;Add Verse&quot; to enter verse-by-verse breakdown.
-                  </p>
-                ) : (
-                  verses.map((verse, idx) => (
-                    <div
-                      key={idx}
-                      className="p-4 rounded-xl bg-cream-50/60 border border-cream-200 space-y-3"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-saffron-700">
-                          Verse #{verse.verseNo || idx + 1}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setVerses((prev) =>
-                              prev
-                                .filter((_, i) => i !== idx)
-                                .map((v, n) => ({ ...v, verseNo: n + 1 }))
-                            )
-                          }
-                          className="p-1 text-charcoal-400 hover:text-red-600"
-                          title="Remove verse"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <textarea
-                          rows={2}
-                          value={verse.sanskrit}
-                          onChange={(e) =>
-                            setVerses((prev) =>
-                              prev.map((v, i) =>
-                                i === idx
-                                  ? { ...v, sanskrit: e.target.value }
-                                  : v
-                              )
-                            )
-                          }
-                          placeholder="Verse Sanskrit (Devanagari)"
-                          className="input-field text-xs font-devanagari md:col-span-2"
-                        />
-                        <textarea
-                          rows={2}
-                          value={verse.meaningEn || ""}
-                          onChange={(e) =>
-                            setVerses((prev) =>
-                              prev.map((v, i) =>
-                                i === idx
-                                  ? { ...v, meaningEn: e.target.value }
-                                  : v
-                              )
-                            )
-                          }
-                          placeholder="Verse English Meaning"
-                          className="input-field text-xs"
-                        />
-                        <textarea
-                          rows={2}
-                          value={verse.meaningHi || ""}
-                          onChange={(e) =>
-                            setVerses((prev) =>
-                              prev.map((v, i) =>
-                                i === idx
-                                  ? { ...v, meaningHi: e.target.value }
-                                  : v
-                              )
-                            )
-                          }
-                          placeholder="Verse Hindi Meaning"
-                          className="input-field text-xs"
-                        />
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
           </div>
 
           {/* Media, Metadata & Publishing */}
@@ -1849,11 +1311,11 @@ export default function MantraStotraUploadWizardPage() {
           <div className="bg-white rounded-2xl border border-cream-200 p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-2xs">
             <button
               type="button"
-              onClick={() => setStep(1)}
+              onClick={() => navigate(`/admin/library/${contentType}-branches`)}
               className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-charcoal-600 hover:bg-cream-100 border border-cream-200 transition"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Back to Step 1</span>
+              <span>Back to ${formatTypeLabel(contentType)} Branches</span>
             </button>
 
             <div className="flex flex-wrap items-center justify-end gap-2.5">
@@ -1887,7 +1349,6 @@ export default function MantraStotraUploadWizardPage() {
             </div>
           </div>
         </div>
-      )}
     </div>
   );
 }

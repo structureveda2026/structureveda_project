@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams, useLocation, useSearchParams } from "react-router-dom";
 import {
   Plus,
   Search,
@@ -25,12 +25,42 @@ import libraryBranchService, {
   getDefaultBranches,
 } from "../services/libraryBranch.service";
 
-type MantraStotraBranchesPageProps = { defaultCategory?: "mantra" | "stotra" };
+type MantraStotraBranchesPageProps = { defaultCategory?: string };
 
 export default function MantraStotraBranchesPage({ defaultCategory }: MantraStotraBranchesPageProps) {
   const { showSuccess, showError, showInfo } = useToast();
-  const categorySlug = defaultCategory || "mantra-stotra";
-  const categoryLabel = defaultCategory === "stotra" ? "Stotra" : "Mantra";
+  const params = useParams<{
+    categorySlug?: string;
+    category?: string;
+    "categorySlug-branches"?: string;
+  }>();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  // Determine categorySlug dynamically:
+  const rawParam =
+    searchParams.get("type") ||
+    params.category ||
+    params.categorySlug ||
+    params["categorySlug-branches"] ||
+    defaultCategory;
+
+  let categorySlug = "mantra";
+  if (rawParam) {
+    categorySlug = rawParam.replace(/-branches$/, "").trim().toLowerCase();
+  } else {
+    const match = location.pathname.match(/(?:library\/)?([a-zA-Z0-9_-]+)-branches/);
+    if (match && match[1]) {
+      categorySlug = match[1].toLowerCase();
+    } else if (defaultCategory) {
+      categorySlug = defaultCategory.toLowerCase();
+    }
+  }
+
+  const categoryLabel =
+    categorySlug === "mantra-stotra"
+      ? "Mantra & Stotra"
+      : categorySlug.charAt(0).toUpperCase() + categorySlug.slice(1);
 
   const [branches, setBranches] = useState<LibraryBranch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,8 +77,8 @@ export default function MantraStotraBranchesPage({ defaultCategory }: MantraStot
   const [enName, setEnName] = useState("");
   const [slug, setSlug] = useState("");
   const [desc, setDesc] = useState("");
-  const [stats, setStats] = useState("10+ Mantras & Stotras");
-  const [badge, setBadge] = useState("Mantras & Stotras");
+  const [stats, setStats] = useState(`10+ ${categoryLabel}s`);
+  const [badge, setBadge] = useState(`${categoryLabel}`);
   const [deity, setDeity] = useState("");
   const [imageKey, setImageKey] = useState("");
   const [orderIndex, setOrderIndex] = useState(1);
@@ -64,7 +94,7 @@ export default function MantraStotraBranchesPage({ defaultCategory }: MantraStot
       const data = await libraryBranchService.getBranches(categorySlug);
       setBranches(data);
     } catch (err: any) {
-      showError(err?.message || "Failed to load mantra branches");
+      showError(err?.message || `Failed to load ${categoryLabel.toLowerCase()} branches`);
       setBranches(getDefaultBranches(categorySlug));
     } finally {
       setIsLoading(false);
@@ -81,8 +111,8 @@ export default function MantraStotraBranchesPage({ defaultCategory }: MantraStot
     setEnName("");
     setSlug("");
     setDesc("");
-    setStats(defaultCategory === "stotra" ? "10+ Stotras" : "10+ Mantras");
-    setBadge(defaultCategory === "stotra" ? "Stotra" : "Vedic Mantra");
+    setStats(`10+ ${categoryLabel}s`);
+    setBadge(`${categoryLabel}`);
     setDeity("");
     setImageKey("");
     setOrderIndex(branches.length + 1);
@@ -97,9 +127,9 @@ export default function MantraStotraBranchesPage({ defaultCategory }: MantraStot
     setSlug(branch.slug);
     setDesc(branch.desc || "");
     setStats(
-      branch.stats || (defaultCategory === "stotra" ? "10+ Stotras" : "10+ Mantras")
+      branch.stats || `10+ ${categoryLabel}s`
     );
-    setBadge(branch.badge || (defaultCategory === "stotra" ? "Stotra" : "Vedic Mantra"));
+    setBadge(branch.badge || `${categoryLabel}`);
     setDeity(branch.deity || "");
     setImageKey(branch.imageKey || "");
     setOrderIndex(branch.orderIndex || 1);
@@ -121,7 +151,7 @@ export default function MantraStotraBranchesPage({ defaultCategory }: MantraStot
         enName: enName.trim() || undefined,
         slug: slug.trim() || name.trim().toLowerCase().replace(/\s+/g, "-"),
         desc: desc.trim() || undefined,
-        stats: stats.trim() || (defaultCategory === "stotra" ? "10+ Stotras" : "10+ Mantras"),
+        stats: stats.trim() || `10+ ${categoryLabel}s`,
         badge: badge.trim() || undefined,
         deity: deity.trim() || undefined,
         imageKey: imageKey.trim() || undefined,
@@ -196,7 +226,7 @@ export default function MantraStotraBranchesPage({ defaultCategory }: MantraStot
       (b.deity && b.deity.toLowerCase().includes(q));
 
     if (!matchesSearch) return false;
-
+
     return true;
   });
 
@@ -262,7 +292,7 @@ export default function MantraStotraBranchesPage({ defaultCategory }: MantraStot
             <div className="text-base sm:text-lg font-bold text-amber-700 leading-tight">
               120+
             </div>
-            <div className="text-[11px] text-charcoal-500 font-medium">Vedic Mantras & Stotras Collection</div>
+            <div className="text-[11px] text-charcoal-500 font-medium">Vedic ${categoryLabel}s Collection</div>
           </div>
         </div>
 
@@ -346,12 +376,12 @@ export default function MantraStotraBranchesPage({ defaultCategory }: MantraStot
               {/* Card Body */}
               <div className={`p-4 flex-1 space-y-2.5 ${viewMode === "list" ? "md:flex md:items-center md:justify-between md:gap-4 md:space-y-0" : ""}`}>
                 <p className="text-xs text-charcoal-600 leading-relaxed line-clamp-2">
-                  {branch.desc || "महामृत्युंजय, शिव तांडव, रुद्राष्टकम एवं पञ्चाक्षर मंत्र।"}
+                  {branch.desc || `Selected sacred ${categoryLabel.toLowerCase()}s and mantras.`}
                 </p>
 
                 <div className="flex flex-wrap items-center gap-1.5 pt-1">
                   <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200/70">
-                    {branch.stats || (defaultCategory === "stotra" ? "10+ Stotras" : "10+ Mantras")}
+                    {branch.stats || `10+ ${categoryLabel}s`}
                   </span>
                   {branch.badge && (
                     <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-cream-100 text-charcoal-700 border border-cream-200">
@@ -373,11 +403,11 @@ export default function MantraStotraBranchesPage({ defaultCategory }: MantraStot
               {/* Card Actions Footer */}
               <div className={`px-4 py-2.5 bg-cream-50/50 border-t border-cream-100 flex items-center justify-between ${viewMode === "list" ? "md:border-t-0 md:border-l md:flex-col md:items-stretch md:gap-2" : ""}`}>
                 <div className="flex items-center gap-3">
-                  <Link to={`/admin/library/mantra-stotra-items?type=${defaultCategory || (branch.categorySlug === "stotra" ? "stotra" : "mantra")}&branchId=${encodeURIComponent(branch.id)}&branchSlug=${encodeURIComponent(branch.slug)}`} className="inline-flex items-center gap-1 text-xs font-semibold text-saffron-700 hover:text-saffron-900 transition">
+                  <Link to={`/admin/library/mantra-stotra-items?type=${categorySlug}&branchId=${encodeURIComponent(branch.id)}&branchSlug=${encodeURIComponent(branch.slug)}`} className="inline-flex items-center gap-1 text-xs font-semibold text-saffron-700 hover:text-saffron-900 transition">
                     <BookOpen className="w-3.5 h-3.5" />
                     <span>Content ({branch.itemCount ?? 0})</span>
                   </Link>
-                  <Link to={`/admin/library/mantra-stotra-upload?type=${defaultCategory || (branch.categorySlug === "stotra" ? "stotra" : "mantra")}&branchId=${encodeURIComponent(branch.id)}`} className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-900 transition">
+                  <Link to={`/admin/library/mantra-stotra-upload?type=${categorySlug}&branchId=${encodeURIComponent(branch.id)}`} className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-900 transition">
                     <Plus className="w-3.5 h-3.5" />
                     <span>Add content</span>
                   </Link>
@@ -447,7 +477,7 @@ export default function MantraStotraBranchesPage({ defaultCategory }: MantraStot
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder={defaultCategory === "stotra" ? "e.g., Shiva Stotras" : "e.g., Shiva Mantras"}
+                  placeholder={`e.g., Shiva ${categoryLabel}s`}
                   className="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-cream-200 focus:ring-1.5 focus:ring-saffron-500 focus:outline-hidden"
                 />
               </div>
@@ -460,7 +490,7 @@ export default function MantraStotraBranchesPage({ defaultCategory }: MantraStot
                   type="text"
                   value={enName}
                   onChange={(e) => setEnName(e.target.value)}
-                  placeholder={defaultCategory === "stotra" ? "e.g., Shiva Stotras and Ashtakams" : "e.g., Shiva Mantras and Suktas"}
+                  placeholder={`e.g., Shiva ${categoryLabel}s and Invocations`}
                   className="w-full px-3 py-2 text-sm rounded-xl border border-cream-200 focus:ring-1.5 focus:ring-saffron-500 focus:outline-hidden"
                 />
               </div>
@@ -500,7 +530,7 @@ export default function MantraStotraBranchesPage({ defaultCategory }: MantraStot
                   rows={2}
                   value={desc}
                   onChange={(e) => setDesc(e.target.value)}
-                  placeholder={defaultCategory === "stotra" ? "e.g., Shiva Tandava Stotram, Rudrashtakam, and Lingashtakam" : "e.g., Mahamrityunjaya, Rudra Gayatri, and Panchakshara Mantra"}
+                  placeholder={`e.g., Famous ${categoryLabel}s and essential verses`}
                   className="w-full px-3 py-2 text-xs rounded-xl border border-cream-200 focus:ring-1.5 focus:ring-saffron-500 focus:outline-hidden"
                 />
               </div>
@@ -514,7 +544,7 @@ export default function MantraStotraBranchesPage({ defaultCategory }: MantraStot
                     type="text"
                     value={stats}
                     onChange={(e) => setStats(e.target.value)}
-                    placeholder={defaultCategory === "stotra" ? "e.g., 25+ Stotras" : "e.g., 25+ Mantras"}
+                    placeholder={`e.g., 25+ ${categoryLabel}s`}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-cream-200 focus:ring-1.5 focus:ring-saffron-500 focus:outline-hidden"
                   />
                 </div>
@@ -526,7 +556,7 @@ export default function MantraStotraBranchesPage({ defaultCategory }: MantraStot
                     type="text"
                     value={badge}
                     onChange={(e) => setBadge(e.target.value)}
-                    placeholder={defaultCategory === "stotra" ? "e.g., Stotra" : "e.g., Vedic Mantra"}
+                    placeholder={`e.g., ${categoryLabel}`}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-cream-200 focus:ring-1.5 focus:ring-saffron-500 focus:outline-hidden"
                   />
                 </div>

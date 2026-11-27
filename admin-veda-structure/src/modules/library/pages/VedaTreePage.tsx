@@ -270,7 +270,10 @@ export const VedaTreePage: React.FC = () => {
     const isDirectMatch = isNodeMatching(node);
     const typeConfig = getNodeTypeConfig(node.nodeType);
     const hasMantraShortcut = Boolean(
-      node.mantraId || node.nodeType === "SUKTA" || node.nodeType === "ADHYAYA"
+      node.mantraId ||
+        node.nodeType === "SUKTA" ||
+        node.nodeType === "ADHYAYA" ||
+        !node.children?.length
     );
 
     // Depth-aware card styling
@@ -354,11 +357,11 @@ export const VedaTreePage: React.FC = () => {
             {/* Quick View Mantras Shortcut Button */}
             {hasMantraShortcut && (
               <Link
-                to={`/admin/library/mantras?vedaId=${veda?.id || id}&nodeId=${node.id}${
+                to={`/admin/library/mantras?vedaId=${veda?.id || id}&nodeId=${node.id}&sectionRef=${encodeURIComponent(node.enName || node.name || typeConfig.label)}${
                   node.mantraId ? `&mantraId=${node.mantraId}` : ""
                 }`}
                 className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 text-[11px] font-semibold transition-all shadow-2xs hover:shadow-xs"
-                title="View and manage mantras in this sukta"
+                title="View and manage mantras linked to this section"
               >
                 <Scroll className="w-3 h-3 text-emerald-600" />
                 <span className="hidden sm:inline">Mantras</span>
@@ -475,6 +478,14 @@ export const VedaTreePage: React.FC = () => {
           >
             <Scroll className="w-3 h-3 text-saffron-600" />
             <span>Mantras List</span>
+          </Link>
+
+          <Link
+            to={`/admin/library/mantras/new?vedaId=${encodeURIComponent(veda?.id || id)}`}
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-2xs transition-colors"
+          >
+            <Plus className="w-3 h-3" />
+            <span>Add Mantra</span>
           </Link>
 
           <button

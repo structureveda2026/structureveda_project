@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
   Save,
@@ -18,9 +18,17 @@ import PadapathaEditor from "../components/PadapathaEditor";
 
 export const MantraFormPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { showToast } = useToast();
   const isEditing = Boolean(id);
+  const initialVedaId = searchParams.get("vedaId") || "rigveda";
+  const initialVedaDetails = {
+    rigveda: { name: "Rigveda", shakha: "Shakala Shakha", textName: "Rigveda Samhita" },
+    yajurveda: { name: "Yajurveda", shakha: "Madhyandina Vajasaneyi Shakha", textName: "Vajasaneyi Samhita (Shukla Yajurveda)" },
+    samaveda: { name: "Samaveda", shakha: "Kauthuma Shakha", textName: "Kauthuma Samaveda Samhita" },
+    atharvaveda: { name: "Atharvaveda", shakha: "Shaunaka Shakha", textName: "Shaunaka Atharvaveda Samhita" },
+  }[initialVedaId] || { name: initialVedaId, shakha: "", textName: "" };
 
   const [loading, setLoading] = useState(isEditing);
   const [saving, setSaving] = useState(false);
@@ -29,13 +37,13 @@ export const MantraFormPage: React.FC = () => {
   const [formData, setFormData] = useState<Partial<VedaMantra>>({
     id: "",
     slug: "",
-    vedaId: "rigveda",
-    nodeId: "",
-    vedaName: "Rigveda",
-    shakha: "Shakala Shakha",
-    textName: "Rigveda Samhita",
-    sectionRef: "Mandala 1, Sukta 1",
-    mantraNumber: "1.1.1",
+    vedaId: initialVedaId,
+    nodeId: searchParams.get("nodeId") || "",
+    vedaName: initialVedaDetails.name,
+    shakha: initialVedaDetails.shakha,
+    textName: initialVedaDetails.textName,
+    sectionRef: searchParams.get("sectionRef") || "",
+    mantraNumber: "",
     rishi: "",
     devata: "",
     chhanda: "Gayatri",
@@ -99,6 +107,8 @@ export const MantraFormPage: React.FC = () => {
     setFormData((prev) => ({
       ...prev,
       vedaId: vId,
+      nodeId: "",
+      sectionRef: "",
       vedaName: vName,
       shakha,
       textName,
@@ -136,7 +146,11 @@ export const MantraFormPage: React.FC = () => {
         await VedaMantraAdminService.createMantra(payload);
         showToast("New mantra added successfully", "success");
       }
-      navigate(`/admin/library/mantras`);
+      const destinationParams = new URLSearchParams();
+      if (formData.vedaId) destinationParams.set("vedaId", formData.vedaId);
+      if (formData.nodeId) destinationParams.set("nodeId", formData.nodeId);
+      if (formData.sectionRef) destinationParams.set("sectionRef", formData.sectionRef);
+      navigate(`/admin/library/mantras?${destinationParams.toString()}`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to save mantra";
       showToast(msg || "Failed to save mantra", "error");
@@ -303,16 +317,15 @@ export const MantraFormPage: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                    Section Ref (Mandala / Kanda / Sukta) *
+                    Section Reference (optional)
                   </label>
                   <input
                     type="text"
-                    required
                     value={formData.sectionRef || ""}
                     onChange={(e) =>
                       setFormData({ ...formData, sectionRef: e.target.value })
                     }
-                    placeholder="e.g. Mandala 1, Sukta 1 (Agni Sukta) or Chapter 16"
+                    placeholder="Use the selected tree section, or enter a reference"
                     className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none"
                   />
                 </div>
@@ -328,7 +341,7 @@ export const MantraFormPage: React.FC = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, mantraNumber: e.target.value })
                     }
-                    placeholder="e.g. 1.1.1 or 16.1"
+                    placeholder="Enter the numbering used by this Veda / Shakha"
                     className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-mono"
                   />
                 </div>

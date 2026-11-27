@@ -54,6 +54,7 @@ export const MantraListPage: React.FC = () => {
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [vedaFilter, setVedaFilter] = useState(searchParams.get("vedaId") || "all");
   const [nodeFilter, setNodeFilter] = useState(searchParams.get("nodeId") || "");
+  const [sectionRef] = useState(searchParams.get("sectionRef") || "");
   const [deleteTarget, setDeleteTarget] = useState<VedaMantra | null>(null);
   const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -67,9 +68,10 @@ export const MantraListPage: React.FC = () => {
       if (newPage > 1) params.page = String(newPage);
       if (newView !== "table") params.view = newView;
       if (nodeFilter) params.nodeId = nodeFilter;
+      if (sectionRef) params.sectionRef = sectionRef;
       setSearchParams(params, { replace: true });
     },
-    [nodeFilter, setSearchParams]
+    [nodeFilter, sectionRef, setSearchParams]
   );
 
   const fetchMantras = useCallback(async (searchOverride?: string) => {
@@ -184,7 +186,7 @@ export const MantraListPage: React.FC = () => {
             </button>
 
             <Link
-              to="/admin/library/mantras/new"
+              to={`/admin/library/mantras/new?vedaId=${encodeURIComponent(vedaFilter !== "all" ? vedaFilter : "rigveda")}${nodeFilter ? `&nodeId=${encodeURIComponent(nodeFilter)}` : ""}${sectionRef ? `&sectionRef=${encodeURIComponent(sectionRef)}` : ""}`}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-saffron-600 to-saffron-500 hover:from-saffron-700 hover:to-saffron-600 text-white text-xs font-bold shadow-2xs transition-all"
             >
               <Plus className="w-3 h-3" />
