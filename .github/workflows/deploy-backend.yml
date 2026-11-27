@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Validate deployment files
         run: |
@@ -53,7 +53,7 @@ jobs:
           chmod 600 ~/.ssh/known_hosts
 
           ssh-keygen -F "[$VPS_HOST]:$VPS_PORT" -f ~/.ssh/known_hosts
-
+      
       - name: Deploy backend to VPS
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
@@ -68,6 +68,8 @@ jobs:
             -o BatchMode=yes \
             -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -o HostKeyAlias="[$VPS_HOST]:$VPS_PORT" \
             -o ConnectTimeout=15 \
             "$VPS_USER@$VPS_HOST" \
             "bash /var/www/veda-structure/scripts/deploy-backend.sh"
