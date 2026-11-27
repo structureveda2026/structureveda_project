@@ -33,9 +33,22 @@ export const LibrarySectionService = {
     return res.data;
   },
 
-  async deleteSection(id: string): Promise<boolean> {
-    const res = await api.delete(`/admin/library/sections/${id}`);
-    return res.success;
+  async deleteSection(identifier: string): Promise<boolean> {
+    // Try deleting by slug first, then by ID
+    try {
+      const res = await api.delete(`/admin/library/sections/${identifier}`);
+      if (res.success) return true;
+    } catch (e) {
+      // fallback: try with section- prefix
+      try {
+        const res = await api.delete(`/admin/library/sections/section-${identifier}`);
+        if (res.success) return true;
+      } catch (e2) {
+        console.warn("Delete section failed for identifier:", identifier, e2);
+        throw e2;
+      }
+    }
+    throw new Error(`Failed to delete library section: ${identifier}`);
   },
 };
 

@@ -137,11 +137,6 @@ const DEFAULT_SCRIPTURE_ITEMS: LibrarySubItem[] = [
     path: "/admin/library/stotra-branches",
     aliases: ["/admin/stotra-branches"],
   },
-  {
-    label: "Sukti",
-    path: "/admin/library/sukti-branches",
-    aliases: ["/admin/sukti-branches"],
-  },
 ];
 
 /**
@@ -168,6 +163,7 @@ const PRESET_LIBRARY_SUGGESTIONS = [
 ];
 
 const CUSTOM_SECTIONS_STORAGE_KEY = "admin_custom_library_sections";
+const HIDDEN_DEFAULT_SECTIONS_KEY = "admin_hidden_default_library_sections";
 
 
 interface BookingSubItem {
@@ -246,35 +242,123 @@ export default function Sidebar({
     return [];
   });
 
-  // Sync custom sections from backend API on mount
+  // Hidden default sections (user preference to hide seeded sections like Sukti)
+  const [hiddenDefaultSections, setHiddenDefaultSections] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem(HIDDEN_DEFAULT_SECTIONS_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const savedItems = JSON.parse(localStorage.getItem(CUSTOM_SECTIONS_STORAGE_KEY) || "[]");
+          return new Set(
+            parsed.map((hiddenId: string) => {
+              const slug = String(hiddenId).replace(/^section-/, "").toLowerCase();
+              const matchingItem = Array.isArray(savedItems)
+                ? savedItems.find(
+                    (item: any) =>
+                      item.id === hiddenId ||
+                      item.id === `section-${slug}` ||
+                      String(item.path || "").split("/").pop()?.replace("-branches", "") === slug
+                  )
+                : null;
+              return matchingItem?.label || hiddenId;
+            })
+          );
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load hidden default sections", e);
+    }
+    return new Set();
+  });
+
+  // Preset/default sections from API (seeded sections that should be hidden instead of deleted)
+  const [presetSections, setPresetSections] = useState<Set<string>>(new Set());
+
+  // Persist hidden default sections
+  useEffect(() => {
+    try {
+      localStorage.setItem(HIDDEN_DEFAULT_SECTIONS_KEY, JSON.stringify([...hiddenDefaultSections]));
+    } catch (e) {
+      console.error("Failed to save hidden default sections", e);
+    }
+  }, [hiddenDefaultSections]);
+
+  // Older versions only hid Suktis in the admin sidebar. Complete that
+  // removal against the API so the public frontend stops receiving it too.
+  useEffect(() => {
+    if (!hiddenDefaultSections.has("Suktis")) return;
+
+    let active = true;
+    LibrarySectionService.deleteSection("sukti")
+      .then(() => {
+        if (!active) return;
+        setCustomLibraryItems((prev) =>
+          prev.filter(
+            (item) =>
+              item.id !== "section-sukti" &&
+              item.label.toLowerCase() !== "suktis" &&
+              !item.path.toLowerCase().includes("sukti")
+          )
+        );
+        setHiddenDefaultSections((prev) => {
+          const next = new Set(prev);
+          next.delete("Suktis");
+          next.delete("section-sukti");
+          return next;
+        });
+      })
+      .catch((error) => {
+        console.warn("Failed to complete the previous Sukti section removal:", error);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [hiddenDefaultSections]);
+
+  // Sync custom sections from backend API on mount - MERGE with localStorage defaults
   useEffect(() => {
     let active = true;
     LibrarySectionService.getSections().then((sections) => {
       if (!active || !Array.isArray(sections)) return;
+      
+      // Track preset/seeded sections (those with isPreset=true or slug in known presets)
+      const presetSlugs = new Set<string>();
+      sections.forEach((sec) => {
+        if (sec.isPreset || ["mantra", "stotra", "sukti", "puranas"].includes(sec.slug)) {
+          presetSlugs.add(sec.slug);
+        }
+      });
+      setPresetSections(presetSlugs);
+
       const apiCustom = sections
-        .filter((sec) => !sec.isPreset && sec.slug !== "mantra" && sec.slug !== "stotra" && sec.slug !== "sukti")
+        .filter((sec) => sec.slug !== "mantra" && sec.slug !== "stotra")
         .map((sec) => ({
           id: sec.id || `section-${sec.slug}`,
           label: sec.label || sec.name || sec.slug,
           path: sec.adminPath || `/admin/library/${sec.slug}-branches`,
           isCustom: true,
         }));
-      if (apiCustom.length > 0) {
-        setCustomLibraryItems((prev) => {
-          // Merge by id or path, preserving any locally created items
-          const map = new Map<string, LibrarySubItem>();
-          apiCustom.forEach((item) => map.set(item.path, item));
-          prev.forEach((item) => {
-            if (!map.has(item.path)) map.set(item.path, item);
-          });
-          return Array.from(map.values());
+      
+      // Merge API sections with existing localStorage sections (avoid duplicates)
+      // But don't re-add hidden default sections
+      setCustomLibraryItems((prev) => {
+        const merged = [...prev];
+        apiCustom.forEach((apiItem) => {
+          const exists = merged.some((m) => m.path === apiItem.path || m.id === apiItem.id);
+          const isHiddenDefault = hiddenDefaultSections.has(apiItem.label);
+          if (!exists && !isHiddenDefault) {
+            merged.push(apiItem);
+          }
         });
-      }
+        return merged;
+      });
     });
     return () => {
       active = false;
     };
-  }, []);
+  }, [hiddenDefaultSections]);
 
   // Persist custom sections to localStorage
   useEffect(() => {
@@ -357,6 +441,34 @@ export default function Sidebar({
     }
 
     const sectionId = `section-${slug}`;
+
+    // Check for duplicates in existing custom items
+    const existingCustom = customLibraryItems.find(
+      (item) => item.path === path || item.id === sectionId || item.label.toLowerCase() === name.toLowerCase()
+    );
+    if (existingCustom) {
+      setModalError(`Section "${name}" already exists in sidebar.`);
+      return;
+    }
+
+    // Check against default items
+    const existingDefault = DEFAULT_SCRIPTURE_ITEMS.find(
+      (item) => item.path === path || item.label.toLowerCase() === name.toLowerCase()
+    );
+    if (existingDefault) {
+      setModalError(`Section "${name}" already exists as a default section.`);
+      return;
+    }
+
+    // Check against article items
+    const existingArticle = ARTICLE_LIBRARY_ITEMS.find(
+      (item) => item.path === path || item.label.toLowerCase() === name.toLowerCase()
+    );
+    if (existingArticle) {
+      setModalError(`Section "${name}" already exists as an article section.`);
+      return;
+    }
+
     const newItem: LibrarySubItem = {
       id: sectionId,
       label: name,
@@ -364,10 +476,7 @@ export default function Sidebar({
       isCustom: true,
     };
 
-    setCustomLibraryItems((prev) => {
-      const filtered = prev.filter((item) => item.path !== path && item.id !== sectionId);
-      return [...filtered, newItem];
-    });
+    setCustomLibraryItems((prev) => [...prev, newItem]);
     setIsLibraryOpen(true);
     handleCloseAddModal();
 
@@ -396,12 +505,76 @@ export default function Sidebar({
   const handleRemoveCustomItem = async (id: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setCustomLibraryItems((prev) => prev.filter((item) => item.id !== id));
+    
+    const slugFromId = id.replace(/^section-/, "").toLowerCase();
+    const itemToDelete = customLibraryItems.find(
+      (item) =>
+        item.id === id ||
+        item.id === `section-${slugFromId}` ||
+        item.label.toLowerCase() === slugFromId
+    );
 
+    // Check if it's a default/preset section
+    const isDefaultSection = DEFAULT_SCRIPTURE_ITEMS.some(
+      (item) =>
+        item.label.toLowerCase() === id.toLowerCase() ||
+        item.path === id ||
+        item.path.split("/").pop()?.replace("-branches", "") === slugFromId
+    );
+    const isPresetSection =
+      slugFromId !== "sukti" &&
+      (presetSections.has(slugFromId) ||
+        DEFAULT_SCRIPTURE_ITEMS.some((item) => item.label.toLowerCase() === id.toLowerCase()));
+    
+    if (isDefaultSection || isPresetSection) {
+      // Hide default/preset section instead of deleting
+      const label = DEFAULT_SCRIPTURE_ITEMS.find(
+        (item) =>
+          item.label.toLowerCase() === id.toLowerCase() ||
+          item.path === id ||
+          item.path.split("/").pop()?.replace("-branches", "") === slugFromId
+      )?.label || itemToDelete?.label || id;
+      setHiddenDefaultSections((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        next.delete(`section-${slugFromId}`);
+        next.add(label);
+        return next;
+      });
+      if (itemToDelete) {
+        setCustomLibraryItems((prev) =>
+          prev.filter((item) => item.id !== itemToDelete.id && item.path !== itemToDelete.path)
+        );
+      }
+      return;
+    }
+    
+    // For custom sections, proceed with deletion
+    const slug = itemToDelete ? itemToDelete.path.split("/").pop()?.replace("-branches", "") : id.replace(/^section-/, "");
+    
+    // Optimistically remove from UI
+    setCustomLibraryItems((prev) =>
+      prev.filter(
+        (item) =>
+          item.id !== id &&
+          item.id !== `section-${id.replace(/^section-/, "")}` &&
+          item.label.toLowerCase() !== id.replace(/^section-/, "").toLowerCase()
+      )
+    );
+
+    // Delete from backend using the slug
     try {
-      await LibrarySectionService.deleteSection(id);
+      const deleted = await LibrarySectionService.deleteSection(slug);
+      if (!deleted) throw new Error(`Failed to remove the ${itemToDelete?.label || "library section"} section.`);
     } catch (apiErr) {
       console.warn("Backend API section deletion fallback:", apiErr);
+      if (itemToDelete) {
+        setCustomLibraryItems((prev) =>
+          prev.some((item) => item.id === itemToDelete.id)
+            ? prev
+            : [...prev, itemToDelete]
+        );
+      }
     }
   };
 
@@ -1020,50 +1193,56 @@ export default function Sidebar({
             {isLibraryOpen && (
               <div className="mt-1 ml-6 pl-3 border-l border-cream-200 space-y-0.5">
                 {/* Default Scripture/Texts items (Vedas) */}
-                {DEFAULT_SCRIPTURE_ITEMS.slice(0, 1).map((item) => {
-                  const active = isLibraryItemActive(item);
-                  return (
-                    <NavLink
-                      key={item.label}
-                      to={item.path}
-                      onClick={handleLinkClick}
-                      className={`block px-3 py-1.5 rounded-lg text-[13px] transition ${
-                        active
-                          ? "text-saffron-700 font-semibold bg-saffron-50/70"
-                          : "text-charcoal-500 hover:text-charcoal-700 hover:bg-cream-50 font-normal"
-                      }`}
-                    >
-                      {item.label}
-                    </NavLink>
-                  );
-                })}
+                {DEFAULT_SCRIPTURE_ITEMS.slice(0, 1)
+                  .filter((item) => !hiddenDefaultSections.has(item.label))
+                  .map((item) => {
+                    const active = isLibraryItemActive(item);
+                    return (
+                      <NavLink
+                        key={item.label}
+                        to={item.path}
+                        onClick={handleLinkClick}
+                        className={`block px-3 py-1.5 rounded-lg text-[13px] transition ${
+                          active
+                            ? "text-saffron-700 font-semibold bg-saffron-50/70"
+                            : "text-charcoal-500 hover:text-charcoal-700 hover:bg-cream-50 font-normal"
+                        }`}
+                      >
+                        {item.label}
+                      </NavLink>
+                    );
+                  })}
 
                 {/* Default Scripture/Texts items (Mantra, Stotra, Sukti) */}
-                {DEFAULT_SCRIPTURE_ITEMS.slice(1).map((item) => {
-                  const active = isLibraryItemActive(item);
-                  return (
-                    <NavLink
-                      key={item.label}
-                      to={item.path}
-                      onClick={handleLinkClick}
-                      className={`block px-3 py-1.5 rounded-lg text-[13px] transition ${
-                        active
-                          ? "text-saffron-700 font-semibold bg-saffron-50/70"
-                          : "text-charcoal-500 hover:text-charcoal-700 hover:bg-cream-50 font-normal"
-                      }`}
-                    >
-                      {item.label}
-                    </NavLink>
-                  );
-                })}
+                {DEFAULT_SCRIPTURE_ITEMS.slice(1)
+                  .filter((item) => !hiddenDefaultSections.has(item.label))
+                  .map((item) => {
+                    const active = isLibraryItemActive(item);
+                    return (
+                      <NavLink
+                        key={item.label}
+                        to={item.path}
+                        onClick={handleLinkClick}
+                        className={`block px-3 py-1.5 rounded-lg text-[13px] transition ${
+                          active
+                            ? "text-saffron-700 font-semibold bg-saffron-50/70"
+                            : "text-charcoal-500 hover:text-charcoal-700 hover:bg-cream-50 font-normal"
+                        }`}
+                      >
+                        {item.label}
+                      </NavLink>
+                    );
+                  })}
 
                 {/* Dynamically Added Custom Library Sections */}
-                {customLibraryItems.map((item) => {
+                {customLibraryItems
+                  .filter((item) => !hiddenDefaultSections.has(item.label))
+                  .map((item) => {
                   const active = isLibraryItemActive(item);
                   return (
                     <div
                       key={item.id || item.label}
-                      className="group flex items-center justify-between rounded-lg pr-1 hover:bg-cream-50/80 transition"
+                      className="group flex items-center justify-between rounded-lg pr-1 hover:bg-cream-50/80 transition relative"
                     >
                       <NavLink
                         to={item.path}
@@ -1079,16 +1258,20 @@ export default function Sidebar({
                       </NavLink>
                       <button
                         type="button"
-                        onClick={(e) => handleRemoveCustomItem(item.id!, e)}
-                        className="opacity-0 group-hover:opacity-100 p-1 text-charcoal-400 hover:text-red-500 rounded transition cursor-pointer"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleRemoveCustomItem(item.id || item.label.toLowerCase(), e);
+                        }}
+                        className="absolute right-1 top-1/2 -translate-y-1/2 p-1.5 text-charcoal-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer z-10"
                         title={`Remove ${item.label}`}
                         aria-label={`Remove ${item.label}`}
                       >
-                        <X className="w-3.5 h-3.5" />
+                        <X className="w-4 h-4" />
                       </button>
                     </div>
                   );
-                })}
+                  })}
 
                 {/* Inline Add Library Section Button */}
                 <button
@@ -1100,6 +1283,32 @@ export default function Sidebar({
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add Section</span>
                 </button>
+
+                {/* Restore Hidden Default Sections */}
+                {hiddenDefaultSections.size > 0 && (
+                  <div className="pt-2 border-t border-cream-200 mt-1">
+                    <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-charcoal-400 mb-1">
+                      Hidden Sections
+                    </p>
+                    {[...hiddenDefaultSections].map((label) => (
+                      <div
+                        key={label}
+                        className="flex items-center justify-between px-3 py-1.5 rounded-lg text-[13px] text-charcoal-500 hover:bg-cream-50 transition"
+                      >
+                        <span>{label}</span>
+                        <button
+                          type="button"
+                          onClick={() => setHiddenDefaultSections((prev) => { const next = new Set(prev); next.delete(label); return next; })}
+                          className="p-1 text-saffron-600 hover:text-saffron-800 hover:bg-saffron-50 rounded transition cursor-pointer"
+                          title={`Restore ${label}`}
+                          aria-label={`Restore ${label}`}
+                        >
+                          <span className="text-[11px] font-bold">+</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 {/* Articles / Blog */}
                 <div className="pt-2">
