@@ -12,6 +12,7 @@ import {
   Plus,
 } from "lucide-react";
 import Logo from "./Logo";
+import LibrarySectionService from "../modules/library/services/librarySection.service";
 
 interface RitualSubItem {
   label: string;
@@ -222,7 +223,7 @@ export default function Sidebar({
     location.pathname.startsWith("/admin/path/categories") ||
     location.pathname.startsWith("/admin/path-categories");
 
-  // Dynamic custom library sections loaded from localStorage
+  // Dynamic custom library sections loaded from API with localStorage fallback
   const [customLibraryItems, setCustomLibraryItems] = useState<LibrarySubItem[]>(() => {
     try {
       const saved = localStorage.getItem(CUSTOM_SECTIONS_STORAGE_KEY);
@@ -244,6 +245,36 @@ export default function Sidebar({
     }
     return [];
   });
+
+  // Sync custom sections from backend API on mount
+  useEffect(() => {
+    let active = true;
+    LibrarySectionService.getSections().then((sections) => {
+      if (!active || !Array.isArray(sections)) return;
+      const apiCustom = sections
+        .filter((sec) => !sec.isPreset && sec.slug !== "mantra" && sec.slug !== "stotra" && sec.slug !== "sukti")
+        .map((sec) => ({
+          id: sec.id || `section-${sec.slug}`,
+          label: sec.label || sec.name || sec.slug,
+          path: sec.adminPath || `/admin/library/${sec.slug}-branches`,
+          isCustom: true,
+        }));
+      if (apiCustom.length > 0) {
+        setCustomLibraryItems((prev) => {
+          // Merge by id or path, preserving any locally created items
+          const map = new Map<string, LibrarySubItem>();
+          apiCustom.forEach((item) => map.set(item.path, item));
+          prev.forEach((item) => {
+            if (!map.has(item.path)) map.set(item.path, item);
+          });
+          return Array.from(map.values());
+        });
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // Persist custom sections to localStorage
   useEffect(() => {
@@ -302,7 +333,7 @@ export default function Sidebar({
     setModalError("");
   };
 
-  const handleAddSection = (e: React.FormEvent) => {
+  const handleAddSection = async (e: React.FormEvent) => {
     e.preventDefault();
     const name = newSectionName.trim();
     let path = newSectionPath.trim();
@@ -312,11 +343,12 @@ export default function Sidebar({
       return;
     }
 
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+
     if (!path) {
-      const slug = name
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "");
       path = `/admin/library/${slug}-branches`;
     }
 
@@ -324,22 +356,53 @@ export default function Sidebar({
       path = "/" + path;
     }
 
+    const sectionId = `section-${slug}`;
     const newItem: LibrarySubItem = {
-      id: `custom-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      id: sectionId,
       label: name,
       path: path,
       isCustom: true,
     };
 
-    setCustomLibraryItems((prev) => [...prev, newItem]);
+    setCustomLibraryItems((prev) => {
+      const filtered = prev.filter((item) => item.path !== path && item.id !== sectionId);
+      return [...filtered, newItem];
+    });
     setIsLibraryOpen(true);
     handleCloseAddModal();
+
+    // Persist to backend database API
+    const frontendPath =
+      slug === "purana" || slug === "puranas"
+        ? "/library/purana"
+        : `/library/mantra-stotra/all?type=${slug}`;
+
+    try {
+      await LibrarySectionService.createSection({
+        id: sectionId,
+        slug,
+        name,
+        enName: name,
+        label: name,
+        path: frontendPath,
+        adminPath: path,
+        categorySlug: "mantra-stotra",
+      });
+    } catch (apiErr) {
+      console.warn("Backend API section creation fallback to local storage:", apiErr);
+    }
   };
 
-  const handleRemoveCustomItem = (id: string, e: React.MouseEvent) => {
+  const handleRemoveCustomItem = async (id: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setCustomLibraryItems((prev) => prev.filter((item) => item.id !== id));
+
+    try {
+      await LibrarySectionService.deleteSection(id);
+    } catch (apiErr) {
+      console.warn("Backend API section deletion fallback:", apiErr);
+    }
   };
 
   // Route matches for Library umbrella (recognizes Vedas, Mantras, Blogs & direct aliases & custom sections)

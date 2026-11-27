@@ -2,6 +2,7 @@ import { Op } from "sequelize";
 import LibraryMantraStotra from "../models/libraryMantraStotra.model.js";
 import LibraryBranch from "../models/libraryBranch.model.js";
 import LibraryBranchService, { normalizeCategorySlug } from "./libraryBranch.service.js";
+import LibrarySectionService from "./librarySection.service.js";
 import { sanitizeSlug, calculateReadTime, normalizeTags } from "../helpers/blog.helper.js";
 import {
   DEFAULT_MANTRA_BRANCHES_UNIFIED,
@@ -362,6 +363,13 @@ class LibraryMantraStotraService {
    */
   async getAvailableTypes() {
     const known = ["mantra", "stotra", "sukti"];
+    let sectionSlugs = [];
+    try {
+      const sections = await LibrarySectionService.getSections(false);
+      sectionSlugs = sections.map((s) => s.slug).filter(Boolean);
+    } catch {
+      // ignore
+    }
     try {
       await this.ensureSeeded();
       const rows = await LibraryMantraStotra.findAll({
@@ -370,9 +378,9 @@ class LibraryMantraStotraService {
         group: ["type"],
         raw: true,
       });
-      return [...new Set([...known, ...rows.map((row) => normalizeItemType(row.type)).filter(Boolean)])];
+      return [...new Set([...known, ...sectionSlugs, ...rows.map((row) => normalizeItemType(row.type)).filter(Boolean)])];
     } catch {
-      return [...new Set([...known, ...MEMORY_ITEMS.map((item) => normalizeItemType(item.type)).filter(Boolean)])];
+      return [...new Set([...known, ...sectionSlugs, ...MEMORY_ITEMS.map((item) => normalizeItemType(item.type)).filter(Boolean)])];
     }
   }
 
