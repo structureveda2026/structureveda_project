@@ -21,6 +21,7 @@ import yagyaCatalogueService from "../../../services/yagyaCatalogueService";
 import japaCatalogueService from "../../../services/japaCatalogueService";
 import homaCatalogueService from "../../../services/homaCatalogueService";
 import pathCatalogueService from "../../../services/pathCatalogueService";
+import { SHODASHA_SAMSKARS } from "../data/specialPujaData";
 import {
   RitualBookingProvider,
   useRitualBooking,
@@ -804,9 +805,45 @@ const RitualBookingWizard = ({ serviceType = null }) => {
       ? "YAGYA"
       : "PUJA");
 
-  // Optimistic initial service from router state (if matching slug)
+  // Optimistic initial service from router state or Shodasha Samskar registry
+  const matchedSamskar = SHODASHA_SAMSKARS.find((s) => s.slug === slug);
   const initialFromState =
-    location.state?.service?.slug === slug ? location.state.service : null;
+    location.state?.service?.slug === slug
+      ? location.state.service
+      : matchedSamskar
+      ? {
+          id: 100 + matchedSamskar.id,
+          slug: matchedSamskar.slug,
+          name: matchedSamskar.name,
+          hindiName: matchedSamskar.sanskritName,
+          tagline: matchedSamskar.tagline,
+          shortDescription: matchedSamskar.shortDesc,
+          description: matchedSamskar.description,
+          serviceType: "PUJA",
+          startingPrice: 5100,
+          formattedPrice: "₹5,100",
+          primaryImage: matchedSamskar.image,
+          image: matchedSamskar.image,
+          bannerImage: matchedSamskar.image,
+          duration: matchedSamskar.duration,
+          availableDurations: ["2 Hours", "3 Hours", "Full Day"],
+          durationHours: [2, 3],
+          priestCount: 2,
+          category: "Special Puja - Shodasha Samskar",
+          purposeSummary: matchedSamskar.significance,
+          availableMode: "In Person / Kashi / Remote",
+          rawAvailableMode: "kashi",
+          location: "Kashi Sanctum / Devotee Home / Sacred Tirtha",
+          locationType: "Kashi Sanctum / Devotee Home",
+          isKashiAvailable: true,
+          whyPerform: matchedSamskar.keyOfferings?.map((o) => ({ title: o, description: "" })) || [],
+          procedureSteps: matchedSamskar.vidhiSteps?.map((step, idx) => ({
+            step: String(idx + 1).padStart(2, "0"),
+            title: step,
+            description: "",
+          })) || [],
+        }
+      : null;
 
   const [service, setService] = useState(initialFromState);
   const [loading, setLoading] = useState(!initialFromState);

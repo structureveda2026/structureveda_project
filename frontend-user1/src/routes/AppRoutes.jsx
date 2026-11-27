@@ -53,6 +53,9 @@ import HomaAllCatalogueListing from "../features/yagyaPuja/pages/HomaAllCatalogu
 import HomaCategoryListing from "../features/yagyaPuja/pages/HomaCategoryListing";
 import HomaServiceDetails from "../features/yagyaPuja/pages/HomaServiceDetails";
 import HomaBookingStatus from "../features/yagyaPuja/pages/HomaBookingStatus";
+import SpecialPujaLanding from "../features/yagyaPuja/pages/SpecialPujaLanding";
+import SpecialPujaCategoryPage from "../features/yagyaPuja/pages/SpecialPujaCategoryPage";
+import SpecialPujaServiceDetail from "../features/yagyaPuja/pages/SpecialPujaServiceDetail";
 
 import { LibraryPage, LibraryTreePage, LibraryTopicPage } from "../library";
 
@@ -111,6 +114,14 @@ const AppRoutes = () => {
         <Route path="/yagya-puja/homa/:slug/book" element={<RitualBookingWizard serviceType="HOMA" />} />
         <Route path="/yagya-puja/homa/:slug/booking-status" element={<HomaBookingStatus />} />
         <Route path="/yagya-puja/kashi" element={<PujaListing />} />
+        <Route path="/yagya-puja/special-puja" element={<SpecialPujaLanding />} />
+        <Route path="/yagya-puja/special-puja/samskar" element={<SpecialPujaCategoryPage category="samskar" />} />
+        <Route path="/yagya-puja/special-puja/birthday-puja" element={<SpecialPujaCategoryPage category="birthday-puja" />} />
+        <Route path="/yagya-puja/special-puja/pinda-daan" element={<SpecialPujaCategoryPage category="pinda-daan" />} />
+        <Route path="/yagya-puja/special-puja/tirth-shradh" element={<SpecialPujaCategoryPage category="tirth-shradh" />} />
+        <Route path="/yagya-puja/special-puja/category/:categorySlug" element={<SpecialPujaCategoryPage />} />
+        <Route path="/yagya-puja/special-puja/samskar/:samskarSlug" element={<SpecialPujaServiceDetail />} />
+        <Route path="/yagya-puja/special-puja/samskar/:slug/book" element={<RitualBookingWizard serviceType="PUJA" />} />
       </Route>
 
       {/* =====================================================
