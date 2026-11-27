@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getPublicSubcategories,
+  getPublicSubcategoryDetail,
   createSubcategory,
   updateSubcategory,
   deleteSubcategory,
@@ -27,7 +28,14 @@ router.get("/mantra-stotra/subcategories", (req, res) => {
   return getPublicSubcategories(req, res);
 });
 
-// POST /api/library/categories/:categorySlug/subcategories
+// Single branch detail endpoint (specific /mantra-stotra/ before dynamic /:categorySlug/)
+router.get("/mantra-stotra/subcategories/:slug", (req, res) => {
+  req.params.categorySlug = "mantra-stotra";
+  return getPublicSubcategoryDetail(req, res);
+});
+router.get("/:categorySlug/subcategories/:slug", getPublicSubcategoryDetail);
+
+// POST /api/library/categories/:categorySlug/subcategories (preserved for test_mantra_blog_crud.cjs backwards compat)
 router.post("/:categorySlug/subcategories", createSubcategory);
 router.post("/mantra-stotra/subcategories", (req, res) => {
   req.params.categorySlug = "mantra-stotra";

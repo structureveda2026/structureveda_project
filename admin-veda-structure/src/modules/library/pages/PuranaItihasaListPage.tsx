@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
   BookOpen,
@@ -11,7 +11,6 @@ import {
   Edit,
   Trash2,
   FolderTree,
-  Flame,
   ShieldCheck,
   CheckCircle2,
   Award,
@@ -47,21 +46,22 @@ export const PuranaItihasaListPage: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   // Load Granthas
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const data = await PuranaItihasaAdminService.getAllTexts();
       setGranthas(data);
-    } catch (err: any) {
-      showError(err.message || "पुराण एवं इतिहास ग्रंथ लोड करने में त्रुटि");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to load Purana & Itihasa texts";
+      showError(msg || "Failed to load Purana & Itihasa texts");
     } finally {
       setLoading(false);
     }
-  };
+  }, [showError]);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   // Seed Archive handler
   const handleSeedArchive = async () => {
@@ -70,8 +70,9 @@ export const PuranaItihasaListPage: React.FC = () => {
       const res = await PuranaItihasaAdminService.seedArchive(true);
       showSuccess(res.message);
       await loadData();
-    } catch (err: any) {
-      showError(err.message || "आर्काइव सिंक करने में त्रुटि उत्पन्न हुई");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to sync archive";
+      showError(msg || "Failed to sync archive");
     } finally {
       setSeeding(false);
     }
@@ -83,11 +84,12 @@ export const PuranaItihasaListPage: React.FC = () => {
     try {
       setIsDeleting(true);
       await PuranaItihasaAdminService.delete(deleteTarget.id);
-      showSuccess(`"${deleteTarget.name}" सफलतापूर्वक हटाया गया`);
+      showSuccess(`"${deleteTarget.enName || deleteTarget.name}" deleted successfully`);
       setGranthas((prev) => prev.filter((g) => g.id !== deleteTarget.id));
       setDeleteTarget(null);
-    } catch (err: any) {
-      showError(err.message || "ग्रंथ हटाने में त्रुटि");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to delete text";
+      showError(msg || "Failed to delete text");
     } finally {
       setIsDeleting(false);
     }
@@ -109,7 +111,7 @@ export const PuranaItihasaListPage: React.FC = () => {
       sattvika,
       rajasa,
       tamasa,
-      totalShlokas: "५,२५,०००+",
+      totalShlokas: "5,25,000+",
       jewelsCount: 10,
       upapuranasCount: 18,
     };
@@ -206,27 +208,27 @@ export const PuranaItihasaListPage: React.FC = () => {
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            सात्त्विक (Sattvika)
+            Sattvika
           </span>
         );
       case "rajasa":
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-            राजस (Rajasa)
+            Rajasa
           </span>
         );
       case "tamasa":
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 text-purple-800 border border-purple-200">
             <span className="w-1.5 h-1.5 rounded-full bg-purple-600" />
-            तामस (Tamasa)
+            Tamasa
           </span>
         );
       default:
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-charcoal-100 text-charcoal-700 border border-charcoal-200">
-            सनातन (Vedic)
+            Vedic
           </span>
         );
     }
@@ -238,20 +240,20 @@ export const PuranaItihasaListPage: React.FC = () => {
       return (
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-50 text-green-700 border border-green-200">
           <CheckCircle2 className="w-2.5 h-2.5 text-green-600" />
-          सक्रिय (Active)
+          Active
         </span>
       );
     }
     if (status === "DRAFT") {
       return (
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-yellow-50 text-yellow-800 border border-yellow-200">
-          प्रारूप (Draft)
+          Draft
         </span>
       );
     }
     return (
       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-charcoal-100 text-charcoal-600 border border-charcoal-200">
-        निष्क्रिय (Inactive)
+        Inactive
       </span>
     );
   };
@@ -276,26 +278,26 @@ export const PuranaItihasaListPage: React.FC = () => {
             </div>
 
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-serif font-bold tracking-tight text-cream-50 leading-tight">
-              पुराण एवं इतिहास महासंग्रह (Purana & Itihasa Archive)
+              Purana &amp; Itihasa Archive
             </h1>
 
-            <p className="text-xs text-cream-200/90 leading-relaxed font-devanagari max-w-xl">
-              अष्टादश महापुराण (१८), आदिकाव्य रामायण, महाभारत, १८ उपपुराण, १० दार्शनिक आख्यान रत्न एवं श्रीमद्भागवत प्रतिपादित दश लक्षणों का सर्वांगीण डिजिटल प्रबंधन।
+            <p className="text-xs text-cream-200/90 leading-relaxed max-w-xl">
+              Comprehensive digital archive management for the 18 Mahapuranas, Valmiki Ramayana, Mahabharata, 18 Upapuranas, 10 Philosophical Jewels, and the 10 Shastric Characteristics of Shrimad Bhagavatam.
             </p>
 
             {/* Quick Hero Highlights */}
             <div className="flex flex-wrap items-center gap-2 pt-1 text-[10px] text-amber-200/90">
               <span className="inline-flex items-center gap-1 bg-black/30 px-2 py-0.5 rounded-md border border-white/10 backdrop-blur-xs">
                 <BookOpen className="w-3 h-3 text-amber-400" />
-                <span>१८ महापुराण (सात्त्विक • राजस • तामस)</span>
+                <span>18 Mahapuranas (Sattvika • Rajasa • Tamasa)</span>
               </span>
               <span className="inline-flex items-center gap-1 bg-black/30 px-2 py-0.5 rounded-md border border-white/10 backdrop-blur-xs">
                 <Scroll className="w-3 h-3 text-amber-400" />
-                <span>५ इतिहास व महाकाव्य (रामायण, महाभारत...)</span>
+                <span>5 Itihasas &amp; Epics (Ramayana, Mahabharata...)</span>
               </span>
               <span className="inline-flex items-center gap-1 bg-black/30 px-2 py-0.5 rounded-md border border-white/10 backdrop-blur-xs">
                 <ShieldCheck className="w-3 h-3 text-amber-400" />
-                <span>१० शास्त्रीय लक्षण व दार्शनिक रत्न</span>
+                <span>10 Shastric Characteristics &amp; Philosophical Jewels</span>
               </span>
             </div>
           </div>
@@ -306,10 +308,10 @@ export const PuranaItihasaListPage: React.FC = () => {
               onClick={handleSeedArchive}
               disabled={seeding}
               className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-saffron-500 hover:from-amber-400 hover:to-saffron-400 text-charcoal-900 font-bold text-xs shadow-2xs transition-all hover:scale-[1.01] cursor-pointer disabled:opacity-50"
-              title="डेटाबेस में प्रामाणिक १८ महापुराण एवं इतिहास पुनः स्थापित करें"
+              title="Re-seed and sync the authentic 18 Mahapuranas and Itihasas in the database"
             >
               <RefreshCw className={`w-3.5 h-3.5 text-charcoal-900 ${seeding ? "animate-spin" : ""}`} />
-              <span>{seeding ? "सिंक हो रहा है..." : "डेटाबेस पुनः सिंक करें (Seed Archive)"}</span>
+              <span>{seeding ? "Syncing..." : "Seed Archive"}</span>
             </button>
 
             <Link
@@ -317,7 +319,7 @@ export const PuranaItihasaListPage: React.FC = () => {
               className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold border border-white/15 backdrop-blur-sm transition-all shadow-xs"
             >
               <Plus className="w-3.5 h-3.5 text-amber-300" />
-              <span>नया ग्रंथ जोड़ें (Add New Grantha)</span>
+              <span>Add New Grantha</span>
             </Link>
           </div>
         </div>
@@ -330,7 +332,7 @@ export const PuranaItihasaListPage: React.FC = () => {
           <div className="min-w-0 flex-1 space-y-0.5">
             <div className="flex items-center gap-1.5">
               <span className="text-[10px] font-bold uppercase tracking-wider text-charcoal-500 truncate">
-                कुल ग्रंथ (Total Texts)
+                Total Texts
               </span>
             </div>
             <div className="flex items-baseline gap-1.5">
@@ -338,11 +340,11 @@ export const PuranaItihasaListPage: React.FC = () => {
                 {statsSummary.totalTexts}
               </span>
               <span className="text-[10px] font-medium text-charcoal-500">
-                प्रमुख ग्रंथ
+                Core Granthas
               </span>
             </div>
             <p className="text-[10px] text-charcoal-500 truncate">
-              १८ महापुराण + ५ इतिहास
+              18 Mahapuranas + 5 Itihasas
             </p>
           </div>
           <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-saffron-50 text-saffron-600 border border-saffron-200/60 group-hover:scale-105 transition-transform">
@@ -356,19 +358,19 @@ export const PuranaItihasaListPage: React.FC = () => {
           <div className="min-w-0 flex-1 space-y-0.5">
             <div className="flex items-center gap-1.5">
               <span className="text-[10px] font-bold uppercase tracking-wider text-charcoal-500 truncate">
-                कुल श्लोक (Total Shlokas)
+                Total Shlokas
               </span>
             </div>
             <div className="flex items-baseline gap-1.5">
               <span className="text-lg sm:text-xl font-extrabold text-amber-700 tracking-tight font-serif leading-none">
-                ५,२५,०००+
+                5,25,000+
               </span>
               <span className="text-[10px] font-medium text-charcoal-500">
-                श्लोक
+                Shlokas
               </span>
             </div>
             <p className="text-[10px] text-charcoal-500 truncate">
-              ४ लाख पुराण + १.२४ लाख इतिहास
+              400K Puranas + 125K Itihasas
             </p>
           </div>
           <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-amber-50 text-amber-700 border border-amber-200/60 group-hover:scale-105 transition-transform">
@@ -382,16 +384,16 @@ export const PuranaItihasaListPage: React.FC = () => {
           <div className="min-w-0 flex-1 space-y-0.5">
             <div className="flex items-center gap-1.5">
               <span className="text-[10px] font-bold uppercase tracking-wider text-charcoal-500 truncate">
-                त्रिगुण वर्गीकरण (Gunas)
+                Triguna Classification
               </span>
             </div>
             <div className="flex items-center gap-1 text-[11px] font-bold text-charcoal-800">
-              <span className="text-emerald-700">६ सात्त्विक</span> •
-              <span className="text-amber-700">६ राजस</span> •
-              <span className="text-purple-700">६ तामस</span>
+              <span className="text-emerald-700">6 Sattvika</span> •
+              <span className="text-amber-700">6 Rajasa</span> •
+              <span className="text-purple-700">6 Tamasa</span>
             </div>
             <p className="text-[10px] text-charcoal-500 truncate">
-              पद्म व मत्स्य पुराण अनुसार
+              Per Padma &amp; Matsya Purana
             </p>
           </div>
           <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-emerald-50 text-emerald-700 border border-emerald-200/60 group-hover:scale-105 transition-transform">
@@ -405,19 +407,19 @@ export const PuranaItihasaListPage: React.FC = () => {
           <div className="min-w-0 flex-1 space-y-0.5">
             <div className="flex items-center gap-1.5">
               <span className="text-[10px] font-bold uppercase tracking-wider text-charcoal-500 truncate">
-                दार्शनिक रत्न व उपपुराण
+                Jewels &amp; Upapuranas
               </span>
             </div>
             <div className="flex items-baseline gap-1.5">
               <span className="text-lg sm:text-xl font-extrabold text-purple-800 tracking-tight font-serif leading-none">
-                १० रत्न
+                10 Jewels
               </span>
               <span className="text-[10px] font-normal text-charcoal-500">
-                & १८ उपपुराण
+                &amp; 18 Upapuranas
               </span>
             </div>
             <p className="text-[10px] text-charcoal-500 truncate">
-              गीता, चण्डी, सहस्रनाम, मोक्ष
+              Gita, Chandi, Sahasranama, Moksha
             </p>
           </div>
           <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-purple-50 text-purple-700 border border-purple-200/60 group-hover:scale-105 transition-transform">
@@ -439,7 +441,7 @@ export const PuranaItihasaListPage: React.FC = () => {
             }`}
           >
             <BookOpen className="w-3.5 h-3.5 text-saffron-600" />
-            <span>१. १८ महापुराण (18 Mahapuranas)</span>
+            <span>1. 18 Mahapuranas</span>
             <span className={`ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
               activeTab === "mahapuranas" ? "bg-saffron-500 text-white" : "bg-saffron-100 text-saffron-800"
             }`}>
@@ -456,7 +458,7 @@ export const PuranaItihasaListPage: React.FC = () => {
             }`}
           >
             <Scroll className="w-3.5 h-3.5 text-amber-600" />
-            <span>२. इतिहास एवं महाकाव्य (Itihasa & Epics)</span>
+            <span>2. Itihasa &amp; Epics</span>
             <span className={`ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
               activeTab === "itihasas" ? "bg-amber-600 text-white" : "bg-cream-200 text-charcoal-800"
             }`}>
@@ -473,7 +475,7 @@ export const PuranaItihasaListPage: React.FC = () => {
             }`}
           >
             <Award className="w-3.5 h-3.5 text-purple-600" />
-            <span>३. प्रमुख आख्यान व रत्न (10 Jewels)</span>
+            <span>3. 10 Philosophical Jewels</span>
             <span className={`ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
               activeTab === "akhyanas" ? "bg-purple-600 text-white" : "bg-purple-100 text-purple-800"
             }`}>
@@ -490,7 +492,7 @@ export const PuranaItihasaListPage: React.FC = () => {
             }`}
           >
             <Layers className="w-3.5 h-3.5 text-amber-700" />
-            <span>४. १८ उपपुराण (18 Upapuranas)</span>
+            <span>4. 18 Upapuranas</span>
             <span className={`ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
               activeTab === "upapuranas" ? "bg-amber-600 text-white" : "bg-amber-100 text-amber-800"
             }`}>
@@ -507,7 +509,7 @@ export const PuranaItihasaListPage: React.FC = () => {
             }`}
           >
             <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-            <span>५. दश लक्षण (10 Characteristics)</span>
+            <span>5. 10 Shastric Characteristics</span>
             <span className={`ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
               activeTab === "lakshanas" ? "bg-emerald-600 text-white" : "bg-emerald-100 text-emerald-800"
             }`}>
@@ -528,14 +530,14 @@ export const PuranaItihasaListPage: React.FC = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={
               activeTab === "mahapuranas"
-                ? "महापुराण का नाम, देवता या ऋषि खोजें..."
+                ? "Search Mahapurana name, deity, or rishi..."
                 : activeTab === "itihasas"
-                ? "रामायण, महाभारत या सर्ग खोजें..."
+                ? "Search Ramayana, Mahabharata, or section..."
                 : activeTab === "akhyanas"
-                ? "आख्यान या स्तोत्र खोजें..."
+                ? "Search narrative or stotra..."
                 : activeTab === "upapuranas"
-                ? "उपपुराण का नाम खोजें..."
-                : "दश लक्षण (सर्ग, विसर्ग, मन्वन्तर...) खोजें..."
+                ? "Search Upapurana name..."
+                : "Search Dasha Lakshanas (Sarga, Visarga, Manvantara...)..."
             }
             className="input-field pl-8 pr-12 py-1.5 text-xs w-full rounded-lg bg-cream-50/40 focus:bg-white border-cream-200"
           />
@@ -544,7 +546,7 @@ export const PuranaItihasaListPage: React.FC = () => {
               onClick={() => setSearchQuery("")}
               className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-charcoal-400 hover:text-saffron-600 transition-colors"
             >
-              हटाएं
+              Clear
             </button>
           )}
         </div>
@@ -560,10 +562,10 @@ export const PuranaItihasaListPage: React.FC = () => {
                 onChange={(e) => setGunaFilter(e.target.value)}
                 className="input-field py-1 px-2.5 text-xs w-auto rounded-lg bg-cream-50/40 focus:bg-white border-cream-200"
               >
-                <option value="all">सभी गुण (All Gunas)</option>
-                <option value="sattvika">सात्त्विक (Sattvika)</option>
-                <option value="rajasa">राजस (Rajasa)</option>
-                <option value="tamasa">तामस (Tamasa)</option>
+                <option value="all">All Gunas</option>
+                <option value="sattvika">Sattvika</option>
+                <option value="rajasa">Rajasa</option>
+                <option value="tamasa">Tamasa</option>
               </select>
             </div>
 
@@ -575,10 +577,10 @@ export const PuranaItihasaListPage: React.FC = () => {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="input-field py-1 px-2.5 text-xs w-auto rounded-lg bg-cream-50/40 focus:bg-white border-cream-200"
               >
-                <option value="ALL">सभी स्थितियाँ (All Status)</option>
-                <option value="ACTIVE">सक्रिय (Active)</option>
-                <option value="DRAFT">प्रारूप (Draft)</option>
-                <option value="INACTIVE">निष्क्रिय (Inactive)</option>
+                <option value="ALL">All Statuses</option>
+                <option value="ACTIVE">Active</option>
+                <option value="DRAFT">Draft</option>
+                <option value="INACTIVE">Inactive</option>
               </select>
             </div>
           </div>
@@ -594,14 +596,14 @@ export const PuranaItihasaListPage: React.FC = () => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gradient-to-r from-cream-100/90 via-cream-50 to-cream-100/90 border-b border-cream-200 text-[10.5px] font-bold text-charcoal-700 uppercase tracking-wider">
-                  <th className="py-2 px-2.5 w-10 text-center">क्र०</th>
-                  <th className="py-2 px-2.5 min-w-[200px]">ग्रंथ का नाम (हिन्दी व English)</th>
-                  <th className="py-2 px-2.5">श्रेणी</th>
-                  <th className="py-2 px-2.5">गुण वर्गीकरण</th>
-                  <th className="py-2 px-2.5">प्रधान देव व वक्ता</th>
-                  <th className="py-2 px-2.5">श्लोक / अध्याय संख्या</th>
-                  <th className="py-2 px-2.5 text-center">स्थिति</th>
-                  <th className="py-2 px-2.5 text-right">कार्य (Admin Actions)</th>
+                  <th className="py-2 px-2.5 w-10 text-center">#</th>
+                  <th className="py-2 px-2.5 min-w-[200px]">Grantha Name (Script &amp; English)</th>
+                  <th className="py-2 px-2.5">Category</th>
+                  <th className="py-2 px-2.5">Guna</th>
+                  <th className="py-2 px-2.5">Chief Deity &amp; Speaker</th>
+                  <th className="py-2 px-2.5">Shlokas / Chapters</th>
+                  <th className="py-2 px-2.5 text-center">Status</th>
+                  <th className="py-2 px-2.5 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-cream-100 text-xs">
@@ -610,7 +612,7 @@ export const PuranaItihasaListPage: React.FC = () => {
                     <td colSpan={8} className="py-8 text-center text-charcoal-500">
                       <div className="flex flex-col items-center justify-center gap-1.5">
                         <RefreshCw className="w-5 h-5 animate-spin text-saffron-500" />
-                        <span className="text-xs">ग्रंथ डेटा लोड हो रहा है...</span>
+                        <span className="text-xs">Loading grantha data...</span>
                       </div>
                     </td>
                   </tr>
@@ -619,9 +621,9 @@ export const PuranaItihasaListPage: React.FC = () => {
                     <td colSpan={8} className="py-8 text-center text-charcoal-500">
                       <div className="flex flex-col items-center justify-center gap-1.5">
                         <BookOpen className="w-6 h-6 text-charcoal-300" />
-                        <span className="font-semibold text-sm text-charcoal-700">कोई ग्रंथ नहीं मिला</span>
+                        <span className="font-semibold text-sm text-charcoal-700">No Granthas Found</span>
                         <span className="text-[11px] text-charcoal-400">
-                          खोज शब्द या फ़िल्टर बदलें, अथवा नया ग्रंथ जोड़ें।
+                          Try adjusting your search terms or filters, or add a new grantha.
                         </span>
                       </div>
                     </td>
@@ -638,14 +640,14 @@ export const PuranaItihasaListPage: React.FC = () => {
                       <td className="py-1.5 px-2.5">
                         <div className="flex items-start gap-2">
                           <div className="w-6 h-6 rounded-md bg-gradient-to-br from-saffron-100 to-amber-100 text-saffron-800 border border-saffron-200/70 flex items-center justify-center font-serif font-bold text-[11px] shadow-2xs shrink-0 mt-0.5">
-                            {item.name.charAt(0)}
+                            {item.enName.charAt(0)}
                           </div>
                           <div>
-                            <div className="font-bold text-charcoal-900 text-xs sm:text-[13px] font-devanagari group-hover:text-saffron-700 transition-colors">
-                              {item.name}
-                            </div>
-                            <div className="text-[10px] text-charcoal-500 font-medium">
+                            <div className="font-bold text-charcoal-900 text-xs sm:text-[13px] group-hover:text-saffron-700 transition-colors">
                               {item.enName}
+                            </div>
+                            <div className="text-[10px] text-charcoal-500 font-medium font-devanagari">
+                              {item.name}
                             </div>
                             {item.eyebrow && (
                               <div className="text-[9px] text-saffron-700 font-medium line-clamp-1 bg-saffron-50/70 px-1 py-0.2 rounded inline-block mt-0.5">
@@ -659,7 +661,7 @@ export const PuranaItihasaListPage: React.FC = () => {
                       {/* Category Badge */}
                       <td className="py-1.5 px-2.5 whitespace-nowrap">
                         <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-saffron-50 text-saffron-800 border border-saffron-200/70">
-                          {item.category === "purana" ? "महापुराण" : item.category === "itihasa" ? "इतिहास" : item.category}
+                          {item.category === "purana" ? "Mahapurana" : item.category === "itihasa" ? "Itihasa" : item.category}
                         </span>
                       </td>
 
@@ -684,7 +686,7 @@ export const PuranaItihasaListPage: React.FC = () => {
                           {item.shlokaCount || item.statsMeta?.mantraCount || "—"}
                         </div>
                         <div className="text-[9.5px] text-charcoal-500">
-                          {item.adhyayaCount || `${item.statsMeta?.nodeCount || 6} खण्ड/अध्याय`}
+                          {item.adhyayaCount || `${item.statsMeta?.nodeCount || 6} Sections`}
                         </div>
                       </td>
 
@@ -700,37 +702,37 @@ export const PuranaItihasaListPage: React.FC = () => {
                           <Link
                             to={`/admin/purana-itihasa/${item.id}/shlokas`}
                             className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-amber-50 hover:bg-amber-100/90 text-amber-800 border border-amber-200/80 transition shadow-2xs hover:scale-[1.02]"
-                            title="श्लोक प्रबंधन (Manage Shlokas & Verses)"
+                            title="Manage Shlokas & Verses"
                           >
                             <Scroll className="w-2.5 h-2.5 text-amber-700" />
-                            <span>श्लोक</span>
+                            <span>Shlokas</span>
                           </Link>
 
                           {/* 2. Structure Tree */}
                           <Link
                             to={`/admin/purana-itihasa/${item.id}/structure`}
                             className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-blue-50 hover:bg-blue-100/90 text-blue-800 border border-blue-200/80 transition shadow-2xs hover:scale-[1.02]"
-                            title="संरचना वृक्ष (Hierarchy Tree: Khandas, Parvas, Sargas, Adhyayas)"
+                            title="Structure Hierarchy Tree (Khandas, Parvas, Sargas, Adhyayas)"
                           >
                             <FolderTree className="w-2.5 h-2.5 text-blue-700" />
-                            <span>संरचना वृक्ष</span>
+                            <span>Structure Tree</span>
                           </Link>
 
                           {/* 3. Edit */}
                           <Link
                             to={`/admin/purana-itihasa/${item.id}/edit`}
                             className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-cream-100 hover:bg-cream-200 text-charcoal-700 border border-cream-300 transition shadow-2xs hover:scale-[1.02]"
-                            title="संपादन (Edit Grantha Metadata)"
+                            title="Edit Grantha Metadata"
                           >
                             <Edit className="w-2.5 h-2.5 text-charcoal-600" />
-                            <span>संपादन</span>
+                            <span>Edit</span>
                           </Link>
 
                           {/* 4. Delete */}
                           <button
                             onClick={() => setDeleteTarget(item)}
                             className="p-1 rounded-md text-charcoal-400 hover:text-red-600 hover:bg-red-50 transition"
-                            title="हटाएं (Delete)"
+                            title="Delete"
                           >
                             <Trash2 className="w-2.5 h-2.5" />
                           </button>
@@ -746,30 +748,30 @@ export const PuranaItihasaListPage: React.FC = () => {
           {/* Table Footer info */}
           <div className="py-2 px-3 bg-cream-50/80 border-t border-cream-200 flex flex-col sm:flex-row items-center justify-between text-[10.5px] text-charcoal-600 gap-1.5">
             <div>
-              प्रदर्शित ग्रंथ: <span className="font-bold text-charcoal-900">{filteredTexts.length}</span> / {granthas.length}
+              Showing Granthas: <span className="font-bold text-charcoal-900">{filteredTexts.length}</span> / {granthas.length}
             </div>
             <div className="flex items-center gap-3 text-charcoal-500">
               <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> सात्त्विक
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Sattvika
               </span>
               <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" /> राजस
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" /> Rajasa
               </span>
               <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-600" /> तामस
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-600" /> Tamasa
               </span>
             </div>
           </div>
         </div>
       )}
 
-      {/* TAB 3: प्रमुख आख्यान व रत्न (10 Philosophical Jewels) - Compact */}
+      {/* TAB 3: 10 Philosophical Jewels - Compact */}
       {activeTab === "akhyanas" && (
         <div className="space-y-3">
           <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-[#210d33] via-[#2f1247] to-[#1a0a29] text-purple-100 p-3 sm:p-3.5 border border-purple-700/40 shadow-soft flex items-start gap-2.5">
             <Award className="w-4 h-4 text-purple-300 shrink-0 mt-0.5" />
             <div className="text-[10.5px] text-purple-100/90 leading-relaxed">
-              <span className="font-bold text-white">पुराण व महाभारत के १० अमूल्य दार्शनिक रत्न:</span> ये वे स्वतंत्र व अमर आध्यात्मिक प्रकरण हैं, जो अपने मूल ग्रंथों से निकलकर सनातन धर्म के दैनिक स्वाध्याय, साधन, और मोक्ष के प्रधान स्तम्भ बन गए हैं। प्रत्येक रत्न के मूल श्लोक, भावार्थ एवं संरचना को सीधे प्रबंधित किया जा सकता है।
+              <span className="font-bold text-white">10 Priceless Philosophical Jewels of Puranas &amp; Mahabharata:</span> These timeless standalone spiritual discourses have emerged from their source scriptures to become foundational pillars of daily study, devotion, and liberation in Sanatana Dharma. Shlokas, meanings, and structure for each jewel can be managed directly.
             </div>
           </div>
 
@@ -786,11 +788,11 @@ export const PuranaItihasaListPage: React.FC = () => {
                         {idx + 1}
                       </span>
                       <div>
-                        <h3 className="font-bold text-xs sm:text-[13px] text-charcoal-900 font-devanagari">
-                          {jewel.title}
-                        </h3>
-                        <p className="text-[10px] text-charcoal-500 font-medium">
+                        <h3 className="font-bold text-xs sm:text-[13px] text-charcoal-900">
                           {jewel.enTitle}
+                        </h3>
+                        <p className="text-[10px] text-charcoal-500 font-medium font-devanagari">
+                          {jewel.title}
                         </p>
                       </div>
                     </div>
@@ -801,24 +803,24 @@ export const PuranaItihasaListPage: React.FC = () => {
 
                   <div className="mt-2 space-y-1 text-[10px]">
                     <div className="flex items-center gap-1.5 text-charcoal-700">
-                      <span className="font-semibold text-charcoal-500">स्रोत ग्रंथ:</span>
+                      <span className="font-semibold text-charcoal-500">Source Text:</span>
                       <span className="font-medium text-saffron-700 bg-saffron-50 px-1.5 py-0.2 rounded text-[9px]">
                         {jewel.sourceGrantha}
                       </span>
                     </div>
 
                     <div className="flex items-center gap-1.5 text-charcoal-700">
-                      <span className="font-semibold text-charcoal-500">प्रधान देव:</span>
+                      <span className="font-semibold text-charcoal-500">Chief Deity:</span>
                       <span>{jewel.chiefDeity}</span>
                     </div>
 
                     <div className="flex items-center gap-1.5 text-charcoal-700">
-                      <span className="font-semibold text-charcoal-500">वक्ता / श्रोता:</span>
+                      <span className="font-semibold text-charcoal-500">Speaker / Listener:</span>
                       <span className="text-charcoal-600">{jewel.speaker}</span>
                     </div>
 
                     <div className="pt-1 text-charcoal-600 leading-relaxed text-[10px] bg-cream-50/60 p-1.5 rounded-lg border border-cream-200">
-                      <span className="font-bold text-charcoal-800">दार्शनिक रहस्य: </span>
+                      <span className="font-bold text-charcoal-800">Philosophical Significance: </span>
                       {jewel.philosophicalSignificance}
                     </div>
 
@@ -839,7 +841,7 @@ export const PuranaItihasaListPage: React.FC = () => {
 
                 <div className="mt-2.5 pt-2 border-t border-cream-200 flex items-center justify-between">
                   <span className="text-[10px] font-medium text-green-700 flex items-center gap-1">
-                    <CheckCircle2 className="w-2.5 h-2.5" /> सक्रिय संग्रह
+                    <CheckCircle2 className="w-2.5 h-2.5" /> Active Collection
                   </span>
                   <div className="flex items-center gap-1">
                     <Link
@@ -847,14 +849,14 @@ export const PuranaItihasaListPage: React.FC = () => {
                       className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition"
                     >
                       <Scroll className="w-2.5 h-2.5" />
-                      <span>श्लोक देखें</span>
+                      <span>View Shlokas</span>
                     </Link>
                     <Link
                       to={`/admin/purana-itihasa/${jewel.sourcePuranaId}/structure`}
                       className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-cream-100 text-charcoal-700 border border-cream-300 hover:bg-cream-200 transition"
                     >
                       <FolderTree className="w-2.5 h-2.5" />
-                      <span>संरचना</span>
+                      <span>Structure</span>
                     </Link>
                   </div>
                 </div>
@@ -864,13 +866,13 @@ export const PuranaItihasaListPage: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 4: १८ उपपुराण (18 Upapuranas) - Compact & Luxury */}
+      {/* TAB 4: 18 Upapuranas - Compact & Luxury */}
       {activeTab === "upapuranas" && (
         <div className="space-y-3">
           <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-[#2c1810] via-[#3a1d11] to-[#200e07] text-amber-100 p-3 sm:p-3.5 border border-amber-700/40 shadow-soft flex items-start gap-2.5">
             <Layers className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
             <div className="text-[10.5px] text-amber-100/90 leading-relaxed">
-              <span className="font-bold text-white">अष्टादश उपपुराण (18 Minor Puranas):</span> महापुराणों के अतिरिक्त व्यास, सनत्कुमार, दुर्वासा, वसिष्ठ आदि ऋषियों द्वारा प्रतिपादित १८ उपपुराण सनातन धर्म की विशिष्ट साधनाओं, शक्तिपीठों, तीर्थों एवं गूढ़ मन्त्रविद्याओं के प्रामाणिक आधार हैं।
+              <span className="font-bold text-white">18 Upapuranas (Minor Puranas):</span> Complementing the Mahapuranas, these 18 Upapuranas expounded by Vyasa, Sanatkumara, Durvasa, Vashistha, and other sages form the authoritative foundation for specialized spiritual practices, Shakti Peethas, sacred pilgrimage sites, and esoteric mantra traditions.
             </div>
           </div>
 
@@ -879,13 +881,13 @@ export const PuranaItihasaListPage: React.FC = () => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-gradient-to-r from-cream-100/90 via-cream-50 to-cream-100/90 border-b border-cream-200 text-[10.5px] font-bold text-charcoal-700 uppercase tracking-wider">
-                    <th className="py-2 px-2.5 w-10 text-center">क्र०</th>
-                    <th className="py-2 px-2.5 min-w-[180px]">उपपुराण का नाम</th>
-                    <th className="py-2 px-2.5">परम्परा</th>
-                    <th className="py-2 px-2.5">इष्ट देवता व ऋषि</th>
-                    <th className="py-2 px-2.5">श्लोक संख्या</th>
-                    <th className="py-2 px-2.5 min-w-[240px]">संक्षिप्त सार</th>
-                    <th className="py-2 px-2.5 text-center">स्थिति</th>
+                    <th className="py-2 px-2.5 w-10 text-center">#</th>
+                    <th className="py-2 px-2.5 min-w-[180px]">Upapurana Name</th>
+                    <th className="py-2 px-2.5">Tradition</th>
+                    <th className="py-2 px-2.5">Deity &amp; Rishi</th>
+                    <th className="py-2 px-2.5">Shlokas</th>
+                    <th className="py-2 px-2.5 min-w-[240px]">Summary</th>
+                    <th className="py-2 px-2.5 text-center">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-cream-100 text-xs">
@@ -895,11 +897,11 @@ export const PuranaItihasaListPage: React.FC = () => {
                         {i + 1}
                       </td>
                       <td className="py-1.5 px-2.5">
-                        <div className="font-bold text-charcoal-900 text-xs font-devanagari">
-                          {u.name}
-                        </div>
-                        <div className="text-[10px] text-charcoal-500 font-medium">
+                        <div className="font-bold text-charcoal-900 text-xs">
                           {u.enName}
+                        </div>
+                        <div className="text-[10px] text-charcoal-500 font-medium font-devanagari">
+                          {u.name}
                         </div>
                       </td>
                       <td className="py-1.5 px-2.5 whitespace-nowrap">
@@ -923,7 +925,7 @@ export const PuranaItihasaListPage: React.FC = () => {
                       </td>
                       <td className="py-1.5 px-2.5 text-center whitespace-nowrap">
                         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-green-50 text-green-700 border border-green-200">
-                          सक्रिय
+                          Active
                         </span>
                       </td>
                     </tr>
@@ -935,24 +937,24 @@ export const PuranaItihasaListPage: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 5: दश लक्षण (10 Shastric Characteristics) - Compact & Luxury */}
+      {/* TAB 5: 10 Shastric Characteristics - Compact & Luxury */}
       {activeTab === "lakshanas" && (
         <div className="space-y-3">
           <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-[#0d2818] via-[#123822] to-[#091f13] text-emerald-100 p-3 sm:p-3.5 border border-emerald-700/40 shadow-soft flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
             <div>
               <div className="text-[10.5px] font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                <span>श्रीमद्भागवत महापुराण (द्वादश स्कन्ध ७.९-१० एवं द्वितीय स्कन्ध १०.१)</span>
+                <span>Shrimad Bhagavata Mahapurana (Skandha 12.7.9-10 &amp; Skandha 2.10.1)</span>
               </div>
               <div className="text-xs sm:text-[13px] font-devanagari font-bold text-white mt-0.5 italic">
                 सर्गोऽस्याथ विसर्गश्च वृत्ती रक्षान्तराणि च। वंशो वंशानुचरितं संस्था हेतुरपाश्रयः॥
               </div>
               <p className="text-[10px] text-emerald-200/90 mt-0.5">
-                महापुराणों के पूर्ण होने के १० शास्त्रीय लक्षण (सर्ग, विसर्ग, वृत्ति, रक्षा, मन्वन्तर, वंश, वंशानुचरित, संस्था/प्रलय, हेतु, और अपाश्रय)।
+                The 10 classical characteristics of a complete Mahapurana (Sarga, Visarga, Vritti, Raksha, Manvantara, Vamsha, Vamshanucharita, Samstha/Pralaya, Hetu, and Apashraya).
               </p>
             </div>
             <div className="px-3 py-1 rounded-lg bg-emerald-700/80 border border-emerald-500/30 text-white font-bold text-[10px] shrink-0 shadow-2xs">
-              १० शास्त्रीय लक्षण मानक
+              10 Shastric Standards
             </div>
           </div>
 
@@ -968,11 +970,11 @@ export const PuranaItihasaListPage: React.FC = () => {
                       {char.id}
                     </span>
                     <div>
-                      <h4 className="font-bold text-xs sm:text-[13px] text-charcoal-900 font-devanagari">
-                        {char.sanskritName}
-                      </h4>
-                      <div className="text-[10px] text-charcoal-500 font-medium">
+                      <h4 className="font-bold text-xs sm:text-[13px] text-charcoal-900">
                         {char.enName}
+                      </h4>
+                      <div className="text-[10px] text-charcoal-500 font-medium font-devanagari">
+                        {char.sanskritName}
                       </div>
                     </div>
                   </div>
@@ -983,17 +985,17 @@ export const PuranaItihasaListPage: React.FC = () => {
 
                 <div className="mt-2 space-y-1 text-[10px]">
                   <div>
-                    <span className="font-bold text-charcoal-700">शास्त्रीय परिभाषा: </span>
+                    <span className="font-bold text-charcoal-700">Classical Definition: </span>
                     <span className="text-charcoal-800 leading-relaxed text-[10px]">{char.definition}</span>
                   </div>
 
                   <div className="bg-cream-50 p-1.5 rounded-lg border border-cream-200">
-                    <span className="font-bold text-emerald-800">दार्शनिक रहस्य: </span>
+                    <span className="font-bold text-emerald-800">Philosophical Significance: </span>
                     <span className="text-charcoal-700 text-[10px]">{char.puranicSignificance}</span>
                   </div>
 
                   <div>
-                    <span className="font-bold text-charcoal-700">प्रमुख पुराणों में उदाहरण: </span>
+                    <span className="font-bold text-charcoal-700">Examples in Granthas: </span>
                     <span className="text-saffron-700 font-medium text-[10px]">{char.examplesInGranthas}</span>
                   </div>
                 </div>
@@ -1006,10 +1008,10 @@ export const PuranaItihasaListPage: React.FC = () => {
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         isOpen={Boolean(deleteTarget)}
-        title="ग्रंथ हटाने की पुष्टि (Confirm Delete)"
-        message={`क्या आप सुनिश्चित हैं कि आप ग्रंथ "${deleteTarget?.name}" (${deleteTarget?.enName}) को हटाना चाहते हैं? इसके अन्तर्गत जुड़े संरचना वृक्ष व श्लोक भी प्रभावित हो सकते हैं।`}
-        confirmLabel="हाँ, ग्रंथ हटाएं"
-        cancelLabel="रद्द करें"
+        title="Confirm Grantha Deletion"
+        message={`Are you sure you want to delete "${deleteTarget?.enName}" (${deleteTarget?.name})? Linked structure tree nodes and shlokas may also be affected.`}
+        confirmLabel="Yes, Delete Grantha"
+        cancelLabel="Cancel"
         danger
         loading={isDeleting}
         onConfirm={handleDeleteConfirm}

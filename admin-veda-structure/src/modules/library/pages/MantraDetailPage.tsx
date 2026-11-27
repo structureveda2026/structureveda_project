@@ -2,11 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
-  ArrowRight,
   Edit,
   Trash2,
   Sparkles,
-  Scroll,
   Languages,
   BookOpen,
   Copy,
@@ -19,7 +17,6 @@ import {
   Music,
   ChevronLeft,
   ChevronRight,
-  Share2,
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import ConfirmDialog from "@/components/ConfirmDialog";
@@ -80,8 +77,9 @@ export const MantraDetailPage: React.FC = () => {
             // Silently ignore siblings fetch failure
           }
         }
-      } catch (err: any) {
-        showToast(err.message || "मंत्र विवरण लोड करने में विफल", "error");
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Failed to load mantra details";
+        showToast(msg || "Failed to load mantra details", "error");
       } finally {
         setLoading(false);
       }
@@ -91,14 +89,14 @@ export const MantraDetailPage: React.FC = () => {
       fetchMantra();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
-  }, [id]);
+  }, [id, showToast]);
 
   const handleCopyMantra = () => {
     if (!mantra) return;
-    const fullText = `॥ ${mantra.sanskrit} ॥\n\n— ${mantra.textName} (${mantra.mantraNumber})\nऋषि: ${mantra.rishi || "वैदिक ऋषि"} | देवता: ${mantra.devata || "दिव्य देव"} | छंद: ${mantra.chhanda || "गायत्री"}\n\nहिंदी भावार्थ: ${mantra.hindiTranslation}`;
+    const fullText = `|| ${mantra.sanskrit} ||\n\n— ${mantra.textName} (${mantra.mantraNumber})\nSage: ${mantra.rishi || "Vedic Seer"} | Deity: ${mantra.devata || "Vedic Deity"} | Meter: ${mantra.chhanda || "Gayatri"}\n\nHindi Meaning: ${mantra.hindiTranslation}`;
     navigator.clipboard.writeText(fullText);
     setCopiedMantra(true);
-    showToast("संपूर्ण मंत्र एवं संदर्भ कॉपी किया गया!", "success");
+    showToast("Full mantra and reference copied!", "success");
     setTimeout(() => setCopiedMantra(false), 2000);
   };
 
@@ -111,7 +109,7 @@ export const MantraDetailPage: React.FC = () => {
 
     navigator.clipboard.writeText(text);
     setCopiedTranslation(true);
-    showToast("भावार्थ कॉपी किया गया!", "success");
+    showToast("Translation copied!", "success");
     setTimeout(() => setCopiedTranslation(false), 2000);
   };
 
@@ -119,10 +117,11 @@ export const MantraDetailPage: React.FC = () => {
     if (!mantra) return;
     try {
       await VedaMantraAdminService.deleteMantra(mantra.id);
-      showToast("मंत्र सफलतापूर्वक हटाया गया", "success");
+      showToast("Mantra deleted successfully", "success");
       navigate("/admin/library/mantras");
-    } catch (err: any) {
-      showToast(err.message || "मंत्र हटाने में विफल", "error");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to delete mantra";
+      showToast(msg || "Failed to delete mantra", "error");
     }
   };
 
@@ -130,8 +129,8 @@ export const MantraDetailPage: React.FC = () => {
     return (
       <div className="p-16 text-center text-xs text-charcoal-500 bg-white rounded-3xl border border-cream-200 max-w-4xl mx-auto space-y-3">
         <Sparkles className="w-8 h-8 text-saffron-500 animate-spin mx-auto" />
-        <p className="font-devanagari text-base font-bold text-charcoal-800">
-          वैदिक मंत्र का पावन पृष्ठ लोड हो रहा है...
+        <p className="text-base font-bold text-charcoal-800">
+          Loading Vedic mantra details...
         </p>
       </div>
     );
@@ -140,13 +139,13 @@ export const MantraDetailPage: React.FC = () => {
   if (!mantra) {
     return (
       <div className="p-16 text-center text-xs text-charcoal-500 bg-white rounded-3xl border border-cream-200 max-w-4xl mx-auto space-y-4">
-        <p className="font-bold text-base text-charcoal-800">मंत्र नहीं मिला।</p>
+        <p className="font-bold text-base text-charcoal-800">Mantra not found.</p>
         <Link
           to="/admin/library/mantras"
           className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-saffron-600 text-white font-bold text-xs"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>मंत्र सूची पर लौटें</span>
+          <span>Back to Mantras</span>
         </Link>
       </div>
     );
@@ -156,7 +155,7 @@ export const MantraDetailPage: React.FC = () => {
     <div className="space-y-6 max-w-5xl mx-auto pb-12">
       {/* Top Navigation & Action Header */}
       <PageHeader
-        title={`${mantra.textName} • मंत्र ${mantra.mantraNumber}`}
+        title={`${mantra.textName} • Mantra ${mantra.mantraNumber}`}
         subtitle={`${mantra.sectionRef} • ${mantra.vedaName} ${mantra.shakha ? `(${mantra.shakha})` : ""}`}
         actions={
           <div className="flex items-center gap-2">
@@ -165,7 +164,7 @@ export const MantraDetailPage: React.FC = () => {
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-cream-300 text-charcoal-700 text-xs font-bold hover:bg-cream-50 transition-colors shadow-2xs"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>मंत्र सूची</span>
+              <span>Mantra List</span>
             </Link>
 
             <Link
@@ -173,14 +172,14 @@ export const MantraDetailPage: React.FC = () => {
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-saffron-600 to-saffron-500 hover:from-saffron-700 hover:to-saffron-600 text-white text-xs font-bold shadow-xs transition-all"
             >
               <Edit className="w-3.5 h-3.5" />
-              <span>संपादित करें</span>
+              <span>Edit</span>
             </Link>
 
             <button
               type="button"
               onClick={() => setDeleteConfirm(true)}
               className="p-2 text-charcoal-400 hover:text-red-600 rounded-xl hover:bg-red-50 border border-cream-200 transition-colors cursor-pointer"
-              title="मंत्र हटाएं"
+              title="Delete Mantra"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -195,9 +194,9 @@ export const MantraDetailPage: React.FC = () => {
           <div className="space-y-1">
             <span className="flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-wider text-saffron-800">
               <BookOpen className="w-3 h-3" />
-              वेद
+              Veda
             </span>
-            <strong className="text-xs text-charcoal-900 block font-devanagari truncate">
+            <strong className="text-xs text-charcoal-900 block truncate">
               {mantra.vedaName}
             </strong>
           </div>
@@ -206,10 +205,10 @@ export const MantraDetailPage: React.FC = () => {
           <div className="space-y-1 sm:pl-2 pt-2 sm:pt-0">
             <span className="flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-wider text-saffron-800">
               <Layers className="w-3 h-3" />
-              शाखा
+              Shakha
             </span>
-            <strong className="text-xs text-charcoal-900 block font-devanagari truncate">
-              {mantra.shakha || "प्रामाणिक शाखा"}
+            <strong className="text-xs text-charcoal-900 block truncate">
+              {mantra.shakha || "Authentic Shakha"}
             </strong>
           </div>
 
@@ -217,9 +216,9 @@ export const MantraDetailPage: React.FC = () => {
           <div className="space-y-1 sm:pl-2 pt-2 sm:pt-0">
             <span className="flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-wider text-saffron-800">
               <BookMarked className="w-3 h-3" />
-              ग्रंथ व संदर्भ
+              Text &amp; Reference
             </span>
-            <strong className="text-xs text-charcoal-900 block font-devanagari truncate" title={mantra.sectionRef}>
+            <strong className="text-xs text-charcoal-900 block truncate" title={mantra.sectionRef}>
               {mantra.sectionRef}
             </strong>
           </div>
@@ -228,10 +227,10 @@ export const MantraDetailPage: React.FC = () => {
           <div className="space-y-1 sm:pl-2 pt-2 sm:pt-0">
             <span className="flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-wider text-saffron-800">
               <Feather className="w-3 h-3" />
-              ऋषि (Sage)
+              Sage (Rishi)
             </span>
-            <strong className="text-xs text-charcoal-900 block font-devanagari truncate">
-              {mantra.rishi || "वैदिक द्रष्टा"}
+            <strong className="text-xs text-charcoal-900 block truncate">
+              {mantra.rishi || "Vedic Seer"}
             </strong>
           </div>
 
@@ -239,10 +238,10 @@ export const MantraDetailPage: React.FC = () => {
           <div className="space-y-1 sm:pl-2 pt-2 sm:pt-0">
             <span className="flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-wider text-saffron-800">
               <Flame className="w-3 h-3 text-amber-600" />
-              देवता (Deity)
+              Deity (Devata)
             </span>
-            <strong className="text-xs text-charcoal-900 block font-devanagari truncate">
-              {mantra.devata || "दिव्य देव"}
+            <strong className="text-xs text-charcoal-900 block truncate">
+              {mantra.devata || "Vedic Deity"}
             </strong>
           </div>
 
@@ -250,10 +249,10 @@ export const MantraDetailPage: React.FC = () => {
           <div className="space-y-1 sm:pl-2 pt-2 sm:pt-0">
             <span className="flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-wider text-saffron-800">
               <Sparkles className="w-3 h-3" />
-              छंद (Meter)
+              Meter (Chhanda)
             </span>
-            <strong className="text-xs text-charcoal-900 block font-devanagari truncate">
-              {mantra.chhanda || "गायत्री"}
+            <strong className="text-xs text-charcoal-900 block truncate">
+              {mantra.chhanda || "Gayatri"}
             </strong>
           </div>
 
@@ -261,10 +260,10 @@ export const MantraDetailPage: React.FC = () => {
           <div className="space-y-1 sm:pl-2 pt-2 sm:pt-0">
             <span className="flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-wider text-saffron-800">
               <Music className="w-3 h-3" />
-              स्वर विधान
+              Chanting (Svara)
             </span>
-            <strong className="text-xs text-charcoal-900 block font-devanagari truncate">
-              {mantra.svara || "सस्वर पाठ"}
+            <strong className="text-xs text-charcoal-900 block truncate">
+              {mantra.svara || "Svara Chanting"}
             </strong>
           </div>
         </div>
@@ -280,7 +279,7 @@ export const MantraDetailPage: React.FC = () => {
         {/* Top Filigree Bar */}
         <div className="flex items-center justify-between text-xs font-bold text-saffron-900 border-b border-amber-200/60 pb-3">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-devanagari text-amber-700">॥ ॐ श्रीगुरुभ्यो नमः ॥</span>
+            <span className="text-sm font-serif text-amber-700">Om Shri Gurubhyo Namah</span>
             <span className="hidden sm:inline-block text-[11px] px-2 py-0.5 rounded-full bg-amber-100/70 text-amber-900 font-mono">
               ID: {mantra.id}
             </span>
@@ -293,10 +292,10 @@ export const MantraDetailPage: React.FC = () => {
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-amber-100/70 hover:bg-amber-200/80 text-amber-900 shadow-2xs transition-colors"
-                title="वैदिक स्वर पाठ सुनें"
+                title="Listen to Vedic chanting"
               >
                 <Volume2 className="w-3.5 h-3.5 text-amber-700" />
-                <span className="text-xs">मंत्र गान</span>
+                <span className="text-xs">Audio Chanting</span>
               </a>
             )}
 
@@ -308,12 +307,12 @@ export const MantraDetailPage: React.FC = () => {
               {copiedMantra ? (
                 <>
                   <Check className="w-3.5 h-3.5 text-emerald-600" />
-                  <span className="text-emerald-700">कॉपी हुआ!</span>
+                  <span className="text-emerald-700">Copied!</span>
                 </>
               ) : (
                 <>
                   <Copy className="w-3.5 h-3.5 text-saffron-700" />
-                  <span>मंत्र कॉपी करें</span>
+                  <span>Copy Mantra</span>
                 </>
               )}
             </button>
@@ -328,8 +327,8 @@ export const MantraDetailPage: React.FC = () => {
         </div>
 
         {/* Bottom Filigree Mark */}
-        <div className="pt-2 text-xs text-amber-700/70 font-devanagari font-bold">
-          ॥ इति {mantra.textName} {mantra.mantraNumber} समाप्तम् ॥
+        <div className="pt-2 text-xs text-amber-700/70 font-serif font-bold">
+          {mantra.textName} • {mantra.mantraNumber}
         </div>
       </div>
 
@@ -341,10 +340,10 @@ export const MantraDetailPage: React.FC = () => {
             <Languages className="w-5 h-5 text-saffron-600" />
             <div>
               <h3 className="font-bold text-sm text-charcoal-900">
-                त्रिभाषी भावार्थ (Authentic 3-Language Translations)
+                Authentic 3-Language Translations
               </h3>
               <p className="text-[11px] text-charcoal-400">
-                शास्त्रीय परंपरा के अनुसार हिंदी, अंग्रेजी एवं आधुनिक हिंग्लिश अनुवाद
+                Classical Hindi, English, and conversational Hinglish meanings
               </p>
             </div>
           </div>
@@ -361,7 +360,7 @@ export const MantraDetailPage: React.FC = () => {
                     : "text-charcoal-600 hover:text-charcoal-900"
                 }`}
               >
-                प्रामाणिक हिंदी
+                Authentic Hindi
               </button>
               <button
                 type="button"
@@ -383,7 +382,7 @@ export const MantraDetailPage: React.FC = () => {
                     : "text-charcoal-600 hover:text-charcoal-900"
                 }`}
               >
-                सरल Hinglish
+                Simple Hinglish
               </button>
             </div>
 
@@ -391,7 +390,7 @@ export const MantraDetailPage: React.FC = () => {
               type="button"
               onClick={handleCopyTranslation}
               className="p-1.5 rounded-lg bg-white border border-cream-200 text-charcoal-600 hover:text-saffron-700 shadow-2xs transition-colors"
-              title="यह भावार्थ कॉपी करें"
+              title="Copy this translation"
             >
               {copiedTranslation ? (
                 <Check className="w-4 h-4 text-emerald-600" />
@@ -407,11 +406,11 @@ export const MantraDetailPage: React.FC = () => {
           {selectedLang === "hindi" && (
             <div className="space-y-3">
               <div className="flex items-center justify-between text-xs text-saffron-800 font-bold border-b border-cream-100 pb-2">
-                <span>प्रामाणिक हिंदी भावार्थ (Authentic Hindi Meaning)</span>
-                <span className="text-[11px] text-charcoal-400">वैदिक परंपरा</span>
+                <span>Authentic Hindi Meaning</span>
+                <span className="text-[11px] text-charcoal-400">Vedic Tradition</span>
               </div>
               <p className="font-devanagari text-base sm:text-lg text-charcoal-800 leading-relaxed sm:leading-loose whitespace-pre-line select-text">
-                {mantra.hindiTranslation || "हिंदी भावार्थ उपलब्ध नहीं है।"}
+                {mantra.hindiTranslation || "Hindi translation is not available."}
               </p>
             </div>
           )}
@@ -419,7 +418,7 @@ export const MantraDetailPage: React.FC = () => {
           {selectedLang === "english" && (
             <div className="space-y-3">
               <div className="flex items-center justify-between text-xs text-blue-800 font-bold border-b border-cream-100 pb-2">
-                <span>Authentic English Translation (Classical & Scholarly)</span>
+                <span>Authentic English Translation (Classical &amp; Scholarly)</span>
                 <span className="text-[11px] text-charcoal-400">Scholarly Vedic Exposition</span>
               </div>
               <p className="font-serif text-base sm:text-lg text-charcoal-800 leading-relaxed italic whitespace-pre-line select-text">
@@ -432,8 +431,8 @@ export const MantraDetailPage: React.FC = () => {
           {selectedLang === "hinglish" && (
             <div className="space-y-3">
               <div className="flex items-center justify-between text-xs text-purple-800 font-bold border-b border-cream-100 pb-2">
-                <span>सरल हिंग्लिश भावार्थ (Accessible Hinglish Meaning)</span>
-                <span className="text-[11px] text-charcoal-400">आधुनिक सरल भाषा</span>
+                <span>Accessible Hinglish Meaning</span>
+                <span className="text-[11px] text-charcoal-400">Conversational Romanized</span>
               </div>
               <p className="font-sans text-sm sm:text-base text-charcoal-800 leading-relaxed whitespace-pre-line select-text">
                 {mantra.hinglishTranslation ||
@@ -452,15 +451,15 @@ export const MantraDetailPage: React.FC = () => {
               <Sparkles className="w-5 h-5 text-saffron-600" />
               <div>
                 <h3 className="font-bold text-sm text-charcoal-900">
-                  पदच्छेद एवं पदार्थ (Padapatha & Word Breakdown)
+                  Padapatha &amp; Word Breakdown
                 </h3>
                 <p className="text-[11px] text-charcoal-400">
-                  प्रत्येक पद का संधि-विच्छेद व स्वतंत्र अर्थ
+                  Sandhi-split word forms and individual meanings
                 </p>
               </div>
             </div>
             <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-200">
-              कुल {mantra.padapatha.length} पद
+              Total {mantra.padapatha.length} padas
             </span>
           </div>
 
@@ -488,9 +487,9 @@ export const MantraDetailPage: React.FC = () => {
       ) : (
         <div className="bg-white p-6 rounded-3xl border border-cream-200 shadow-2xs text-center space-y-2">
           <Sparkles className="w-6 h-6 text-charcoal-300 mx-auto" />
-          <h4 className="font-bold text-xs text-charcoal-700">पदच्छेद अभी संकलित नहीं है</h4>
+          <h4 className="font-bold text-xs text-charcoal-700">Padapatha is not added yet</h4>
           <p className="text-[11px] text-charcoal-400 max-w-md mx-auto">
-            इस मंत्र के प्रत्येक पद का पदच्छेद व पदार्थ जोड़ने के लिए "संपादित करें" पर क्लिक करें।
+            Click &quot;Edit&quot; to add word-by-word Padapatha breakdown and meanings for this mantra.
           </p>
         </div>
       )}
@@ -504,15 +503,15 @@ export const MantraDetailPage: React.FC = () => {
             </div>
             <div>
               <h3 className="font-bold text-sm text-charcoal-900">
-                शास्त्रीय संदर्भ, विनियोग एवं आध्यात्मिक तात्पर्य
+                Shastric Context, Viniyoga &amp; Spiritual Commentary
               </h3>
               <p className="text-[11px] text-charcoal-400">
-                ऋषि, देवता, छंद एवं यज्ञीय/आध्यात्मिक विनियोग विवरण
+                Sage, Deity, Meter, and liturgical / spiritual application
               </p>
             </div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-[#FFFDF8] border-l-4 border-saffron-500 text-xs text-charcoal-800 font-devanagari leading-loose whitespace-pre-line">
+          <div className="p-4 rounded-2xl bg-[#FFFDF8] border-l-4 border-saffron-500 text-xs text-charcoal-800 leading-loose whitespace-pre-line">
             {mantra.shastricContext}
           </div>
         </div>
@@ -526,11 +525,11 @@ export const MantraDetailPage: React.FC = () => {
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-cream-50 hover:bg-cream-100 text-charcoal-800 border border-cream-200 text-xs font-bold transition-all w-full sm:w-auto justify-center"
           >
             <ChevronLeft className="w-4 h-4 text-saffron-600" />
-            <span>← पिछला मंत्र (Previous)</span>
+            <span>← Previous Mantra</span>
           </Link>
         ) : (
           <div className="text-xs text-charcoal-400 px-4 py-2 italic w-full sm:w-auto text-center">
-            (प्रारंभिक मंत्र)
+            (First Mantra)
           </div>
         )}
 
@@ -538,7 +537,7 @@ export const MantraDetailPage: React.FC = () => {
           to="/admin/library/mantras"
           className="text-xs font-bold text-saffron-700 hover:text-saffron-900 underline"
         >
-          सम्पूर्ण मंत्र सूची देखें
+          View All Mantras
         </Link>
 
         {nextMantraId ? (
@@ -546,12 +545,12 @@ export const MantraDetailPage: React.FC = () => {
             to={`/admin/library/mantras/${nextMantraId}`}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-saffron-50 hover:bg-saffron-100 text-saffron-900 border border-saffron-200 text-xs font-bold transition-all w-full sm:w-auto justify-center shadow-2xs"
           >
-            <span>अगला मंत्र (Next) →</span>
+            <span>Next Mantra →</span>
             <ChevronRight className="w-4 h-4 text-saffron-700" />
           </Link>
         ) : (
           <div className="text-xs text-charcoal-400 px-4 py-2 italic w-full sm:w-auto text-center">
-            (अंतिम मंत्र)
+            (Last Mantra)
           </div>
         )}
       </div>
@@ -559,9 +558,9 @@ export const MantraDetailPage: React.FC = () => {
       {/* Delete Confirmation */}
       <ConfirmDialog
         isOpen={deleteConfirm}
-        title="मंत्र हटाएं"
-        message={`क्या आप निश्चित रूप से मंत्र "${mantra.mantraNumber}" (${mantra.id}) को हटाना चाहते हैं? यह क्रिया स्थायी है।`}
-        confirmLabel="हटाएं"
+        title="Delete Mantra"
+        message={`Are you sure you want to delete mantra "${mantra.mantraNumber}" (${mantra.id})? This action is permanent.`}
+        confirmLabel="Delete"
         variant="danger"
         onConfirm={handleDelete}
         onCancel={() => setDeleteConfirm(false)}

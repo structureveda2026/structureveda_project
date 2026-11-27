@@ -19,7 +19,8 @@ async function requestWithFallback(
   primaryPath: string,
   aliasPath: string,
   method: "get" | "post" | "put" | "patch" | "del",
-  payload?: any
+  payload?: unknown
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> {
   try {
     if (method === "get") return await api.get(primaryPath);
@@ -27,9 +28,10 @@ async function requestWithFallback(
     if (method === "put") return await api.put(primaryPath, payload);
     if (method === "patch") return await api.patch(primaryPath, payload);
     if (method === "del") return await api.del(primaryPath);
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const errObj = err as { status?: number; message?: string } | null;
     // If primary path returns 404, automatically attempt alias endpoint
-    if (err?.status === 404 || String(err?.message || "").includes("404")) {
+    if (errObj?.status === 404 || String(errObj?.message || "").includes("404")) {
       console.info(`Primary route ${primaryPath} returned 404, attempting alias route ${aliasPath}`);
       if (method === "get") return await api.get(aliasPath);
       if (method === "post") return await api.post(aliasPath, payload);

@@ -62,7 +62,7 @@ export const VedaMantraAdminService = {
   /**
    * Bulk upload mantras from JSON array
    */
-  async bulkUpload(mantras: Partial<VedaMantra>[]): Promise<any> {
+  async bulkUpload(mantras: Partial<VedaMantra>[]): Promise<unknown> {
     const res = await api.post("/admin/library/mantras/bulk-upload", { mantras });
     return res.data;
   },

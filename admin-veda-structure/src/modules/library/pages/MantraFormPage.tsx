@@ -8,12 +8,11 @@ import {
   Languages,
   BookOpen,
   Volume2,
-  Info,
   Flame,
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { useToast } from "@/context/ToastContext";
-import type { VedaMantra, PadapathaItem } from "../types/veda.types";
+import type { VedaMantra } from "../types/veda.types";
 import VedaMantraAdminService from "../services/vedaMantra.service";
 import PadapathaEditor from "../components/PadapathaEditor";
 
@@ -32,15 +31,15 @@ export const MantraFormPage: React.FC = () => {
     slug: "",
     vedaId: "rigveda",
     nodeId: "",
-    vedaName: "ऋग्वेद (Rigveda)",
-    shakha: "शाकल शाखा",
-    textName: "ऋग्वेद संहिता",
-    sectionRef: "मण्डल १, सूक्त १",
-    mantraNumber: "१.१.१",
+    vedaName: "Rigveda",
+    shakha: "Shakala Shakha",
+    textName: "Rigveda Samhita",
+    sectionRef: "Mandala 1, Sukta 1",
+    mantraNumber: "1.1.1",
     rishi: "",
     devata: "",
-    chhanda: "गायत्री",
-    svara: "सस्वर वैदिक पाठ (उदात्त, अनुदात्त, स्वरित)",
+    chhanda: "Gayatri",
+    svara: "Svara Vedic Chanting (Udatta, Anudatta, Svarita)",
     sanskrit: "",
     hindiTranslation: "",
     englishTranslation: "",
@@ -67,33 +66,34 @@ export const MantraFormPage: React.FC = () => {
               padapatha: data.padapatha || [],
             });
           }
-        } catch (err: any) {
-          showToast(err.message || "मंत्र लोड करने में विफल", "error");
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : "Failed to load mantra";
+          showToast(msg || "Failed to load mantra", "error");
         } finally {
           setLoading(false);
         }
       };
       fetchMantra();
     }
-  }, [id, isEditing]);
+  }, [id, isEditing, showToast]);
 
   const handleVedaChange = (vId: string) => {
-    let vName = "ऋग्वेद (Rigveda)";
-    let shakha = "शाकल शाखा";
-    let textName = "ऋग्वेद संहिता";
+    let vName = "Rigveda";
+    let shakha = "Shakala Shakha";
+    let textName = "Rigveda Samhita";
 
     if (vId === "yajurveda") {
-      vName = "यजुर्वेद (Yajurveda)";
-      shakha = "माध्यन्दिना वाजसनेयि शाखा";
-      textName = "वाजसनेयि संहिता (शुक्ल यजुर्वेद)";
+      vName = "Yajurveda";
+      shakha = "Madhyandina Vajasaneyi Shakha";
+      textName = "Vajasaneyi Samhita (Shukla Yajurveda)";
     } else if (vId === "samaveda") {
-      vName = "सामवेद (Samaveda)";
-      shakha = "कौथुम शाखा";
-      textName = "कौथुम सामवेद संहिता";
+      vName = "Samaveda";
+      shakha = "Kauthuma Shakha";
+      textName = "Kauthuma Samaveda Samhita";
     } else if (vId === "atharvaveda") {
-      vName = "अथर्ववेद (Atharvaveda)";
-      shakha = "शौनक शाखा";
-      textName = "शौनक अथर्ववेद संहिता";
+      vName = "Atharvaveda";
+      shakha = "Shaunaka Shakha";
+      textName = "Shaunaka Atharvaveda Samhita";
     }
 
     setFormData((prev) => ({
@@ -112,11 +112,11 @@ export const MantraFormPage: React.FC = () => {
 
       if (!formData.sanskrit?.trim()) {
         setActiveTab("content");
-        throw new Error("संस्कृत मूल मंत्र अनिवार्य है। (चरण 1: मूल मंत्र)");
+        throw new Error("Sanskrit mantra text is required. (Step 1: Core Mantra)");
       }
       if (!formData.hindiTranslation?.trim()) {
         setActiveTab("translations");
-        throw new Error("प्रामाणिक हिंदी भावार्थ अनिवार्य है। (चरण 2: बहुभाषी भावार्थ)");
+        throw new Error("Authentic Hindi translation is required. (Step 2: Translations)");
       }
 
       const generatedId =
@@ -131,14 +131,15 @@ export const MantraFormPage: React.FC = () => {
 
       if (isEditing && id) {
         await VedaMantraAdminService.updateMantra(id, payload);
-        showToast("मंत्र सफलतापूर्वक अपडेट किया गया", "success");
+        showToast("Mantra updated successfully", "success");
       } else {
         await VedaMantraAdminService.createMantra(payload);
-        showToast("नया मंत्र सफलतापूर्वक जोड़ा गया", "success");
+        showToast("New mantra added successfully", "success");
       }
       navigate(`/admin/library/mantras`);
-    } catch (err: any) {
-      showToast(err.message || "सहेजने में विफल", "error");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to save mantra";
+      showToast(msg || "Failed to save mantra", "error");
     } finally {
       setSaving(false);
     }
@@ -147,7 +148,7 @@ export const MantraFormPage: React.FC = () => {
   if (loading) {
     return (
       <div className="p-12 text-center text-xs text-charcoal-500">
-        मंत्र डेटा लोड हो रहा है...
+        Loading mantra details...
       </div>
     );
   }
@@ -163,17 +164,17 @@ export const MantraFormPage: React.FC = () => {
       <PageHeader
         title={
           isEditing
-            ? `मंत्र संपादित करें (${formData.mantraNumber || formData.id})`
-            : "नया वेदमंत्र जोड़ें (Add Vedic Mantra)"
+            ? `Edit Mantra (${formData.mantraNumber || formData.id})`
+            : "Add Vedic Mantra"
         }
-        subtitle="संस्कृत मूल मंत्र, पदच्छेद (Padapatha), हिंदी, अंग्रेजी एवं हिंग्लिश भावार्थ"
+        subtitle="Sanskrit text, Padapatha, and Hindi, English & Hinglish meanings"
         actions={
           <Link
             to="/admin/library/mantras"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-cream-300 text-charcoal-700 text-xs font-bold hover:bg-cream-50 transition-colors shadow-2xs"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>मंत्र सूची पर लौटें</span>
+            <span>Back to Mantras</span>
           </Link>
         }
       />
@@ -183,26 +184,26 @@ export const MantraFormPage: React.FC = () => {
         {[
           {
             id: "content",
-            label: "1. मूल मंत्र एवं संदर्भ",
+            label: "1. Core Mantra & Reference",
             icon: Scroll,
             badge: formData.sanskrit?.trim() ? "✓" : undefined,
           },
           {
             id: "translations",
-            label: "2. बहुभाषी भावार्थ (3 Languages)",
+            label: "2. Multilingual Meanings (3 Languages)",
             icon: Languages,
-            badge: `${translationsCount}/3 भाषाएँ`,
+            badge: `${translationsCount}/3 Languages`,
             badgeColor: formData.hindiTranslation?.trim() ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800",
           },
           {
             id: "padapatha",
-            label: "3. पदच्छेद व पदार्थ (Word Meanings)",
+            label: "3. Padapatha (Word Meanings)",
             icon: Sparkles,
-            badge: formData.padapatha && formData.padapatha.length > 0 ? `${formData.padapatha.length} पद` : undefined,
+            badge: formData.padapatha && formData.padapatha.length > 0 ? `${formData.padapatha.length} padas` : undefined,
           },
           {
             id: "shastric",
-            label: "4. शास्त्रीय व्याख्या व विनियोग",
+            label: "4. Shastric Context & Viniyoga",
             icon: Flame,
           },
         ].map((tab) => {
@@ -212,7 +213,9 @@ export const MantraFormPage: React.FC = () => {
             <button
               key={tab.id}
               type="button"
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() =>
+                setActiveTab(tab.id as "content" | "translations" | "padapatha" | "shastric")
+              }
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl transition-all cursor-pointer ${
                 isActive
                   ? "bg-saffron-600 text-white shadow-2xs"
@@ -245,29 +248,29 @@ export const MantraFormPage: React.FC = () => {
             <div className="bg-white p-6 rounded-2xl border border-cream-200 shadow-2xs space-y-4">
               <h3 className="font-serif text-sm font-bold text-charcoal-900 border-b border-cream-100 pb-2.5 flex items-center gap-2">
                 <BookOpen className="w-4 h-4 text-saffron-600" />
-                <span>वैदिक वर्गीकरण एवं संदर्भ (Classification)</span>
+                <span>Vedic Classification &amp; Reference</span>
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                    वेद का चयन (Veda) *
+                    Veda *
                   </label>
                   <select
                     value={formData.vedaId}
                     onChange={(e) => handleVedaChange(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 bg-white focus:border-saffron-500 focus:outline-none"
                   >
-                    <option value="rigveda">ऋग्वेद (Rigveda)</option>
-                    <option value="yajurveda">यजुर्वेद (Yajurveda - शुक्ल/कृष्ण)</option>
-                    <option value="samaveda">सामवेद (Samaveda)</option>
-                    <option value="atharvaveda">अथर्ववेद (Atharvaveda)</option>
+                    <option value="rigveda">Rigveda</option>
+                    <option value="yajurveda">Yajurveda (Shukla / Krishna)</option>
+                    <option value="samaveda">Samaveda</option>
+                    <option value="atharvaveda">Atharvaveda</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                    शाखा (Shakha)
+                    Shakha
                   </label>
                   <input
                     type="text"
@@ -275,14 +278,14 @@ export const MantraFormPage: React.FC = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, shakha: e.target.value })
                     }
-                    placeholder="e.g. शाकल शाखा या माध्यन्दिना वाजसनेयि शाखा"
-                    className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari"
+                    placeholder="e.g. Shakala Shakha or Madhyandina Vajasaneyi Shakha"
+                    className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                    ग्रंथ का नाम (Text Name) *
+                    Text Name *
                   </label>
                   <input
                     type="text"
@@ -291,8 +294,8 @@ export const MantraFormPage: React.FC = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, textName: e.target.value })
                     }
-                    placeholder="e.g. ऋग्वेद संहिता (अग्नि सूक्त)"
-                    className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari"
+                    placeholder="e.g. Rigveda Samhita (Agni Sukta)"
+                    className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -300,7 +303,7 @@ export const MantraFormPage: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                    मण्डल / काण्ड / सूक्त संदर्भ (Section Ref) *
+                    Section Ref (Mandala / Kanda / Sukta) *
                   </label>
                   <input
                     type="text"
@@ -309,14 +312,14 @@ export const MantraFormPage: React.FC = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, sectionRef: e.target.value })
                     }
-                    placeholder="e.g. मण्डल १, सूक्त १ (अग्नि सूक्त) या अध्याय १६"
-                    className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari"
+                    placeholder="e.g. Mandala 1, Sukta 1 (Agni Sukta) or Chapter 16"
+                    className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                    मंत्र संख्या (Mantra Number) *
+                    Mantra Number *
                   </label>
                   <input
                     type="text"
@@ -325,14 +328,14 @@ export const MantraFormPage: React.FC = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, mantraNumber: e.target.value })
                     }
-                    placeholder="e.g. १.१.१ या १६.१"
+                    placeholder="e.g. 1.1.1 or 16.1"
                     className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-mono"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                    मंत्र ID (Unique ID)
+                    Mantra ID (Unique ID)
                   </label>
                   <input
                     type="text"
@@ -341,7 +344,7 @@ export const MantraFormPage: React.FC = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, id: e.target.value })
                     }
-                    placeholder="e.g. rv-1-1-1 या vs-16-1"
+                    placeholder="e.g. rv-1-1-1 or vs-16-1"
                     className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-mono disabled:bg-cream-50"
                   />
                 </div>
@@ -351,7 +354,7 @@ export const MantraFormPage: React.FC = () => {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-cream-100">
                 <div>
                   <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                    ऋषि (Sage)
+                    Sage (Rishi)
                   </label>
                   <input
                     type="text"
@@ -359,14 +362,14 @@ export const MantraFormPage: React.FC = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, rishi: e.target.value })
                     }
-                    placeholder="e.g. मधुच्छन्दा वैश्वामित्र"
-                    className="w-full px-3 py-1.5 rounded-lg text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari"
+                    placeholder="e.g. Madhucchanda Vaishvamitra"
+                    className="w-full px-3 py-1.5 rounded-lg text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                    देवता (Deity)
+                    Deity (Devata)
                   </label>
                   <input
                     type="text"
@@ -374,14 +377,14 @@ export const MantraFormPage: React.FC = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, devata: e.target.value })
                     }
-                    placeholder="e.g. अग्नि (Agni)"
-                    className="w-full px-3 py-1.5 rounded-lg text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari"
+                    placeholder="e.g. Agni"
+                    className="w-full px-3 py-1.5 rounded-lg text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                    छंद (Meter)
+                    Meter (Chhanda)
                   </label>
                   <input
                     type="text"
@@ -389,14 +392,14 @@ export const MantraFormPage: React.FC = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, chhanda: e.target.value })
                     }
-                    placeholder="e.g. गायत्री (२४ वर्ण)"
-                    className="w-full px-3 py-1.5 rounded-lg text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari"
+                    placeholder="e.g. Gayatri (24 syllables)"
+                    className="w-full px-3 py-1.5 rounded-lg text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                    स्वर प्रक्रिया (Svara)
+                    Svara (Chanting Pitch)
                   </label>
                   <input
                     type="text"
@@ -404,8 +407,8 @@ export const MantraFormPage: React.FC = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, svara: e.target.value })
                     }
-                    placeholder="e.g. सस्वर वैदिक पाठ"
-                    className="w-full px-3 py-1.5 rounded-lg text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari"
+                    placeholder="e.g. Svara Vedic Chanting"
+                    className="w-full px-3 py-1.5 rounded-lg text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -415,12 +418,12 @@ export const MantraFormPage: React.FC = () => {
             <div className="bg-white p-6 rounded-2xl border border-cream-200 shadow-2xs space-y-4">
               <h3 className="font-serif text-sm font-bold text-charcoal-900 border-b border-cream-100 pb-2.5 flex items-center gap-2">
                 <Scroll className="w-4 h-4 text-saffron-600" />
-                <span>मूल संस्कृत पाठ (Sanskrit Text)</span>
+                <span>Original Sanskrit Text</span>
               </h3>
 
               <div>
                 <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                  संस्कृत मूल मंत्र (सस्वर वैदिक पाठ / Devanagari) *
+                  Sanskrit Original Mantra (Svara Devanagari) *
                 </label>
                 <textarea
                   rows={3}
@@ -442,8 +445,8 @@ export const MantraFormPage: React.FC = () => {
                 onClick={() => setActiveTab("translations")}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-saffron-50 hover:bg-saffron-100 border border-saffron-300 text-saffron-800 text-xs font-bold transition-all cursor-pointer shadow-2xs"
               >
-                <span>अगला चरण: बहुभाषी भावार्थ (Hindi, English, Hinglish)</span>
-                <span>➔</span>
+                <span>Next: Multilingual Meanings (Hindi, English, Hinglish)</span>
+                <span>→</span>
               </button>
             </div>
           </div>
@@ -454,13 +457,13 @@ export const MantraFormPage: React.FC = () => {
           <div className="bg-white p-6 rounded-2xl border border-cream-200 shadow-2xs space-y-5">
             <h3 className="font-serif text-sm font-bold text-charcoal-900 border-b border-cream-100 pb-2.5 flex items-center gap-2">
               <Languages className="w-4 h-4 text-saffron-600" />
-              <span>त्रिभाषी भावार्थ (Hindi, English & Hinglish Translations)</span>
+              <span>3-Language Meanings (Hindi, English &amp; Hinglish)</span>
             </h3>
 
             {/* Language Status Bar */}
             <div className="bg-amber-50/70 border border-amber-200/80 rounded-xl p-3 text-xs text-amber-900 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <span className="font-medium">
-                यहाँ हिंदी (अनिवार्य), English एवं Hinglish तीनों भाषाओं में भावार्थ संपादित करें।
+                Edit meanings across Hindi (required), English, and Hinglish.
               </span>
               <div className="flex items-center gap-2 text-[10px] font-bold">
                 <span
@@ -470,7 +473,7 @@ export const MantraFormPage: React.FC = () => {
                       : "bg-red-100 text-red-800"
                   }`}
                 >
-                  हिंदी: {formData.hindiTranslation?.trim() ? "भरी है ✓" : "आवश्यक *"}
+                  Hindi: {formData.hindiTranslation?.trim() ? "Filled ✓" : "Required *"}
                 </span>
                 <span
                   className={`px-2 py-0.5 rounded ${
@@ -479,7 +482,7 @@ export const MantraFormPage: React.FC = () => {
                       : "bg-stone-200 text-stone-600"
                   }`}
                 >
-                  English: {formData.englishTranslation?.trim() ? "भरी है ✓" : "वैकल्पिक"}
+                  English: {formData.englishTranslation?.trim() ? "Filled ✓" : "Optional"}
                 </span>
                 <span
                   className={`px-2 py-0.5 rounded ${
@@ -488,7 +491,7 @@ export const MantraFormPage: React.FC = () => {
                       : "bg-stone-200 text-stone-600"
                   }`}
                 >
-                  Hinglish: {formData.hinglishTranslation?.trim() ? "भरी है ✓" : "वैकल्पिक"}
+                  Hinglish: {formData.hinglishTranslation?.trim() ? "Filled ✓" : "Optional"}
                 </span>
               </div>
             </div>
@@ -497,9 +500,9 @@ export const MantraFormPage: React.FC = () => {
             <div>
               <label className="block text-xs font-bold text-charcoal-800 mb-1 flex items-center gap-1.5">
                 <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-900 font-bold text-[10px]">
-                  1. हिंदी भावार्थ
+                  1. Hindi Meaning
                 </span>
-                <span>प्रामाणिक हिंदी व्याख्या (Hindi Translation) *</span>
+                <span>Authentic Hindi Translation *</span>
               </label>
               <textarea
                 rows={3}
@@ -538,7 +541,7 @@ export const MantraFormPage: React.FC = () => {
                 <span className="px-2 py-0.5 rounded bg-purple-100 text-purple-900 font-bold text-[10px]">
                   3. Hinglish
                 </span>
-                <span>सरल हिंग्लिश भावार्थ (Hinglish Romanized Explanation)</span>
+                <span>Simple Hinglish Meaning (Romanized Explanation)</span>
               </label>
               <textarea
                 rows={3}
@@ -561,15 +564,15 @@ export const MantraFormPage: React.FC = () => {
                 onClick={() => setActiveTab("content")}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cream-50 hover:bg-cream-100 border border-cream-300 text-charcoal-700 text-xs font-bold transition-all cursor-pointer"
               >
-                <span>⬅ पिछला चरण: मूल मंत्र</span>
+                <span>← Previous: Core Mantra</span>
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("padapatha")}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-saffron-50 hover:bg-saffron-100 border border-saffron-300 text-saffron-800 text-xs font-bold transition-all cursor-pointer shadow-2xs"
               >
-                <span>अगला चरण: पदच्छेद व पदार्थ (Word Meanings)</span>
-                <span>➔</span>
+                <span>Next: Padapatha (Word Meanings)</span>
+                <span>→</span>
               </button>
             </div>
           </div>
@@ -592,15 +595,15 @@ export const MantraFormPage: React.FC = () => {
                 onClick={() => setActiveTab("translations")}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cream-50 hover:bg-cream-100 border border-cream-300 text-charcoal-700 text-xs font-bold transition-all cursor-pointer"
               >
-                <span>⬅ पिछला चरण: बहुभाषी भावार्थ</span>
+                <span>← Previous: Translations</span>
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("shastric")}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-saffron-50 hover:bg-saffron-100 border border-saffron-300 text-saffron-800 text-xs font-bold transition-all cursor-pointer shadow-2xs"
               >
-                <span>अगला चरण: शास्त्रीय संदर्भ व विनियोग</span>
-                <span>➔</span>
+                <span>Next: Shastric Context &amp; Viniyoga</span>
+                <span>→</span>
               </button>
             </div>
           </div>
@@ -611,12 +614,12 @@ export const MantraFormPage: React.FC = () => {
           <div className="bg-white p-6 rounded-2xl border border-cream-200 shadow-2xs space-y-4">
             <h3 className="font-serif text-sm font-bold text-charcoal-900 border-b border-cream-100 pb-2.5 flex items-center gap-2">
               <Flame className="w-4 h-4 text-saffron-600" />
-              <span>शास्त्रीय संदर्भ, विनियोग एवं ऑडियो</span>
+              <span>Shastric Context, Viniyoga &amp; Audio</span>
             </h3>
 
             <div>
               <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                शास्त्रीय व्याख्या, विनियोग एवं याज्ञिक प्रयोग (Shastric Context)
+                Shastric Context, Commentary &amp; Ritual Viniyoga
               </label>
               <textarea
                 rows={4}
@@ -624,8 +627,8 @@ export const MantraFormPage: React.FC = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, shastricContext: e.target.value })
                 }
-                placeholder="ऋग्वेद का प्रथम मंगलाचरण मंत्र। समस्त वैदिक वांग्मय का यह प्रथम मंगलाचरण मंत्र है जिसमें भौतिक एवं आध्यात्मिक अग्नि दोनों की सर्वव्यापकता प्रतिपादित की गई है..."
-                className="w-full p-3 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari leading-relaxed"
+                placeholder="Opening invocation mantra of the Rigveda, celebrating both physical and spiritual fire (Agni)..."
+                className="w-full p-3 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none leading-relaxed"
               />
             </div>
 
@@ -633,7 +636,7 @@ export const MantraFormPage: React.FC = () => {
               <div>
                 <label className="block text-xs font-bold text-charcoal-700 mb-1 flex items-center gap-1">
                   <Volume2 className="w-3.5 h-3.5 text-saffron-600" />
-                  <span>ऑडियो पाठ URL (Audio Chanting URL)</span>
+                  <span>Audio Chanting URL</span>
                 </label>
                 <input
                   type="text"
@@ -648,7 +651,7 @@ export const MantraFormPage: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                  क्रमबद्धता (Order Index)
+                  Order Index
                 </label>
                 <input
                   type="number"
@@ -667,7 +670,7 @@ export const MantraFormPage: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-cream-100">
               <div>
                 <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                  पिछला मंत्र ID (Previous Mantra ID)
+                  Previous Mantra ID
                 </label>
                 <input
                   type="text"
@@ -682,7 +685,7 @@ export const MantraFormPage: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-bold text-charcoal-700 mb-1">
-                  अगला मंत्र ID (Next Mantra ID)
+                  Next Mantra ID
                 </label>
                 <input
                   type="text"
@@ -703,7 +706,7 @@ export const MantraFormPage: React.FC = () => {
                 onClick={() => setActiveTab("padapatha")}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cream-50 hover:bg-cream-100 border border-cream-300 text-charcoal-700 text-xs font-bold transition-all cursor-pointer"
               >
-                <span>⬅ पिछला चरण: पदच्छेद व पदार्थ</span>
+                <span>← Previous: Padapatha</span>
               </button>
             </div>
           </div>
@@ -712,7 +715,7 @@ export const MantraFormPage: React.FC = () => {
         {/* Submit Buttons */}
         <div className="flex items-center justify-between gap-3 pt-4 border-t border-cream-200">
           <div className="text-xs text-charcoal-400">
-            * आवश्यक फ़ील्ड्स
+            * Required fields
           </div>
 
           <div className="flex items-center gap-2">
@@ -720,7 +723,7 @@ export const MantraFormPage: React.FC = () => {
               to="/admin/library/mantras"
               className="px-5 py-2.5 rounded-xl text-xs font-bold text-charcoal-600 hover:bg-cream-100 transition-colors"
             >
-              रद्द करें
+              Cancel
             </Link>
             <button
               type="submit"
@@ -728,7 +731,7 @@ export const MantraFormPage: React.FC = () => {
               className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-saffron-600 hover:bg-saffron-700 text-white text-xs font-bold shadow-xs transition-all disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
-              <span>{saving ? "सहेजा जा रहा है..." : "मंत्र सहेजें (Save Mantra)"}</span>
+              <span>{saving ? "Saving..." : "Save Mantra"}</span>
             </button>
           </div>
         </div>

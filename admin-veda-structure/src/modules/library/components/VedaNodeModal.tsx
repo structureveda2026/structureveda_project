@@ -13,17 +13,17 @@ interface VedaNodeModalProps {
 }
 
 const NODE_TYPES = [
-  { value: "SHAKHA", label: "शाखा (Shakha)" },
-  { value: "SAMHITA", label: "संहिता (Samhita)" },
-  { value: "SUKTA", label: "सूक्त (Sukta)" },
-  { value: "ADHYAYA", label: "अध्याय (Adhyaya)" },
-  { value: "MANDALA", label: "मण्डल (Mandala)" },
-  { value: "KANDA", label: "काण्ड (Kanda)" },
-  { value: "BRAHMANA", label: "ब्राह्मण (Brahmana)" },
-  { value: "ARANYAKA", label: "आरण्यक (Aranyaka)" },
-  { value: "UPANISHAD", label: "उपनिषद (Upanishad)" },
-  { value: "SUTRA", label: "सूत्र ग्रंथ (Sutra / Pratishakhya)" },
-  { value: "VARGA", label: "वर्ग / पर्व (Varga / Parva)" },
+  { value: "SHAKHA", label: "Shakha" },
+  { value: "SAMHITA", label: "Samhita" },
+  { value: "SUKTA", label: "Sukta" },
+  { value: "ADHYAYA", label: "Adhyaya" },
+  { value: "MANDALA", label: "Mandala" },
+  { value: "KANDA", label: "Kanda" },
+  { value: "BRAHMANA", label: "Brahmana" },
+  { value: "ARANYAKA", label: "Aranyaka" },
+  { value: "UPANISHAD", label: "Upanishad" },
+  { value: "SUTRA", label: "Sutra / Pratishakhya" },
+  { value: "VARGA", label: "Varga / Parva" },
 ];
 
 export const VedaNodeModal: React.FC<VedaNodeModalProps> = ({
@@ -86,7 +86,7 @@ export const VedaNodeModal: React.FC<VedaNodeModalProps> = ({
       setError(null);
 
       if (!formData.name?.trim()) {
-        throw new Error("नाम (Name in Hindi/Devanagari) आवश्यक है।");
+        throw new Error("Title / Name (Sanskrit / Hindi) is required.");
       }
 
       const generatedSlug =
@@ -115,8 +115,9 @@ export const VedaNodeModal: React.FC<VedaNodeModalProps> = ({
 
       onSuccess();
       onClose();
-    } catch (err: any) {
-      setError(err.message || "नोड सहेजने में विफल।");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to save node.";
+      setError(msg || "Failed to save node.");
     } finally {
       setLoading(false);
     }
@@ -126,7 +127,7 @@ export const VedaNodeModal: React.FC<VedaNodeModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={initialData ? "शाखा / सूक्त / नोड संपादित करें" : "नया उप-प्रकार / शाखा / सूक्त जोड़ें"}
+      title={initialData ? "Edit Shakha / Sukta / Node" : "Add New Sub-Type / Shakha / Sukta"}
       size="md"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -139,12 +140,15 @@ export const VedaNodeModal: React.FC<VedaNodeModalProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-bold text-charcoal-700 mb-1">
-              प्रकार (Node Type) *
+              Node Type *
             </label>
             <select
               value={formData.nodeType}
               onChange={(e) =>
-                setFormData({ ...formData, nodeType: e.target.value as any })
+                setFormData({
+                  ...formData,
+                  nodeType: e.target.value as NonNullable<VedaNode["nodeType"]>,
+                })
               }
               className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 bg-white focus:border-saffron-500 focus:outline-none"
             >
@@ -158,32 +162,35 @@ export const VedaNodeModal: React.FC<VedaNodeModalProps> = ({
 
           <div>
             <label className="block text-xs font-bold text-charcoal-700 mb-1">
-              स्थिति (Status)
+              Status
             </label>
             <select
               value={formData.status}
               onChange={(e) =>
-                setFormData({ ...formData, status: e.target.value as any })
+                setFormData({
+                  ...formData,
+                  status: e.target.value as NonNullable<VedaNode["status"]>,
+                })
               }
               className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 bg-white focus:border-saffron-500 focus:outline-none"
             >
-              <option value="ACTIVE">सक्रिय (Active)</option>
-              <option value="DRAFT">ड्राफ्ट (Draft)</option>
-              <option value="INACTIVE">निष्क्रिय (Inactive)</option>
+              <option value="ACTIVE">Active</option>
+              <option value="DRAFT">Draft</option>
+              <option value="INACTIVE">Inactive</option>
             </select>
           </div>
         </div>
 
         <div>
           <label className="block text-xs font-bold text-charcoal-700 mb-1">
-            शीर्षक / नाम (Hindi / Devanagari) *
+            Title / Name (Sanskrit / Hindi) *
           </label>
           <input
             type="text"
             required
             value={formData.name || ""}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="e.g. १. अग्नि सूक्त (मण्डल १, सूक्त १) या शाकल शाखा"
+            placeholder="e.g. 1. Agni Sukta (Mandala 1, Sukta 1) or Shakala Shakha"
             className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari"
           />
         </div>
@@ -204,14 +211,14 @@ export const VedaNodeModal: React.FC<VedaNodeModalProps> = ({
 
           <div>
             <label className="block text-xs font-bold text-charcoal-700 mb-1">
-              बैज (Badge)
+              Badge
             </label>
             <input
               type="text"
               value={formData.badge || ""}
               onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
-              placeholder="e.g. सूक्त, शाखा, संहिता"
-              className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari"
+              placeholder="e.g. Sukta, Shakha, Samhita"
+              className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none"
             />
           </div>
         </div>
@@ -219,26 +226,26 @@ export const VedaNodeModal: React.FC<VedaNodeModalProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-bold text-charcoal-700 mb-1">
-              सांख्यिकी / संक्षिप्त विवरण (Stats)
+              Stats / Summary
             </label>
             <input
               type="text"
               value={formData.stats || ""}
               onChange={(e) => setFormData({ ...formData, stats: e.target.value })}
-              placeholder="e.g. ९ मंत्र • गायत्री छंद"
+              placeholder="e.g. 9 Mantras • Gayatri Meter"
               className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none"
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-charcoal-700 mb-1">
-              प्रारंभिक मंत्र ID (Starting Mantra ID)
+              Starting Mantra ID
             </label>
             <input
               type="text"
               value={formData.mantraId || ""}
               onChange={(e) => setFormData({ ...formData, mantraId: e.target.value })}
-              placeholder="e.g. rv-1-1-1 या vs-16-1"
+              placeholder="e.g. rv-1-1-1 or vs-16-1"
               className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-mono"
             />
           </div>
@@ -246,14 +253,14 @@ export const VedaNodeModal: React.FC<VedaNodeModalProps> = ({
 
         <div>
           <label className="block text-xs font-bold text-charcoal-700 mb-1">
-            विवरण (Description)
+            Description
           </label>
           <textarea
             rows={2}
             value={formData.desc || ""}
             onChange={(e) => setFormData({ ...formData, desc: e.target.value })}
-            placeholder="शाखा या सूक्त का प्रामाणिक परिचय..."
-            className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari"
+            placeholder="Authentic description of this branch or sukta..."
+            className="w-full px-3 py-2 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none"
           />
         </div>
 
@@ -263,14 +270,14 @@ export const VedaNodeModal: React.FC<VedaNodeModalProps> = ({
             onClick={onClose}
             className="px-4 py-2 rounded-xl text-xs font-bold text-charcoal-600 hover:bg-cream-100 transition-colors"
           >
-            रद्द करें
+            Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
             className="px-5 py-2 rounded-xl text-xs font-bold bg-saffron-600 hover:bg-saffron-700 text-white shadow-xs transition-all disabled:opacity-50"
           >
-            {loading ? "सहेजा जा रहा है..." : initialData ? "अपडेट करें" : "जोड़ें"}
+            {loading ? "Saving..." : initialData ? "Update" : "Add"}
           </button>
         </div>
       </form>

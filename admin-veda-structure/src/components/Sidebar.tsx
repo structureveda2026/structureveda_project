@@ -113,33 +113,31 @@ const RITUAL_SECTIONS: RitualSection[] = [
 ];
 
 /**
- * Library navigation items with active path & supported route aliases
+ * Library navigation — grouped for clarity:
+ *   Vedas | Mantra & Stotra (Branches + Items + Upload) | Blog Posts
  */
 const LIBRARY_ITEMS: LibrarySubItem[] = [
   {
-    label: "Ved (Vedas)",
+    label: "Vedas",
     path: "/admin/library/vedas",
     aliases: ["/admin/vedas"],
   },
+  // ── Mantra & Stotra ──────────────────────────────────
   {
-    label: "Purana & Itihasa Archive",
-    path: "/admin/purana-itihasa",
-    aliases: ["/admin/puranas", "/admin/itihasas"],
+    label: "Mantra",
+    path: "/admin/library/mantra-branches",
+    aliases: ["/admin/mantra-branches"],
   },
   {
-    label: "Mantras & Suktas",
-    path: "/admin/library/mantras",
-    aliases: ["/admin/mantras"],
+    label: "Stotra",
+    path: "/admin/library/stotra-branches",
+    aliases: ["/admin/stotra-branches"],
   },
+  // ── Blog ─────────────────────────────────────────────
   {
     label: "Blog Posts",
     path: "/admin/library/blogs",
     aliases: ["/admin/blogs"],
-  },
-  {
-    label: "Mantra-Stotra Branches",
-    path: "/admin/library/mantra-stotra-branches",
-    aliases: ["/admin/branches", "/admin/library/categories/mantra-stotra/subcategories"],
   },
 ];
 
@@ -201,11 +199,11 @@ export default function Sidebar({
   const isLibraryActive =
     location.pathname.startsWith("/admin/library") ||
     location.pathname.startsWith("/admin/vedas") ||
-    location.pathname.startsWith("/admin/mantras") ||
-    location.pathname.startsWith("/admin/blogs") ||
-    location.pathname.startsWith("/admin/purana-itihasa") ||
-    location.pathname.startsWith("/admin/puranas") ||
-    location.pathname.startsWith("/admin/itihasas");
+    location.pathname.startsWith("/admin/mantra-branches") ||
+    location.pathname.startsWith("/admin/stotra-branches") ||
+    location.pathname.startsWith("/admin/mantra-stotra-items") ||
+    location.pathname.startsWith("/admin/mantra-stotra-upload") ||
+    location.pathname.startsWith("/admin/blogs");
 
 
   // Route matches for Booking Management umbrella
@@ -414,6 +412,16 @@ export default function Sidebar({
   };
 
   const isLibraryItemActive = (item: LibrarySubItem) => {
+    const contentType = new URLSearchParams(location.search).get("type");
+    const isContentRoute =
+      location.pathname.startsWith("/admin/library/mantra-stotra-items") ||
+      location.pathname.startsWith("/admin/mantra-stotra-items") ||
+      location.pathname.startsWith("/admin/library/mantra-stotra-upload") ||
+      location.pathname.startsWith("/admin/mantra-stotra-upload");
+    if (isContentRoute && (item.label === "Mantra" || item.label === "Stotra")) {
+      return contentType === item.label.toLowerCase();
+    }
+
     if (
       location.pathname === item.path ||
       location.pathname.startsWith(item.path + "/")
@@ -760,7 +768,8 @@ export default function Sidebar({
             </button>
             {isLibraryOpen && (
               <div className="mt-1 ml-6 pl-3 border-l border-cream-200 space-y-0.5">
-                {LIBRARY_ITEMS.map((item) => {
+                {/* Vedas */}
+                {LIBRARY_ITEMS.slice(0, 1).map((item) => {
                   const active = isLibraryItemActive(item);
                   return (
                     <NavLink
@@ -777,6 +786,48 @@ export default function Sidebar({
                     </NavLink>
                   );
                 })}
+
+                {LIBRARY_ITEMS.slice(1, 3).map((item) => {
+                  const active = isLibraryItemActive(item);
+                  return (
+                    <NavLink
+                      key={item.label}
+                      to={item.path}
+                      onClick={handleLinkClick}
+                      className={`block px-3 py-1.5 rounded-lg text-[13px] transition ${
+                        active
+                          ? "text-saffron-700 font-semibold bg-saffron-50/70"
+                          : "text-charcoal-500 hover:text-charcoal-700 hover:bg-cream-50 font-normal"
+                      }`}
+                    >
+                      {item.label}
+                    </NavLink>
+                  );
+                })}
+
+                {/* Blog */}
+                <div className="pt-1.5">
+                  <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-charcoal-400 mb-1">
+                    Articles
+                  </p>
+                  {LIBRARY_ITEMS.slice(3).map((item) => {
+                    const active = isLibraryItemActive(item);
+                    return (
+                      <NavLink
+                        key={item.label}
+                        to={item.path}
+                        onClick={handleLinkClick}
+                        className={`block px-3 py-1.5 rounded-lg text-[13px] transition ${
+                          active
+                            ? "text-saffron-700 font-semibold bg-saffron-50/70"
+                            : "text-charcoal-500 hover:text-charcoal-700 hover:bg-cream-50 font-normal"
+                        }`}
+                      >
+                        {item.label}
+                      </NavLink>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>

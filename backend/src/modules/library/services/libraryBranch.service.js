@@ -1,119 +1,70 @@
+import { Op } from "sequelize";
 import LibraryBranch from "../models/libraryBranch.model.js";
+import {
+  DEFAULT_MANTRA_BRANCHES as MANTRA_ONLY_BRANCHES,
+  DEFAULT_STOTRA_BRANCHES as STOTRA_ONLY_BRANCHES,
+  DEFAULT_MANTRA_BRANCHES_UNIFIED,
+} from "../../../data/mantraStotraSeedData.js";
 
-export const DEFAULT_MANTRA_BRANCHES = [
-  {
-    id: "branch-shiva",
-    categorySlug: "mantra-stotra",
-    slug: "shiva",
-    name: "शिव मंत्र एवं स्तोत्र",
-    enName: "Shiva Mantras & Stotras",
-    desc: "महामृत्युंजय, शिव तांडव, रुद्राष्टकम, पञ्चाक्षर मंत्र एवं कर्पूरगौरं स्तुति।",
-    stats: "२५+ स्तोत्र व मंत्र",
-    badge: "स्तोत्र व मंत्र",
-    deity: "shiva",
-    imageKey: "deity-shiva.jpg",
-    orderIndex: 1,
-    status: "ACTIVE",
-  },
-  {
-    id: "branch-vishnu",
-    categorySlug: "mantra-stotra",
-    slug: "vishnu",
-    name: "विष्णु मंत्र एवं स्तोत्र",
-    enName: "Vishnu Mantras & Stotras",
-    desc: "विष्णु सहस्रनाम, नारायण कवच, द्वादशाक्षर मंत्र एवं पुरुष सूक्त।",
-    stats: "२०+ स्तोत्र व मंत्र",
-    badge: "स्तोत्र व मंत्र",
-    deity: "vishnu",
-    imageKey: "deity-vishnu.jpg",
-    orderIndex: 2,
-    status: "ACTIVE",
-  },
-  {
-    id: "branch-devi",
-    categorySlug: "mantra-stotra",
-    slug: "devi",
-    name: "देवी मंत्र एवं सूक्त",
-    enName: "Devi Mantras & Suktas",
-    desc: "श्री सूक्त, दुर्गा सप्तशती, कनकधारा स्तोत्र, ललिता सहस्रनाम।",
-    stats: "३०+ स्तोत्र व मंत्र",
-    badge: "सूक्त व स्तोत्र",
-    deity: "devi",
-    imageKey: "deity-durga.jpg",
-    orderIndex: 3,
-    status: "ACTIVE",
-  },
-  {
-    id: "branch-gayatri",
-    categorySlug: "mantra-stotra",
-    slug: "gayatri",
-    name: "वैदिक शांति व गायत्री मंत्र",
-    enName: "Vaidika Shanti & Gayatri",
-    desc: "महाशांति पाठ, गायत्री महामंत्र, पवमान व हिरण्यगर्भ सूक्त।",
-    stats: "१५+ वैदिक सूक्त",
-    badge: "वैदिक सूक्त",
-    deity: "gayatri",
-    imageKey: "deity-saraswati.jpg",
-    orderIndex: 4,
-    status: "ACTIVE",
-  },
-  {
-    id: "branch-ganesh",
-    categorySlug: "mantra-stotra",
-    slug: "ganesh",
-    name: "श्री गणेश मंत्र व स्तुति",
-    enName: "Ganesh Mantras & Stutis",
-    desc: "संकटनाशन गणेश स्तोत्र, अथर्वशीर्ष, वक्रतुण्ड महामंत्र।",
-    stats: "१०+ स्तोत्र व मंत्र",
-    badge: "स्तोत्र व स्तुति",
-    deity: "ganesh",
-    imageKey: "deity-ganesh.jpg",
-    orderIndex: 5,
-    status: "ACTIVE",
-  },
-  {
-    id: "branch-surya",
-    categorySlug: "mantra-stotra",
-    slug: "surya",
-    name: "सूर्य एवं नवग्रह मंत्र",
-    enName: "Surya & Navagraha Mantras",
-    desc: "आदित्य हृदय स्तोत्र, नवग्रह स्तोत्र एवं शांति विधान।",
-    stats: "१२+ स्तोत्र व मंत्र",
-    badge: "नवग्रह शांति",
-    deity: "surya",
-    imageKey: "deity-navagraha.jpg",
-    orderIndex: 6,
-    status: "ACTIVE",
-  },
-  {
-    id: "branch-hanuman",
-    categorySlug: "mantra-stotra",
-    slug: "hanuman",
-    name: "हनुमान चालीसा एवं स्तोत्र",
-    enName: "Hanuman Chalisa & Stotras",
-    desc: "हनुमान चालीसा, बजरंग बाण, संकटमोचन हनुमानाष्टक।",
-    stats: "८+ स्तोत्र व पाठ",
-    badge: "चालीसा व पाठ",
-    deity: "hanuman",
-    imageKey: "card-puja.jpg",
-    orderIndex: 7,
-    status: "ACTIVE",
-  },
-];
+export const DEFAULT_MANTRA_ONLY_BRANCHES = MANTRA_ONLY_BRANCHES;
+export const DEFAULT_STOTRA_ONLY_BRANCHES = STOTRA_ONLY_BRANCHES;
+export const DEFAULT_MANTRA_BRANCHES = DEFAULT_MANTRA_BRANCHES_UNIFIED;
 
-let MEMORY_BRANCHES = JSON.parse(JSON.stringify(DEFAULT_MANTRA_BRANCHES));
+let MEMORY_BRANCHES = JSON.parse(JSON.stringify(DEFAULT_MANTRA_BRANCHES_UNIFIED));
+let branchTableSynced = false;
+
+export const normalizeCategorySlug = (rawSlug = "mantra-stotra") => {
+  const s = String(rawSlug || "mantra-stotra").trim().toLowerCase();
+  if (s === "mantra" || s === "mantras") return "mantra";
+  if (s === "stotra" || s === "stotram" || s === "stotras") return "stotra";
+  if (s === "mantra-stotra" || s === "mantras-stotras") return "mantra-stotra";
+  return s || "mantra-stotra";
+};
+
+const sanitizeBranchSlug = (raw) =>
+  String(raw || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+const normalizeTypeFilter = (rawType) => {
+  if (!rawType) return "";
+  const s = String(rawType).trim().toLowerCase();
+  if (s === "mantra" || s === "mantras") return "mantra";
+  if (s === "stotra" || s === "stotram" || s === "stotras") return "stotra";
+  if (s === "all") return "";
+  return s;
+};
 
 class LibraryBranchService {
   /**
    * Ensure table is synced and seed defaults if empty
    */
   async ensureSeeded(categorySlug = "mantra-stotra") {
+    const normalizedCat = normalizeCategorySlug(categorySlug);
     try {
-      await LibraryBranch.sync({ alter: true });
-      const count = await LibraryBranch.count({ where: { categorySlug } });
-      if (count === 0 && categorySlug === "mantra-stotra") {
-        for (const item of DEFAULT_MANTRA_BRANCHES) {
-          await LibraryBranch.create(item);
+      if (!branchTableSynced) {
+        await LibraryBranch.sync({ alter: true });
+        branchTableSynced = true;
+      }
+
+      if (normalizedCat === "mantra" || normalizedCat === "mantra-stotra") {
+        const mantraCount = await LibraryBranch.count({ where: { categorySlug: "mantra" } });
+        if (mantraCount === 0) {
+          for (const item of DEFAULT_MANTRA_ONLY_BRANCHES) {
+            await LibraryBranch.findOrCreate({ where: { id: item.id }, defaults: item });
+          }
+        }
+      }
+
+      if (normalizedCat === "stotra" || normalizedCat === "mantra-stotra") {
+        const stotraCount = await LibraryBranch.count({ where: { categorySlug: "stotra" } });
+        if (stotraCount === 0) {
+          for (const item of DEFAULT_STOTRA_ONLY_BRANCHES) {
+            await LibraryBranch.findOrCreate({ where: { id: item.id }, defaults: item });
+          }
         }
       }
     } catch (err) {
@@ -122,15 +73,70 @@ class LibraryBranchService {
   }
 
   /**
-   * Get all subcategories/branches for a category (e.g. mantra-stotra)
+   * Attach itemCount to each branch from LibraryMantraStotraService
    */
-  async getSubcategories(categorySlug = "mantra-stotra", isAdmin = false) {
+  async attachItemCounts(branches = [], isAdmin = false) {
+    let allItems = [];
     try {
-      await this.ensureSeeded(categorySlug);
-      const where = { categorySlug };
+      const LibraryMantraStotraService = (
+        await import("./libraryMantraStotra.service.js")
+      ).default;
+      const res = await LibraryMantraStotraService.getItems(
+        { limit: 1000, skipBranchRefs: true },
+        isAdmin
+      );
+      allItems = res?.items || [];
+    } catch {
+      allItems = [];
+    }
+
+    return branches.map((b) => {
+      const plain = b && typeof b.toJSON === "function" ? b.toJSON() : { ...b };
+      const count = allItems.filter((item) => {
+        if (item.branchId && plain.id && item.branchId === plain.id) {
+          return true;
+        }
+        if (item.branchSlug && plain.slug && item.branchSlug === plain.slug) {
+          if (!item.type || plain.categorySlug === "mantra-stotra") {
+            return true;
+          }
+          return item.type === plain.categorySlug;
+        }
+        return false;
+      }).length;
+
+      return {
+        ...plain,
+        itemCount: count,
+      };
+    });
+  }
+
+  /**
+   * Get all subcategories/branches for a category (e.g. mantra, stotra, mantra-stotra)
+   */
+  async getSubcategories(categorySlug = "mantra-stotra", isAdmin = false, options = {}) {
+    const normalizedCat = normalizeCategorySlug(categorySlug);
+    const typeFilter = normalizeTypeFilter(options.type || options.postType);
+
+    try {
+      await this.ensureSeeded(normalizedCat);
+
+      const where = {};
+      if (normalizedCat === "mantra-stotra") {
+        if (typeFilter === "mantra" || typeFilter === "stotra") {
+          where.categorySlug = typeFilter;
+        } else {
+          where.categorySlug = { [Op.in]: ["mantra", "stotra", "mantra-stotra"] };
+        }
+      } else {
+        where.categorySlug = normalizedCat;
+      }
+
       if (!isAdmin) {
         where.status = "ACTIVE";
       }
+
       const branches = await LibraryBranch.findAll({
         where,
         order: [
@@ -140,17 +146,146 @@ class LibraryBranchService {
       });
 
       if (branches && branches.length > 0) {
-        return branches;
+        if (options.skipItemCounts) {
+          return branches.map((b) => (b && typeof b.toJSON === "function" ? b.toJSON() : { ...b }));
+        }
+        return await this.attachItemCounts(branches, isAdmin);
       }
     } catch (err) {
       console.warn("Database fetch failed for LibraryBranch:", err.message);
     }
 
-    // Default fallback if database query failed or table is being created
-    if (categorySlug === "mantra-stotra") {
-      return isAdmin ? MEMORY_BRANCHES : MEMORY_BRANCHES.filter(b => b.status === "ACTIVE");
+    // Default in-memory fallback
+    let filtered = [...MEMORY_BRANCHES];
+
+    if (normalizedCat === "mantra-stotra") {
+      if (typeFilter === "mantra" || typeFilter === "stotra") {
+        filtered = filtered.filter((b) => b.categorySlug === typeFilter);
+      } else {
+        filtered = filtered.filter((b) =>
+          ["mantra", "stotra", "mantra-stotra"].includes(b.categorySlug)
+        );
+      }
+    } else {
+      filtered = filtered.filter((b) => b.categorySlug === normalizedCat);
     }
-    return [];
+
+    if (!isAdmin) {
+      filtered = filtered.filter((b) => b.status === "ACTIVE");
+    }
+
+    filtered.sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+    if (options.skipItemCounts) {
+      return filtered.map((b) => ({ ...b }));
+    }
+    return await this.attachItemCounts(filtered, isAdmin);
+  }
+
+  /**
+   * Get single branch detail by slug or id + associated items
+   */
+  async getSubcategoryBySlug(categorySlug = "mantra-stotra", slug, isAdmin = false) {
+    const normalizedCat = normalizeCategorySlug(categorySlug);
+    let branch = null;
+
+    try {
+      await this.ensureSeeded(normalizedCat);
+
+      const baseWhere = {
+        [Op.or]: [{ slug }, { id: slug }],
+      };
+      if (!isAdmin) {
+        baseWhere.status = "ACTIVE";
+      }
+
+      if (normalizedCat === "mantra-stotra") {
+        branch = await LibraryBranch.findOne({
+          where: {
+            ...baseWhere,
+            categorySlug: { [Op.in]: ["mantra", "stotra", "mantra-stotra"] },
+          },
+        });
+      } else {
+        branch = await LibraryBranch.findOne({
+          where: {
+            ...baseWhere,
+            categorySlug: normalizedCat,
+          },
+        });
+        if (!branch) {
+          branch = await LibraryBranch.findOne({
+            where: {
+              ...baseWhere,
+              categorySlug: "mantra-stotra",
+            },
+          });
+        }
+      }
+    } catch (err) {
+      console.warn("Database getSubcategoryBySlug failed:", err.message);
+    }
+
+    if (!branch) {
+      if (normalizedCat === "mantra-stotra") {
+        branch = MEMORY_BRANCHES.find(
+          (b) =>
+            (b.slug === slug || b.id === slug) &&
+            (!b.categorySlug || ["mantra", "stotra", "mantra-stotra"].includes(b.categorySlug)) &&
+            (isAdmin || b.status === "ACTIVE")
+        );
+      } else {
+        branch =
+          MEMORY_BRANCHES.find(
+            (b) =>
+              (b.slug === slug || b.id === slug) &&
+              b.categorySlug === normalizedCat &&
+              (isAdmin || b.status === "ACTIVE")
+          ) ||
+          MEMORY_BRANCHES.find(
+            (b) =>
+              (b.slug === slug || b.id === slug) &&
+              (!b.categorySlug || b.categorySlug === "mantra-stotra") &&
+              (isAdmin || b.status === "ACTIVE")
+          );
+      }
+    }
+
+    if (!branch) {
+      const err = new Error("Library branch not found");
+      err.statusCode = 404;
+      throw err;
+    }
+
+    const plainBranch =
+      branch && typeof branch.toJSON === "function" ? branch.toJSON() : { ...branch };
+
+    let items = [];
+    try {
+      const LibraryMantraStotraService = (
+        await import("./libraryMantraStotra.service.js")
+      ).default;
+      const itemType =
+        normalizedCat === "mantra" || normalizedCat === "stotra" ? normalizedCat : undefined;
+      const res = await LibraryMantraStotraService.getItems(
+        {
+          branchSlug: plainBranch.slug,
+          type: itemType,
+          limit: 100,
+        },
+        isAdmin
+      );
+      items = res?.items || [];
+    } catch (itemErr) {
+      console.warn("Could not attach items to branch detail:", itemErr.message);
+    }
+
+    return {
+      branch: {
+        ...plainBranch,
+        itemCount: items.length,
+      },
+      items,
+    };
   }
 
   /**
@@ -158,7 +293,7 @@ class LibraryBranchService {
    */
   async createSubcategory(data) {
     const {
-      categorySlug = "mantra-stotra",
+      categorySlug: rawCategorySlug = "mantra-stotra",
       slug,
       name,
       enName,
@@ -171,20 +306,57 @@ class LibraryBranchService {
       status = "ACTIVE",
     } = data;
 
+    const categorySlug = normalizeCategorySlug(rawCategorySlug);
+
     if (!name || !String(name).trim()) {
-      throw new Error("Branch name is required");
+      const err = new Error("Branch name is required");
+      err.statusCode = 400;
+      throw err;
     }
 
-    const cleanSlug = (slug || name)
-      .trim()
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/[\s_-]+/g, "-");
+    const rawSlugSource = slug || enName || deity || name;
+    let cleanSlug = sanitizeBranchSlug(rawSlugSource);
+    if (!cleanSlug) {
+      cleanSlug = `branch-${Date.now()}`;
+    }
 
-    const id = `branch-${cleanSlug}-${Date.now()}`;
+    const hasExplicitId = Boolean(data.id && String(data.id).trim());
+    const id = hasExplicitId
+      ? String(data.id).trim()
+      : `branch-${categorySlug}-${cleanSlug}-${Date.now()}`;
+    const defaultStats =
+      categorySlug === "stotra"
+        ? "10+ Stotras"
+        : categorySlug === "mantra"
+        ? "10+ Mantras"
+        : "10+ Mantras & Stotras";
 
     try {
-      await LibraryBranch.sync({ alter: true });
+      if (!branchTableSynced) {
+        await LibraryBranch.sync({ alter: true });
+        branchTableSynced = true;
+      }
+
+      if (hasExplicitId) {
+        const existingById = await LibraryBranch.findByPk(id);
+        if (existingById) {
+          const conflictErr = new Error(`Branch with id '${id}' already exists`);
+          conflictErr.statusCode = 409;
+          throw conflictErr;
+        }
+      }
+
+      const existingDb = await LibraryBranch.findOne({
+        where: { categorySlug, slug: cleanSlug },
+      });
+      if (existingDb) {
+        const conflictErr = new Error(
+          `Branch with slug '${cleanSlug}' already exists in '${categorySlug}'`
+        );
+        conflictErr.statusCode = 409;
+        throw conflictErr;
+      }
+
       const created = await LibraryBranch.create({
         id,
         categorySlug,
@@ -192,15 +364,18 @@ class LibraryBranchService {
         name: String(name).trim(),
         enName: enName ? String(enName).trim() : null,
         desc: desc ? String(desc).trim() : null,
-        stats: stats ? String(stats).trim() : "१०+ स्तोत्र व मंत्र",
+        stats: stats ? String(stats).trim() : defaultStats,
         badge: badge ? String(badge).trim() : null,
         deity: deity ? String(deity).trim() : cleanSlug,
         imageKey: imageKey ? String(imageKey).trim() : null,
         orderIndex: Number(orderIndex) || 0,
         status,
       });
+
       const plain = created.toJSON ? created.toJSON() : created;
-      const existingIdx = MEMORY_BRANCHES.findIndex((b) => b.slug === cleanSlug || b.id === id);
+      const existingIdx = MEMORY_BRANCHES.findIndex(
+        (b) => b.id === id || (b.slug === cleanSlug && b.categorySlug === categorySlug)
+      );
       if (existingIdx !== -1) {
         MEMORY_BRANCHES[existingIdx] = { ...MEMORY_BRANCHES[existingIdx], ...plain };
       } else {
@@ -208,7 +383,35 @@ class LibraryBranchService {
       }
       return created;
     } catch (dbErr) {
+      if (dbErr?.statusCode === 409 || dbErr?.name === "SequelizeUniqueConstraintError") {
+        const conflictErr = new Error(
+          dbErr.errors?.[0]?.message ||
+            dbErr.message ||
+            `Branch with slug '${cleanSlug}' already exists in '${categorySlug}'`
+        );
+        conflictErr.statusCode = 409;
+        throw conflictErr;
+      }
+
       console.warn("Database create failed for LibraryBranch, saving to memory store:", dbErr.message);
+
+      if (hasExplicitId && MEMORY_BRANCHES.some((b) => b.id === id)) {
+        const conflictErr = new Error(`Branch with id '${id}' already exists`);
+        conflictErr.statusCode = 409;
+        throw conflictErr;
+      }
+
+      const memConflict = MEMORY_BRANCHES.find(
+        (b) => b.categorySlug === categorySlug && b.slug === cleanSlug
+      );
+      if (memConflict) {
+        const conflictErr = new Error(
+          `Branch with slug '${cleanSlug}' already exists in '${categorySlug}'`
+        );
+        conflictErr.statusCode = 409;
+        throw conflictErr;
+      }
+
       const newBranch = {
         id,
         categorySlug,
@@ -216,7 +419,7 @@ class LibraryBranchService {
         name: String(name).trim(),
         enName: enName ? String(enName).trim() : null,
         desc: desc ? String(desc).trim() : null,
-        stats: stats ? String(stats).trim() : "१०+ स्तोत्र व मंत्र",
+        stats: stats ? String(stats).trim() : defaultStats,
         badge: badge ? String(badge).trim() : null,
         deity: deity ? String(deity).trim() : cleanSlug,
         imageKey: imageKey ? String(imageKey).trim() : null,
@@ -225,21 +428,23 @@ class LibraryBranchService {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      const existingIdx = MEMORY_BRANCHES.findIndex((b) => b.slug === cleanSlug || b.id === id);
-      if (existingIdx !== -1) {
-        MEMORY_BRANCHES[existingIdx] = { ...MEMORY_BRANCHES[existingIdx], ...newBranch };
-        return MEMORY_BRANCHES[existingIdx];
-      } else {
-        MEMORY_BRANCHES.push(newBranch);
-        return newBranch;
-      }
+
+      MEMORY_BRANCHES.push(newBranch);
+      return newBranch;
     }
   }
 
   /**
    * Update existing branch
    */
-  async updateSubcategory(id, data) {
+  async updateSubcategory(id, data = {}, categorySlug) {
+    if (data.name !== undefined && (data.name === null || !String(data.name).trim())) {
+      const err = new Error("Branch name cannot be empty");
+      err.statusCode = 400;
+      throw err;
+    }
+
+    const normalizedCat = categorySlug ? normalizeCategorySlug(categorySlug) : undefined;
     const {
       name,
       enName,
@@ -253,23 +458,74 @@ class LibraryBranchService {
       status,
     } = data;
 
+    const cleanUpdatedSlug =
+      typeof slug !== "undefined" && String(slug).trim()
+        ? sanitizeBranchSlug(slug) || String(slug).trim()
+        : null;
+
     try {
-      const branch = (await LibraryBranch.findByPk(id)) || (await LibraryBranch.findOne({ where: { slug: id } }));
+      let branch = await LibraryBranch.findByPk(id);
+      if (!branch) {
+        const where = { slug: id };
+        if (normalizedCat && normalizedCat !== "mantra-stotra") {
+          where.categorySlug = normalizedCat;
+        }
+        branch = await LibraryBranch.findOne({ where });
+      }
+
       if (branch) {
+        if (cleanUpdatedSlug && cleanUpdatedSlug !== branch.slug) {
+          const conflict = await LibraryBranch.findOne({
+            where: {
+              categorySlug: branch.categorySlug,
+              slug: cleanUpdatedSlug,
+              id: { [Op.ne]: branch.id },
+            },
+          });
+          if (conflict) {
+            const conflictErr = new Error(
+              `Branch with slug '${cleanUpdatedSlug}' already exists in '${branch.categorySlug}'`
+            );
+            conflictErr.statusCode = 409;
+            throw conflictErr;
+          }
+        }
+
         await branch.update({
           name: typeof name !== "undefined" ? String(name).trim() : branch.name,
-          enName: typeof enName !== "undefined" ? (enName ? String(enName).trim() : null) : branch.enName,
-          slug: typeof slug !== "undefined" && slug ? String(slug).trim() : branch.slug,
-          desc: typeof desc !== "undefined" ? (desc ? String(desc).trim() : null) : branch.desc,
-          stats: typeof stats !== "undefined" ? (stats ? String(stats).trim() : null) : branch.stats,
-          badge: typeof badge !== "undefined" ? (badge ? String(badge).trim() : null) : branch.badge,
-          deity: typeof deity !== "undefined" ? (deity ? String(deity).trim() : null) : branch.deity,
-          imageKey: typeof imageKey !== "undefined" ? (imageKey ? String(imageKey).trim() : null) : branch.imageKey,
-          orderIndex: typeof orderIndex !== "undefined" ? Number(orderIndex) : branch.orderIndex,
+          enName:
+            typeof enName !== "undefined"
+              ? enName
+                ? String(enName).trim()
+                : null
+              : branch.enName,
+          slug: cleanUpdatedSlug || branch.slug,
+          desc:
+            typeof desc !== "undefined" ? (desc ? String(desc).trim() : null) : branch.desc,
+          stats:
+            typeof stats !== "undefined" ? (stats ? String(stats).trim() : null) : branch.stats,
+          badge:
+            typeof badge !== "undefined" ? (badge ? String(badge).trim() : null) : branch.badge,
+          deity:
+            typeof deity !== "undefined" ? (deity ? String(deity).trim() : null) : branch.deity,
+          imageKey:
+            typeof imageKey !== "undefined"
+              ? imageKey
+                ? String(imageKey).trim()
+                : null
+              : branch.imageKey,
+          orderIndex:
+            typeof orderIndex !== "undefined" ? Number(orderIndex) : branch.orderIndex,
           status: typeof status !== "undefined" ? status : branch.status,
         });
+
         const plain = branch.toJSON ? branch.toJSON() : branch;
-        const memIdx = MEMORY_BRANCHES.findIndex((b) => b.id === id || b.slug === id);
+        const memIdx = MEMORY_BRANCHES.findIndex(
+          (b) =>
+            b.id === id ||
+            (b.slug === id &&
+              (!normalizedCat || normalizedCat === "mantra-stotra" || b.categorySlug === normalizedCat))
+        );
         if (memIdx !== -1) {
           MEMORY_BRANCHES[memIdx] = { ...MEMORY_BRANCHES[memIdx], ...plain };
         } else {
@@ -278,16 +534,48 @@ class LibraryBranchService {
         return branch;
       }
     } catch (dbErr) {
+      if (dbErr?.statusCode === 409 || dbErr?.name === "SequelizeUniqueConstraintError") {
+        const conflictErr = new Error(
+          dbErr.errors?.[0]?.message || dbErr.message || "Branch slug already exists in this category"
+        );
+        conflictErr.statusCode = 409;
+        throw conflictErr;
+      }
       console.warn("Database update failed for LibraryBranch, updating memory store:", dbErr.message);
     }
 
-    const memIdx = MEMORY_BRANCHES.findIndex((b) => b.id === id || b.slug === id);
+    let memIdx = MEMORY_BRANCHES.findIndex((b) => b.id === id);
+    if (memIdx === -1) {
+      memIdx = MEMORY_BRANCHES.findIndex(
+        (b) =>
+          b.slug === id &&
+          (!normalizedCat || normalizedCat === "mantra-stotra" || b.categorySlug === normalizedCat)
+      );
+    }
+
     if (memIdx !== -1) {
+      const existing = MEMORY_BRANCHES[memIdx];
+      if (cleanUpdatedSlug && cleanUpdatedSlug !== existing.slug) {
+        const conflict = MEMORY_BRANCHES.find(
+          (b) =>
+            b.id !== existing.id &&
+            b.categorySlug === existing.categorySlug &&
+            b.slug === cleanUpdatedSlug
+        );
+        if (conflict) {
+          const conflictErr = new Error(
+            `Branch with slug '${cleanUpdatedSlug}' already exists in '${existing.categorySlug}'`
+          );
+          conflictErr.statusCode = 409;
+          throw conflictErr;
+        }
+      }
+
       MEMORY_BRANCHES[memIdx] = {
-        ...MEMORY_BRANCHES[memIdx],
-        ...(name && { name: String(name).trim() }),
+        ...existing,
+        ...(typeof name !== "undefined" && { name: String(name).trim() }),
         ...(typeof enName !== "undefined" && { enName: enName ? String(enName).trim() : null }),
-        ...(slug && { slug: String(slug).trim() }),
+        ...(cleanUpdatedSlug && { slug: cleanUpdatedSlug }),
         ...(typeof desc !== "undefined" && { desc: desc ? String(desc).trim() : null }),
         ...(typeof stats !== "undefined" && { stats: stats ? String(stats).trim() : null }),
         ...(typeof badge !== "undefined" && { badge: badge ? String(badge).trim() : null }),
@@ -308,9 +596,17 @@ class LibraryBranchService {
   /**
    * Delete a branch
    */
-  async deleteSubcategory(id) {
+  async deleteSubcategory(id, categorySlug) {
+    const normalizedCat = categorySlug ? normalizeCategorySlug(categorySlug) : undefined;
     try {
-      const branch = (await LibraryBranch.findByPk(id)) || (await LibraryBranch.findOne({ where: { slug: id } }));
+      let branch = await LibraryBranch.findByPk(id);
+      if (!branch) {
+        const where = { slug: id };
+        if (normalizedCat && normalizedCat !== "mantra-stotra") {
+          where.categorySlug = normalizedCat;
+        }
+        branch = await LibraryBranch.findOne({ where });
+      }
       if (branch) {
         await branch.destroy();
       }
@@ -318,8 +614,14 @@ class LibraryBranchService {
       console.warn("Database delete failed for LibraryBranch, mutating memory store:", dbErr.message);
     }
 
-    const beforeLen = MEMORY_BRANCHES.length;
-    MEMORY_BRANCHES = MEMORY_BRANCHES.filter((b) => b.id !== id && b.slug !== id);
+    MEMORY_BRANCHES = MEMORY_BRANCHES.filter(
+      (b) =>
+        !(
+          b.id === id ||
+          (b.slug === id &&
+            (!normalizedCat || normalizedCat === "mantra-stotra" || b.categorySlug === normalizedCat))
+        )
+    );
     return true;
   }
 
@@ -327,22 +629,33 @@ class LibraryBranchService {
    * Reorder subcategories/branches
    */
   async reorderSubcategories(categorySlug = "mantra-stotra", orderedIds = []) {
+    const normalizedCat = normalizeCategorySlug(categorySlug);
     const list = Array.isArray(orderedIds)
       ? orderedIds
       : orderedIds?.orderedIds || orderedIds?.items || [];
 
     if (!Array.isArray(list)) {
-      throw new Error("orderedIds must be an array");
+      const err = new Error("orderedIds must be an array");
+      err.statusCode = 400;
+      throw err;
     }
 
-    // 1. Update memory store
+    // 1. Update memory store (match primary key id globally first, then (categorySlug, slug))
     list.forEach((item, index) => {
       const id = typeof item === "string" ? item : item?.id || item?.slug;
+      if (!id) return;
       const orderIndex =
         typeof item === "object" && typeof item?.orderIndex === "number"
           ? item.orderIndex
           : index + 1;
-      const branch = MEMORY_BRANCHES.find((b) => b.id === id || b.slug === id);
+
+      const branch =
+        MEMORY_BRANCHES.find((b) => b.id === id) ||
+        MEMORY_BRANCHES.find(
+          (b) =>
+            b.slug === id &&
+            (normalizedCat === "mantra-stotra" || b.categorySlug === normalizedCat)
+        );
       if (branch) {
         branch.orderIndex = orderIndex;
         branch.updatedAt = new Date().toISOString();
@@ -360,9 +673,14 @@ class LibraryBranchService {
             ? item.orderIndex
             : i + 1;
         if (id) {
-          const branch =
-            (await LibraryBranch.findByPk(id)) ||
-            (await LibraryBranch.findOne({ where: { slug: id, categorySlug } }));
+          let branch = await LibraryBranch.findByPk(id);
+          if (!branch) {
+            const where = { slug: id };
+            if (normalizedCat && normalizedCat !== "mantra-stotra") {
+              where.categorySlug = normalizedCat;
+            }
+            branch = await LibraryBranch.findOne({ where });
+          }
           if (branch) {
             await branch.update({ orderIndex });
           }
@@ -372,7 +690,7 @@ class LibraryBranchService {
       console.warn("Database reorder failed for LibraryBranch, in-memory updated:", dbErr.message);
     }
 
-    return this.getSubcategories(categorySlug, true);
+    return this.getSubcategories(normalizedCat, true);
   }
 }
 

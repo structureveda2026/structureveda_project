@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getAdminSubcategories,
+  getAdminSubcategoryDetail,
   createSubcategory,
   updateSubcategory,
   deleteSubcategory,
@@ -23,16 +24,14 @@ router.put("/reorder", (req, res) => {
   return reorderSubcategories(req, res);
 });
 
-// CRUD for branches
-router.get("/:categorySlug/subcategories", getAdminSubcategories);
-router.post("/:categorySlug/subcategories", createSubcategory);
-router.put("/:categorySlug/subcategories/:id", updateSubcategory);
-router.delete("/:categorySlug/subcategories/:id", deleteSubcategory);
-
-// Aliases for /mantra-stotra/subcategories
+// Specific aliases for /mantra-stotra/subcategories (before dynamic /:categorySlug)
 router.get("/mantra-stotra/subcategories", (req, res) => {
   req.params.categorySlug = "mantra-stotra";
   return getAdminSubcategories(req, res);
+});
+router.get("/mantra-stotra/subcategories/:slug", (req, res) => {
+  req.params.categorySlug = "mantra-stotra";
+  return getAdminSubcategoryDetail(req, res);
 });
 router.post("/mantra-stotra/subcategories", (req, res) => {
   req.params.categorySlug = "mantra-stotra";
@@ -46,5 +45,12 @@ router.delete("/mantra-stotra/subcategories/:id", (req, res) => {
   req.params.categorySlug = "mantra-stotra";
   return deleteSubcategory(req, res);
 });
+
+// CRUD for branches
+router.get("/:categorySlug/subcategories", getAdminSubcategories);
+router.get("/:categorySlug/subcategories/:slug", getAdminSubcategoryDetail);
+router.post("/:categorySlug/subcategories", createSubcategory);
+router.put("/:categorySlug/subcategories/:id", updateSubcategory);
+router.delete("/:categorySlug/subcategories/:id", deleteSubcategory);
 
 export default router;

@@ -39,12 +39,12 @@ export const VedaAdminService = {
           if (Array.isArray(fallbackList) && fallbackList.length > 0) {
             return fallbackList;
           }
-        } catch (_) {
+        } catch {
           // ignore fallback error
         }
       }
       return list;
-    } catch (err: any) {
+    } catch {
       try {
         const fallbackRes = await api.get(`/api/library/vedas${qs}`);
         return fallbackRes?.data || (Array.isArray(fallbackRes) ? fallbackRes : []);
@@ -128,9 +128,11 @@ export const VedaAdminService = {
   /**
    * Seed / Reset default Rigveda & Yajurveda authentic Vedic heritage datasets
    */
-  async seedDefaultVedas(overwrite = false): Promise<any> {
+  async seedDefaultVedas(
+    overwrite = false
+  ): Promise<{ vedasCount?: number; nodesCount?: number; mantrasCount?: number } | undefined> {
     const res = await api.post("/admin/library/vedas/seed-vedas", { overwrite });
-    return res.data;
+    return res.data as { vedasCount?: number; nodesCount?: number; mantrasCount?: number } | undefined;
   },
 };
 

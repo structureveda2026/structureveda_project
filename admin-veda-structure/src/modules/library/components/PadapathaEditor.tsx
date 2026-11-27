@@ -1,5 +1,5 @@
 import React from "react";
-import { Plus, Trash2, GripVertical, Sparkles } from "lucide-react";
+import { Plus, Trash2, Sparkles } from "lucide-react";
 import type { PadapathaItem } from "../types/veda.types";
 
 interface PadapathaEditorProps {
@@ -38,10 +38,10 @@ export const PadapathaEditor: React.FC<PadapathaEditorProps> = ({
         <div>
           <label className="text-xs font-bold text-charcoal-700 flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-saffron-600" />
-            <span>पदच्छेद एवं पदार्थ (Word-by-Word Breakdown / Padapatha)</span>
+            <span>Padapatha (Word-by-Word Breakdown)</span>
           </label>
           <p className="text-[11px] text-charcoal-400 mt-0.5">
-            मंत्र के प्रत्येक पद (शब्द) और उसका हिंदी अर्थ जोड़ें।
+            Add each Sanskrit word (Pada) of the mantra and its meaning.
           </p>
         </div>
         <button
@@ -50,13 +50,13 @@ export const PadapathaEditor: React.FC<PadapathaEditorProps> = ({
           className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-saffron-600 hover:bg-saffron-700 text-white text-xs font-bold transition-all shadow-2xs"
         >
           <Plus className="w-3.5 h-3.5" />
-          <span>नया पद जोड़ें</span>
+          <span>Add Word</span>
         </button>
       </div>
 
       {items.length === 0 ? (
         <div className="py-6 text-center text-xs text-charcoal-400 border border-dashed border-cream-300 rounded-lg bg-white/70">
-          कोई पदच्छेद नहीं जोड़ा गया। "नया पद जोड़ें" पर क्लिक करके शब्दार्थ दर्ज करें।
+          No Padapatha words added yet. Click &quot;Add Word&quot; to enter word meanings.
         </div>
       ) : (
         <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
@@ -74,7 +74,7 @@ export const PadapathaEditor: React.FC<PadapathaEditorProps> = ({
                     type="text"
                     value={item.word}
                     onChange={(e) => handleChange(idx, "word", e.target.value)}
-                    placeholder="पद / शब्द (e.g. अ॒ग्निम्)"
+                    placeholder="Word / Pada (e.g. अ॒ग्निम्)"
                     className="w-full px-3 py-1.5 rounded-lg text-xs border border-cream-200 focus:border-saffron-500 focus:outline-none font-devanagari"
                   />
                 </div>
@@ -83,7 +83,7 @@ export const PadapathaEditor: React.FC<PadapathaEditorProps> = ({
                     type="text"
                     value={item.meaning}
                     onChange={(e) => handleChange(idx, "meaning", e.target.value)}
-                    placeholder="अर्थ (e.g. अग्निदेव को)"
+                    placeholder="Meaning (e.g. to Agni Deva)"
                     className="w-full px-3 py-1.5 rounded-lg text-xs border border-cream-200 focus:border-saffron-500 focus:outline-none font-devanagari"
                   />
                 </div>
@@ -92,7 +92,7 @@ export const PadapathaEditor: React.FC<PadapathaEditorProps> = ({
                 type="button"
                 onClick={() => handleRemoveItem(idx)}
                 className="p-1.5 text-charcoal-400 hover:text-red-500 rounded-md hover:bg-red-50 transition-colors"
-                title="हटाएं"
+                title="Remove"
               >
                 <Trash2 className="w-4 h-4" />
               </button>

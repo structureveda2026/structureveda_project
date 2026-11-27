@@ -16,7 +16,7 @@ export const SUPPORTED_CATEGORY_ICONS = [
   { name: "Sparkles", label: "Sparkles (Divine & Blessing)" },
   { name: "Flame", label: "Flame (Sacred Agni & Yagya)" },
   { name: "Coins", label: "Coins (Wealth & Lakshmi)" },
-  { name: "ShieldCheck", label: "ShieldCheck (Protection & Suraksha)" },
+  { name: "ShieldCheck", label: "ShieldCheck (Protection & Safety)" },
   { name: "Sun", label: "Sun (Surya & Vitality)" },
   { name: "Compass", label: "Compass (Guidance & Vastu)" },
   { name: "Heart", label: "Heart (Harmony & Relationships)" },

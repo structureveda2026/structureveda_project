@@ -170,15 +170,15 @@ export default function BlogFilters({
       {onPostTypeChange && (
         <div className="pt-2 border-t border-cream-100 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
           <span className="text-[10px] font-bold text-charcoal-400 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
-            प्रकार (Format):
+            Format:
           </span>
           {[
-            { value: "All", label: "सभी (All)" },
-            { value: "article", label: "लेख (Articles)" },
-            { value: "blog", label: "ब्लॉग (Blogs)" },
-            { value: "mantra", label: "मंत्र व स्तोत्र (Mantras)" },
-            { value: "sukta", label: "वैदिक सूक्त (Suktas)" },
-            { value: "stotra", label: "स्तुति (Stutis)" },
+            { value: "All", label: "All" },
+            { value: "article", label: "Articles" },
+            { value: "blog", label: "Blogs" },
+            { value: "mantra", label: "Mantras & Stotras" },
+            { value: "sukta", label: "Vedic Suktas" },
+            { value: "stotra", label: "Stotras & Hymns" },
           ].map((typeItem) => {
             const isSelected = selectedPostType === typeItem.value;
             return (

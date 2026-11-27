@@ -102,7 +102,7 @@ export interface CreateBlogPostInput {
   benefits?: string;
 }
 
-export interface UpdateBlogPostInput extends Partial<CreateBlogPostInput> {}
+export type UpdateBlogPostInput = Partial<CreateBlogPostInput>;
 
 export interface BlogFilterParams {
   status?: string;

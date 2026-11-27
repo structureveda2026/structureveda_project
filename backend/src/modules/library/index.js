@@ -24,6 +24,25 @@ import LibraryBranchService from "./services/libraryBranch.service.js";
 import libraryBranchAdminRoutes from "./routes/libraryBranch.admin.routes.js";
 import libraryBranchPublicRoutes from "./routes/libraryBranch.public.routes.js";
 
+import LibraryMantraStotra from "./models/libraryMantraStotra.model.js";
+import LibraryMantraStotraService from "./services/libraryMantraStotra.service.js";
+import libraryMantraStotraAdminRoutes from "./routes/libraryMantraStotra.admin.routes.js";
+import libraryMantraStotraPublicRoutes from "./routes/libraryMantraStotra.public.routes.js";
+
+if (!LibraryBranch.associations?.items) {
+  LibraryBranch.hasMany(LibraryMantraStotra, {
+    foreignKey: "branchId",
+    as: "items",
+  });
+}
+
+if (!LibraryMantraStotra.associations?.branch) {
+  LibraryMantraStotra.belongsTo(LibraryBranch, {
+    foreignKey: "branchId",
+    as: "branch",
+  });
+}
+
 export {
   BlogPost,
   BlogService,
@@ -34,6 +53,10 @@ export {
   LibraryBranchService,
   libraryBranchAdminRoutes,
   libraryBranchPublicRoutes,
+  LibraryMantraStotra,
+  LibraryMantraStotraService,
+  libraryMantraStotraAdminRoutes,
+  libraryMantraStotraPublicRoutes,
   Veda,
   VedaNode,
   VedaMantra,
@@ -56,6 +79,8 @@ export default {
     Veda,
     VedaNode,
     VedaMantra,
+    LibraryBranch,
+    LibraryMantraStotra,
   },
   services: {
     BlogService,
@@ -63,10 +88,16 @@ export default {
     VedaMantraService,
     PuranaItihasaService,
     UpanishadDarshanService,
+    LibraryBranchService,
+    LibraryMantraStotraService,
   },
   routes: {
     blogAdmin: blogAdminRoutes,
     blogPublic: blogPublicRoutes,
+    libraryBranchAdmin: libraryBranchAdminRoutes,
+    libraryBranchPublic: libraryBranchPublicRoutes,
+    libraryMantraStotraAdmin: libraryMantraStotraAdminRoutes,
+    libraryMantraStotraPublic: libraryMantraStotraPublicRoutes,
     vedaPublic: vedaPublicRoutes,
     vedaAdmin: vedaAdminRoutes,
     vedaMantraAdmin: vedaMantraAdminRoutes,
@@ -77,4 +108,3 @@ export default {
   },
   helpers: blogHelpers,
 };
-

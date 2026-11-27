@@ -27,6 +27,23 @@ import VedaNode from "./vedaNodeModel.js";
 import VedaMantra from "./vedaMantraModel.js";
 import Astrologer from "./astrologerModel.js";
 import AstrologerPackage from "./astrologerPackageModel.js";
+import LibraryBranch from "./libraryBranchModel.js";
+import LibraryMantraStotra from "./libraryMantraStotraModel.js";
+
+// Library Branch & Mantra-Stotra Associations
+if (!LibraryBranch.associations?.items) {
+  LibraryBranch.hasMany(LibraryMantraStotra, {
+    foreignKey: "branchId",
+    as: "items",
+  });
+}
+
+if (!LibraryMantraStotra.associations?.branch) {
+  LibraryMantraStotra.belongsTo(LibraryBranch, {
+    foreignKey: "branchId",
+    as: "branch",
+  });
+}
 
 // Astrologer & Packages Associations
 Astrologer.hasMany(AstrologerPackage, {
@@ -278,6 +295,8 @@ const db = {
   VedaMantra,
   Astrologer,
   AstrologerPackage,
+  LibraryBranch,
+  LibraryMantraStotra,
 };
 
 export {
@@ -309,5 +328,7 @@ export {
   VedaMantra,
   Astrologer,
   AstrologerPackage,
+  LibraryBranch,
+  LibraryMantraStotra,
 };
 export default db;

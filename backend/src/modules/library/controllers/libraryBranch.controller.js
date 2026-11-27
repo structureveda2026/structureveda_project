@@ -7,7 +7,7 @@ import LibraryBranchService from "../services/libraryBranch.service.js";
 export const getPublicSubcategories = async (req, res) => {
   try {
     const { categorySlug = "mantra-stotra" } = req.params;
-    const branches = await LibraryBranchService.getSubcategories(categorySlug, false);
+    const branches = await LibraryBranchService.getSubcategories(categorySlug, false, req.query);
     return res.status(200).json({
       success: true,
       data: branches,
@@ -23,13 +23,35 @@ export const getPublicSubcategories = async (req, res) => {
 };
 
 /**
+ * GET /api/library/categories/:categorySlug/subcategories/:slug
+ * Public endpoint to get single branch detail + its items
+ */
+export const getPublicSubcategoryDetail = async (req, res) => {
+  try {
+    const { categorySlug = "mantra-stotra", slug } = req.params;
+    const data = await LibraryBranchService.getSubcategoryBySlug(categorySlug, slug, false);
+    return res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    console.error("Error in getPublicSubcategoryDetail:", error);
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || "Failed to fetch branch detail",
+      error: error.message,
+    });
+  }
+};
+
+/**
  * GET /api/admin/library/categories/:categorySlug/subcategories
  * Admin endpoint
  */
 export const getAdminSubcategories = async (req, res) => {
   try {
     const { categorySlug = "mantra-stotra" } = req.params;
-    const branches = await LibraryBranchService.getSubcategories(categorySlug, true);
+    const branches = await LibraryBranchService.getSubcategories(categorySlug, true, req.query);
     return res.status(200).json({
       success: true,
       data: branches,
@@ -39,6 +61,28 @@ export const getAdminSubcategories = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to fetch subcategories",
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * GET /api/admin/library/categories/:categorySlug/subcategories/:slug
+ * Admin endpoint for single branch detail + items (including DRAFT/INACTIVE)
+ */
+export const getAdminSubcategoryDetail = async (req, res) => {
+  try {
+    const { categorySlug = "mantra-stotra", slug } = req.params;
+    const data = await LibraryBranchService.getSubcategoryBySlug(categorySlug, slug, true);
+    return res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    console.error("Error in getAdminSubcategoryDetail:", error);
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || "Failed to fetch branch detail",
       error: error.message,
     });
   }
@@ -61,7 +105,9 @@ export const createSubcategory = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in createSubcategory:", error);
-    return res.status(error.statusCode || 400).json({
+    const status =
+      error?.name === "SequelizeUniqueConstraintError" ? 409 : error.statusCode || 400;
+    return res.status(status).json({
       success: false,
       message: error.message || "Failed to create branch",
     });
@@ -73,8 +119,8 @@ export const createSubcategory = async (req, res) => {
  */
 export const updateSubcategory = async (req, res) => {
   try {
-    const { id } = req.params;
-    const branch = await LibraryBranchService.updateSubcategory(id, req.body);
+    const { categorySlug = "mantra-stotra", id } = req.params;
+    const branch = await LibraryBranchService.updateSubcategory(id, req.body, categorySlug);
     return res.status(200).json({
       success: true,
       message: "Branch updated successfully",
@@ -82,7 +128,9 @@ export const updateSubcategory = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in updateSubcategory:", error);
-    return res.status(error.statusCode || 400).json({
+    const status =
+      error?.name === "SequelizeUniqueConstraintError" ? 409 : error.statusCode || 400;
+    return res.status(status).json({
       success: false,
       message: error.message || "Failed to update branch",
     });
@@ -94,8 +142,8 @@ export const updateSubcategory = async (req, res) => {
  */
 export const deleteSubcategory = async (req, res) => {
   try {
-    const { id } = req.params;
-    await LibraryBranchService.deleteSubcategory(id);
+    const { categorySlug = "mantra-stotra", id } = req.params;
+    await LibraryBranchService.deleteSubcategory(id, categorySlug);
     return res.status(200).json({
       success: true,
       message: "Branch deleted successfully",
@@ -135,7 +183,9 @@ export const reorderSubcategories = async (req, res) => {
 
 export default {
   getPublicSubcategories,
+  getPublicSubcategoryDetail,
   getAdminSubcategories,
+  getAdminSubcategoryDetail,
   createSubcategory,
   updateSubcategory,
   deleteSubcategory,

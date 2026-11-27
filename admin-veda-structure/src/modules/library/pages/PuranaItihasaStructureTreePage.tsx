@@ -8,22 +8,14 @@ import {
   FolderTree,
   ChevronRight,
   ChevronDown,
-  Sparkles,
-  Layers,
   Scroll,
   Search,
-  BookOpen,
   CheckCircle2,
   Maximize2,
   Minimize2,
-  ExternalLink,
-  Flame,
-  ShieldCheck,
   RefreshCw,
   FolderPlus,
-  CornerDownRight,
 } from "lucide-react";
-import PageHeader from "@/components/PageHeader";
 import Modal from "@/components/Modal";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { useToast } from "@/context/ToastContext";
@@ -31,26 +23,34 @@ import type { VedaNode } from "../types/veda.types";
 import type { PuranaItihasaGrantha } from "../types/puranaItihasa.types";
 import PuranaItihasaAdminService from "../services/puranaItihasa.service";
 
+function getErrorMessage(err: unknown, fallback: string): string {
+  if (err && typeof err === "object" && "message" in err) {
+    const msg = (err as { message?: unknown }).message;
+    if (typeof msg === "string" && msg.trim()) return msg;
+  }
+  return fallback;
+}
+
 // Grantha Quick Navigation Tabs
 const QUICK_GRANTHAS = [
-  { id: "vishnu-purana", label: "विष्णु पुराण" },
-  { id: "shrimad-bhagavata", label: "श्रीमद्भागवत" },
-  { id: "shiva-purana", label: "शिव पुराण" },
-  { id: "markandeya-purana", label: "मार्कण्डेय पुराण" },
-  { id: "valmiki-ramayana", label: "वाल्मीकि रामायण" },
-  { id: "mahabharata", label: "महाभारत" },
-  { id: "bhagavad-gita", label: "भगवद्गीता" },
+  { id: "vishnu-purana", label: "Vishnu Purana" },
+  { id: "shrimad-bhagavata", label: "Shrimad Bhagavata" },
+  { id: "shiva-purana", label: "Shiva Purana" },
+  { id: "markandeya-purana", label: "Markandeya Purana" },
+  { id: "valmiki-ramayana", label: "Valmiki Ramayana" },
+  { id: "mahabharata", label: "Mahabharata" },
+  { id: "bhagavad-gita", label: "Bhagavad Gita" },
 ];
 
 // Node Type configurations for Purana & Itihasa
 const PURANA_NODE_TYPES = [
-  { value: "KANDA", label: "काण्ड / खण्ड (Kanda / Khanda)", badgeClass: "bg-teal-50 text-teal-800 border-teal-200" },
-  { value: "PARVA", label: "पर्व (Parva - महाभारत / हरिवंश)", badgeClass: "bg-indigo-50 text-indigo-800 border-indigo-200" },
-  { value: "SARGA", label: "सर्ग (Sarga - रामायण / महाकाव्य)", badgeClass: "bg-rose-50 text-rose-800 border-rose-200" },
-  { value: "ADHYAYA", label: "अध्याय (Adhyaya - Chapter)", badgeClass: "bg-sky-50 text-sky-800 border-sky-200" },
-  { value: "SAMHITA", label: "संहिता (Samhita - शिव पुराण)", badgeClass: "bg-orange-50 text-orange-800 border-orange-200" },
-  { value: "SUKTA", label: "स्तोत्र / सूक्त (Stotra / Sukta)", badgeClass: "bg-amber-50 text-amber-800 border-amber-200" },
-  { value: "VARGA", label: "वर्ग / प्रकरण (Varga / Prakarana)", badgeClass: "bg-purple-50 text-purple-800 border-purple-200" },
+  { value: "KANDA", label: "Kanda / Khanda", badgeClass: "bg-teal-50 text-teal-800 border-teal-200" },
+  { value: "PARVA", label: "Parva (Mahabharata / Harivamsha)", badgeClass: "bg-indigo-50 text-indigo-800 border-indigo-200" },
+  { value: "SARGA", label: "Sarga (Ramayana / Mahakavya)", badgeClass: "bg-rose-50 text-rose-800 border-rose-200" },
+  { value: "ADHYAYA", label: "Adhyaya (Chapter)", badgeClass: "bg-sky-50 text-sky-800 border-sky-200" },
+  { value: "SAMHITA", label: "Samhita (Shiva Purana)", badgeClass: "bg-orange-50 text-orange-800 border-orange-200" },
+  { value: "SUKTA", label: "Stotra / Sukta", badgeClass: "bg-amber-50 text-amber-800 border-amber-200" },
+  { value: "VARGA", label: "Varga / Prakarana", badgeClass: "bg-purple-50 text-purple-800 border-purple-200" },
 ];
 
 const getNodeTypeBadge = (type: string) => {
@@ -111,8 +111,8 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
         initialExpanded[node.id] = true;
       });
       setExpandedNodes(initialExpanded);
-    } catch (err: any) {
-      showError(err.message || "संरचना वृक्ष लोड करने में असमर्थ");
+    } catch (err: unknown) {
+      showError(getErrorMessage(err, "Unable to load structure tree"));
     } finally {
       setLoading(false);
     }
@@ -211,7 +211,7 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
 
     const errs: Record<string, string> = {};
     if (!nodeFormData.name?.trim()) {
-      errs.name = "हिन्दी नाम अनिवार्य है (उदा. बालकाण्ड, भीष्म पर्व, अध्याय १)";
+      errs.name = "Name is required (e.g. Bala Kanda, Bhishma Parva, Chapter 1)";
     }
     if (Object.keys(errs).length > 0) {
       setNodeErrors(errs);
@@ -234,7 +234,7 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
           ...nodeFormData,
           slug: generatedSlug,
         });
-        showSuccess(`नोड "${nodeFormData.name}" सफलतापूर्वक अपडेट किया गया`);
+        showSuccess(`Node "${nodeFormData.enName || nodeFormData.name}" updated successfully`);
       } else {
         // Create new node
         const newNodeId = `${id}-${generatedSlug}`;
@@ -245,13 +245,13 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
           vedaId: id,
           parentId: targetParentId,
         });
-        showSuccess(`नया नोड "${nodeFormData.name}" सफलतापूर्वक जोड़ा गया`);
+        showSuccess(`New node "${nodeFormData.enName || nodeFormData.name}" added successfully`);
       }
 
       setIsNodeModalOpen(false);
       await fetchTreeData();
-    } catch (err: any) {
-      showError(err.message || "नोड सहेजने में त्रुटि");
+    } catch (err: unknown) {
+      showError(getErrorMessage(err, "Error saving node"));
     } finally {
       setSavingNode(false);
     }
@@ -263,11 +263,11 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
     try {
       setIsDeleting(true);
       await PuranaItihasaAdminService.deleteNode(deletingNode.id);
-      showSuccess(`नोड "${deletingNode.name}" सफलतापूर्वक हटाया गया`);
+      showSuccess(`Node "${deletingNode.enName || deletingNode.name}" deleted successfully`);
       setDeletingNode(null);
       await fetchTreeData();
-    } catch (err: any) {
-      showError(err.message || "नोड हटाने में त्रुटि");
+    } catch (err: unknown) {
+      showError(getErrorMessage(err, "Error deleting node"));
     } finally {
       setIsDeleting(false);
     }
@@ -320,7 +320,7 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
                 type="button"
                 onClick={() => toggleNode(node.id)}
                 className="p-1 rounded hover:bg-cream-200 text-charcoal-500 hover:text-charcoal-800 transition mt-0.5 shrink-0"
-                title={isExpanded ? "समेटें (Collapse)" : "खोलें (Expand)"}
+                title={isExpanded ? "Collapse" : "Expand"}
               >
                 {isExpanded ? (
                   <ChevronDown className="w-4 h-4 text-saffron-600" />
@@ -344,14 +344,14 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
                 </span>
 
                 {/* Node Title */}
-                <span className="font-bold text-sm sm:text-base text-charcoal-900 font-devanagari">
-                  {node.name}
+                <span className="font-bold text-sm sm:text-base text-charcoal-900">
+                  {node.enName || node.name}
                 </span>
 
-                {/* English Name */}
-                {node.enName && (
+                {/* Secondary Name */}
+                {node.name && node.enName && node.name !== node.enName && (
                   <span className="text-xs text-charcoal-500 font-medium hidden sm:inline">
-                    ({node.enName})
+                    ({node.name})
                   </span>
                 )}
 
@@ -378,17 +378,17 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
             <Link
               to={`/admin/purana-itihasa/${id}/shlokas?nodeId=${node.id}`}
               className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition"
-              title="इस खण्ड/अध्याय के श्लोक देखें व प्रबंधित करें"
+              title="View and manage shlokas for this section"
             >
               <Scroll className="w-3 h-3 text-amber-700" />
-              <span className="hidden sm:inline">श्लोक</span>
+              <span className="hidden sm:inline">Shlokas</span>
             </Link>
 
             {/* Add Child Node */}
             <button
               onClick={() => openAddModal(node.id)}
               className="p-1.5 rounded-lg text-saffron-700 hover:bg-saffron-50 border border-transparent hover:border-saffron-200 transition"
-              title="उप-नोड जोड़ें (Add Child Node)"
+              title="Add Child Node"
             >
               <Plus className="w-3.5 h-3.5" />
             </button>
@@ -397,7 +397,7 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
             <button
               onClick={() => openEditModal(node)}
               className="p-1.5 rounded-lg text-charcoal-600 hover:bg-cream-200 transition"
-              title="संपादित करें (Edit)"
+              title="Edit Node"
             >
               <Edit className="w-3.5 h-3.5" />
             </button>
@@ -406,7 +406,7 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
             <button
               onClick={() => setDeletingNode(node)}
               className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition"
-              title="हटाएं (Delete)"
+              title="Delete Node"
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
@@ -434,28 +434,28 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
               className="hover:underline flex items-center gap-1 text-charcoal-500 hover:text-saffron-600"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              पुराण एवं इतिहास सूची (Archive List)
+              Purana &amp; Itihasa Archive
             </Link>
             <span>/</span>
-            <span className="text-charcoal-700 font-bold">संरचना वृक्ष</span>
+            <span className="text-charcoal-700 font-bold">Structure Tree</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-charcoal-900 font-serif flex items-center gap-2">
               <FolderTree className="w-7 h-7 text-saffron-500" />
-              <span>{grantha?.name || "ग्रंथ संरचना वृक्ष"}</span>
+              <span>{grantha?.enName || grantha?.name || "Grantha Structure Tree"}</span>
             </h1>
 
-            {grantha && (
+            {grantha && grantha.name && grantha.name !== grantha.enName && (
               <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-saffron-50 text-saffron-800 border border-saffron-200">
-                {grantha.enName}
+                {grantha.name}
               </span>
             )}
           </div>
 
           <p className="text-xs text-charcoal-500 mt-1 max-w-2xl">
-            {grantha?.stats || "काण्ड, पर्व, सर्ग, अंश व अध्यायों का श्रेणीबद्ध दृश्य वृक्ष संरचना।"}{" "}
-            प्रत्येक नोड के नीचे श्लोक जोड़े और सम्पादित किए जा सकते हैं।
+            {grantha?.stats || "Hierarchical tree view of Kandas, Parvas, Sargas, Amshas, and Adhyayas."}{" "}
+            Shlokas can be added and edited under each node.
           </p>
         </div>
 
@@ -465,7 +465,7 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
             className="btn-secondary text-xs flex items-center gap-1.5"
           >
             <Edit className="w-3.5 h-3.5" />
-            <span>ग्रंथ विवरण</span>
+            <span>Grantha Details</span>
           </Link>
 
           <Link
@@ -473,7 +473,7 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-50 text-amber-800 border border-amber-300 font-semibold text-xs hover:bg-amber-100 transition shadow-xs"
           >
             <Scroll className="w-3.5 h-3.5 text-amber-700" />
-            <span>समस्त श्लोक प्रबंधन</span>
+            <span>Manage All Shlokas</span>
           </Link>
 
           <button
@@ -481,7 +481,7 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
             className="btn-primary text-xs flex items-center gap-1.5 shadow-md"
           >
             <FolderPlus className="w-4 h-4" />
-            <span>शीर्ष नोड जोड़ें (Add Root Node)</span>
+            <span>Add Root Node</span>
           </button>
         </div>
       </div>
@@ -489,7 +489,7 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
       {/* 2. Grantha Quick-Switcher Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar border-b border-cream-200">
         <span className="text-xs font-bold text-charcoal-500 uppercase tracking-wider shrink-0 pr-2">
-          त्वरित चयन:
+          Quick Select:
         </span>
         {QUICK_GRANTHAS.map((g) => {
           const isActive = g.id === id;
@@ -515,17 +515,17 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
         <div className="flex flex-wrap items-center gap-4 text-xs font-medium text-charcoal-600">
           <div className="flex items-center gap-1.5">
             <span className="font-bold text-charcoal-900 text-sm">{totalStats.totalNodes}</span>
-            <span>कुल नोड्स (Total Nodes)</span>
+            <span>Total Nodes</span>
           </div>
           <span className="text-cream-300">•</span>
           <div className="flex items-center gap-1.5">
             <span className="font-bold text-charcoal-900 text-sm">{totalStats.leafNodes}</span>
-            <span>अध्याय / उप-इकाइयाँ</span>
+            <span>Chapters / Sub-units</span>
           </div>
           <span className="text-cream-300">•</span>
           <div className="flex items-center gap-1.5 text-emerald-700 font-semibold">
             <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>संरचना सक्रिय</span>
+            <span>Structure Active</span>
           </div>
         </div>
 
@@ -537,7 +537,7 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
               type="text"
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
-              placeholder="नोड या अध्याय खोजें..."
+              placeholder="Search nodes or chapters..."
               className="input-field pl-9 pr-3 py-1.5 text-xs w-full"
             />
           </div>
@@ -545,19 +545,19 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
           <button
             onClick={expandAll}
             className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-cream-100 text-charcoal-700 text-xs font-medium hover:bg-cream-200 transition shrink-0"
-            title="सभी नोड खोलें"
+            title="Expand all nodes"
           >
             <Maximize2 className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">सभी खोलें</span>
+            <span className="hidden sm:inline">Expand All</span>
           </button>
 
           <button
             onClick={collapseAll}
             className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-cream-100 text-charcoal-700 text-xs font-medium hover:bg-cream-200 transition shrink-0"
-            title="सभी नोड समेटें"
+            title="Collapse all nodes"
           >
             <Minimize2 className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">समेटें</span>
+            <span className="hidden sm:inline">Collapse All</span>
           </button>
         </div>
       </div>
@@ -567,22 +567,22 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
         {loading ? (
           <div className="py-20 text-center text-charcoal-500">
             <RefreshCw className="w-8 h-8 animate-spin mx-auto text-saffron-500 mb-2" />
-            <p className="text-sm font-medium">संरचना वृक्ष लोड हो रहा है...</p>
+            <p className="text-sm font-medium">Loading structure tree...</p>
           </div>
         ) : treeNodes.length === 0 ? (
           <div className="py-20 text-center text-charcoal-500">
             <FolderTree className="w-12 h-12 mx-auto text-charcoal-300 mb-3" />
             <h3 className="text-base font-bold text-charcoal-800">
-              इस ग्रंथ में अभी कोई संरचना नोड नहीं है
+              No structure nodes in this grantha yet
             </h3>
             <p className="text-xs text-charcoal-500 mt-1 max-w-md mx-auto">
-              आप पहला शीर्ष नोड (काण्ड, पर्व, सर्ग, या अंश) जोड़ सकते हैं।
+              You can add the first root node (Kanda, Parva, Sarga, or Amsha).
             </p>
             <button
               onClick={() => openAddModal(null)}
               className="btn-primary text-xs mt-4"
             >
-              पहला नोड जोड़ें
+              Add First Node
             </button>
           </div>
         ) : (
@@ -598,20 +598,25 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
         onClose={() => setIsNodeModalOpen(false)}
         title={
           editingNode
-            ? `नोड संपादन: ${editingNode.name}`
+            ? `Edit Node: ${editingNode.enName || editingNode.name}`
             : targetParentId
-            ? "उप-नोड जोड़ें (Add Child Node)"
-            : "शीर्ष-स्तरीय नोड जोड़ें (Add Root Node)"
+            ? "Add Child Node"
+            : "Add Root Node"
         }
         size="md"
       >
         <form onSubmit={handleSaveNode} className="space-y-4">
           {/* Node Type */}
           <div>
-            <label className="label-field">नोड का प्रकार (Node Type)</label>
+            <label className="label-field">Node Type</label>
             <select
               value={nodeFormData.nodeType || "ADHYAYA"}
-              onChange={(e) => setNodeFormData({ ...nodeFormData, nodeType: e.target.value as any })}
+              onChange={(e) =>
+                setNodeFormData({
+                  ...nodeFormData,
+                  nodeType: e.target.value as VedaNode["nodeType"],
+                })
+              }
               className="input-field text-sm font-semibold"
             >
               {PURANA_NODE_TYPES.map((t) => (
@@ -625,7 +630,7 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
           {/* Hindi Name */}
           <div>
             <label className="label-field">
-              हिन्दी नाम (Hindi Name) <span className="text-red-500">*</span>
+              Hindi / Sanskrit Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -634,7 +639,7 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
                 setNodeFormData({ ...nodeFormData, name: e.target.value });
                 if (nodeErrors.name) setNodeErrors({ ...nodeErrors, name: "" });
               }}
-              placeholder="उदा. प्रथम अंश, बालकाण्ड, भीष्म पर्व, अध्याय १"
+              placeholder="e.g. Prathama Amsha, Bala Kanda, Bhishma Parva, Chapter 1"
               className={`input-field font-devanagari font-semibold ${
                 nodeErrors.name ? "border-red-400" : ""
               }`}
@@ -647,27 +652,27 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
           {/* English Name, Hinglish Name & Slug */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="label-field">अंग्रेजी नाम (English Title)</label>
+              <label className="label-field">English Title</label>
               <input
                 type="text"
                 value={nodeFormData.enName || ""}
                 onChange={(e) => setNodeFormData({ ...nodeFormData, enName: e.target.value })}
-                placeholder="उदा. Bala Kanda, Chapter 1"
+                placeholder="e.g. Bala Kanda, Chapter 1"
                 className="input-field text-xs"
               />
             </div>
             <div>
-              <label className="label-field">हिंग्लिश नाम (Hinglish Title)</label>
+              <label className="label-field">Hinglish Title</label>
               <input
                 type="text"
                 value={nodeFormData.hinglishName || ""}
                 onChange={(e) => setNodeFormData({ ...nodeFormData, hinglishName: e.target.value })}
-                placeholder="उदा. Bala Kand, Adhyay 1"
+                placeholder="e.g. Bala Kand, Adhyay 1"
                 className="input-field text-xs"
               />
             </div>
             <div>
-              <label className="label-field">स्लग (Slug / Key)</label>
+              <label className="label-field">Slug / Key</label>
               <input
                 type="text"
                 value={nodeFormData.slug || ""}
@@ -681,17 +686,17 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
           {/* Stats Pill */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="label-field">श्लोक / सांख्यिकी (Stats)</label>
+              <label className="label-field">Shlokas / Stats</label>
               <input
                 type="text"
                 value={nodeFormData.stats || ""}
                 onChange={(e) => setNodeFormData({ ...nodeFormData, stats: e.target.value })}
-                placeholder="उदा. ५० श्लोक, २५ सर्ग"
+                placeholder="e.g. 50 Shlokas, 25 Sargas"
                 className="input-field text-xs"
               />
             </div>
             <div>
-              <label className="label-field">क्रम संख्या (Order Index)</label>
+              <label className="label-field">Order Index</label>
               <input
                 type="number"
                 value={nodeFormData.orderIndex ?? 1}
@@ -705,12 +710,12 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
 
           {/* Description */}
           <div>
-            <label className="label-field">संक्षिप्त विवरण (Description)</label>
+            <label className="label-field">Description</label>
             <textarea
               rows={3}
               value={nodeFormData.desc || ""}
               onChange={(e) => setNodeFormData({ ...nodeFormData, desc: e.target.value })}
-              placeholder="इस खण्ड या अध्याय की प्रमुख कथा या श्लोक विषय..."
+              placeholder="Key narrative or shloka theme of this section or chapter..."
               className="input-field text-xs"
             />
           </div>
@@ -722,7 +727,7 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
               onClick={() => setIsNodeModalOpen(false)}
               className="btn-secondary text-xs"
             >
-              रद्द करें
+              Cancel
             </button>
             <button
               type="submit"
@@ -734,7 +739,7 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
               ) : (
                 <CheckCircle2 className="w-3.5 h-3.5" />
               )}
-              <span>{editingNode ? "अपडेट करें" : "नोड जोड़ें"}</span>
+              <span>{editingNode ? "Update Node" : "Add Node"}</span>
             </button>
           </div>
         </form>
@@ -743,10 +748,10 @@ export const PuranaItihasaStructureTreePage: React.FC = () => {
       {/* 6. Delete Node Confirmation */}
       <ConfirmDialog
         isOpen={Boolean(deletingNode)}
-        title="नोड हटाने की पुष्टि (Confirm Node Deletion)"
-        message={`क्या आप सुनिश्चित हैं कि आप নোড "${deletingNode?.name}" को हटाना चाहते हैं? इसके अन्तर्गत जुड़े बाल-नोड भी प्रभावित हो सकते हैं।`}
-        confirmLabel="हाँ, हटाएं"
-        cancelLabel="रद्द करें"
+        title="Confirm Node Deletion"
+        message={`Are you sure you want to delete node "${deletingNode?.enName || deletingNode?.name}"? Child nodes linked under it may also be affected.`}
+        confirmLabel="Yes, Delete"
+        cancelLabel="Cancel"
         danger
         loading={isDeleting}
         onConfirm={handleDeleteNodeConfirm}

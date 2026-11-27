@@ -8,16 +8,10 @@ import {
   FolderTree,
   ChevronRight,
   ChevronDown,
-  Sparkles,
-  Layers,
   Scroll,
   Search,
-  BookOpen,
-  Filter,
-  CheckCircle2,
   Maximize2,
   Minimize2,
-  ExternalLink,
 } from "lucide-react";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { useToast } from "@/context/ToastContext";
@@ -32,51 +26,51 @@ interface NodeTypeBadgeConfig {
 
 const NODE_TYPE_MAP: Record<string, NodeTypeBadgeConfig> = {
   SHAKHA: {
-    label: "शाखा (Shakha)",
+    label: "Shakha",
     badgeClass: "bg-amber-100 text-amber-900 border-amber-300",
   },
   SAMHITA: {
-    label: "संहिता (Samhita)",
+    label: "Samhita",
     badgeClass: "bg-orange-100 text-orange-900 border-orange-300",
   },
   BRAHMANA: {
-    label: "ब्राह्मण (Brahmana)",
+    label: "Brahmana",
     badgeClass: "bg-purple-100 text-purple-900 border-purple-300",
   },
   ARANYAKA: {
-    label: "आरण्यक (Aranyaka)",
+    label: "Aranyaka",
     badgeClass: "bg-emerald-100 text-emerald-900 border-emerald-300",
   },
   UPANISHAD: {
-    label: "उपनिषद (Upanishad)",
+    label: "Upanishad",
     badgeClass: "bg-blue-100 text-blue-900 border-blue-300",
   },
   SUKTA: {
-    label: "सूक्त (Sukta)",
+    label: "Sukta",
     badgeClass: "bg-rose-100 text-rose-900 border-rose-300",
   },
   ADHYAYA: {
-    label: "अध्याय (Adhyaya)",
+    label: "Adhyaya",
     badgeClass: "bg-indigo-100 text-indigo-900 border-indigo-300",
   },
   MANDALA: {
-    label: "मण्डल (Mandala)",
+    label: "Mandala",
     badgeClass: "bg-amber-50 text-amber-900 border-amber-300",
   },
   KANDA: {
-    label: "काण्ड (Kanda)",
+    label: "Kanda",
     badgeClass: "bg-teal-100 text-teal-900 border-teal-300",
   },
   SUTRA: {
-    label: "सूत्र (Sutra)",
+    label: "Sutra",
     badgeClass: "bg-stone-100 text-stone-800 border-stone-300",
   },
   VARGA: {
-    label: "वर्ग (Varga)",
+    label: "Varga",
     badgeClass: "bg-cyan-100 text-cyan-900 border-cyan-300",
   },
   PARVA: {
-    label: "पर्व (Parva)",
+    label: "Parva",
     badgeClass: "bg-cyan-100 text-cyan-900 border-cyan-300",
   },
 };
@@ -91,10 +85,10 @@ const getNodeTypeConfig = (type: string): NodeTypeBadgeConfig => {
 };
 
 const VEDA_QUICK_TABS = [
-  { id: "rigveda", label: "ऋग्वेद (Rigveda)" },
-  { id: "yajurveda", label: "यजुर्वेद (Yajurveda)" },
-  { id: "samaveda", label: "सामवेद (Samaveda)" },
-  { id: "atharvaveda", label: "अथर्ववेद (Atharvaveda)" },
+  { id: "rigveda", label: "Rigveda" },
+  { id: "yajurveda", label: "Yajurveda" },
+  { id: "samaveda", label: "Samaveda" },
+  { id: "atharvaveda", label: "Atharvaveda" },
 ];
 
 export const VedaTreePage: React.FC = () => {
@@ -141,8 +135,9 @@ export const VedaTreePage: React.FC = () => {
         expandRecursive(data.tree, 0);
         setExpandedNodes(exp);
       }
-    } catch (err: any) {
-      showToast(err.message || "संरचना ट्री लोड करने में विफल", "error");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to load structure tree";
+      showToast(msg || "Failed to load structure tree", "error");
     } finally {
       setLoading(false);
     }
@@ -200,11 +195,12 @@ export const VedaTreePage: React.FC = () => {
     if (!deleteTarget) return;
     try {
       await VedaAdminService.deleteNode(deleteTarget.id);
-      showToast(`नोड "${deleteTarget.name}" सफलतापूर्वक हटाया गया`, "success");
+      showToast(`Node "${deleteTarget.enName || deleteTarget.name}" deleted successfully`, "success");
       setDeleteTarget(null);
       fetchTree();
-    } catch (err: any) {
-      showToast(err.message || "नोड हटाने में विफल", "error");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to delete node";
+      showToast(msg || "Failed to delete node", "error");
     }
   };
 
@@ -305,7 +301,7 @@ export const VedaTreePage: React.FC = () => {
                 type="button"
                 onClick={() => toggleExpand(node.id)}
                 className="p-1 rounded-md text-charcoal-500 hover:text-saffron-700 hover:bg-amber-100/60 transition-colors cursor-pointer shrink-0"
-                title={isExpanded ? "बंद करें" : "उप-शाखाएँ खोलें"}
+                title={isExpanded ? "Collapse" : "Expand child branches"}
               >
                 {isExpanded ? (
                   <ChevronDown className="w-3.5 h-3.5 text-saffron-600" />
@@ -329,18 +325,18 @@ export const VedaTreePage: React.FC = () => {
             {/* Node Title & English translation */}
             <div className="min-w-0 flex-1 truncate">
               <div className="flex items-center gap-1.5">
-                <span className="font-serif text-xs sm:text-sm font-bold text-charcoal-900 block truncate font-devanagari">
-                  {node.name}
+                <span className="font-serif text-xs sm:text-sm font-bold text-charcoal-900 block truncate">
+                  {node.enName || node.name}
                 </span>
                 {hasChildren && (
                   <span className="text-[9px] font-semibold text-charcoal-400 bg-cream-100 px-1.5 py-0.2 rounded-full shrink-0">
-                    {node.children!.length} उप-नोड
+                    {node.children!.length} sub-nodes
                   </span>
                 )}
               </div>
-              {node.enName && (
+              {node.name && node.enName && node.name !== node.enName && (
                 <span className="text-[10px] text-charcoal-500 block truncate font-sans">
-                  {node.enName}
+                  {node.name}
                 </span>
               )}
             </div>
@@ -355,17 +351,17 @@ export const VedaTreePage: React.FC = () => {
 
           {/* Right Action Buttons */}
           <div className="flex items-center gap-1 shrink-0 text-xs">
-            {/* Quick "मंत्र देखें" Shortcut Button */}
+            {/* Quick View Mantras Shortcut Button */}
             {hasMantraShortcut && (
               <Link
                 to={`/admin/library/mantras?vedaId=${veda?.id || id}&nodeId=${node.id}${
                   node.mantraId ? `&mantraId=${node.mantraId}` : ""
                 }`}
                 className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 text-[11px] font-semibold transition-all shadow-2xs hover:shadow-xs"
-                title="इस सूक्त के सिद्ध मंत्र देखें व प्रबंधित करें"
+                title="View and manage mantras in this sukta"
               >
                 <Scroll className="w-3 h-3 text-emerald-600" />
-                <span className="hidden sm:inline">मंत्र</span>
+                <span className="hidden sm:inline">Mantras</span>
               </Link>
             )}
 
@@ -380,10 +376,10 @@ export const VedaTreePage: React.FC = () => {
                 })
               }
               className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-saffron-50 text-saffron-800 hover:bg-saffron-100 border border-saffron-200 text-[11px] font-semibold transition-all shadow-2xs hover:shadow-xs cursor-pointer"
-              title="इसके अंतर्गत उप-शाखा / सूक्त जोड़ें"
+              title="Add child branch / sukta"
             >
               <Plus className="w-3 h-3" />
-              <span className="hidden sm:inline">उप-नोड</span>
+              <span className="hidden sm:inline">Child Node</span>
             </button>
 
             {/* Edit Node */}
@@ -397,7 +393,7 @@ export const VedaTreePage: React.FC = () => {
                 })
               }
               className="p-1 text-charcoal-500 hover:text-saffron-700 rounded-md hover:bg-cream-100 transition-colors cursor-pointer"
-              title="संपादित करें (Edit)"
+              title="Edit"
             >
               <Edit className="w-3 h-3" />
             </button>
@@ -407,7 +403,7 @@ export const VedaTreePage: React.FC = () => {
               type="button"
               onClick={() => setDeleteTarget(node)}
               className="p-1 text-charcoal-400 hover:text-red-600 rounded-md hover:bg-red-50 transition-colors cursor-pointer"
-              title="हटाएं (Delete)"
+              title="Delete"
             >
               <Trash2 className="w-3 h-3" />
             </button>
@@ -444,14 +440,14 @@ export const VedaTreePage: React.FC = () => {
 
             const backLabel =
               categoryPath === "purana"
-                ? "पुराण सूची (All Puranas)"
+                ? "All Puranas"
                 : categoryPath === "itihasa"
-                ? "इतिहास सूची (All Itihasas)"
+                ? "All Itihasas"
                 : categoryPath === "upanishad"
-                ? "उपनिषद सूची (All Upanishads)"
+                ? "All Upanishads"
                 : categoryPath === "darshana"
-                ? "दर्शन सूची (All Darshanas)"
-                : "वेद सूची (All Vedas)";
+                ? "All Darshanas"
+                : "All Vedas";
 
             return (
               <Link
@@ -464,11 +460,11 @@ export const VedaTreePage: React.FC = () => {
             );
           })()}
           <span className="text-charcoal-300">/</span>
-          <span className="font-bold text-charcoal-800 font-devanagari">
-            {veda?.name || "ग्रंथ"}
+          <span className="font-bold text-charcoal-800">
+            {veda?.enName || veda?.name || "Scripture"}
           </span>
           <span className="text-charcoal-300">/</span>
-          <span className="text-saffron-700 font-semibold">संरचना ट्री</span>
+          <span className="text-saffron-700 font-semibold">Structure Tree</span>
         </div>
 
         {/* Quick Add Node Modal Trigger */}
@@ -478,7 +474,7 @@ export const VedaTreePage: React.FC = () => {
             className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white border border-cream-300 text-charcoal-800 text-xs font-semibold hover:bg-cream-50 transition-colors shadow-2xs"
           >
             <Scroll className="w-3 h-3 text-saffron-600" />
-            <span>मंत्र सूची</span>
+            <span>Mantras List</span>
           </Link>
 
           <button
@@ -493,7 +489,7 @@ export const VedaTreePage: React.FC = () => {
             className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gradient-to-r from-saffron-600 to-amber-600 hover:from-saffron-500 hover:to-amber-500 text-white text-xs font-bold shadow-2xs transition-all cursor-pointer"
           >
             <Plus className="w-3 h-3" />
-            <span>नया नोड जोड़ें</span>
+            <span>Add New Node</span>
           </button>
         </div>
       </div>
@@ -506,7 +502,7 @@ export const VedaTreePage: React.FC = () => {
             <Link
               key={tab.id}
               to={`/admin/library/vedas/${tab.id}/structure`}
-              className={`px-3 py-1 rounded-lg text-xs font-bold font-devanagari shrink-0 transition-all ${
+              className={`px-3 py-1 rounded-lg text-xs font-bold shrink-0 transition-all ${
                 isActive
                   ? "bg-amber-600 text-white shadow-2xs"
                   : "bg-white text-charcoal-600 hover:bg-cream-100 border border-cream-200"
@@ -523,25 +519,25 @@ export const VedaTreePage: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-saffron-100 text-saffron-800 border border-saffron-200 font-devanagari">
-                {veda?.badge || "श्रुति ग्रंथ"}
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-saffron-100 text-saffron-800 border border-saffron-200">
+                {veda?.badge || "Shruti Scripture"}
               </span>
               {veda?.priest && (
                 <span className="text-[11px] font-semibold text-charcoal-600">
-                  प्रधान ऋत्विक: <strong>{veda.priest}</strong>
+                  Chief Priest: <strong>{veda.priest}</strong>
                 </span>
               )}
             </div>
 
             <h1 className="text-xl sm:text-2xl font-serif font-bold text-charcoal-900 flex items-center gap-2">
               <FolderTree className="w-5 h-5 text-saffron-600 shrink-0" />
-              <span>{veda?.name} की शाखाएँ एवं पदानुक्रम (Hierarchy Tree)</span>
+              <span>{veda?.enName || veda?.name} — Branches &amp; Hierarchy Tree</span>
             </h1>
 
-            <p className="text-xs text-charcoal-500 font-devanagari max-w-2xl leading-relaxed">
+            <p className="text-xs text-charcoal-500 max-w-2xl leading-relaxed">
               {veda?.intro ||
                 veda?.desc ||
-                "वेदों के अंतर्गत शाखाएँ, संहिताएँ, मण्डल, काण्ड, अध्याय एवं सूक्तों का प्रामाणिक संगठन व संबंध।"}
+                "Authentic organization and relationships across Shakhas, Samhitas, Mandalas, Kandas, Adhyayas, and Suktas."}
             </p>
           </div>
 
@@ -549,7 +545,7 @@ export const VedaTreePage: React.FC = () => {
           <div className="flex items-center gap-2 shrink-0">
             <div className="px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200/80 text-center">
               <span className="block text-[9px] font-bold uppercase text-amber-700">
-                कुल नोड्स
+                Total Nodes
               </span>
               <strong className="text-sm font-bold text-amber-950 font-mono">
                 {totalNodesCount}
@@ -558,7 +554,7 @@ export const VedaTreePage: React.FC = () => {
 
             <div className="px-3 py-1.5 rounded-xl bg-rose-50 border border-rose-200/80 text-center">
               <span className="block text-[9px] font-bold uppercase text-rose-700">
-                सूक्त व अध्याय
+                Suktas &amp; Adhyayas
               </span>
               <strong className="text-sm font-bold text-rose-950 font-mono">
                 {totalSuktasCount}
@@ -577,8 +573,8 @@ export const VedaTreePage: React.FC = () => {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="ट्री में सूक्त, शाखा या संहिता खोजें..."
-                className="w-full pl-8 pr-3 py-1.5 rounded-lg text-xs border border-cream-200 focus:border-saffron-500 focus:outline-none font-devanagari transition-colors"
+                placeholder="Search suktas, shakhas, or samhitas in tree..."
+                className="w-full pl-8 pr-3 py-1.5 rounded-lg text-xs border border-cream-200 focus:border-saffron-500 focus:outline-none transition-colors"
               />
             </div>
 
@@ -588,14 +584,14 @@ export const VedaTreePage: React.FC = () => {
               onChange={(e) => setTypeFilter(e.target.value)}
               className="px-2.5 py-1.5 rounded-lg text-xs border border-cream-200 bg-white text-charcoal-700 font-semibold focus:border-saffron-500 focus:outline-none cursor-pointer"
             >
-              <option value="ALL">सभी प्रकार (All)</option>
-              <option value="SHAKHA">शाखा (Shakha)</option>
-              <option value="SAMHITA">संहिता (Samhita)</option>
-              <option value="BRAHMANA">ब्राह्मण (Brahmana)</option>
-              <option value="ARANYAKA">आरण्यक (Aranyaka)</option>
-              <option value="UPANISHAD">उपनिषद (Upanishad)</option>
-              <option value="SUKTA">सूक्त (Sukta)</option>
-              <option value="ADHYAYA">अध्याय (Adhyaya)</option>
+              <option value="ALL">All Types</option>
+              <option value="SHAKHA">Shakha</option>
+              <option value="SAMHITA">Samhita</option>
+              <option value="BRAHMANA">Brahmana</option>
+              <option value="ARANYAKA">Aranyaka</option>
+              <option value="UPANISHAD">Upanishad</option>
+              <option value="SUKTA">Sukta</option>
+              <option value="ADHYAYA">Adhyaya</option>
             </select>
           </div>
 
@@ -605,19 +601,19 @@ export const VedaTreePage: React.FC = () => {
               type="button"
               onClick={handleExpandAll}
               className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-cream-50 hover:bg-cream-100 text-charcoal-700 font-semibold border border-cream-200 transition-colors cursor-pointer text-xs"
-              title="समस्त नोड्स खोलें"
+              title="Expand all nodes"
             >
               <Maximize2 className="w-3 h-3" />
-              <span>सभी खोलें</span>
+              <span>Expand All</span>
             </button>
             <button
               type="button"
               onClick={handleCollapseAll}
               className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-cream-50 hover:bg-cream-100 text-charcoal-700 font-semibold border border-cream-200 transition-colors cursor-pointer text-xs"
-              title="समस्त नोड्स बंद करें"
+              title="Collapse all nodes"
             >
               <Minimize2 className="w-3 h-3" />
-              <span>सभी बंद करें</span>
+              <span>Collapse All</span>
             </button>
           </div>
         </div>
@@ -627,7 +623,7 @@ export const VedaTreePage: React.FC = () => {
       {loading ? (
         <div className="bg-white p-8 rounded-2xl border border-cream-200 text-center space-y-2.5">
           <div className="w-8 h-8 border-2 border-saffron-500 border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-xs text-charcoal-500">वैदिक संरचना ट्री लोड हो रही है...</p>
+          <p className="text-xs text-charcoal-500">Loading Vedic structure tree...</p>
         </div>
       ) : !veda || !veda.tree || veda.tree.length === 0 ? (
         <div className="p-8 text-center bg-white rounded-2xl border border-cream-200 shadow-2xs space-y-3">
@@ -636,10 +632,10 @@ export const VedaTreePage: React.FC = () => {
           </div>
           <div>
             <h3 className="font-serif text-base font-bold text-charcoal-800">
-              इस वेद में अभी कोई शाखा या सूक्त पंजीकृत नहीं है।
+              No shakhas or suktas registered for this Veda yet.
             </h3>
             <p className="text-xs text-charcoal-500 mt-1 max-w-md mx-auto">
-              प्रथम मुख्य शाखा (Root Node) जोड़कर अपनी वैदिक संरचना का निर्माण प्रारंभ करें।
+              Start building the hierarchical structure by adding the first root node.
             </p>
           </div>
           <button
@@ -654,7 +650,7 @@ export const VedaTreePage: React.FC = () => {
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-saffron-600 text-white text-xs font-bold shadow-2xs hover:bg-saffron-700 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>प्रथम मुख्य शाखा जोड़ें</span>
+            <span>Add First Root Branch</span>
           </button>
         </div>
       ) : (
@@ -662,28 +658,28 @@ export const VedaTreePage: React.FC = () => {
           {/* Legend Strip */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 text-[10px] border-b border-cream-100">
             <span className="font-bold text-charcoal-500 uppercase shrink-0 text-[9px]">
-              संकेतक:
+              Legend:
             </span>
             <span className="px-1.5 py-0.2 rounded-full border bg-amber-100 text-amber-900 border-amber-300 font-bold shrink-0">
-              शाखा
+              Shakha
             </span>
             <span className="px-1.5 py-0.2 rounded-full border bg-orange-100 text-orange-900 border-orange-300 font-bold shrink-0">
-              संहिता
+              Samhita
             </span>
             <span className="px-1.5 py-0.2 rounded-full border bg-purple-100 text-purple-900 border-purple-300 font-bold shrink-0">
-              ब्राह्मण
+              Brahmana
             </span>
             <span className="px-1.5 py-0.2 rounded-full border bg-emerald-100 text-emerald-900 border-emerald-300 font-bold shrink-0">
-              आरण्यक
+              Aranyaka
             </span>
             <span className="px-1.5 py-0.2 rounded-full border bg-blue-100 text-blue-900 border-blue-300 font-bold shrink-0">
-              उपनिषद
+              Upanishad
             </span>
             <span className="px-1.5 py-0.2 rounded-full border bg-rose-100 text-rose-900 border-rose-300 font-bold shrink-0">
-              सूक्त
+              Sukta
             </span>
             <span className="px-1.5 py-0.2 rounded-full border bg-indigo-100 text-indigo-900 border-indigo-300 font-bold shrink-0">
-              अध्याय
+              Adhyaya
             </span>
           </div>
 
@@ -709,9 +705,9 @@ export const VedaTreePage: React.FC = () => {
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         isOpen={Boolean(deleteTarget)}
-        title="नोड हटाएं (Delete Node)"
-        message={`क्या आप निश्चित रूप से "${deleteTarget?.name}" को हटाना चाहते हैं? इसके अंतर्गत आने वाले सभी उप-नोड्स, सूक्त व संबंधित संदर्भ भी हट जाएंगे।`}
-        confirmLabel="हटाएं (Delete)"
+        title="Delete Node"
+        message={`Are you sure you want to delete "${deleteTarget?.enName || deleteTarget?.name}"? All child nodes, suktas, and related references under it will also be removed.`}
+        confirmLabel="Delete"
         variant="danger"
         onConfirm={handleDeleteNode}
         onCancel={() => setDeleteTarget(null)}

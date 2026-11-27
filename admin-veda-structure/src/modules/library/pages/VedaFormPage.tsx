@@ -5,14 +5,10 @@ import {
   Save,
   BookOpen,
   Sparkles,
-  Layers,
   Scroll,
   Image as ImageIcon,
   Flame,
-  CheckCircle2,
   Eye,
-  Shield,
-  HelpCircle,
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { useToast } from "@/context/ToastContext";
@@ -41,11 +37,11 @@ export const VedaFormPage: React.FC = () => {
     desc: "",
     stats: "",
     priest: "",
-    badge: "श्रुति",
+    badge: "Shruti",
     imageKey: "",
     bannerImage: "",
     quickInfo: {
-      type: "Veda (श्रुति)",
+      type: "Veda (Shruti)",
       language: "Vedic Sanskrit",
       chiefPriest: "",
       mandalCount: "",
@@ -66,7 +62,7 @@ export const VedaFormPage: React.FC = () => {
             setFormData({
               ...data,
               quickInfo: {
-                type: data.quickInfo?.type || "Veda (श्रुति)",
+                type: data.quickInfo?.type || "Veda (Shruti)",
                 language: data.quickInfo?.language || "Vedic Sanskrit",
                 chiefPriest: data.quickInfo?.chiefPriest || data.priest || "",
                 mandalCount: data.quickInfo?.mandalCount || "",
@@ -75,8 +71,9 @@ export const VedaFormPage: React.FC = () => {
               },
             });
           }
-        } catch (err: any) {
-          showToast(err.message || "वेद डेटा लोड करने में विफल", "error");
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : "Failed to load Veda details";
+          showToast(msg || "Failed to load Veda details", "error");
         } finally {
           setLoading(false);
         }
@@ -111,7 +108,7 @@ export const VedaFormPage: React.FC = () => {
     try {
       setSaving(true);
       if (!formData.name?.trim() || !formData.enName?.trim()) {
-        throw new Error("वेद का नाम (हिंदी व अंग्रेजी) अनिवार्य है।");
+        throw new Error("Both Hindi/Sanskrit and English names are required.");
       }
 
       const slug =
@@ -133,10 +130,10 @@ export const VedaFormPage: React.FC = () => {
 
       if (isEditing && id) {
         await VedaAdminService.updateVeda(id, payload);
-        showToast("डेटा सफलतापूर्वक अपडेट किया गया", "success");
+        showToast("Updated successfully", "success");
       } else {
         await VedaAdminService.createVeda(payload);
-        showToast("नया ग्रंथ सफलतापूर्वक जोड़ा गया", "success");
+        showToast("New scripture added successfully", "success");
       }
 
       const categoryPath = (payload.category || queryCategory || "").toLowerCase();
@@ -145,8 +142,9 @@ export const VedaFormPage: React.FC = () => {
       else if (categoryPath === "upanishad") navigate("/admin/library/upanishads");
       else if (categoryPath === "darshana") navigate("/admin/library/darshanas");
       else navigate("/admin/library/vedas");
-    } catch (err: any) {
-      showToast(err.message || "सहेजने में विफल", "error");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to save";
+      showToast(msg || "Failed to save", "error");
     } finally {
       setSaving(false);
     }
@@ -166,20 +164,20 @@ export const VedaFormPage: React.FC = () => {
 
   const categoryLabel =
     resolvedCategory === "purana"
-      ? "पुराण"
+      ? "Purana"
       : resolvedCategory === "itihasa"
-      ? "इतिहास ग्रंथ"
+      ? "Itihasa Text"
       : resolvedCategory === "upanishad"
-      ? "उपनिषद्"
+      ? "Upanishad"
       : resolvedCategory === "darshana"
-      ? "दर्शन शास्त्र"
-      : "वेद";
+      ? "Darshana"
+      : "Veda";
 
   if (loading) {
     return (
       <div className="p-16 text-center space-y-3">
         <div className="w-10 h-10 border-3 border-saffron-500 border-t-transparent rounded-full animate-spin mx-auto" />
-        <p className="text-xs text-charcoal-500 font-medium">डेटा लोड हो रहा है...</p>
+        <p className="text-xs text-charcoal-500 font-medium">Loading scripture data...</p>
       </div>
     );
   }
@@ -190,55 +188,55 @@ export const VedaFormPage: React.FC = () => {
       <PageHeader
         title={
           isEditing
-            ? `${categoryLabel} संपादन: ${formData.name}`
-            : `नया ${categoryLabel} जोड़ें (Add New)`
+            ? `Edit ${categoryLabel}: ${formData.enName || formData.name}`
+            : `Add New ${categoryLabel}`
         }
-        subtitle="शास्त्रीय संहिता, रचयिता/ऋत्विक, परिचय, विवरण एवं दृश्य विन्यास"
+        subtitle="Classical Samhita, Author/Ritvik, introduction, overview, and visual layout"
         actions={
           <Link
             to={backRoute}
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-cream-300 text-charcoal-700 text-xs font-bold hover:bg-cream-50 transition-colors shadow-2xs"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>सूची पर वापस जाएं</span>
+            <span>Back to List</span>
           </Link>
         }
       />
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* SECTION 1: मूल सामान्य जानकारी (General Information) */}
+        {/* SECTION 1: General Information */}
         <div className="bg-white p-6 sm:p-7 rounded-3xl border border-cream-200/90 shadow-2xs space-y-5">
           <div className="flex items-center justify-between border-b border-cream-100 pb-3">
             <h2 className="font-serif text-lg font-bold text-charcoal-900 flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-saffron-600" />
-              <span>१. सामान्य जानकारी (General Identification)</span>
+              <span>1. General Identification</span>
             </h2>
             <span className="text-[11px] text-charcoal-400 font-medium">
-              * चिह्नित क्षेत्र अनिवार्य हैं
+              * Required fields
             </span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-charcoal-700 mb-1.5">
-                हिन्दी नाम (Hindi Name) *
+                Hindi / Sanskrit Name *
               </label>
               <input
                 type="text"
                 required
                 value={formData.name || ""}
                 onChange={(e) => handleNameChange(e.target.value)}
-                placeholder="e.g. ऋग्वेद, यजुर्वेद, सामवेद, अथर्ववेद"
+                placeholder="e.g. Rigveda Samhita (or Devanagari title)"
                 className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:ring-2 focus:ring-saffron-100 focus:outline-none font-devanagari transition-all font-semibold"
               />
               <span className="text-[10px] text-charcoal-400 mt-1 block">
-                वेद का मुख्य हिन्दी नाम (उदा. ऋग्वेद)
+                Primary Hindi or Sanskrit title of the scripture
               </span>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-charcoal-700 mb-1.5">
-                अंग्रेजी नाम (English Name) *
+                English Name *
               </label>
               <input
                 type="text"
@@ -273,13 +271,13 @@ export const VedaFormPage: React.FC = () => {
                 className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-mono disabled:bg-cream-50 disabled:text-charcoal-400 transition-all"
               />
               <span className="text-[10px] text-charcoal-400 mt-1 block">
-                विशिष्ट पहचानकर्ता (संपादन के समय अपरिवर्तनीय)
+                Unique identifier (read-only when editing)
               </span>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-charcoal-700 mb-1.5">
-                शीर्ष पंक्ति (Eyebrow Tagline)
+                Eyebrow Tagline
               </label>
               <input
                 type="text"
@@ -287,11 +285,11 @@ export const VedaFormPage: React.FC = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, eyebrow: e.target.value })
                 }
-                placeholder="e.g. प्राचीनतम श्रुति ज्ञान • संहिता"
-                className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari transition-all"
+                placeholder="e.g. Ancient Shruti Wisdom • Samhita"
+                className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none transition-all"
               />
               <span className="text-[10px] text-charcoal-400 mt-1 block">
-                शीर्षक के ऊपर प्रदर्शित होने वाला सूक्ष्म परिचय
+                Short label displayed above the main heading
               </span>
             </div>
           </div>
@@ -299,7 +297,7 @@ export const VedaFormPage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-bold text-charcoal-700 mb-1.5">
-                ग्रंथ श्रेणी (Category)
+                Category
               </label>
               <select
                 value={formData.category || queryCategory || "veda"}
@@ -311,17 +309,17 @@ export const VedaFormPage: React.FC = () => {
                 }
                 className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 bg-white font-semibold focus:border-saffron-500 focus:outline-none"
               >
-                <option value="veda">वेद (Vedas)</option>
-                <option value="purana">पुराण (Puranas)</option>
-                <option value="itihasa">इतिहास (Itihasa)</option>
-                <option value="upanishad">उपनिषद् (Upanishads)</option>
-                <option value="darshana">दर्शन शास्त्र (Darshanas)</option>
+                <option value="veda">Vedas</option>
+                <option value="purana">Puranas</option>
+                <option value="itihasa">Itihasa</option>
+                <option value="upanishad">Upanishads</option>
+                <option value="darshana">Darshanas</option>
               </select>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-charcoal-700 mb-1.5">
-                प्रदर्शन क्रम (Order Index)
+                Order Index
               </label>
               <input
                 type="number"
@@ -338,7 +336,7 @@ export const VedaFormPage: React.FC = () => {
 
             <div>
               <label className="block text-xs font-bold text-charcoal-700 mb-1.5">
-                प्रकाशन स्थिति (Status)
+                Publication Status
               </label>
               <select
                 value={formData.status}
@@ -350,16 +348,16 @@ export const VedaFormPage: React.FC = () => {
                 }
                 className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 bg-white font-semibold focus:border-saffron-500 focus:outline-none"
               >
-                <option value="ACTIVE">सक्रिय (ACTIVE - प्रकाशित)</option>
-                <option value="DRAFT">ड्राफ्ट (DRAFT - अप्रकाशित)</option>
-                <option value="INACTIVE">निष्क्रिय (INACTIVE)</option>
+                <option value="ACTIVE">ACTIVE - Published</option>
+                <option value="DRAFT">DRAFT - Unpublished</option>
+                <option value="INACTIVE">INACTIVE</option>
               </select>
             </div>
           </div>
 
           <div>
             <label className="block text-xs font-bold text-charcoal-700 mb-1.5">
-              प्रस्तावना / संक्षिप्त परिचय (Intro / Subtitle)
+              Intro / Subtitle
             </label>
             <textarea
               rows={2}
@@ -371,28 +369,28 @@ export const VedaFormPage: React.FC = () => {
                   desc: e.target.value,
                 })
               }
-              placeholder="ऋचाओं और सूक्तों का प्राचीनतम वैदिक संग्रह। स्तुति, ज्ञान, विज्ञान और आध्यात्मिक चेतना का मूल स्रोत..."
-              className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari leading-relaxed"
+              placeholder="Ancient Vedic collection of hymns and suktas — foundational source of devotion, wisdom, and spiritual consciousness..."
+              className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none leading-relaxed"
             />
           </div>
         </div>
 
-        {/* SECTION 2: वर्गीकरण एवं वैदिक ऋत्विक परंपरा (Classification & Priest Tradition) */}
+        {/* SECTION 2: Classification & Priest Tradition */}
         <div className="bg-white p-6 sm:p-7 rounded-3xl border border-cream-200/90 shadow-2xs space-y-5">
           <div className="flex items-center justify-between border-b border-cream-100 pb-3">
             <h2 className="font-serif text-lg font-bold text-charcoal-900 flex items-center gap-2">
               <Flame className="w-5 h-5 text-amber-600" />
-              <span>२. वर्गीकरण एवं ऋत्विक परंपरा (Classification & Priest Tradition)</span>
+              <span>2. Classification &amp; Priest Tradition</span>
             </h2>
             <span className="text-[11px] text-charcoal-400 font-medium">
-              शास्त्रीय वैदिक मानदंड
+              Classical Vedic standards
             </span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-charcoal-700 mb-1.5">
-                प्रधान ऋत्विक (Chief Priest)
+                Chief Priest (Ritvik)
               </label>
               <input
                 type="text"
@@ -407,17 +405,17 @@ export const VedaFormPage: React.FC = () => {
                     },
                   })
                 }
-                placeholder="e.g. होतृ (Hotri), अध्वर्यु (Adhvaryu), उद्गातृ (Udgatri), ब्रह्मा (Brahma)"
-                className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari font-semibold"
+                placeholder="e.g. Hotri, Adhvaryu, Udgatri, Brahma"
+                className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-semibold"
               />
               <span className="text-[10px] text-charcoal-400 mt-1 block">
-                यज्ञीय कर्मकांड में संबंधित मुख्य ऋत्विक
+                Primary officiating priest associated with this tradition
               </span>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-charcoal-700 mb-1.5">
-                विशिष्ट बैज (Badge Tag)
+                Badge Tag
               </label>
               <input
                 type="text"
@@ -425,17 +423,17 @@ export const VedaFormPage: React.FC = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, badge: e.target.value })
                 }
-                placeholder="e.g. प्रधान श्रुति, कर्मकाण्ड एवं ज्ञान, संगीत एवं उपासना"
-                className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari"
+                placeholder="e.g. Principal Shruti, Karma & Jnana, Music & Worship"
+                className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none"
               />
               <span className="text-[10px] text-charcoal-400 mt-1 block">
-                कार्ड व हेडर पर प्रदर्शित होने वाला बैज
+                Badge shown on cards and page headers
               </span>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-charcoal-700 mb-1.5">
-                मण्डल / काण्ड संख्या (Mandal / Kanda Count)
+                Mandal / Kanda Count
               </label>
               <input
                 type="text"
@@ -449,14 +447,14 @@ export const VedaFormPage: React.FC = () => {
                     },
                   })
                 }
-                placeholder="e.g. १० मण्डल या ४० अध्याय या २० काण्ड"
-                className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari"
+                placeholder="e.g. 10 Mandalas or 40 Chapters or 20 Kandas"
+                className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none"
               />
             </div>
 
             <div>
               <label className="block text-xs font-bold text-charcoal-700 mb-1.5">
-                सूक्त संख्या (Sukta Count)
+                Sukta Count
               </label>
               <input
                 type="text"
@@ -470,15 +468,15 @@ export const VedaFormPage: React.FC = () => {
                     },
                   })
                 }
-                placeholder="e.g. १०२८ सूक्त या १९७५ मंत्र"
-                className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari"
+                placeholder="e.g. 1,028 Suktas or 1,975 Mantras"
+                className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none"
               />
             </div>
           </div>
 
           <div>
             <label className="block text-xs font-bold text-charcoal-700 mb-1.5">
-              प्रमुख द्रष्टा ऋषि (Chief Rishis)
+              Chief Seers / Rishis
             </label>
             <input
               type="text"
@@ -492,30 +490,30 @@ export const VedaFormPage: React.FC = () => {
                   },
                 })
               }
-              placeholder="e.g. मधुच्छन्दा, विश्वामित्र, वामदेव, अत्रि, भारद्वाज, वसिष्ठ, याज्ञवल्क्य"
-              className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari"
+              placeholder="e.g. Madhucchanda, Vishwamitra, Vamadeva, Atri, Bharadvaja, Vasishtha"
+              className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none"
             />
             <span className="text-[10px] text-charcoal-400 mt-1 block">
-              इस वेद से सम्बद्ध प्रमुख वैदिक ऋषि परंपरा
+              Principal Vedic seer lineage associated with this text
             </span>
           </div>
         </div>
 
-        {/* SECTION 3: विस्तृत शास्त्रीय विवरण व सांख्यिकी (Classical Overview & Descriptions) */}
+        {/* SECTION 3: Classical Overview & Stats */}
         <div className="bg-white p-6 sm:p-7 rounded-3xl border border-cream-200/90 shadow-2xs space-y-5">
           <div className="flex items-center justify-between border-b border-cream-100 pb-3">
             <h2 className="font-serif text-lg font-bold text-charcoal-900 flex items-center gap-2">
               <Scroll className="w-5 h-5 text-emerald-600" />
-              <span>३. विस्तृत शास्त्रीय विवरण व सांख्यिकी (Classical Overview & Stats)</span>
+              <span>3. Classical Overview &amp; Stats</span>
             </h2>
             <span className="text-[11px] text-charcoal-400 font-medium">
-              गहन दार्शनिक संदर्भ
+              Deep scriptural context
             </span>
           </div>
 
           <div>
             <label className="block text-xs font-bold text-charcoal-700 mb-1.5">
-              सांख्यिकी सारांश (Stats Line)
+              Stats Summary Line
             </label>
             <input
               type="text"
@@ -523,17 +521,17 @@ export const VedaFormPage: React.FC = () => {
               onChange={(e) =>
                 setFormData({ ...formData, stats: e.target.value })
               }
-              placeholder="e.g. १० मण्डल • १०२८ सूक्त • १०,५५२ मंत्र"
-              className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari font-semibold"
+              placeholder="e.g. 10 Mandalas • 1,028 Suktas • 10,552 Mantras"
+              className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-semibold"
             />
             <span className="text-[10px] text-charcoal-400 mt-1 block">
-              कार्ड के सांख्यिकी बॉक्स में प्रदर्शित संक्षिप्त सारांश
+              Brief summary shown inside the card metrics box
             </span>
           </div>
 
           <div>
             <label className="block text-xs font-bold text-charcoal-700 mb-1.5">
-              विस्तृत अवलोकन (Overview Text)
+              Overview Text
             </label>
             <textarea
               rows={4}
@@ -541,28 +539,28 @@ export const VedaFormPage: React.FC = () => {
               onChange={(e) =>
                 setFormData({ ...formData, overviewText: e.target.value })
               }
-              placeholder="वेद के बारे में संपूर्ण परिचय, ऋषि परंपरा, देवगण, याज्ञिक एवं दार्शनिक महत्व..."
-              className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-devanagari leading-relaxed"
+              placeholder="Comprehensive introduction to the scripture, Rishi lineage, presiding deities, ritual role, and philosophical significance..."
+              className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none leading-relaxed"
             />
           </div>
         </div>
 
-        {/* SECTION 4: दृश्य पूर्वावलोकन व मीडिया (Visual Media & Live Card Preview) */}
+        {/* SECTION 4: Visual Media & Live Card Preview */}
         <div className="bg-white p-6 sm:p-7 rounded-3xl border border-cream-200/90 shadow-2xs space-y-5">
           <div className="flex items-center justify-between border-b border-cream-100 pb-3">
             <h2 className="font-serif text-lg font-bold text-charcoal-900 flex items-center gap-2">
               <ImageIcon className="w-5 h-5 text-purple-600" />
-              <span>४. दृश्य पूर्वावलोकन व मीडिया (Visual Previews)</span>
+              <span>4. Visual Previews &amp; Media</span>
             </h2>
             <span className="text-[11px] text-charcoal-400 font-medium">
-              लाइव कार्ड प्रिव्यू
+              Live card preview
             </span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-charcoal-700 mb-1.5">
-                कार्ड छवि कुंजी (Card Image Key)
+                Card Image Key
               </label>
               <input
                 type="text"
@@ -570,14 +568,14 @@ export const VedaFormPage: React.FC = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, imageKey: e.target.value })
                 }
-                placeholder="e.g. card-rigveda.jpg या URL"
+                placeholder="e.g. card-rigveda.jpg or URL"
                 className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-mono"
               />
             </div>
 
             <div>
               <label className="block text-xs font-bold text-charcoal-700 mb-1.5">
-                बैनर छवि कुंजी / URL (Banner Image)
+                Banner Image Key / URL
               </label>
               <input
                 type="text"
@@ -585,7 +583,7 @@ export const VedaFormPage: React.FC = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, bannerImage: e.target.value })
                 }
-                placeholder="e.g. banner-rigveda.jpg या URL"
+                placeholder="e.g. banner-rigveda.jpg or URL"
                 className="w-full px-3.5 py-2.5 rounded-xl text-xs border border-cream-300 focus:border-saffron-500 focus:outline-none font-mono"
               />
             </div>
@@ -595,7 +593,7 @@ export const VedaFormPage: React.FC = () => {
           <div className="mt-4 pt-4 border-t border-cream-100 space-y-2">
             <div className="flex items-center gap-2 text-xs font-bold text-charcoal-600">
               <Eye className="w-4 h-4 text-saffron-600" />
-              <span>कार्ड का सजीव पूर्वावलोकन (Live Card Preview):</span>
+              <span>Live Card Preview:</span>
             </div>
 
             <div className="max-w-md mx-auto sm:mx-0 bg-white rounded-3xl border border-cream-200/90 shadow-soft overflow-hidden">
@@ -603,12 +601,12 @@ export const VedaFormPage: React.FC = () => {
               <div className="p-5 space-y-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 font-devanagari">
-                      {formData.badge || "श्रुति"}
+                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+                      {formData.badge || "Shruti"}
                     </span>
                     {formData.priest && (
                       <span className="text-[11px] font-semibold text-charcoal-600">
-                        ऋत्विक: {formData.priest}
+                        Ritvik: {formData.priest}
                       </span>
                     )}
                   </div>
@@ -618,25 +616,25 @@ export const VedaFormPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <h3 className="font-serif text-2xl font-bold text-charcoal-900 font-devanagari">
-                    {formData.name || "वेद का नाम"}
+                  <h3 className="font-serif text-2xl font-bold text-charcoal-900">
+                    {formData.name || "Scripture Name"}
                   </h3>
                   <p className="text-xs font-semibold text-saffron-700">
-                    {formData.enName || "Veda English Name"}
+                    {formData.enName || "English Name"}
                   </p>
                 </div>
 
-                <p className="text-xs text-charcoal-600 font-devanagari line-clamp-2 leading-relaxed">
+                <p className="text-xs text-charcoal-600 line-clamp-2 leading-relaxed">
                   {formData.intro ||
-                    "ऋचाओं और सूक्तों का सनातन संग्रह। स्तुति, ज्ञान, विज्ञान और आध्यात्मिक चेतना का मूल स्रोत।"}
+                    "Eternal collection of Vedic hymns and suktas — foundational source of wisdom, devotion, and spiritual awakening."}
                 </p>
 
                 <div className="p-2.5 rounded-xl bg-cream-50 text-xs flex items-center justify-between">
                   <span className="text-[11px] font-mono font-bold text-charcoal-700">
-                    {formData.stats || "१० मण्डल • १०२८ सूक्त • १०,५५२ मंत्र"}
+                    {formData.stats || "10 Mandalas • 1,028 Suktas • 10,552 Mantras"}
                   </span>
                   <span className="text-[10px] text-charcoal-400 font-bold uppercase">
-                    संरचना
+                    Structure
                   </span>
                 </div>
               </div>
@@ -650,8 +648,8 @@ export const VedaFormPage: React.FC = () => {
             <Sparkles className="w-4 h-4 text-saffron-600" />
             <span className="hidden sm:inline">
               {isEditing
-                ? `संशोधन सहेजने के लिए तैयार (${formData.name})`
-                : `नया ${categoryLabel} पंजीकृत करने के लिए तैयार`}
+                ? `Ready to save changes (${formData.enName || formData.name})`
+                : `Ready to register new ${categoryLabel}`}
             </span>
           </div>
 
@@ -660,7 +658,7 @@ export const VedaFormPage: React.FC = () => {
               to={backRoute}
               className="px-4 py-2.5 rounded-xl text-xs font-bold text-charcoal-600 hover:bg-cream-100 transition-colors"
             >
-              रद्द करें
+              Cancel
             </Link>
             <button
               type="submit"
@@ -668,7 +666,7 @@ export const VedaFormPage: React.FC = () => {
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-saffron-600 to-amber-600 hover:from-saffron-500 hover:to-amber-500 text-white text-xs font-bold shadow-md transition-all disabled:opacity-50 cursor-pointer"
             >
               <Save className="w-4 h-4" />
-              <span>{saving ? "सहेजा जा रहा है..." : isEditing ? `अपडेट सहेजें (Update ${categoryLabel})` : `नया ${categoryLabel} जोड़ें (Save)`}</span>
+              <span>{saving ? "Saving..." : isEditing ? `Save Changes (${categoryLabel})` : `Add ${categoryLabel}`}</span>
             </button>
           </div>
         </div>
