@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   ArrowLeft,
   ShieldCheck,
@@ -107,6 +107,7 @@ const ADDON_ICONS = {
 
 const PujaSinglePageBooking = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     service,
     configuration,
@@ -136,6 +137,12 @@ const PujaSinglePageBooking = () => {
     errors,
     initiateBookingAndPayment,
   } = useRitualBooking();
+
+  const specialContext = location.state?.specialPujaContext || null;
+  const ceremonyDisplayName = specialContext?.name || service?.name || "Sacred Ceremony";
+  const ceremonyHindiName = specialContext?.hindiName || service?.hindiName || "";
+  const ceremonyTirthaLocation = specialContext?.targetLocation || null;
+  const ceremonyCategory = specialContext?.category || service?.category || "Puja";
 
   const [isAstrologyOpen, setIsAstrologyOpen] = useState(false);
   const [isSpecialInstructionsOpen, setIsSpecialInstructionsOpen] = useState(false);
@@ -263,30 +270,49 @@ const PujaSinglePageBooking = () => {
           <div className="flex items-center gap-1.5 truncate">
             <Link to="/" className="hover:text-[#29231B] transition">Home</Link>
             <span>/</span>
-            <Link to="/yagya-puja/puja" className="hover:text-[#29231B] transition">Puja</Link>
-            <span>/</span>
-            <Link to={`/yagya-puja/puja/${service?.slug}`} className="hover:text-[#29231B] transition truncate max-w-[180px]">
-              {service?.name || "Ceremony"}
+            <Link to={specialContext ? "/yagya-puja/special-puja" : "/yagya-puja/puja"} className="hover:text-[#29231B] transition">
+              {specialContext ? "Special Puja" : "Puja"}
             </Link>
+            <span>/</span>
+            <span className="truncate max-w-[200px] text-[#29231B] font-medium">
+              {ceremonyDisplayName}
+            </span>
             <span>/</span>
             <span className="font-semibold text-[#B7791F]">Booking</span>
           </div>
 
           <button
             type="button"
-            onClick={() => navigate(`/yagya-puja/puja/${service?.slug}`)}
+            onClick={() => navigate(specialContext ? "/yagya-puja/special-puja" : `/yagya-puja/puja/${service?.slug}`)}
             className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#766D60] hover:text-[#29231B] transition cursor-pointer"
           >
             <ArrowLeft size={13} />
-            <span>Overview</span>
+            <span>{specialContext ? "Special Puja" : "Overview"}</span>
           </button>
         </div>
 
-        {/* Minimal Clean Heading (No marketing badges, no promotional subtitle) */}
+        {/* Minimal Clean Heading (Preserving Ceremony Identity) */}
         <div className="mb-5">
-          <h1 className="font-serif text-[24px] sm:text-[30px] font-bold text-[#29231B] tracking-tight">
-            Arrange {service?.name || "Sacred Rudrabhishek Puja"}
+          {specialContext && (
+            <div className="mb-1.5 inline-flex items-center gap-1.5 rounded-full bg-[#FFF5E5] px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-[#B7791F]">
+              <Sparkles size={11} />
+              <span>{ceremonyCategory}</span>
+            </div>
+          )}
+          <h1 className="font-serif text-[24px] sm:text-[30px] font-bold text-[#29231B] tracking-tight flex flex-wrap items-baseline gap-2">
+            <span>Arrange {ceremonyDisplayName}</span>
+            {ceremonyHindiName && (
+              <span className="text-[17px] sm:text-[21px] font-semibold text-[#B7791F]">
+                ({ceremonyHindiName})
+              </span>
+            )}
           </h1>
+          {ceremonyTirthaLocation && (
+            <p className="mt-1.5 flex items-center gap-1.5 text-[12.5px] text-[#766D60]">
+              <MapPin size={14} className="text-[#B7791F] shrink-0" />
+              <span>Sacred Tirtha: <strong className="text-[#29231B]">{ceremonyTirthaLocation}</strong></span>
+            </p>
+          )}
         </div>
 
         {/* Main 2-Column Responsive Layout */}
@@ -1152,10 +1178,10 @@ const PujaSinglePageBooking = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1c1308]/90 via-[#1c1308]/20 to-transparent" />
                 <div className="absolute bottom-2.5 left-3.5 right-3.5 text-white">
                   <span className="text-[9.5px] font-bold uppercase tracking-wider text-[#D99A20]">
-                    SACRED CEREMONY
+                    {ceremonyCategory}
                   </span>
                   <h3 className="font-serif text-[15px] font-bold leading-tight truncate">
-                    {service?.name || "Ceremony"}
+                    {ceremonyDisplayName}
                   </h3>
                 </div>
               </div>
@@ -1182,7 +1208,7 @@ const PujaSinglePageBooking = () => {
                   <div className="flex items-center justify-between text-[#766D60]">
                     <span>Venue:</span>
                     <strong className="text-[#29231B] truncate max-w-[160px]">
-                      {formatDisplayMode(configuration.arrangementMode)}
+                      {ceremonyTirthaLocation || formatDisplayMode(configuration.arrangementMode)}
                     </strong>
                   </div>
 

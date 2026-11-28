@@ -1,0 +1,61 @@
+
+name: Backend PR Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-pr-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-validation:
+    name: Backend PR Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Validate backend files
+        run: |
+          test -f backend/package.json
+          test -f backend/package-lock.json
+          test -d backend/src
+          test -d backend/migrations
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci --include=dev
+
+      - name: Validate JavaScript syntax
+        working-directory: backend
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          find src migrations \
+            -type f \
+            \( -name "*.js" -o -name "*.cjs" -o -name "*.mjs" \) \
+            -print0 |
+          while IFS= read -r -d '' file; do
+            echo "Checking: $file"
+            node --check "$file"
+          done
+
+          echo "All backend source and migration syntax checks passed."

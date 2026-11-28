@@ -2206,6 +2206,33 @@ export const RitualBookingProvider = ({
         }
         console.error("Ritual price calculation failed:", err);
         lastRequestedPayloadKeyRef.current = "";
+
+        // Graceful handling for Shodasha Samskars not yet seeded in backend database
+        const isSpecialSamskar =
+          service?.category?.includes("Samskar") ||
+          service?.isSpecialSamskar ||
+          service?.category === "Special Puja - Shodasha Samskar";
+
+        if (isSpecialSamskar && (err.response?.status === 404 || err.message?.includes("not found"))) {
+          const basePrice = Number(service?.startingPrice) || 5100;
+          const extraPandits = Math.max(0, (Number(activeConfig.panditCount) || 1) - 1);
+          const additionalPanditCharge = extraPandits * 2100;
+          const addonsTotal = (addons || []).length * 1100;
+          const totalAmount = basePrice + additionalPanditCharge + addonsTotal;
+          setPriceBreakdown({
+            basePrice,
+            additionalPanditCharge,
+            additionalPanditsCharge: additionalPanditCharge,
+            addonsTotal,
+            totalAmount,
+            calculatedAmount: totalAmount,
+            isBaselineEstimate: true,
+          });
+          setPriceError(null);
+          setIsCalculatingPrice(false);
+          return;
+        }
+
         setPriceError(
           err.response?.data?.message || err.message || "Failed to calculate authoritative price",
         );

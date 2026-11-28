@@ -278,6 +278,7 @@ const YagyaPujaNavBar = () => {
   // Determine active tab from URL path
   const getActiveTabId = () => {
     const p = location.pathname;
+    if (p.startsWith("/yagya-puja/special-puja")) return "special-puja";
     if (p.startsWith("/yagya-puja/yagya")) return "yagya";
     if (p.startsWith("/yagya-puja/japa")) return "japa";
     if (p.startsWith("/yagya-puja/path")) return "path";
@@ -299,8 +300,8 @@ const YagyaPujaNavBar = () => {
       {/* ========================================================
           ROW 1: COMPACT INFORMATION STRIP
       ========================================================= */}
-      <div className="border-b border-[#ebdcc2]/60 bg-[#fbf5e8] px-4 py-1.5 text-[11px] sm:text-[11.5px] text-[#5c4e3f]">
-        <div className="mx-auto flex max-w-[1360px] items-center justify-between gap-3">
+      <div className="border-b border-[#ebdcc2]/60 bg-[#fbf5e8] px-3 sm:px-4 lg:px-6 py-1.5 text-[11px] sm:text-[11.5px] text-[#5c4e3f]">
+        <div className="mx-auto flex max-w-[1440px] 2xl:max-w-[1536px] items-center justify-between gap-3">
           {/* Left Trust Statement */}
           <div className="flex items-center gap-2 min-w-0">
             <ShieldCheck size={13} className="text-[#b36c1e] shrink-0" />
@@ -333,44 +334,44 @@ const YagyaPujaNavBar = () => {
 
       {/* ========================================================
           ROW 2: SINGLE COMBINED BRAND & CATEGORY NAVBAR
-          [ VEDA STRUCTURE LOGO ]       [ Puja ] [ Yagya ] [ Japa ] [ Path ] [ Homa ] [ Puja in Kashi ]
+          [ VEDA STRUCTURE LOGO ]       [ Upcoming ] [ Puja ] [ Yagya ] [ Japa ] [ Path ] [ Homa ] [ Kashi ] [ Special Puja ]
       ========================================================= */}
-      <div className="relative mx-auto flex h-[62px] max-w-[1360px] items-center justify-between px-4 sm:px-6">
+      <div className="relative mx-auto flex h-[62px] max-w-[1440px] 2xl:max-w-[1536px] items-center justify-between px-3 sm:px-4 lg:px-6">
         {/* Far Left: Existing Veda Structure Branding */}
         <Link
           to="/yagya-puja"
-          className="group flex shrink-0 items-center gap-2.5 sm:gap-3 transition-opacity hover:opacity-90"
+          className="group flex shrink-0 items-center gap-2 sm:gap-2.5 transition-opacity hover:opacity-90 mr-2"
           aria-label="Veda Structure - Puja & Yagya Home"
         >
           {/* Official Veda Structure Emblem */}
           <img
             src={vedaLogo}
             alt="Veda Structure Emblem"
-            className="h-[36px] w-[36px] sm:h-[40px] sm:w-[40px] shrink-0 rounded-full object-contain drop-shadow-xs transition-transform duration-300 group-hover:scale-105"
+            className="h-[34px] w-[34px] sm:h-[38px] sm:w-[38px] shrink-0 rounded-full object-contain drop-shadow-xs transition-transform duration-300 group-hover:scale-105"
           />
 
           <div>
-            <p className="font-serif text-[17px] sm:text-[19px] font-bold leading-tight tracking-[-0.01em] text-[#241c15] whitespace-nowrap">
+            <p className="font-serif text-[16px] xl:text-[18px] 2xl:text-[19px] font-bold leading-tight tracking-[-0.01em] text-[#241c15] whitespace-nowrap">
               VEDA STRUCTURE
             </p>
             <div className="flex items-center gap-1.5">
-              <span className="text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-[0.2em] text-[#b36a18] whitespace-nowrap">
+              <span className="text-[8px] xl:text-[9px] font-bold uppercase tracking-[0.2em] text-[#b36a18] whitespace-nowrap">
                 Yagya &amp; Puja
               </span>
             </div>
           </div>
         </Link>
 
-        {/* Desktop: Navigation (Upcoming Puja + 6 Ritual Categories) */}
+        {/* Desktop: Navigation (Upcoming Puja + 7 Ritual Categories) */}
         <nav
-          className="hidden lg:flex flex-1 items-center justify-center pl-4 xl:pl-8"
+          className="hidden lg:flex flex-1 items-center justify-end xl:justify-center pl-2 xl:pl-4 2xl:pl-6 min-w-0"
           aria-label="Ritual Disciplines"
         >
-          <div className="flex items-center gap-1 xl:gap-2">
+          <div className="flex items-center gap-0.5 xl:gap-1.5 2xl:gap-2 shrink-0">
             {/* Upcoming Puja Link */}
             <Link
               to="/puja/upcoming"
-              className={`group relative flex items-center rounded-full px-3 xl:px-4 py-2 text-[13px] xl:text-[13.5px] font-semibold transition-all duration-150 cursor-pointer whitespace-nowrap ${
+              className={`group relative flex items-center rounded-full px-2.5 xl:px-3.5 2xl:px-4 py-1.5 xl:py-2 text-[12px] xl:text-[13px] 2xl:text-[13.5px] font-semibold transition-all duration-150 cursor-pointer whitespace-nowrap ${
                 location.pathname.startsWith("/puja/upcoming")
                   ? "bg-gradient-to-r from-[#d99426]/18 to-[#c98218]/12 text-[#b36a18] font-bold shadow-[inset_0_-2px_0_#c77722]"
                   : "text-[#3c3125] hover:bg-[#faf4e6] hover:text-[#b36a18]"
@@ -382,7 +383,6 @@ const YagyaPujaNavBar = () => {
             {RITUAL_NAV_TABS.map((tab) => {
               const isActive = activeTabId === tab.id;
               const isOpen = openDropdown === tab.id;
-              const data = categoriesData[tab.id];
 
               return (
                 <button
@@ -391,7 +391,7 @@ const YagyaPujaNavBar = () => {
                   onMouseEnter={() => handleMouseEnterTab(tab.id)}
                   onMouseLeave={handleMouseLeaveTab}
                   onClick={() => setOpenDropdown(isOpen ? null : tab.id)}
-                  className={`group relative flex items-center gap-1.5 xl:gap-2 rounded-full px-3 xl:px-4 py-2 text-[13px] xl:text-[13.5px] font-semibold transition-all duration-150 cursor-pointer whitespace-nowrap ${
+                  className={`group relative flex items-center gap-1 xl:gap-1.5 rounded-full px-2.5 xl:px-3.5 2xl:px-4 py-1.5 xl:py-2 text-[12px] xl:text-[13px] 2xl:text-[13.5px] font-semibold transition-all duration-150 cursor-pointer whitespace-nowrap ${
                     isActive
                       ? "bg-gradient-to-r from-[#d99426]/18 to-[#c98218]/12 text-[#b36a18] font-bold shadow-[inset_0_-2px_0_#c77722]"
                       : isOpen
@@ -401,24 +401,26 @@ const YagyaPujaNavBar = () => {
                   aria-expanded={isOpen}
                   aria-haspopup="true"
                 >
-                  <span>{tab.label}</span>
-
-                  {/* Dynamic count badge */}
-                  {data?.loaded && !data?.error && data?.items?.length > 0 && (
-                    <span className="rounded-full bg-[#fbf0db] px-1.5 py-0.5 text-[9.5px] font-bold text-[#b36a18] leading-none shrink-0 border border-[#ebdcc2]">
-                      {data.items.length}
-                    </span>
-                  )}
-
-                  {data?.loading && (
-                    <Loader2
-                      size={10}
-                      className="animate-spin text-[#c77722] shrink-0"
-                    />
-                  )}
+                  <span>
+                    {tab.id === "japa" ? (
+                      <>
+                        Japa<span className="hidden xl:inline"> / Chanting</span>
+                      </>
+                    ) : tab.id === "path" ? (
+                      <>
+                        Path<span className="hidden xl:inline"> / Recitation</span>
+                      </>
+                    ) : tab.id === "homa" ? (
+                      <>
+                        Homa<span className="hidden xl:inline"> / Havan</span>
+                      </>
+                    ) : (
+                      tab.label
+                    )}
+                  </span>
 
                   <ChevronDown
-                    size={12}
+                    size={11}
                     className={`transition-transform duration-200 shrink-0 ${
                       isOpen ? "rotate-180 text-[#b36a18]" : "text-[#8c7b69]"
                     }`}
@@ -464,7 +466,7 @@ const YagyaPujaNavBar = () => {
             onMouseEnter={handleDropdownMouseEnter}
             onMouseLeave={handleDropdownMouseLeave}
           >
-            <div className="mx-auto max-w-[1360px]">
+            <div className="mx-auto max-w-[1440px] 2xl:max-w-[1536px]">
               <div className="overflow-hidden rounded-2xl border border-[#ead2a4] bg-[#fffdfa] shadow-[0_16px_44px_rgba(70,50,25,0.13)] animate-in fade-in slide-in-from-top-1 duration-150">
                 {/* Header Row: Uppercase label on left, "View All" on right */}
                 <div className="flex items-center justify-between border-b border-[#ebdcc2] bg-gradient-to-r from-[#fcf5e9] to-[#faf0dc] px-8 py-3.5">
@@ -638,6 +640,7 @@ const YagyaPujaNavBar = () => {
                         </span>
                         <Link
                           to={tab.path}
+                          onClick={() => setIsMobileMenuOpen(false)}
                           className="text-[11.5px] font-bold text-[#b36a18] hover:underline"
                         >
                           {tab.viewAllLabel} →
@@ -674,6 +677,7 @@ const YagyaPujaNavBar = () => {
                               <Link
                                 key={item.id || item.slug}
                                 to={itemUrl}
+                                onClick={() => setIsMobileMenuOpen(false)}
                                 className={`flex min-h-[40px] items-center rounded-lg px-3 py-1.5 text-[13px] transition-colors ${
                                   isCurrent
                                     ? "bg-[#fbf0db] font-bold text-[#b36a18]"

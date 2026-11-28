@@ -308,6 +308,14 @@ export default function SpecialPujaCategoryPage({ category: categoryProp }) {
                     <div className="mt-6 pt-4 border-t border-[#f0e2cc]">
                       <Link
                         to={srv.bookingPath}
+                        state={{
+                          specialPujaContext: {
+                            name: srv.name,
+                            hindiName: srv.hindiName,
+                            category: "Vedic Birthday Puja",
+                            slug: srv.backendSlug || srv.slug,
+                          },
+                        }}
                         className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-[#eab12c] py-2.5 text-[13px] font-bold text-[#1c1308] shadow-[0_2px_10px_rgba(234,177,44,0.2)] transition-all duration-200 hover:bg-[#dda018] hover:shadow-[0_4px_14px_rgba(234,177,44,0.3)]"
                       >
                         <span>Book Ceremony</span>
@@ -376,6 +384,15 @@ export default function SpecialPujaCategoryPage({ category: categoryProp }) {
                       </p>
                       <Link
                         to={loc.bookingPath || "/yagya-puja/puja/kashi-ganga-pujan/book"}
+                        state={{
+                          specialPujaContext: {
+                            name: `Pinda Daan (${loc.name})`,
+                            hindiName: "पिण्ड दान एवं पितृ तर्पण",
+                            targetLocation: `${loc.name}, ${loc.state} (${loc.holySites.join(", ")})`,
+                            category: "Pinda Daan",
+                            slug: "kashi-ganga-pujan",
+                          },
+                        }}
                         className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-[#eab12c] py-2.5 text-[13px] font-bold text-[#1c1308] shadow-[0_2px_10px_rgba(234,177,44,0.2)] transition-all duration-200 hover:bg-[#dda018] hover:shadow-[0_4px_14px_rgba(234,177,44,0.3)]"
                       >
                         <span>Book at {loc.name}</span>
@@ -435,6 +452,14 @@ export default function SpecialPujaCategoryPage({ category: categoryProp }) {
                     <div className="mt-6 pt-4 border-t border-[#f0e2cc]">
                       <Link
                         to={c.bookingPath || "/yagya-puja/puja/kashi-ganga-pujan/book"}
+                        state={{
+                          specialPujaContext: {
+                            name: c.name,
+                            hindiName: c.hindiName,
+                            category: "Tirth Shradh",
+                            slug: "kashi-ganga-pujan",
+                          },
+                        }}
                         className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-[#eab12c] py-2.5 text-[13px] font-bold text-[#1c1308] shadow-[0_2px_10px_rgba(234,177,44,0.2)] transition-all duration-200 hover:bg-[#dda018] hover:shadow-[0_4px_14px_rgba(234,177,44,0.3)]"
                       >
                         <span>Book Ceremony</span>
