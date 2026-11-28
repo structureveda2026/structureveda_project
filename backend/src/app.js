@@ -62,6 +62,8 @@ import {
   libraryBranchPublicRoutes,
   libraryMantraStotraAdminRoutes,
   libraryMantraStotraPublicRoutes,
+  librarySectionAdminRoutes,
+  librarySectionPublicRoutes,
 } from "./modules/library/index.js";
 
 const app = express();
@@ -145,6 +147,10 @@ app.use("/api/admin/library/blogs", blogAdminRoutes);
 app.use("/api/admin/blogs", blogAdminRoutes);
 app.use("/api/library/blogs", blogPublicRoutes);
 app.use("/api/blogs", blogPublicRoutes);
+
+// Library Sections (Dynamic Submenu & Sidebar Sections: Mantra, Stotra, Sukti, Puranas, etc.)
+app.use("/api/admin/library/sections", librarySectionAdminRoutes);
+app.use("/api/library/sections", librarySectionPublicRoutes);
 
 // Library Categories & Subcategories / Branches Endpoints (Mantra-Stotra 7 Deities)
 app.use("/api/admin/library/categories", libraryBranchAdminRoutes);

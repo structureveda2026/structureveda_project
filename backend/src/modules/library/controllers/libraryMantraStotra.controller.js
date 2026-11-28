@@ -35,6 +35,16 @@ export const getPublicItems = async (req, res) => {
   }
 };
 
+export const getPublicTypes = async (_req, res) => {
+  try {
+    const types = await LibraryMantraStotraService.getAvailableTypes();
+    return res.status(200).json({ success: true, data: { types } });
+  } catch (error) {
+    console.error("Error in getPublicTypes:", error);
+    return handleControllerError(res, error, "Failed to fetch content types");
+  }
+};
+
 /**
  * Public single item detail (increments viewsCount)
  */

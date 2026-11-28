@@ -14,6 +14,20 @@ const LibraryBranch = sequelize.define(
       allowNull: false,
       defaultValue: "mantra-stotra",
       field: "category_slug",
+      set(val) {
+        const s = String(val || "mantra-stotra").trim().toLowerCase();
+        if (s === "sukti" || s === "suktas" || s === "sukta" || s === "suktis") {
+          this.setDataValue("categorySlug", "sukti");
+        } else if (s === "stotra" || s === "stotras" || s === "stotram") {
+          this.setDataValue("categorySlug", "stotra");
+        } else if (s === "mantra" || s === "mantras") {
+          this.setDataValue("categorySlug", "mantra");
+        } else if (s === "mantra-stotra" || s === "mantras-stotras") {
+          this.setDataValue("categorySlug", "mantra-stotra");
+        } else {
+          this.setDataValue("categorySlug", s);
+        }
+      },
     },
     slug: {
       type: DataTypes.STRING(100),

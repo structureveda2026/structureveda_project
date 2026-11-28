@@ -17,6 +17,7 @@ export const normalizeCategorySlug = (rawSlug = "mantra-stotra") => {
   const s = String(rawSlug || "mantra-stotra").trim().toLowerCase();
   if (s === "mantra" || s === "mantras") return "mantra";
   if (s === "stotra" || s === "stotram" || s === "stotras") return "stotra";
+  if (s === "sukti" || s === "suktis" || s === "sukta" || s === "suktas") return "sukti";
   if (s === "mantra-stotra" || s === "mantras-stotras") return "mantra-stotra";
   return s || "mantra-stotra";
 };
@@ -34,6 +35,7 @@ const normalizeTypeFilter = (rawType) => {
   const s = String(rawType).trim().toLowerCase();
   if (s === "mantra" || s === "mantras") return "mantra";
   if (s === "stotra" || s === "stotram" || s === "stotras") return "stotra";
+  if (s === "sukti" || s === "suktis" || s === "sukta" || s === "suktas") return "sukti";
   if (s === "all") return "";
   return s;
 };
@@ -124,10 +126,10 @@ class LibraryBranchService {
 
       const where = {};
       if (normalizedCat === "mantra-stotra") {
-        if (typeFilter === "mantra" || typeFilter === "stotra") {
+        if (typeFilter === "mantra" || typeFilter === "stotra" || typeFilter === "sukti") {
           where.categorySlug = typeFilter;
         } else {
-          where.categorySlug = { [Op.in]: ["mantra", "stotra", "mantra-stotra"] };
+          where.categorySlug = { [Op.in]: ["mantra", "stotra", "sukti", "mantra-stotra"] };
         }
       } else {
         where.categorySlug = normalizedCat;
@@ -159,11 +161,11 @@ class LibraryBranchService {
     let filtered = [...MEMORY_BRANCHES];
 
     if (normalizedCat === "mantra-stotra") {
-      if (typeFilter === "mantra" || typeFilter === "stotra") {
+      if (typeFilter === "mantra" || typeFilter === "stotra" || typeFilter === "sukti") {
         filtered = filtered.filter((b) => b.categorySlug === typeFilter);
       } else {
         filtered = filtered.filter((b) =>
-          ["mantra", "stotra", "mantra-stotra"].includes(b.categorySlug)
+          ["mantra", "stotra", "sukti", "mantra-stotra"].includes(b.categorySlug)
         );
       }
     } else {
@@ -202,7 +204,7 @@ class LibraryBranchService {
         branch = await LibraryBranch.findOne({
           where: {
             ...baseWhere,
-            categorySlug: { [Op.in]: ["mantra", "stotra", "mantra-stotra"] },
+            categorySlug: { [Op.in]: ["mantra", "stotra", "sukti", "mantra-stotra"] },
           },
         });
       } else {
@@ -230,7 +232,7 @@ class LibraryBranchService {
         branch = MEMORY_BRANCHES.find(
           (b) =>
             (b.slug === slug || b.id === slug) &&
-            (!b.categorySlug || ["mantra", "stotra", "mantra-stotra"].includes(b.categorySlug)) &&
+            (!b.categorySlug || ["mantra", "stotra", "sukti", "mantra-stotra"].includes(b.categorySlug)) &&
             (isAdmin || b.status === "ACTIVE")
         );
       } else {
@@ -265,7 +267,9 @@ class LibraryBranchService {
         await import("./libraryMantraStotra.service.js")
       ).default;
       const itemType =
-        normalizedCat === "mantra" || normalizedCat === "stotra" ? normalizedCat : undefined;
+        normalizedCat === "mantra" || normalizedCat === "stotra" || normalizedCat === "sukti"
+          ? normalizedCat
+          : undefined;
       const res = await LibraryMantraStotraService.getItems(
         {
           branchSlug: plainBranch.slug,
@@ -329,6 +333,8 @@ class LibraryBranchService {
         ? "10+ Stotras"
         : categorySlug === "mantra"
         ? "10+ Mantras"
+        : categorySlug === "sukti"
+        ? "10+ Suktis"
         : "10+ Mantras & Stotras";
 
     try {

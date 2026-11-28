@@ -29,6 +29,7 @@ import Astrologer from "./astrologerModel.js";
 import AstrologerPackage from "./astrologerPackageModel.js";
 import LibraryBranch from "./libraryBranchModel.js";
 import LibraryMantraStotra from "./libraryMantraStotraModel.js";
+import LibrarySection from "./librarySectionModel.js";
 
 // Library Branch & Mantra-Stotra Associations
 if (!LibraryBranch.associations?.items) {
@@ -330,5 +331,6 @@ export {
   AstrologerPackage,
   LibraryBranch,
   LibraryMantraStotra,
+  LibrarySection,
 };
 export default db;

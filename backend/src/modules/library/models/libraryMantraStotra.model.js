@@ -17,11 +17,20 @@ const LibraryMantraStotra = sequelize.define(
       },
     },
     type: {
-      type: DataTypes.STRING(30),
+      type: DataTypes.STRING(50),
       allowNull: false,
       defaultValue: "mantra",
-      validate: {
-        isIn: [["mantra", "stotra"]],
+      set(val) {
+        const s = String(val || "mantra").trim().toLowerCase();
+        if (s === "sukti" || s === "suktas" || s === "sukta" || s === "suktis") {
+          this.setDataValue("type", "sukti");
+        } else if (s === "stotra" || s === "stotras" || s === "stotram") {
+          this.setDataValue("type", "stotra");
+        } else if (s === "mantra" || s === "mantras") {
+          this.setDataValue("type", "mantra");
+        } else {
+          this.setDataValue("type", s);
+        }
       },
     },
     categorySlug: {
@@ -29,6 +38,20 @@ const LibraryMantraStotra = sequelize.define(
       allowNull: false,
       defaultValue: "mantra",
       field: "category_slug",
+      set(val) {
+        const s = String(val || "mantra").trim().toLowerCase();
+        if (s === "sukti" || s === "suktas" || s === "sukta" || s === "suktis") {
+          this.setDataValue("categorySlug", "sukti");
+        } else if (s === "stotra" || s === "stotras" || s === "stotram") {
+          this.setDataValue("categorySlug", "stotra");
+        } else if (s === "mantra" || s === "mantras") {
+          this.setDataValue("categorySlug", "mantra");
+        } else if (s === "mantra-stotra" || s === "mantras-stotras") {
+          this.setDataValue("categorySlug", "mantra-stotra");
+        } else {
+          this.setDataValue("categorySlug", s);
+        }
+      },
     },
     branchId: {
       type: DataTypes.STRING(100),

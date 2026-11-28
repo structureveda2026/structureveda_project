@@ -1,3 +1,12 @@
 # Agent Internal Guidelines & Memory
 .veda_project_guidelines.md
 VEDA_PROJECT_RULES.md
+
+# Dependencies & Tests
+node_modules/
+e2e-tests/
+backend/test_sukti_enum_branch_verification.cjs
+.env
+.env.*
+!.env.example
+

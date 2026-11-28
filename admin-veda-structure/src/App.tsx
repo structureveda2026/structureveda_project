@@ -304,6 +304,13 @@ export default function App() {
               {/* Separated Stotra Branches */}
               <Route path="library/stotra-branches" element={<MantraStotraBranchesPage defaultCategory="stotra" />} />
               <Route path="stotra-branches" element={<MantraStotraBranchesPage defaultCategory="stotra" />} />
+              {/* Separated Sukti Branches */}
+              <Route path="library/sukti-branches" element={<MantraStotraBranchesPage defaultCategory="sukti" />} />
+              <Route path="sukti-branches" element={<MantraStotraBranchesPage defaultCategory="sukti" />} />
+              {/* Dynamic Library Category Branches */}
+              <Route path="library/:categorySlug-branches" element={<MantraStotraBranchesPage />} />
+              <Route path="library/:category/branches" element={<MantraStotraBranchesPage />} />
+              <Route path=":categorySlug-branches" element={<MantraStotraBranchesPage />} />
               {/* Mantra & Stotra Items Management */}
               <Route path="library/mantra-stotra-items" element={<MantraStotraListPage />} />
               <Route path="mantra-stotra-items" element={<MantraStotraListPage />} />

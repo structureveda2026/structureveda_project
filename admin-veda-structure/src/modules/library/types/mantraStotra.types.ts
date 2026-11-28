@@ -1,4 +1,4 @@
-export type MantraStotraType = "mantra" | "stotra";
+export type MantraStotraType = "mantra" | "stotra" | "sukti" | string;
 export type MantraStotraStatus = "ACTIVE" | "INACTIVE" | "DRAFT";
 
 export interface MantraStotraVerse {

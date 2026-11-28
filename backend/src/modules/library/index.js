@@ -29,6 +29,11 @@ import LibraryMantraStotraService from "./services/libraryMantraStotra.service.j
 import libraryMantraStotraAdminRoutes from "./routes/libraryMantraStotra.admin.routes.js";
 import libraryMantraStotraPublicRoutes from "./routes/libraryMantraStotra.public.routes.js";
 
+import LibrarySection from "./models/librarySection.model.js";
+import LibrarySectionService from "./services/librarySection.service.js";
+import librarySectionAdminRoutes from "./routes/librarySection.admin.routes.js";
+import librarySectionPublicRoutes from "./routes/librarySection.public.routes.js";
+
 if (!LibraryBranch.associations?.items) {
   LibraryBranch.hasMany(LibraryMantraStotra, {
     foreignKey: "branchId",
@@ -57,6 +62,10 @@ export {
   LibraryMantraStotraService,
   libraryMantraStotraAdminRoutes,
   libraryMantraStotraPublicRoutes,
+  LibrarySection,
+  LibrarySectionService,
+  librarySectionAdminRoutes,
+  librarySectionPublicRoutes,
   Veda,
   VedaNode,
   VedaMantra,
@@ -81,6 +90,7 @@ export default {
     VedaMantra,
     LibraryBranch,
     LibraryMantraStotra,
+    LibrarySection,
   },
   services: {
     BlogService,
@@ -90,6 +100,7 @@ export default {
     UpanishadDarshanService,
     LibraryBranchService,
     LibraryMantraStotraService,
+    LibrarySectionService,
   },
   routes: {
     blogAdmin: blogAdminRoutes,
@@ -98,6 +109,8 @@ export default {
     libraryBranchPublic: libraryBranchPublicRoutes,
     libraryMantraStotraAdmin: libraryMantraStotraAdminRoutes,
     libraryMantraStotraPublic: libraryMantraStotraPublicRoutes,
+    librarySectionAdmin: librarySectionAdminRoutes,
+    librarySectionPublic: librarySectionPublicRoutes,
     vedaPublic: vedaPublicRoutes,
     vedaAdmin: vedaAdminRoutes,
     vedaMantraAdmin: vedaMantraAdminRoutes,

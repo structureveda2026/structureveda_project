@@ -2,6 +2,7 @@ import { Op } from "sequelize";
 import LibraryMantraStotra from "../models/libraryMantraStotra.model.js";
 import LibraryBranch from "../models/libraryBranch.model.js";
 import LibraryBranchService, { normalizeCategorySlug } from "./libraryBranch.service.js";
+import LibrarySectionService from "./librarySection.service.js";
 import { sanitizeSlug, calculateReadTime, normalizeTags } from "../helpers/blog.helper.js";
 import {
   DEFAULT_MANTRA_BRANCHES_UNIFIED,
@@ -18,11 +19,12 @@ let MEMORY_ITEMS = JSON.parse(JSON.stringify(DEFAULT_MANTRA_STOTRAS)).map((item)
 
 let tableSynced = false;
 
-const normalizeItemType = (rawType) => {
+export const normalizeItemType = (rawType) => {
   if (!rawType) return "";
   const s = String(rawType).trim().toLowerCase();
   if (s === "mantra" || s === "mantras") return "mantra";
   if (s === "stotra" || s === "stotram" || s === "stotras") return "stotra";
+  if (s === "sukti" || s === "suktis" || s === "sukta" || s === "suktas") return "sukti";
   if (s === "all") return "";
   return s;
 };
@@ -184,7 +186,7 @@ class LibraryMantraStotraService {
       await this.ensureSeeded();
 
       const where = {};
-      if (type && (type === "mantra" || type === "stotra")) {
+      if (type) {
         where.type = type;
       }
       if (categorySlug && categorySlug !== "mantra-stotra") {
@@ -280,11 +282,11 @@ class LibraryMantraStotraService {
     // In-memory fallback
     let filtered = [...MEMORY_ITEMS];
 
-    if (type && (type === "mantra" || type === "stotra")) {
+    if (type) {
       filtered = filtered.filter((i) => i.type === type);
     }
     if (categorySlug && categorySlug !== "mantra-stotra") {
-      filtered = filtered.filter((i) => i.categorySlug === categorySlug);
+      filtered = filtered.filter((i) => normalizeCategorySlug(i.categorySlug) === categorySlug);
     }
     if (branchId) {
       filtered = filtered.filter((i) => i.branchId === branchId);
@@ -359,6 +361,29 @@ class LibraryMantraStotraService {
   /**
    * Get single item by slug or id
    */
+  async getAvailableTypes() {
+    const known = ["mantra", "stotra", "sukti"];
+    let sectionSlugs = [];
+    try {
+      const sections = await LibrarySectionService.getSections(false);
+      sectionSlugs = sections.map((s) => s.slug).filter(Boolean);
+    } catch {
+      // ignore
+    }
+    try {
+      await this.ensureSeeded();
+      const rows = await LibraryMantraStotra.findAll({
+        attributes: ["type"],
+        where: { status: "ACTIVE" },
+        group: ["type"],
+        raw: true,
+      });
+      return [...new Set([...known, ...sectionSlugs, ...rows.map((row) => normalizeItemType(row.type)).filter(Boolean)])];
+    } catch {
+      return [...new Set([...known, ...sectionSlugs, ...MEMORY_ITEMS.map((item) => normalizeItemType(item.type)).filter(Boolean)])];
+    }
+  }
+
   async getItemByIdOrSlug(idOrSlug, isAdmin = false, incrementViews = false) {
     try {
       await this.ensureSeeded();
@@ -435,7 +460,8 @@ class LibraryMantraStotraService {
       throw err;
     }
 
-    const normalizedType = normalizeItemType(data.type) === "stotra" ? "stotra" : "mantra";
+    const parsedType = normalizeItemType(data.type);
+    const normalizedType = parsedType || "mantra";
     const categorySlug = data.categorySlug
       ? normalizeCategorySlug(data.categorySlug)
       : normalizedType;
@@ -614,7 +640,8 @@ class LibraryMantraStotraService {
       updateData.slug = sanitizeSlug(updateData.slug || "");
     }
     if (typeof updateData.type !== "undefined") {
-      updateData.type = normalizeItemType(updateData.type) === "stotra" ? "stotra" : "mantra";
+      const parsedType = normalizeItemType(updateData.type);
+      updateData.type = parsedType || "mantra";
     }
     if (typeof updateData.categorySlug !== "undefined") {
       updateData.categorySlug = normalizeCategorySlug(updateData.categorySlug);
@@ -657,7 +684,7 @@ class LibraryMantraStotraService {
           dbUpdateData.type !== undefined &&
           data.categorySlug === undefined &&
           dbUpdateData.type !== item.type &&
-          item.categorySlug === item.type
+          normalizeCategorySlug(item.categorySlug) === item.type
         ) {
           dbUpdateData.categorySlug = dbUpdateData.type;
         }
@@ -752,7 +779,7 @@ class LibraryMantraStotraService {
       memUpdateData.type !== undefined &&
       data.categorySlug === undefined &&
       memUpdateData.type !== current.type &&
-      current.categorySlug === current.type
+      normalizeCategorySlug(current.categorySlug) === current.type
     ) {
       memUpdateData.categorySlug = memUpdateData.type;
     }

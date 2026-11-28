@@ -50,7 +50,7 @@ function getErrorMessage(err: unknown, fallback: string): string {
 }
 
 function parseTypeFilter(value: string | null): "" | MantraStotraType {
-  if (value === "mantra" || value === "stotra") return value;
+  if (value) return value.trim().toLowerCase();
   return "";
 }
 
@@ -473,6 +473,26 @@ export default function MantraStotraListPage() {
             >
               Stotras
             </button>
+            <button
+              type="button"
+              onClick={() => handleTypeChange("sukti")}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
+                typeFilter === "sukti"
+                  ? "bg-saffron-600 text-white shadow-2xs"
+                  : "bg-cream-100/70 text-charcoal-600 hover:bg-cream-100"
+              }`}
+            >
+              Suktis
+            </button>
+            {!["", "mantra", "stotra", "sukti"].includes(typeFilter) && (
+              <button
+                type="button"
+                onClick={() => handleTypeChange(typeFilter)}
+                className="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition bg-saffron-600 text-white shadow-2xs"
+              >
+                {typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}
+              </button>
+            )}
           </div>}
 
           {/* Search + Dropdown Filters */}
