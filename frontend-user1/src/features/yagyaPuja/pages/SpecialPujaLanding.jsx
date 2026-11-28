@@ -507,6 +507,14 @@ export default function SpecialPujaLanding() {
                 <div className="mt-5 pt-3 border-t border-[#f0e2cc]">
                   <Link
                     to={srv.bookingPath}
+                    state={{
+                      specialPujaContext: {
+                        name: srv.name,
+                        hindiName: srv.hindiName,
+                        category: "Vedic Birthday Puja",
+                        slug: srv.backendSlug || srv.slug,
+                      },
+                    }}
                     className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-[#eab12c] py-2.5 text-[12.5px] font-bold text-[#1c1308] shadow-[0_2px_10px_rgba(234,177,44,0.2)] transition-all duration-200 hover:bg-[#dda018] hover:shadow-[0_4px_14px_rgba(234,177,44,0.3)]"
                   >
                     <span>Book Ceremony</span>
@@ -575,10 +583,26 @@ export default function SpecialPujaLanding() {
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-[#f0e2cc]">
+                <div className="mt-4 pt-3 border-t border-[#f0e2cc] flex items-center justify-between gap-2">
                   <p className="text-[10.5px] font-medium text-[#7d6f60] italic truncate">
                     Best: {loc.idealTime}
                   </p>
+                  <Link
+                    to={loc.bookingPath || "/yagya-puja/puja/kashi-ganga-pujan/book"}
+                    state={{
+                      specialPujaContext: {
+                        name: `Pinda Daan (${loc.name})`,
+                        hindiName: "पिण्ड दान एवं पितृ तर्पण",
+                        targetLocation: `${loc.name}, ${loc.state} (${loc.holySites.join(", ")})`,
+                        category: "Pinda Daan",
+                        slug: "kashi-ganga-pujan",
+                      },
+                    }}
+                    className="inline-flex items-center gap-1 rounded-full bg-[#fbf5ea] px-3 py-1 text-[11px] font-bold text-[#b36c1e] hover:bg-[#eab12c] hover:text-[#1c1308] transition-colors shrink-0"
+                  >
+                    <span>Arrange</span>
+                    <ArrowRight size={11} />
+                  </Link>
                 </div>
               </div>
             ))}
@@ -702,13 +726,27 @@ export default function SpecialPujaLanding() {
                   </div>
                 </div>
 
-                <div className="mt-5 pt-3 border-t border-[#f0e2cc]">
+                <div className="mt-5 pt-3 border-t border-[#f0e2cc] flex items-center justify-between gap-2">
                   <Link
                     to="/yagya-puja/special-puja/tirth-shradh"
-                    className="inline-flex w-full items-center justify-between text-[12px] font-bold text-[#b36c1e] group-hover:text-[#8e4f0d]"
+                    className="text-[11.5px] font-medium text-[#7d6f60] hover:text-[#b36c1e]"
                   >
-                    <span>View Ritual Elements</span>
-                    <ArrowRight size={12} className="transition-transform group-hover:translate-x-1" />
+                    Details
+                  </Link>
+                  <Link
+                    to={c.bookingPath || "/yagya-puja/puja/kashi-ganga-pujan/book"}
+                    state={{
+                      specialPujaContext: {
+                        name: c.name,
+                        hindiName: c.hindiName,
+                        category: "Tirth Shradh",
+                        slug: "kashi-ganga-pujan",
+                      },
+                    }}
+                    className="inline-flex items-center gap-1 rounded-full bg-[#fbf5ea] px-3 py-1 text-[11px] font-bold text-[#b36c1e] hover:bg-[#eab12c] hover:text-[#1c1308] transition-colors"
+                  >
+                    <span>Book Ritual</span>
+                    <ArrowRight size={11} />
                   </Link>
                 </div>
               </div>
